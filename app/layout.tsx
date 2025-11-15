@@ -1,6 +1,9 @@
 import Script from "next/script";
 import { Suspense } from "react";
-import "../styles/globals.css";
+
+// ✅ Import the global CSS from *this* folder
+import "./globals.css";
+
 import GATracker from "./ga-tracker";
 
 export const metadata = {
@@ -8,20 +11,27 @@ export const metadata = {
   description: "Global drug matching for safe travel and relocation.",
 };
 
-const GA_ID = "G-CSY32ESDM8";
+const GA_ID = "G-0T2C9SV02B";
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html lang="en">
       <head>
-        {/* ✅ Add Google Fonts */}
+        {/* Google Font */}
         <link
           href="https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap"
           rel="stylesheet"
         />
 
-        {/* ✅ Google Analytics Scripts */}
-        <Script src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`} strategy="afterInteractive" />
+        {/* Google Analytics Scripts */}
+        <Script
+          src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}
+          strategy="afterInteractive"
+        />
         <Script id="gtag-init" strategy="afterInteractive">
           {`
             window.dataLayer = window.dataLayer || [];
@@ -31,7 +41,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           `}
         </Script>
       </head>
-      <body style={{ overflowY: "scroll" }}>
+      <body style={{ overflow: "scroll" }}>
         <Suspense fallback={null}>
           <GATracker />
         </Suspense>
