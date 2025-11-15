@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Medicea</string>
+    <string name="title_activity_main">Medicea</string>
+    <string name="package_name">com.medicea.app</string>
+    <string name="custom_url_scheme">com.medicea.app</string>
+</resources>
