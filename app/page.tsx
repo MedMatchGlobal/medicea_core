@@ -1,6 +1,7 @@
 /* 
 ===============================================================================
 Fixed banner logic for "Generics" label + country, and removed banner from Leaflet
++ Added basic free-usage limits + Premium paywall
 ===============================================================================
 */
 
@@ -12,8 +13,11 @@ import { LanguageProvider, useLanguage } from './LanguageProvider';
 import LanguageButton from './components/LanguageButton';
 import SymptomTriage from './components/SymptomTriage';
 
+import PremiumPaywall from './components/PremiumPaywall';
 import enStrings from './i18n/en.json';
 import { isRTL, loadStrings } from './i18n/i18n';
+import { registerUsage } from './lib/subscriptionClient';
+import { hasFreeQuota, incrementUsage } from './lib/usageTracker';
 
 /* -------------------------- WRAPPER -------------------------- */
 
@@ -337,12 +341,12 @@ function stylizeBrand(html: string) {
 }
 
 function boldConditionHeadings(raw: string) {
-  if (!raw) return "";
+  if (!raw) return '';
   let out = raw;
-  out = out.replace(/^(\s*\d+\)\s+.*)$/gm, "<strong>$1</strong>");
-  out = out.replace(/^(?!\s*[-•*]\s)(.+?:)\s*$/gm, "<strong>$1</strong>");
-  out = out.replace(/\r?\n/g, "<br>");
-  out = out.replace(/&lt;(\/?strong)&gt;/g, "<$1>");
+  out = out.replace(/^(\s*\d+\)\s+.*)$/gm, '<strong>$1</strong>');
+  out = out.replace(/^(?!\s*[-•*]\s)(.+?:)\s*$/gm, '<strong>$1</strong>');
+  out = out.replace(/\r?\n/g, '<br>');
+  out = out.replace(/&lt;(\/?strong)&gt;/g, '<$1>');
   return out;
 }
 
@@ -519,6 +523,8 @@ function Home() {
     | 'doctor'
     | 'triage';
 
+  type PaywallReason = 'equivalentSearch' | 'leaflet' | 'pets' | 'generics' | 'triage';
+
   const [originCode, setOriginCode] = useState('');
   const [targetCode, setTargetCode] = useState('');
   const [selectedDrug, setSelectedDrug] = useState('');
@@ -538,6 +544,8 @@ function Home() {
   const [userAddress, setUserAddress] = useState('');
   const [useGeo, setUseGeo] = useState(false);
   const [geoStr, setGeoStr] = useState('');
+  const [paywallVisible, setPaywallVisible] = useState(false);
+  const [paywallReason, setPaywallReason] = useState<PaywallReason | null>(null);
 
   const specList = useMemo(() => {
     const fromLang = Array.isArray((t as any)?.ui?.specialties) ? ((t as any).ui.specialties as string[]) : [];
@@ -578,12 +586,52 @@ function Home() {
   const plainText = useMemo(() => (typeof result === 'string' ? result : ''), [result]);
 
   const formattedHTML = useMemo(() => {
-    if (!plainText) return "";
-    return mode === "condition" ? boldConditionHeadings(plainText) : plainText;
+    if (!plainText) return '';
+    return mode === 'condition' ? boldConditionHeadings(plainText) : plainText;
   }, [plainText, mode]);
 
   const handleSearch = async () => {
     if (mode === 'triage') return;
+
+    // PREMIUM-ONLY MODES: Pets, Generics, Triage (search button)
+    if (mode === 'pets' || mode === 'generic' || mode === 'triage') {
+      const reason: PaywallReason =
+        mode === 'pets' ? 'pets' : mode === 'generic' ? 'generics' : 'triage';
+      setPaywallReason(reason);
+      setPaywallVisible(true);
+      return;
+    }
+
+    // FREE-TIER LIMITS: International equivalents & standalone leaflet (local, client-side)
+    if (mode === 'international' && !hasFreeQuota('equivalentSearch')) {
+      setPaywallReason('equivalentSearch');
+      setPaywallVisible(true);
+      return;
+    }
+    if (mode === 'leaflet' && !hasFreeQuota('leaflet')) {
+      setPaywallReason('leaflet');
+      setPaywallVisible(true);
+      return;
+    }
+
+    // SERVER-SIDE LIMITS: enforce quotas in PlanetScale via subscription API
+    if (mode === 'international') {
+      const { allowed } = await registerUsage('EQUIVALENT_SEARCH');
+      if (!allowed) {
+        setPaywallReason('equivalentSearch');
+        setPaywallVisible(true);
+        return;
+      }
+    }
+
+    if (mode === 'leaflet') {
+      const { allowed } = await registerUsage('LEAFLET');
+      if (!allowed) {
+        setPaywallReason('leaflet');
+        setPaywallVisible(true);
+        return;
+      }
+    }
 
     setLoading(true);
     setResult(F(ui, 'searching', 'Searching…'));
@@ -599,7 +647,13 @@ function Home() {
     const drugDosage = selectedDosage || '';
 
     try {
+      // Count usage locally only after all checks passed
+      if (mode === 'international') {
+        incrementUsage('equivalentSearch');
+      }
+
       if (mode === 'leaflet') {
+        incrementUsage('leaflet');
         const res = await fetch('/api/openai/leaflet', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -620,9 +674,9 @@ You are a careful medical information assistant. Write in ${lang}. Audience: lay
 **Do NOT diagnose. Do NOT give specific doses.** Use metric units. If something is unknown, say "Not available".
 
 Condition: "${selectedCondition}"
-Country focus: ${country || "Not specified"}
-User context (optional): ${conditionDetails || "None"}
-Allergies / other conditions (optional): ${userNotes || "None"}
+Country focus: ${country || 'Not specified'}
+User context (optional): ${conditionDetails || 'None'}
+Allergies / other conditions (optional): ${userNotes || 'None'}
 
 Return **clear, concise Markdown** with these sections and short bullet points where natural. Use localized headings if obvious in ${lang}:
 
@@ -1367,6 +1421,20 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
           </a>
         </div>
       </div>
+
+      {/* PREMIUM PAYWALL */}
+      <PremiumPaywall
+        visible={paywallVisible}
+        reason={paywallReason ?? undefined}
+        onClose={() => setPaywallVisible(false)}
+        onUpgrade={() => {
+          setPaywallVisible(false);
+          if (typeof window !== 'undefined') {
+            // Replace this URL later with your real Google Play / Premium page
+            window.open('https://medicea.global/premium', '_blank');
+          }
+        }}
+      />
 
       {/* TRANSLATION OVERLAY */}
       {translating && (

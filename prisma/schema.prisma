@@ -1,0 +1,540 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider         = "postgresql"
+  url              = env("DATABASE_URL")
+  shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
+}
+
+// =========================
+// Core auth user
+// =========================
+
+model User {
+  id    String   @id @default(cuid())
+  email String   @unique
+  name  String?
+  image String?
+  role  UserRole @default(USER)
+
+  profile      UserProfile?
+  accounts     Account[]
+  sessions     Session[]
+  subscription Subscription?
+  devices      Device[]
+  usageLogs    UsageLog[]
+  createdAt    DateTime     @default(now())
+}
+
+// =========================
+// Patient-facing profile (mediceaPLUS)
+// =========================
+
+model UserProfile {
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  firstName   String?
+  lastName    String?
+  sex         Sex?
+  dateOfBirth DateTime?
+
+  // Flexible address, with extra field for things like "Interno", "Scala", etc.
+  addressLine1 String?
+  addressLine2 String?
+  city         String?
+  region       String? // state / province / region
+  postalCode   String?
+  country      String?
+  addressExtra String? // e.g. "Interno 4, Scala B"
+
+  phonePrimary   String?
+  phoneSecondary String?
+
+  // Emergency contact
+  emergencyName         String?
+  emergencyRelationship String?
+  emergencyPhone        String?
+
+  // Optional clinical basics
+  bloodType    String? // e.g. "A+", "O-"
+  organDonor   Boolean?
+  chronicNotes String? // free text, e.g. "Complex cardiac history"
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Core sections
+  conditions     Condition[]
+  medications    Medication[]
+  allergies      Allergy[]
+  labResults     LabResult[]
+  documents      Document[]
+  timelineEvents TimelineEvent[]
+
+  // NEW sections
+  surgeries  SurgeryProcedure[]
+  therapies  TherapyCourse[]
+  encounters Encounter[]
+  imaging    ImagingStudy[]
+  warnings   Warning[]
+}
+
+// =========================
+// NextAuth models
+// =========================
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// =========================
+// Clinical enums
+// =========================
+
+enum Sex {
+  MALE
+  FEMALE
+  OTHER
+  UNKNOWN
+}
+
+enum ConditionStatus {
+  ACTIVE
+  RESOLVED
+  INTERMITTENT
+}
+
+enum MedicationStatus {
+  ACTIVE
+  STOPPED
+  PRN // as needed
+}
+
+enum AllergySeverity {
+  MILD
+  MODERATE
+  SEVERE
+}
+
+enum LabResultInterpretation {
+  HIGH
+  LOW
+  NORMAL
+  ABNORMAL
+  UNKNOWN
+}
+
+enum TimelineEventType {
+  DIAGNOSIS
+  MEDICATION_STARTED
+  MEDICATION_STOPPED
+  PROCEDURE
+  HOSPITALIZATION
+  LAB
+  DOCUMENT
+  OTHER
+}
+
+enum UserRole {
+  USER
+  PRO
+  ADMIN
+}
+
+// NEW: for Warnings / Red flags
+enum WarningLevel {
+  INFO
+  CAUTION
+  DANGER
+}
+
+// =========================
+// Clinical core models (PLUS)
+// =========================
+
+model Condition {
+  id            String      @id @default(cuid())
+  userProfile   UserProfile @relation(fields: [userProfileId], references: [id], onDelete: Cascade)
+  userProfileId String
+
+  name        String // e.g. "Hypertension"
+  code        String? // ICD-10 / SNOMED code if ever needed
+  status      ConditionStatus @default(ACTIVE)
+  diagnosedAt DateTime?
+  resolvedAt  DateTime?
+  notes       String?
+
+  warnings Warning[] // red-flag entries linked to this condition
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Medication {
+  id            String      @id @default(cuid())
+  userProfile   UserProfile @relation(fields: [userProfileId], references: [id], onDelete: Cascade)
+  userProfileId String
+
+  name           String // e.g. "Losartan"
+  dose           String? // "50 mg"
+  route          String? // "oral"
+  frequency      String? // "once daily"
+  indication     String? // "High blood pressure"
+  status         MedicationStatus @default(ACTIVE)
+  startedAt      DateTime?
+  stoppedAt      DateTime?
+  prescriberName String?
+  notes          String?
+
+  // Optional episode-of-care link
+  encounterId String?
+  encounter   Encounter? @relation(fields: [encounterId], references: [id])
+
+  warnings Warning[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Allergy {
+  id            String      @id @default(cuid())
+  userProfile   UserProfile @relation(fields: [userProfileId], references: [id], onDelete: Cascade)
+  userProfileId String
+
+  substance String // e.g. "Penicillin"
+  reaction  String? // e.g. "Rash", "Anaphylaxis"
+  severity  AllergySeverity @default(MODERATE)
+  notedAt   DateTime?
+  notes     String?
+
+  warnings Warning[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// =========================
+// Diagnostics (labs)
+// =========================
+
+model LabResult {
+  id            String      @id @default(cuid())
+  userProfile   UserProfile @relation(fields: [userProfileId], references: [id], onDelete: Cascade)
+  userProfileId String
+
+  testName       String // e.g. "HbA1c"
+  testCode       String? // lab code if ever needed
+  value          String? // text for flexibility
+  unit           String? // e.g. "%"
+  referenceRange String? // e.g. "4.0 – 6.0"
+  takenAt        DateTime?
+  interpretation LabResultInterpretation @default(UNKNOWN)
+  notes          String?
+
+  // Optional episode-of-care link
+  encounterId String?
+  encounter   Encounter? @relation(fields: [encounterId], references: [id])
+
+  warnings Warning[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// =========================
+// Surgeries & Procedures
+// =========================
+
+model SurgeryProcedure {
+  id            String      @id @default(cuid())
+  userProfile   UserProfile @relation(fields: [userProfileId], references: [id], onDelete: Cascade)
+  userProfileId String
+
+  name          String // "Appendectomy", "PCI with stent"
+  date          DateTime?
+  bodySite      String? // "Right hip"
+  hospital      String?
+  surgeon       String?
+  outcome       String? // short summary
+  complications String?
+  notes         String?
+
+  encounterId String?
+  encounter   Encounter? @relation(fields: [encounterId], references: [id])
+
+  warnings Warning[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// =========================
+// Imaging (Scans & Imaging)
+// =========================
+
+model ImagingStudy {
+  id            String      @id @default(cuid())
+  userProfile   UserProfile @relation(fields: [userProfileId], references: [id], onDelete: Cascade)
+  userProfileId String
+
+  modality      String? // "CT", "MRI", "X-ray"
+  bodySite      String? // "Brain", "Left knee"
+  date          DateTime?
+  facility      String?
+  reportSummary String? // short text summary
+
+  // Optionally link to stored report document
+  documentId String?
+  document   Document? @relation(fields: [documentId], references: [id])
+
+  encounterId String?
+  encounter   Encounter? @relation(fields: [encounterId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// =========================
+// Encounter Model (episode of care)
+// =========================
+
+model Encounter {
+  id String @id @default(cuid())
+
+  userProfile   UserProfile @relation(fields: [userProfileId], references: [id], onDelete: Cascade)
+  userProfileId String
+
+  // e.g. "inpatient", "emergency", "outpatient", "rehab"
+  type String
+
+  // Human-friendly title / reason
+  title  String? // "Right hip replacement admission"
+  reason String? // "Fractured neck of femur"
+
+  start DateTime?
+  end   DateTime?
+
+  location  String? // ward / clinic / department
+  clinician String? // responsible doctor / team
+  notes     String?
+
+  surgeries   SurgeryProcedure[]
+  labs        LabResult[]
+  imaging     ImagingStudy[]
+  medications Medication[]
+  therapies   TherapyCourse[]
+  documents   Document[]
+  warnings    Warning[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// =========================
+// Therapy (rehab, physio, addiction, etc.)
+// =========================
+
+model TherapyCourse {
+  id String @id @default(cuid())
+
+  userProfile   UserProfile @relation(fields: [userProfileId], references: [id], onDelete: Cascade)
+  userProfileId String
+
+  // "physiotherapy", "psychotherapy", "addiction-rehab", etc.
+  type  String
+  title String // "Post-ACL physio", "Alcohol rehab program"
+
+  startDate DateTime?
+  endDate   DateTime?
+
+  frequency        String? // "2x/week"
+  provider         String? // therapist / clinic
+  location         String? // city / facility
+  country          String?
+  primaryDiagnosis String? // free-text link to condition
+
+  outcome String?
+  notes   String?
+
+  encounterId String?
+  encounter   Encounter? @relation(fields: [encounterId], references: [id])
+
+  warnings Warning[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// =========================
+// Documents
+// =========================
+
+model Document {
+  id            String      @id @default(cuid())
+  userProfile   UserProfile @relation(fields: [userProfileId], references: [id], onDelete: Cascade)
+  userProfileId String
+
+  title      String // "MRI Brain report", "Discharge letter"
+  category   String? // "Imaging", "Discharge", "Insurance", etc.
+  fileUrl    String // where it's stored (S3, etc.)
+  mimeType   String?
+  uploadedAt DateTime @default(now())
+  summary    String? // AI-generated summary later
+
+  encounterId String?
+  encounter   Encounter? @relation(fields: [encounterId], references: [id])
+
+  imagingStudies ImagingStudy[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// =========================
+// Timeline
+// =========================
+
+model TimelineEvent {
+  id            String      @id @default(cuid())
+  userProfile   UserProfile @relation(fields: [userProfileId], references: [id], onDelete: Cascade)
+  userProfileId String
+
+  type        TimelineEventType
+  title       String
+  description String?
+  occurredAt  DateTime
+  // optional reference id to the underlying data (condition, medication, etc.)
+  relatedId   String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// =========================
+// Warnings / Red flags
+// =========================
+
+model Warning {
+  id String @id @default(cuid())
+
+  userProfile   UserProfile @relation(fields: [userProfileId], references: [id], onDelete: Cascade)
+  userProfileId String
+
+  level   WarningLevel @default(DANGER)
+  title   String // "Severe penicillin allergy"
+  summary String? // short one-liner
+  details String? // longer free-text
+
+  // Optional links to underlying data
+  conditionId String?
+  condition   Condition? @relation(fields: [conditionId], references: [id])
+
+  medicationId String?
+  medication   Medication? @relation(fields: [medicationId], references: [id])
+
+  allergyId String?
+  allergy   Allergy? @relation(fields: [allergyId], references: [id])
+
+  surgeryId String?
+  surgery   SurgeryProcedure? @relation(fields: [surgeryId], references: [id])
+
+  labResultId String?
+  labResult   LabResult? @relation(fields: [labResultId], references: [id])
+
+  encounterId String?
+  encounter   Encounter? @relation(fields: [encounterId], references: [id])
+
+  therapyCourseId String?
+  therapyCourse   TherapyCourse? @relation(fields: [therapyCourseId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum Role {
+  PATIENT
+  HCP
+  PHARMACY
+  HOSPITAL
+  EMERGENCY
+  ADMIN
+}
+
+enum SubscriptionStatus {
+  FREE
+  PREMIUM
+  CANCELED
+}
+
+enum FeatureType {
+  EQUIVALENT_SEARCH
+  LEAFLET
+}
+
+model Subscription {
+  id                  String             @id @default(cuid())
+  userId              String             @unique
+  user                User               @relation(fields: [userId], references: [id])
+
+  status              SubscriptionStatus @default(FREE)
+  provider            String             @default("manual")
+  currentPeriodStart  DateTime           @default(now())
+  currentPeriodEnd    DateTime
+}
+
+model Device {
+  id         String   @id @default(cuid())
+  deviceId   String   @unique           // random ID stored on each device
+  label      String?
+  isPremium  Boolean  @default(false)   // set to true for your own / family devices
+  userId     String?
+  user       User?    @relation(fields: [userId], references: [id])
+
+  createdAt  DateTime @default(now())
+  usageLogs  UsageLog[]
+}
+
+model UsageLog {
+  id        String      @id @default(cuid())
+  userId    String?
+  user      User?       @relation(fields: [userId], references: [id])
+  deviceId  String?
+  device    Device?     @relation(fields: [deviceId], references: [id])
+
+  feature   FeatureType
+  createdAt DateTime    @default(now())
+}
