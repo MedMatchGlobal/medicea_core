@@ -1,25 +1,13 @@
 // app/lib/usageTracker.ts
 
-/**
- * Local, client-side usage tracker for FREE tier.
- *
- * NOTE:
- * - Server-side enforcement happens in /api/subscription/usage.
- * - This file is only for UI/UX and quick blocking before hitting the server.
- */
-
 type Feature = "equivalentSearch" | "leaflet";
 
 const STORAGE_KEY = "medicea-usage-v1";
 const DEVICE_ID_KEY = "medicea-device-id";
 const PREMIUM_DEVICE_TOKEN_KEY = "medicea-premium-device-token";
 
-// Keep these in sync with your backend free limits
-const FREE_EQUIVALENT_LIMIT = 2;
-const FREE_LEAFLET_LIMIT = 2;
-
 interface UsageState {
-  month: string; // "YYYY-MM"
+  month: string;
   equivalentSearchCount: number;
   leafletCount: number;
 }
@@ -52,7 +40,6 @@ function safeParseUsage(raw: string | null): UsageState | null {
 
 function readUsage(): UsageState {
   if (typeof window === "undefined") {
-    // SSR fallback – never block on server
     return {
       month: getCurrentMonthKey(),
       equivalentSearchCount: 0,
@@ -90,9 +77,10 @@ function writeUsage(usage: UsageState): void {
 export function getDeviceId(): string {
   if (typeof window === "undefined") return "";
 
-  let id = window.localStorage.getItem(DEVICE_ID_KEY);
+  // ALWAYS a string – fallback to empty string, then immediately replace if needed
+  let id: string = window.localStorage.getItem(DEVICE_ID_KEY) || "";
+
   if (!id) {
-    // Prefer crypto.randomUUID when available
     if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
       id = (crypto as any).randomUUID();
     } else {
@@ -101,6 +89,7 @@ export function getDeviceId(): string {
         "-" +
         Date.now().toString(36);
     }
+
     try {
       window.localStorage.setItem(DEVICE_ID_KEY, id);
     } catch {
@@ -135,6 +124,10 @@ function isPremiumDeviceLocal(): boolean {
     return false;
   }
 }
+
+// Keep these in sync with backend FREE limits
+const FREE_EQUIVALENT_LIMIT = 2;
+const FREE_LEAFLET_LIMIT = 2;
 
 /**
  * Returns true if the FREE tier still has local quota remaining

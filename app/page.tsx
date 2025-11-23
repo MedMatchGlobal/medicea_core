@@ -2,6 +2,14 @@
 ===============================================================================
 Fixed banner logic for "Generics" label + country, and removed banner from Leaflet
 + Added basic free-usage limits + Premium paywall
++ Local search branch for Pharmacy/Hospital/GP/Doctor → Google Maps
++ Geolocation wiring (Use device location)
++ Feature flag: NEXT_PUBLIC_ENABLE_USAGE_LIMITS
++ Brand replacer handles ™ → ® everywhere
++ (UPDATE) Single-button Maps: pin if GPS, otherwise address search
++ (UPDATE) Slogan uses small/lighter ® via <sup class="rmark">®</sup>
++ (UPDATE 25-Nov) Address flow now drops a **pin** for typed addresses (not a list)
++ (UPDATE 25-Nov) Added .brand1 / .brand2 classes so slogan word shows colored like logo
 ===============================================================================
 */
 
@@ -18,6 +26,9 @@ import enStrings from './i18n/en.json';
 import { isRTL, loadStrings } from './i18n/i18n';
 import { registerUsage } from './lib/subscriptionClient';
 import { hasFreeQuota, incrementUsage } from './lib/usageTracker';
+
+/** Feature flag: turn free-usage limits on/off from env */
+const LIMITS_ON = process.env.NEXT_PUBLIC_ENABLE_USAGE_LIMITS === 'true';
 
 /* -------------------------- WRAPPER -------------------------- */
 
@@ -329,14 +340,25 @@ function mapsUrl(query: string) {
   return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
 }
 
+/* NEW: open a Maps **pin** for any place/address string */
+function mapsPlaceUrl(place: string) {
+  return `https://www.google.com/maps/place/${encodeURIComponent(place)}`;
+}
+
+function parseCoords(s: string | null | undefined): { lat: number; lng: number } | null {
+  const m = (s || '').match(/^\s*(-?\d+(\.\d+)?),\s*(-?\d+(\.\d+)?)\s*$/);
+  return m ? { lat: parseFloat(m[1]), lng: parseFloat(m[3]) } : null;
+}
+
+/** Brand replacer for body content (not used for slogan) */
 function stylizeBrand(html: string) {
   if (!html) return html;
-  const logo = `<strong><span style="color:#1E73BE">medi</span><span style="color:#008080">céa</span>™</strong>`;
+  const logo = `<strong><span style="color:#1E73BE">medi</span><span style="color:#008080">céa</span>®</strong>`;
   let out = html;
-  out = out.replace(/<strong>\s*medicéa™\s*<\/strong>/gi, 'medicéa™');
-  out = out.replace(/<b>\s*medicéa™\s*<\/b>/gi, 'medicéa™');
-  out = out.replace(/medicéa™/g, logo);
-  out = out.replace(/medicea™/gi, logo);
+  out = out.replace(/<strong>\s*medicéa[™®]?\s*<\/strong>/gi, 'medicéa®');
+  out = out.replace(/<b>\s*medicéa[™®]?\s*<\/b>/gi, 'medicéa®');
+  out = out.replace(/medicéa[™®]?/gi, logo);
+  out = out.replace(/medicea[™®]?/gi, logo);
   return out;
 }
 
@@ -566,6 +588,26 @@ function Home() {
       .catch(() => setVisits(null));
   }, []);
 
+  /** Geolocation fetch when the user ticks "Use device location" */
+  useEffect(() => {
+    if (!useGeo) {
+      setGeoStr('');
+      return;
+    }
+    if (typeof navigator === 'undefined' || !navigator.geolocation) {
+      setGeoStr('near me');
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const { latitude, longitude } = pos.coords;
+        setGeoStr(`${latitude},${longitude}`); // Google Maps accepts "lat,long"
+      },
+      () => setGeoStr('near me'),
+      { enableHighAccuracy: false, maximumAge: 60000, timeout: 8000 }
+    );
+  }, [useGeo]);
+
   function resetFieldsForMode(m: Mode) {
     setMode(m);
     setResult('');
@@ -593,6 +635,27 @@ function Home() {
   const handleSearch = async () => {
     if (mode === 'triage') return;
 
+    /* ---------------- LOCAL SEARCH BRANCH: open Google Maps ---------------- */
+    if (mode === 'pharmacy' || mode === 'hospital' || mode === 'gp' || mode === 'doctor') {
+      // Prefer exact coordinates if available → open a pin (/place/<lat>,<lng>), else for typed address also open a **pin**
+      const addr = (useGeo && geoStr) ? geoStr : userAddress.trim();
+      if (!addr) return;
+
+      const coords = parseCoords(addr);
+      if (coords) {
+        const url = `https://www.google.com/maps/place/${coords.lat},${coords.lng}`;
+        if (typeof window !== 'undefined') window.open(url, '_blank');
+        return;
+      }
+
+      // NEW: For typed address, drop a pin instead of a nearby list
+      if (typeof window !== 'undefined') {
+        window.open(mapsPlaceUrl(addr), '_blank');
+      }
+      return; // prevent falling into AI path
+    }
+    /* ---------------------------------------------------------------------- */
+
     // PREMIUM-ONLY MODES: Pets, Generics, Triage (search button)
     if (mode === 'pets' || mode === 'generic' || mode === 'triage') {
       const reason: PaywallReason =
@@ -602,20 +665,22 @@ function Home() {
       return;
     }
 
-    // FREE-TIER LIMITS: International equivalents & standalone leaflet (local, client-side)
-    if (mode === 'international' && !hasFreeQuota('equivalentSearch')) {
-      setPaywallReason('equivalentSearch');
-      setPaywallVisible(true);
-      return;
-    }
-    if (mode === 'leaflet' && !hasFreeQuota('leaflet')) {
-      setPaywallReason('leaflet');
-      setPaywallVisible(true);
-      return;
+    // FREE-TIER LIMITS (client/local)
+    if (LIMITS_ON) {
+      if (mode === 'international' && !hasFreeQuota('equivalentSearch')) {
+        setPaywallReason('equivalentSearch');
+        setPaywallVisible(true);
+        return;
+      }
+      if (mode === 'leaflet' && !hasFreeQuota('leaflet')) {
+        setPaywallReason('leaflet');
+        setPaywallVisible(true);
+        return;
+      }
     }
 
-    // SERVER-SIDE LIMITS: enforce quotas in PlanetScale via subscription API
-    if (mode === 'international') {
+    // SERVER-SIDE LIMITS
+    if (LIMITS_ON && mode === 'international') {
       const { allowed } = await registerUsage('EQUIVALENT_SEARCH');
       if (!allowed) {
         setPaywallReason('equivalentSearch');
@@ -624,7 +689,7 @@ function Home() {
       }
     }
 
-    if (mode === 'leaflet') {
+    if (LIMITS_ON && mode === 'leaflet') {
       const { allowed } = await registerUsage('LEAFLET');
       if (!allowed) {
         setPaywallReason('leaflet');
@@ -648,12 +713,15 @@ function Home() {
 
     try {
       // Count usage locally only after all checks passed
-      if (mode === 'international') {
+      if (LIMITS_ON && mode === 'international') {
         incrementUsage('equivalentSearch');
       }
 
-      if (mode === 'leaflet') {
+      if (LIMITS_ON && mode === 'leaflet') {
         incrementUsage('leaflet');
+      }
+
+      if (mode === 'leaflet') {
         const res = await fetch('/api/openai/leaflet', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -866,7 +934,20 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
 
   /* -------------------------- RENDER -------------------------- */
 
-  const sloganHTML = stylizeBrand(typeof (ui as any)?.slogan === 'string' ? (ui as any).slogan : '');
+// Slogan: colored "medi|céa" like the logo + small/soft ®
+const sloganHTML = (() => {
+  let raw = typeof (ui as any)?.slogan === 'string' ? (ui as any).slogan : '';
+  // Normalize accents so "é" reliably matches
+  raw = raw.normalize('NFC');
+
+  // Match medicéa or medicea, optional ™ or ® after it
+  const rx = /medic(?:é|e)a\s*(?:™|®)?/giu;
+
+  return raw.replace(
+    rx,
+    `<span class="brand1">medi</span><span class="brand2">céa</span><class="rmark">®`
+  );
+})();
 
   return (
     <main key={lang} style={container}>
@@ -876,6 +957,13 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
   @keyframes pulseDots{0%{opacity:.2}50%{opacity:1}100%{opacity:.2}}
 
   button:active{filter:brightness(0.85);transform:translateY(1px)}
+
+  /* Smaller, lighter ® in the slogan */
+  .rmark{ font-size:.55em; line-height:0; position:relative; top:-0.15em; vertical-align:text-top; opacity:.75; font-weight:600; }
+
+  /* NEW: colored brand word in the slogan */
+  .brand1{ color:#1E73BE; font-weight:700; }
+  .brand2{ color:#008080; font-weight:700; }
 
   .pill { position: relative; display: inline-flex; align-items: center; justify-content: center; width: 200px; height: 44px; padding: 0 18px; border-radius: 9999px; font-weight: 700; font-size: 0.95rem; line-height: 1.15; text-align: center; white-space: normal; word-break: break-word; user-select: none; cursor: pointer; border: 1px solid rgba(0,0,0,0.25); box-shadow: inset 0 -8px 16px rgba(0,0,0,0.28), inset 0 10px 22px rgba(255,255,255,0.45), 0 8px 18px rgba(0,0,0,0.22); }
   .pill::before { content: ""; position: absolute; top: 6%; left: 6%; right: 6%; height: 38%; border-radius: 9999px; background: linear-gradient(to bottom, rgba(255,255,255,0.95), rgba(255,255,255,0.55) 60%, rgba(255,255,255,0.0) 100%); pointer-events: none; }
@@ -892,7 +980,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
 
   .pill--red { color: #ffffff; background: linear-gradient(#ffc1b8 0%, #ff8f85 40%, #e2554d 60%, #bb2222 100%); }
   .pill--red:active { background: linear-gradient(#ffb1a6 0%, #c95e54ff 40%, #921d17ff 60%, #670505ff 100%); filter: brightness(0.95); transform: translateY(1px); }
-  .pill--red.is-active{ background: linear-gradient(#ffb0a6 0%, #c95e54ff 40%, #921d17ff 60%, #670505ff 100%); }
+  .pill--red.is-active{ background: linear-gradient(#ffb1a6 0%, #c95e54ff 40%, #921d17ff 60%, #670505ff 100%); }
 
   .pill--yellow { color: #5a4a00; background: linear-gradient(#fff2a6 0%, #ffe067 40%, #ffca3a 60%, #f0b100 100%); }
   .pill--yellow:active { background: linear-gradient(#ffe88e 0%, #cab05bff 40%, #b48b23ff 60%, #6a4f04ff 100%); filter: brightness(0.95); transform: translateY(1px); }
@@ -1147,7 +1235,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
           {(mode === 'pharmacy' || mode === 'gp' || mode === 'hospital' || mode === 'doctor') && (
             <>
               <div>
-                <div style={{ fontWeight: 600, marginBottom: 4 }}>{F(ui, 'addressPrompt', 'Enter an address (or use device location)')}</div>
+                <div style={{ fontWeight: 600, marginBottom: 4 }}>{F(ui, 'addressPrompt', 'Enter an address (or use device location')}</div>
                 <input
                   type="text"
                   placeholder={F(ui, 'addressPH', 'Street, City, Country…')}

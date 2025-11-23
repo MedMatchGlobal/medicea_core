@@ -1,6 +1,6 @@
 // app/terms-bundles.ts
 
-const brand = `<strong><span style="color:#1E73BE">medi</span><span style="color:#008080">céa</span>™</strong>`;
+const brand = `<strong><span style="color:#1E73BE">medi</span><span style="color:#008080">céa</span>®</strong>`;
 
 export const termsBundles: Record<string, string> = {
   /* =========================

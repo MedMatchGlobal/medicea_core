@@ -1,7 +1,7 @@
 {
   "langName": "Suomi",
   "ui": {
-    "slogan": "Panacéasta, yleislääkkeen jumalattaresta, innoituksensa saanut medicéa™ on passisi lääketieteeseen kaikkialla maailmassa — tehtävämme on yhdistää ihmiset henkiä pelastaviin hoitoihin ilman rajoja.",
+    "slogan": "Panacéasta, yleislääkkeen jumalattaresta, innoituksensa saanut medicéa® on passisi lääketieteeseen kaikkialla maailmassa — tehtävämme on yhdistää ihmiset henkiä pelastaviin hoitoihin ilman rajoja.",
     "btnIntl": "Kansainvälinen lääkkeenhaku",
     "btnCond": "Hae Lääketieteellisen Tilanteen Perusteella",
     "btnGen": "Hae geneerinen",
@@ -177,11 +177,11 @@
 },
 
 "disclaimerTitle": "VASTUUVAPAUSLAUSEKE",
-"disclaimerP1HTML": "<p>medicéa™ <strong>on julkisesti saatavilla oleva, tekoälyn tukema tietopalvelualusta</strong>, joka auttaa vertailemaan lääkkeiden nimiä ja terveydentiloja eri maiden välillä. Se tarjoaa myös <strong>tekoälypohjaisen oireiden arviointiapurin</strong>, joka tuottaa opetuksellista sisältöä julkisista tiedoista. <strong>Kaikki sisältö on tarkoitettu vain tiedotustarkoituksiin.</strong></p>",
-"disclaimerP2HTML": "<p>medicéa™ <strong>ei ole lääkinnällinen laite eikä tarjoa lääketieteellisiä neuvoja, diagnooseja tai hoitoja.</strong> Oireiden arviointiapuri on tekoälykokeilu ja <strong>sitä ei tule käyttää terveyspäätöksiin tai hätätilanteissa.</strong> Vastaukset luodaan suurten kielimallien avulla, eikä niitä tarkista lääkärit tai pätevät terveydenhuollon ammattilaiset.</p>",
-"disclaimerP3HTML": "<p><strong>Älä luota tähän alustaan kliinisten, farmaseuttisten tai oikeudellisten päätösten tekemisessä.</strong> Käänny aina pätevän terveydenhuollon ammattilaisen puoleen omassa maassasi. Käyttämällä tätä sivustoa hyväksyt, että medicéa™ ja sen kehittäjät eivät ole vastuussa toimista, jotka perustuvat sen sisältöön.</p>",
-"disclaimerP4HTML": "<p>Käyttämällä tätä palvelua hyväksyt, että <strong>mikään annetuista tiedoista ei muodosta lääketieteellistä, oikeudellista tai farmaseuttista neuvontaa</strong>, ja että medicéa™ <strong>ja sen kehittäjät eivät ole vastuussa toimista, jotka perustuvat sen sisältöön.</strong> Hätätilanteessa <strong>soita välittömästi paikalliseen hätänumeroon.</strong> Tämän palvelun käyttö <strong>ei luo potilas-lääkärisuhdetta.</strong> medicéa™ <strong>ei kerää henkilökohtaisia sairauskertomuksia</strong> eikä räätälöi tuloksia yksilöllisten terveystaustojen perusteella.</p>",
+"disclaimerP1HTML": "<p>medicéa® <strong>on julkisesti saatavilla oleva, tekoälyn tukema tietopalvelualusta</strong>, joka auttaa vertailemaan lääkkeiden nimiä ja terveydentiloja eri maiden välillä. Se tarjoaa myös <strong>tekoälypohjaisen oireiden arviointiapurin</strong>, joka tuottaa opetuksellista sisältöä julkisista tiedoista. <strong>Kaikki sisältö on tarkoitettu vain tiedotustarkoituksiin.</strong></p>",
+"disclaimerP2HTML": "<p>medicéa® <strong>ei ole lääkinnällinen laite eikä tarjoa lääketieteellisiä neuvoja, diagnooseja tai hoitoja.</strong> Oireiden arviointiapuri on tekoälykokeilu ja <strong>sitä ei tule käyttää terveyspäätöksiin tai hätätilanteissa.</strong> Vastaukset luodaan suurten kielimallien avulla, eikä niitä tarkista lääkärit tai pätevät terveydenhuollon ammattilaiset.</p>",
+"disclaimerP3HTML": "<p><strong>Älä luota tähän alustaan kliinisten, farmaseuttisten tai oikeudellisten päätösten tekemisessä.</strong> Käänny aina pätevän terveydenhuollon ammattilaisen puoleen omassa maassasi. Käyttämällä tätä sivustoa hyväksyt, että medicéa® ja sen kehittäjät eivät ole vastuussa toimista, jotka perustuvat sen sisältöön.</p>",
+"disclaimerP4HTML": "<p>Käyttämällä tätä palvelua hyväksyt, että <strong>mikään annetuista tiedoista ei muodosta lääketieteellistä, oikeudellista tai farmaseuttista neuvontaa</strong>, ja että medicéa® <strong>ja sen kehittäjät eivät ole vastuussa toimista, jotka perustuvat sen sisältöön.</strong> Hätätilanteessa <strong>soita välittömästi paikalliseen hätänumeroon.</strong> Tämän palvelun käyttö <strong>ei luo potilas-lääkärisuhdetta.</strong> medicéa® <strong>ei kerää henkilökohtaisia sairauskertomuksia</strong> eikä räätälöi tuloksia yksilöllisten terveystaustojen perusteella.</p>",
 
   "termsTitle": "Käyttöehdot",
-  "termsHTML": "<h2>1. Tietoa medicéa™-palvelusta</h2><p>…</p><h2>2. Ei lääketieteellistä neuvontaa</h2><p>…</p><h2>3. Ei hätätilanteisiin</h2><p>…</p><h2>4. Tarkkuus ja rajoitukset</h2><p>…</p><h2>5. Vastuu</h2><p>…</p><h2>6. Vastuunrajoitus</h2><p>…</p><h2>7. Immateriaalioikeudet</h2><p>…</p><h2>8. Tietosuoja</h2><p>…</p><h2>9. Muutokset</h2><p>…</p><h2>10. Sovellettava laki</h2><p>…</p>"
+  "termsHTML": "<h2>1. Tietoa medicéa®-palvelusta</h2><p>…</p><h2>2. Ei lääketieteellistä neuvontaa</h2><p>…</p><h2>3. Ei hätätilanteisiin</h2><p>…</p><h2>4. Tarkkuus ja rajoitukset</h2><p>…</p><h2>5. Vastuu</h2><p>…</p><h2>6. Vastuunrajoitus</h2><p>…</p><h2>7. Immateriaalioikeudet</h2><p>…</p><h2>8. Tietosuoja</h2><p>…</p><h2>9. Muutokset</h2><p>…</p><h2>10. Sovellettava laki</h2><p>…</p>"
 }

@@ -1,4 +1,4 @@
-package com.medicea.app;
+package global.medicea.app;
 
 import com.getcapacitor.BridgeActivity;
 

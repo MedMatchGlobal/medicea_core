@@ -265,6 +265,10 @@ body {
   color: #0b63d1;
 }
 
+.brand1{ color:#1E73BE; font-weight:700; }
+.brand2{ color:#008080; font-weight:700; }
+.rmark { font-size:.55em; line-height:0; position:relative; top:-0.15em; vertical-align:text-top; opacity:.75; font-weight:600; }
+
 /* FORM */
 
 .search-form {

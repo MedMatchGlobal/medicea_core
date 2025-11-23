@@ -1,7 +1,7 @@
 {
   "langName": "Čeština",
   "ui": {
-    "slogan": "Inspirováno Panacéou, bohyní univerzálního léku, je medicéa™ vaším pasem k medicíně kdekoliv na světě — naše mise je spojovat lidi se život zachraňující léčbou bez hranic.",
+    "slogan": "Inspirováno Panacéou, bohyní univerzálního léku, je medicéa® vaším pasem k medicíně kdekoliv na světě — naše mise je spojovat lidi se život zachraňující léčbou bez hranic.",
     "btnIntl": "Mezinárodní vyhledávání léčiv",
     "btnCond": "Hledat podle Zdravotního Stavu",
     "btnGen": "Hledat generikum",
@@ -177,11 +177,11 @@
 },
 
 "disclaimerTitle": "PROHLÁŠENÍ O ODPOVĚDNOSTI",
-"disclaimerP1HTML": "<p>medicéa™ <strong>je veřejně přístupná, umělou inteligencí podporovaná informační platforma</strong>, která pomáhá porovnávat názvy léků a zdravotní stavy mezi zeměmi. Nabízí také <strong>asistenta pro třídění symptomů založeného na AI</strong>, který vytváří vzdělávací obsah z veřejných dat. <strong>Veškerý obsah slouží pouze k informativním účelům.</strong></p>",
-"disclaimerP2HTML": "<p>medicéa™ <strong>není zdravotnické zařízení a neposkytuje lékařské rady, diagnózy ani léčbu.</strong> Asistent pro třídění symptomů je experiment s AI a <strong>nesmí být používán pro zdravotní rozhodování ani v nouzových situacích.</strong> Odpovědi jsou generovány velkými jazykovými modely a nejsou kontrolovány lékaři ani kvalifikovanými odborníky.</p>",
-"disclaimerP3HTML": "<p><strong>Nespoléhejte na tuto platformu při klinických, farmaceutických nebo právních rozhodnutích.</strong> Vždy se poraďte s kvalifikovaným zdravotnickým odborníkem ve své jurisdikci. Používáním tohoto webu potvrzujete, že medicéa™ a její tvůrci nenesou odpovědnost za kroky podniknuté na základě jeho obsahu.</p>",
-"disclaimerP4HTML": "<p>Používáním této služby potvrzujete, že <strong>žádné poskytnuté informace nepředstavují lékařské, právní ani farmaceutické rady</strong> a že medicéa™ <strong>a její vývojáři nenesou odpovědnost za kroky podniknuté na základě jeho obsahu.</strong> V případě nouze <strong>okamžitě zavolejte místní tísňové číslo.</strong> Použití této služby <strong>nevytváří vztah lékař-pacient.</strong> medicéa™ <strong>neshromažďuje osobní zdravotní záznamy</strong> a nepřizpůsobuje výsledky individuální anamnéze.</p>",
+"disclaimerP1HTML": "<p>medicéa® <strong>je veřejně přístupná, umělou inteligencí podporovaná informační platforma</strong>, která pomáhá porovnávat názvy léků a zdravotní stavy mezi zeměmi. Nabízí také <strong>asistenta pro třídění symptomů založeného na AI</strong>, který vytváří vzdělávací obsah z veřejných dat. <strong>Veškerý obsah slouží pouze k informativním účelům.</strong></p>",
+"disclaimerP2HTML": "<p>medicéa® <strong>není zdravotnické zařízení a neposkytuje lékařské rady, diagnózy ani léčbu.</strong> Asistent pro třídění symptomů je experiment s AI a <strong>nesmí být používán pro zdravotní rozhodování ani v nouzových situacích.</strong> Odpovědi jsou generovány velkými jazykovými modely a nejsou kontrolovány lékaři ani kvalifikovanými odborníky.</p>",
+"disclaimerP3HTML": "<p><strong>Nespoléhejte na tuto platformu při klinických, farmaceutických nebo právních rozhodnutích.</strong> Vždy se poraďte s kvalifikovaným zdravotnickým odborníkem ve své jurisdikci. Používáním tohoto webu potvrzujete, že medicéa® a její tvůrci nenesou odpovědnost za kroky podniknuté na základě jeho obsahu.</p>",
+"disclaimerP4HTML": "<p>Používáním této služby potvrzujete, že <strong>žádné poskytnuté informace nepředstavují lékařské, právní ani farmaceutické rady</strong> a že medicéa® <strong>a její vývojáři nenesou odpovědnost za kroky podniknuté na základě jeho obsahu.</strong> V případě nouze <strong>okamžitě zavolejte místní tísňové číslo.</strong> Použití této služby <strong>nevytváří vztah lékař-pacient.</strong> medicéa® <strong>neshromažďuje osobní zdravotní záznamy</strong> a nepřizpůsobuje výsledky individuální anamnéze.</p>",
 
   "termsTitle": "Obchodní podmínky",
-  "termsHTML": "<h2>1. O medicéa™</h2><p>…</p><h2>2. Žádné lékařské poradenství</h2><p>…</p><h2>3. Ne pro nouzové situace</h2><p>…</p><h2>4. Přesnost a omezení</h2><p>…</p><h2>5. Vaše odpovědnost</h2><p>…</p><h2>6. Vyloučení odpovědnosti</h2><p>…</p><h2>7. Duševní vlastnictví</h2><p>…</p><h2>8. Soukromí</h2><p>…</p><h2>9. Změny</h2><p>…</p><h2>10. Rozhodné právo</h2><p>…</p>"
+  "termsHTML": "<h2>1. O medicéa®</h2><p>…</p><h2>2. Žádné lékařské poradenství</h2><p>…</p><h2>3. Ne pro nouzové situace</h2><p>…</p><h2>4. Přesnost a omezení</h2><p>…</p><h2>5. Vaše odpovědnost</h2><p>…</p><h2>6. Vyloučení odpovědnosti</h2><p>…</p><h2>7. Duševní vlastnictví</h2><p>…</p><h2>8. Soukromí</h2><p>…</p><h2>9. Změny</h2><p>…</p><h2>10. Rozhodné právo</h2><p>…</p>"
 }

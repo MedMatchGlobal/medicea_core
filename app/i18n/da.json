@@ -1,7 +1,7 @@
 {
   "langName": "Dansk",
   "ui": {
-    "slogan": "Inspireret af Panacéa, gudinden for den universelle kur, er medicéa™ dit pas til medicin overalt i verden — vores mission er at forbinde mennesker med livreddende behandlinger uden grænser.",
+    "slogan": "Inspireret af Panacéa, gudinden for den universelle kur, er medicéa® dit pas til medicin overalt i verden — vores mission er at forbinde mennesker med livreddende behandlinger uden grænser.",
     "btnIntl": "International lægemiddelsøgning",
     "btnCond": "Søg efter Medicinsk Tilstand",
     "btnGen": "Søg generisk",
@@ -177,11 +177,11 @@
 },
 
 "disclaimerTitle": "ANSVARSFRASKRIVELSE",
-"disclaimerP1HTML": "<p>medicéa™ <strong>er en offentligt tilgængelig, AI-assisteret informationsplatform</strong>, der hjælper med at sammenligne medicinnavne og helbredstilstande på tværs af lande. Den tilbyder også en <strong>AI-drevet symptomtriage-assistent</strong>, som genererer undervisningsmæssigt indhold baseret på offentlige data. <strong>Alt indhold er udelukkende til informationsformål.</strong></p>",
-"disclaimerP2HTML": "<p>medicéa™ <strong>er ikke et medicinsk apparat og yder ikke medicinsk rådgivning, diagnose eller behandling.</strong> Symptomtriage-assistenten er et AI-eksperiment og <strong>bør ikke anvendes til sundhedsbeslutninger eller nødsituationer.</strong> Svar genereres af store sprogmodeller og gennemgås ikke af læger eller kvalificerede sundhedspersoner.</p>",
-"disclaimerP3HTML": "<p><strong>Stol ikke på denne platform til kliniske, farmaceutiske eller juridiske beslutninger.</strong> Rådfør dig altid med en kvalificeret sundhedsprofessionel i dit område. Ved at bruge dette websted anerkender du, at medicéa™ og dets udviklere ikke påtager sig noget ansvar for handlinger foretaget på baggrund af indholdet.</p>",
-"disclaimerP4HTML": "<p>Ved brug af denne tjeneste anerkender du, at <strong>ingen af de givne oplysninger udgør medicinsk, juridisk eller farmaceutisk rådgivning</strong>, og at medicéa™ <strong>og dets udviklere ikke påtager sig noget ansvar for handlinger foretaget på baggrund af indholdet.</strong> I nødstilfælde <strong>ring straks til dit lokale alarmnummer.</strong> Brug af denne tjeneste <strong>skaber ikke et læge-patient-forhold.</strong> medicéa™ <strong>indsamler ikke personlige lægejournaler</strong> og tilpasser ikke resultater til individuelle helbredshistorier.</p>",
+"disclaimerP1HTML": "<p>medicéa® <strong>er en offentligt tilgængelig, AI-assisteret informationsplatform</strong>, der hjælper med at sammenligne medicinnavne og helbredstilstande på tværs af lande. Den tilbyder også en <strong>AI-drevet symptomtriage-assistent</strong>, som genererer undervisningsmæssigt indhold baseret på offentlige data. <strong>Alt indhold er udelukkende til informationsformål.</strong></p>",
+"disclaimerP2HTML": "<p>medicéa® <strong>er ikke et medicinsk apparat og yder ikke medicinsk rådgivning, diagnose eller behandling.</strong> Symptomtriage-assistenten er et AI-eksperiment og <strong>bør ikke anvendes til sundhedsbeslutninger eller nødsituationer.</strong> Svar genereres af store sprogmodeller og gennemgås ikke af læger eller kvalificerede sundhedspersoner.</p>",
+"disclaimerP3HTML": "<p><strong>Stol ikke på denne platform til kliniske, farmaceutiske eller juridiske beslutninger.</strong> Rådfør dig altid med en kvalificeret sundhedsprofessionel i dit område. Ved at bruge dette websted anerkender du, at medicéa® og dets udviklere ikke påtager sig noget ansvar for handlinger foretaget på baggrund af indholdet.</p>",
+"disclaimerP4HTML": "<p>Ved brug af denne tjeneste anerkender du, at <strong>ingen af de givne oplysninger udgør medicinsk, juridisk eller farmaceutisk rådgivning</strong>, og at medicéa® <strong>og dets udviklere ikke påtager sig noget ansvar for handlinger foretaget på baggrund af indholdet.</strong> I nødstilfælde <strong>ring straks til dit lokale alarmnummer.</strong> Brug af denne tjeneste <strong>skaber ikke et læge-patient-forhold.</strong> medicéa® <strong>indsamler ikke personlige lægejournaler</strong> og tilpasser ikke resultater til individuelle helbredshistorier.</p>",
 
   "termsTitle": "Vilkår og betingelser",
-  "termsHTML": "<h2>1. Om medicéa™</h2><p>…</p><h2>2. Ingen medicinsk rådgivning</h2><p>…</p><h2>3. Ikke til nødstilfælde</h2><p>…</p><h2>4. Nøjagtighed & begrænsninger</h2><p>…</p><h2>5. Dit ansvar</h2><p>…</p><h2>6. Ansvar</h2><p>…</p><h2>7. Immaterielle rettigheder</h2><p>…</p><h2>8. Privatliv</h2><p>…</p><h2>9. Ændringer</h2><p>…</p><h2>10. Lovvalg</h2><p>…</p>"
+  "termsHTML": "<h2>1. Om medicéa®</h2><p>…</p><h2>2. Ingen medicinsk rådgivning</h2><p>…</p><h2>3. Ikke til nødstilfælde</h2><p>…</p><h2>4. Nøjagtighed & begrænsninger</h2><p>…</p><h2>5. Dit ansvar</h2><p>…</p><h2>6. Ansvar</h2><p>…</p><h2>7. Immaterielle rettigheder</h2><p>…</p><h2>8. Privatliv</h2><p>…</p><h2>9. Ændringer</h2><p>…</p><h2>10. Lovvalg</h2><p>…</p>"
 }
