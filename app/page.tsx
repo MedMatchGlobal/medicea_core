@@ -657,13 +657,16 @@ function Home() {
     /* ---------------------------------------------------------------------- */
 
     // PREMIUM-ONLY MODES: Pets, Generics, Triage (search button)
-    if (mode === 'pets' || mode === 'generic' || mode === 'triage') {
-      const reason: PaywallReason =
-        mode === 'pets' ? 'pets' : mode === 'generic' ? 'generics' : 'triage';
-      setPaywallReason(reason);
-      setPaywallVisible(true);
-      return;
-    }
+type PremiumMode = Extract<Mode, 'pets' | 'generic' | 'triage'>;
+const isPremiumMode = (m: Mode): m is PremiumMode =>
+  m === 'pets' || m === 'generic' || m === 'triage';
+
+if (isPremiumMode(mode)) {
+  const reason: PaywallReason = mode === 'pets' ? 'pets' : mode === 'generic' ? 'generics' : 'triage';
+  setPaywallReason(reason);
+  setPaywallVisible(true);
+  return;
+}
 
     // FREE-TIER LIMITS (client/local)
     if (LIMITS_ON) {
@@ -681,7 +684,7 @@ function Home() {
 
     // SERVER-SIDE LIMITS
     if (LIMITS_ON && mode === 'international') {
-      const { allowed } = await registerUsage('EQUIVALENT_SEARCH');
+      const { allowed } = await registerUsage('equivalentSearch');
       if (!allowed) {
         setPaywallReason('equivalentSearch');
         setPaywallVisible(true);
@@ -690,7 +693,7 @@ function Home() {
     }
 
     if (LIMITS_ON && mode === 'leaflet') {
-      const { allowed } = await registerUsage('LEAFLET');
+      const { allowed } = await registerUsage('leaflet');
       if (!allowed) {
         setPaywallReason('leaflet');
         setPaywallVisible(true);
