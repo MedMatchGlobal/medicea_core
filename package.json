@@ -24,7 +24,7 @@
     "dompurify": "^3.2.6",
     "lucide-react": "^0.536.0",
     "marked": "^16.1.2",
-    "next": "^15.4.2",
+    "next": "15.5.27",
     "next-intl": "^4.3.4",
     "openai": "^5.12.1",
     "prisma": "^6.18.0",
