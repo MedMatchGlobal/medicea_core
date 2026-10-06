@@ -1,10 +1,6 @@
+export const maxDuration = 60;
 import { NextResponse } from "next/server";
-import { OpenAI } from "openai";
-
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-  baseURL: "https://api.openai.com/v1", // ⬅️ Force direct connection to OpenAI, bypass Vercel AI Gateway
-});
+import { createChatCompletion } from "@/app/lib/openaiClient";
 
 export async function POST(req: Request) {
   const { drugName, originCountry } = await req.json();
@@ -26,7 +22,7 @@ Include:
   const system = `You are a cautious pharmacist. Only respond with factual and known information. Use the local currency for prices and never invent data.`;
 
   try {
-    const completion = await openai.chat.completions.create({
+    const completion = await createChatCompletion({
       model: "gpt-4",
       messages: [
         { role: "system", content: system },

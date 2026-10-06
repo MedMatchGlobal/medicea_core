@@ -1,10 +1,7 @@
+export const maxDuration = 60;
 // app/api/ai-search/route.ts
 import { NextResponse } from "next/server";
-import OpenAI from "openai";
-
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY!,
-});
+import { createChatCompletion } from "@/app/lib/openaiClient";
 
 // Helpful map so the prompt can say the language name clearly.
 // If a code isn't listed, we fallback to the code itself.
@@ -80,7 +77,7 @@ Guidance:
     const userQuery: string =
       (typeof body.query === "string" && body.query.trim()) || structuredInstruction;
 
-    const resp = await openai.chat.completions.create({
+    const resp = await createChatCompletion({
       model: process.env.OPENAI_MODEL || "gpt-4o",
       temperature: 0.2,
       max_tokens: 900,

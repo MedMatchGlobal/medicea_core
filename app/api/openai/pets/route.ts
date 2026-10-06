@@ -1,3 +1,5 @@
+export const maxDuration = 60;
+import { openaiFetch } from "@/app/lib/openaiClient";
 import { NextResponse } from "next/server";
 
 const OPENAI_URL = "https://api.openai.com/v1/chat/completions";
@@ -114,11 +116,11 @@ sold in ${originCountry}${drugDosage ? ` (user-entered dosage hint: "${drugDosag
 Return strictly JSON with keys: medicine_name, origin_country, active_ingredients[{name, strength}]. No extra text.
 `.trim();
 
-    const response1 = await fetch(OPENAI_URL, {
+    const response1 = await openaiFetch(OPENAI_URL, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+
       },
       body: JSON.stringify({
         model: "gpt-4o",
@@ -153,11 +155,11 @@ Return strictly JSON with keys: medicine_name, origin_country, active_ingredient
     const system2 = "You are a strict data retriever for licensed veterinary medicines. Output only the requested list; do not explain.";
     const user2 = `Return preferably 10 veterinary products available in ${targetCountry} that contain ${explicitList}.`.trim();
 
-    const response2 = await fetch(OPENAI_URL, {
+    const response2 = await openaiFetch(OPENAI_URL, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+
       },
       body: JSON.stringify({
         model: "gpt-4o",
