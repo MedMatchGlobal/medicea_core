@@ -16,6 +16,7 @@ Fixed banner logic for "Generics" label + country, and removed banner from Leafl
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
+import { ArrowRight, Search, FileText, Pill, Stethoscope, PawPrint, Hospital, HeartPulse, UserRound, Cross, ShieldCheck } from 'lucide-react';
 import countriesByRegion from '../data/countries';
 import { LanguageProvider, useLanguage } from './LanguageProvider';
 import LanguageButton from './components/LanguageButton';
@@ -637,20 +638,16 @@ function Home() {
 
     /* ---------------- LOCAL SEARCH BRANCH: open Google Maps ---------------- */
     if (mode === 'pharmacy' || mode === 'hospital' || mode === 'gp' || mode === 'doctor') {
-      // Prefer exact coordinates if available → open a pin (/place/<lat>,<lng>), else for typed address also open a **pin**
-      const addr = (useGeo && geoStr) ? geoStr : userAddress.trim();
+      const addr = useGeo ? geoStr : userAddress.trim();
       if (!addr) return;
-
       const coords = parseCoords(addr);
-      if (coords) {
-        const url = `https://www.google.com/maps/place/${coords.lat},${coords.lng}`;
-        if (typeof window !== 'undefined') window.open(url, '_blank');
-        return;
-      }
-
-      // NEW: For typed address, drop a pin instead of a nearby list
+      const location = coords ? `${coords.lat},${coords.lng}` : addr;
+      const careType = mode === 'pharmacy' ? 'pharmacies'
+        : mode === 'hospital' ? 'hospitals'
+        : mode === 'gp' ? 'general practitioners'
+        : `${doctorSpec.trim() || 'medical'} doctors`;
       if (typeof window !== 'undefined') {
-        window.open(mapsPlaceUrl(addr), '_blank');
+        window.open(mapsUrl(`${careType} near ${location}`), '_blank', 'noopener,noreferrer');
       }
       return; // prevent falling into AI path
     }
@@ -730,6 +727,7 @@ if (isPremiumMode(mode)) {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ originCountry, drugName, drugDosage, lang }),
         });
+        if (!res.ok) throw new Error('Medicine service unavailable');
         const payload = await res.json();
         setLeafletRaw(pickText(payload));
         setResult('');
@@ -779,6 +777,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
           }),
         });
 
+        if (!res.ok) throw new Error('Medicine service unavailable');
         const txt = pickText(await res.json());
         const cleaned = stripMarkdownBasic(cleanArtifacts(txt));
         setResult(cleaned || F(ui, 'noResult', 'No results.'));
@@ -791,6 +790,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ originCountry, drugName, drugDosage, lang }),
       });
+      if (!leafletResp.ok) throw new Error('Medicine service unavailable');
       const leafletPayload = await leafletResp.json();
       setLeafletRaw(pickText(leafletPayload));
 
@@ -806,6 +806,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ originCountry, targetCountry, drugName, drugDosage, lang }),
       });
+      if (!res2.ok) throw new Error('Medicine service unavailable');
       const payload2 = await res2.json();
 
       if (Array.isArray(payload2?.matches) && payload2.matches.length) {
@@ -821,7 +822,8 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
 
       setLoading(false);
     } catch {
-      setResult(F(ui, 'errorOccurred', 'An error occurred.'));
+      setLeafletRaw('');
+      setResult(F(ui, 'medicineServiceError', 'Medicine information is temporarily unavailable. Please try again shortly.'));
       setLoading(false);
     }
   };
@@ -858,291 +860,48 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
 
   /* -------------------------- UI styles -------------------------- */
 
-  const container: React.CSSProperties = { maxWidth: 980, margin: '0 auto', padding: '2rem 1rem' };
-  const panel: React.CSSProperties = { background: 'transparent', borderRadius: 12, border: 'transparent', padding: '1rem' };
-  const input: React.CSSProperties = {
-    width: '100%',
-    padding: '0.55rem',
-    borderRadius: 10,
-    border: 'transparent',
-    boxSizing: 'border-box',
-    display: 'block',
-  };
-  const select: React.CSSProperties = input;
 
-  const BTN_WIDTH = 200;
-  const BTN_HEIGHT = 40;
-
-  const btn = (
-    active: boolean,
-    hue:
-      | 'blue'
-      | 'green'
-      | 'red'
-      | 'purple'
-      | 'teal'
-      | 'orange'
-      | 'darkblue'
-      | 'yellow'
-      | 'pink'
-      | 'amber'
-      | 'darkgreen'
-      | 'navy'
-      | 'black'
-  ): React.CSSProperties => {
-    const pal: Record<string, [string, string, string, string]> = {
-      blue: active
-        ? ['#0b74de', '#69a6ff', '#fff', '#075bb0']
-        : ['#e6f0ff', '#f7fbff', '#0b74de', '#bcd6ff'],
-      green: active
-        ? ['#0ea34a', '#5fd48b', '#fff', '#0b803a']
-        : ['#e8f8ef', '#f6fffa', '#0e7c3a', '#b3e6c2'],
-      red: active
-        ? ['#c61a1a', '#ff7a1a', '#fff', '#9c1515']
-        : ['#ffe9e9', '#fff7f7', '#b30000', '#ffcccc'],
-      darkgreen: active
-        ? ['#065f46', '#10b981', '#fff', '#044733']
-        : ['#e6f7ef', '#f6fff9', '#064e3b', '#b2e2c0'],
-      darkblue: active
-        ? ['#003366', '#3366CC', '#fff', '#001f4d']
-        : ['#e8eefc', '#f5f7ff', '#002855', '#bcd0f5'],
-      yellow: active
-        ? ['#facc15', '#fde68a', '#000', '#d6ad00']
-        : ['#fffbe6', '#fffef7', '#92400e', '#f9e69b'],
-    };
-
-    const [c1, c2, txt] = pal[hue] || ['#ccc', '#eee', '#000', '#bbb'];
-
-    return {
-      width: BTN_WIDTH,
-      height: BTN_HEIGHT,
-      padding: '6px 10px',
-      borderRadius: 10,
-      border: 'none',
-      cursor: 'pointer',
-      background: `linear-gradient(135deg, ${c1} 0%, ${c2} 100%)`,
-      color: txt,
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      textAlign: 'center',
-      whiteSpace: 'normal',
-      wordBreak: 'break-word',
-      lineHeight: 1.15,
-      fontWeight: 700,
-      fontSize: '0.95rem',
-      transition: 'background 0.15s ease, transform 0.1s ease',
-    };
-  };
+  const input: React.CSSProperties = {};
+  const select: React.CSSProperties = {};
 
   /* -------------------------- RENDER -------------------------- */
 
-// Slogan: colored "medi|céa" like the logo + small/soft ®
-const sloganHTML = (() => {
-  let raw = typeof (ui as any)?.slogan === 'string' ? (ui as any).slogan : '';
-  // Normalize accents so "é" reliably matches
-  raw = raw.normalize('NFC');
-
-  // Match medicéa or medicea, optional ™ or ® after it
-  const rx = /medic(?:é|e)a\s*(?:™|®)?/giu;
-
-  return raw.replace(
-    rx,
-    `<span class="brand1">medi</span><span class="brand2">céa</span><class="rmark">®`
-  );
-})();
-
   return (
-    <main key={lang} style={container}>
-      <style>{`
-  .ai-plain{background:#f6f9ff;border:transparent;border-radius:14px;padding:16px 18px;overflow-wrap:anywhere;word-break:break-word;white-space:pre-wrap;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"Apple Color Emoji","Segoe UI Emoji";font-size:1.05rem;font-weight:450}
-  .leaflet-block{margin-top:12px}
-  @keyframes pulseDots{0%{opacity:.2}50%{opacity:1}100%{opacity:.2}}
-
-  button:active{filter:brightness(0.85);transform:translateY(1px)}
-
-  /* Smaller, lighter ® in the slogan */
-  .rmark{ font-size:.55em; line-height:0; position:relative; top:-0.15em; vertical-align:text-top; opacity:.75; font-weight:600; }
-
-  /* NEW: colored brand word in the slogan */
-  .brand1{ color:#1E73BE; font-weight:700; }
-  .brand2{ color:#008080; font-weight:700; }
-
-  .pill { position: relative; display: inline-flex; align-items: center; justify-content: center; width: 200px; height: 44px; padding: 0 18px; border-radius: 9999px; font-weight: 700; font-size: 0.95rem; line-height: 1.15; text-align: center; white-space: normal; word-break: break-word; user-select: none; cursor: pointer; border: 1px solid rgba(0,0,0,0.25); box-shadow: inset 0 -8px 16px rgba(0,0,0,0.28), inset 0 10px 22px rgba(255,255,255,0.45), 0 8px 18px rgba(0,0,0,0.22); }
-  .pill::before { content: ""; position: absolute; top: 6%; left: 6%; right: 6%; height: 38%; border-radius: 9999px; background: linear-gradient(to bottom, rgba(255,255,255,0.95), rgba(255,255,255,0.55) 60%, rgba(255,255,255,0.0) 100%); pointer-events: none; }
-  .pill::after { content: ""; position: absolute; inset: 1px; border-radius: 9999px; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.18), inset 0 12px 24px rgba(255,255,255,0.12); pointer-events: none; }
-  .pill.is-active{ transform: translateY(2px); filter: brightness(0.95); box-shadow: inset 0 -5px 12px rgba(0,0,0,0.32), inset 0 8px 18px rgba(255,255,255,0.40), 0 6px 14px rgba(0,0,0,0.20); }
-
-  .pill--blue { color: #ffffff; background: linear-gradient(#bfe6ff 0%, #8fd2ff 40%, #55adff 60%, #1b7fe5 100%); }
-  .pill--blue:active { background: linear-gradient(#a6dbff 0%, #4f99d5ff 40%, #165da0ff 60%, #053163ff 100%); filter: brightness(0.95); transform: translateY(1px); }
-  .pill--blue.is-active{ background: linear-gradient(#9ed5ff 0%, #4f99d5ff 40%, #165da0ff 60%, #053163ff 100%); }
-
-  .pill--green { color: #ffffff; background: linear-gradient(#c9f7b2 0%, #93ea7c 40%, #47c24f 60%, #1e9e3a 100%); }
-  .pill--green:active { background: linear-gradient(#b7f09a 0%, #48c927ff 40%, #0d8a17ff 60%, #035717ff 100%); filter: brightness(0.95); transform: translateY(1px); }
-  .pill--green.is-active{ background: linear-gradient(#baf19d 0%, #48c927ff 40%, #0d8a17ff 60%, #035717ff 100%)); }
-
-  .pill--red { color: #ffffff; background: linear-gradient(#ffc1b8 0%, #ff8f85 40%, #e2554d 60%, #bb2222 100%); }
-  .pill--red:active { background: linear-gradient(#ffb1a6 0%, #c95e54ff 40%, #921d17ff 60%, #670505ff 100%); filter: brightness(0.95); transform: translateY(1px); }
-  .pill--red.is-active{ background: linear-gradient(#ffb1a6 0%, #c95e54ff 40%, #921d17ff 60%, #670505ff 100%); }
-
-  .pill--yellow { color: #5a4a00; background: linear-gradient(#fff2a6 0%, #ffe067 40%, #ffca3a 60%, #f0b100 100%); }
-  .pill--yellow:active { background: linear-gradient(#ffe88e 0%, #cab05bff 40%, #b48b23ff 60%, #6a4f04ff 100%); filter: brightness(0.95); transform: translateY(1px); }
-  .pill--yellow.is-active{ background: linear-gradient(#ffe88e 0%, #cab05bff 40%, #b48b23ff 60%, #6a4f04ff 100%)); }
-
-  .pill[disabled], .pill--disabled { opacity: 0.5; cursor: not-allowed; box-shadow: inset 0 -6px 12px rgba(0,0,0,0.20), inset 0 8px 18px rgba(255,255,255,0.35), 0 4px 10px rgba(0,0,0,0.12); }
-
-  .pill-sm { width: auto; height: 36px; padding: 0 12px; font-size: 0.9rem; border-radius: 9999px; }
-
-  .pill--blue.is-active { background: linear-gradient(#9ed5ff 0%, #4f99d5ff 40%, #165da0ff 60%, #053163ff 100%) !important; filter: brightness(0.96); transform: translateY(2px); }
-  .pill--green.is-active { background: linear-gradient(#b7f09a 0%, #48c927ff 40%, #0d8a17ff 60%, #035717ff 100%) !important; filter: brightness(0.96); transform: translateY(2px); }
-  .pill--red.is-active { background: linear-gradient(#ffb1a6 0%, #c95e54ff 40%, #921d17ff 60%, #670505ff 100%) !important; filter: brightness(0.96); transform: translateY(2px); }
-  .pill--yellow.is-active { background: linear-gradient(#ffe88e 0%, #cab05bff 40%, #b48b23ff 60%, #6a4f04ff 100%) !important; color: #5a4a00; filter: brightness(0.96); transform: translateY(2px); }
-
-  /* Pill container – desktop: flex; mobile: 2-column grid */
-  .pill-group {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 8px;
-    margin: 12px 0 8px;
-  }
-
-  @media (max-width: 1024px) {
-    .pill-group {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      max-width: 420px;
-      margin: 12px auto 8px;
-      gap: 6px;
-    }
-  }
-
-  @media (max-width: 640px) {
-    .pill-group {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      max-width: 360px;
-      margin: 12px auto 8px;
-      gap: 6px;
-    }
-
-    .pill {
-      width: 100%;
-      height: 40px;
-      font-size: 0.85rem;
-      padding: 0 10px;
-    }
-  }
-      `}</style>
-
-      {/* Header */}
-      <div style={{ textAlign: 'center', marginBottom: '1rem' }}>
-        <img src="/logo.png" alt="medicéa" style={{ width: '100%', maxWidth: 650, height: 'auto', margin: '0 auto 20px' }} />
-
-        {hydrated && (
-          <p
-            style={{
-              fontFamily: "'Caveat','Patrick Hand','Shadows Into Light','Segoe UI',cursive",
-              fontSize: '1.3rem',
-              lineHeight: 1.45,
-              color: '#333',
-              margin: '0 0 12px',
-            }}
-            dangerouslySetInnerHTML={{ __html: sloganHTML }}
-            suppressHydrationWarning
-          />
-        )}
-
-        <LanguageButton />
-
-        {/* Mode buttons */}
-        {/* TOP BUTTON ROW (PILLS) */}
-        <div className="pill-group-wrapper">
-          <div className="pill-group">
-            <button
-              className={`pill pill--blue ${mode === 'international' ? 'is-active' : ''}`}
-              onClick={() => resetFieldsForMode('international')}
-            >
-              {F(ui, 'btnIntl', 'International Medicine Search')}
-            </button>
-
-            <button
-              className={`pill pill--blue ${mode === 'generic' ? 'is-active' : ''}`}
-              onClick={() => resetFieldsForMode('generic')}
-            >
-              {F(ui, 'btnGen', 'Search Generic')}
-            </button>
-
-            <button
-              className={`pill pill--blue ${mode === 'leaflet' ? 'is-active' : ''}`}
-              onClick={() => resetFieldsForMode('leaflet')}
-            >
-              {F(ui, 'btnLeaflet', 'Medicine Leaflet')}
-            </button>
-
-            <button
-              className={`pill pill--red ${mode === 'condition' ? 'is-active' : ''}`}
-              onClick={() => resetFieldsForMode('condition')}
-            >
-              {F(ui, 'btnCond', 'Search by Medical Condition')}
-            </button>
-
-            <button
-              className={`pill pill--green ${mode === 'pharmacy' ? 'is-active' : ''}`}
-              onClick={() => resetFieldsForMode('pharmacy')}
-            >
-              {F(ui, 'btnPharmacy', 'Search Pharmacy')}
-            </button>
-
-            <button
-              className={`pill pill--green ${mode === 'hospital' ? 'is-active' : ''}`}
-              onClick={() => resetFieldsForMode('hospital')}
-            >
-              {F(ui, 'btnHospital', 'Search Hospital')}
-            </button>
-
-            <button
-              className={`pill pill--green ${mode === 'gp' ? 'is-active' : ''}`}
-              onClick={() => resetFieldsForMode('gp')}
-            >
-              {F(ui, 'btnGP', 'Search GP')}
-            </button>
-
-            <button
-              className={`pill pill--green ${mode === 'doctor' ? 'is-active' : ''}`}
-              onClick={() => resetFieldsForMode('doctor')}
-            >
-              {F(ui, 'btnDoctor', 'Search Doctor')}
-            </button>
-
-            <button
-              className={`pill pill--red ${mode === 'triage' ? 'is-active' : ''}`}
-              onClick={() => resetFieldsForMode('triage')}
-            >
-              {F(ui, 'btnTriage', 'Symptoms Triage')}
-            </button>
-
-            <button
-              className={`pill pill--yellow ${mode === 'pets' ? 'is-active' : ''}`}
-              onClick={() => resetFieldsForMode('pets')}
-            >
-              {F(ui, 'btnPets', 'Meds 4 Pets')}
-            </button>
-          </div>
+    <main key={lang} className="medicea-shell" dir={isRTL(lang) ? 'rtl' : 'ltr'}>
+      <header className="site-header">
+        <a className="brand-link" href="/" aria-label="medicea home"><img src="/logo.png" alt="medicéa" /></a>
+        <nav className="header-nav" aria-label="Main navigation">
+          <a href="#medicine-tools">{F(ui, 'medicineTools', 'Medicine tools')}</a>
+          <a href="#find-care">{F(ui, 'findCare', 'Find care')}</a>
+        </nav>
+        <div className="language-control"><LanguageButton /></div>
+      </header>
+      <section className="welcome-hero">
+        <div className="hero-copy">
+          <span className="hero-eyebrow">{F(ui, 'travelCompanion', 'Your medicine companion')}</span>
+          <h1>{F(ui, 'modernHeadline', 'Your medicine, wherever you are.')}</h1>
+          <p>{F(ui, 'modernSubtitle', 'Explore medicine information and equivalents across countries.')}</p>
         </div>
-
-        {/* BANNER */}
-
-      </div>
-
+      </section>
+      <div className="workspace-grid">
+      <section className="search-area" id="medicine-search">
+      <div className="section-heading"><span className="section-icon"><Search size={22} /></span><div>
+        <h2>{mode === 'international' ? F(ui, 'findMedicine', 'Find a medicine') :
+          mode === 'generic' ? F(ui, 'btnGen', 'Search Generic') :
+          mode === 'leaflet' ? F(ui, 'btnLeaflet', 'Medicine Leaflet') :
+          mode === 'condition' ? F(ui, 'btnCond', 'Search by Medical Condition') :
+          mode === 'triage' ? F(ui, 'btnTriage', 'Symptoms Triage') :
+          mode === 'pets' ? F(ui, 'btnPets', 'Meds 4 Pets') : F(ui, 'findCare', 'Find care')}</h2>
+        <p>{F(ui, 'searchIntro', 'Choose your details to get started.')}</p>
+      </div></div>
       {/* FORM */}
       {mode !== 'triage' && (
-        <div style={{ ...panel, display: 'grid', gap: '10px', maxWidth: 640, margin: '0 auto' }}>
+        <div className="medicine-form">
           {/* Home country */}
           {mode !== 'condition' && mode !== 'pharmacy' && mode !== 'gp' && mode !== 'hospital' && mode !== 'doctor' && (
             <div>
               <div style={{ fontWeight: 600, marginBottom: 4 }}>{F(ui, 'phHome', 'Please select your Home Country')}</div>
-              <select value={originCode} onChange={(e) => setOriginCode(e.target.value)} style={select}>
+              <select aria-label={F(ui, 'phHome', 'Home country')} value={originCode} onChange={(e) => setOriginCode(e.target.value)} style={select}>
                 <option value="" disabled>—</option>
                 {Object.entries(countriesByRegion).map(([region, list]) => (
                   <optgroup key={region} label={region}>
@@ -1201,16 +960,17 @@ const sloganHTML = (() => {
                 <div style={{ fontWeight: 600, marginBottom: 4 }}>{F(ui, 'phMed', 'Please select/enter medicine name')}</div>
                 <input
                   type="text"
-                  placeholder={F(ui, 'phMedPH', 'Please select/enter medicine name')}
+                  aria-label={F(ui, 'phMed', 'Medicine name')} placeholder={F(ui, 'phMedPH', 'Please select/enter medicine name')}
                   value={selectedDrug}
                   onChange={(e) => setSelectedDrug(e.target.value)}
                   style={input}
                 />
               </div>
               <div>
+                <div style={{ fontWeight: 600, marginBottom: 4 }}>{F(ui, 'phDose', 'Dosage (optional)')}</div>
                 <input
                   type="text"
-                  placeholder={F(ui, 'phDose', 'Dosage (optional)')}
+                  aria-label={F(ui, 'phDose', 'Dosage (optional)')} placeholder={F(ui, 'phDose', 'Dosage (optional)')}
                   value={selectedDosage}
                   onChange={(e) => setSelectedDosage(e.target.value)}
                   style={input}
@@ -1223,7 +983,7 @@ const sloganHTML = (() => {
           {(mode === 'international' || mode === 'condition' || mode === 'pets') && (
             <div>
               <div style={{ fontWeight: 600, marginBottom: 4 }}>{F(ui, 'phTarget', 'Please select the Country to search')}</div>
-              <select value={targetCode} onChange={(e) => setTargetCode(e.target.value)} style={select}>
+              <select aria-label={F(ui, 'phTarget', 'Destination country')} value={targetCode} onChange={(e) => setTargetCode(e.target.value)} style={select}>
                 <option value="" disabled>—</option>
                 {Object.entries(countriesByRegion).map(([region, list]) => (
                   <optgroup key={region} label={region}>
@@ -1274,14 +1034,15 @@ const sloganHTML = (() => {
               (mode === 'leaflet' && !(originCode && selectedDrug)) ||
               (mode === 'condition' && !(selectedCondition && targetCode)) ||
               (mode === 'pets' && !(originCode && selectedDrug && targetCode)) ||
-              (mode === 'pharmacy' && !(userAddress || useGeo)) ||
-              (mode === 'gp' && !(userAddress || useGeo)) ||
-              (mode === 'hospital' && !(userAddress || useGeo)) ||
-              (mode === 'doctor' && !((userAddress || useGeo) && doctorSpec))
+              (mode === 'pharmacy' && !(useGeo ? geoStr : userAddress.trim())) ||
+              (mode === 'gp' && !(useGeo ? geoStr : userAddress.trim())) ||
+              (mode === 'hospital' && !(useGeo ? geoStr : userAddress.trim())) ||
+              (mode === 'doctor' && !((useGeo ? geoStr : userAddress.trim()) && doctorSpec))
             }
-            className={`pill pill--blue${loading ? ' pill--disabled' : ''}`}
-            style={{ width: '100%' }}
+            className={`pill pill--blue search-submit${loading ? ' pill--disabled' : ''}`}
+            aria-busy={loading}
           >
+            <Search size={19} aria-hidden="true" />
             {loading
               ? '…'
               : mode === 'international'
@@ -1295,9 +1056,51 @@ const sloganHTML = (() => {
               : mode === 'pets'
               ? F(ui, 'searchPets', 'Search Pet Medicines')
               : F(ui, 'openMaps', 'Open in Google Maps')}
+          <ArrowRight size={19} aria-hidden="true" />
           </button>
+          <p className="search-note"><ShieldCheck size={17} />{F(ui, 'educationalNote', 'Medicine information is educational. Confirm suitability with a pharmacist.')}</p>
         </div>
       )}
+      {mode === 'triage' && <SymptomTriage />}
+      </section>
+      <aside className="medicine-tools" id="medicine-tools">
+        <h2>{F(ui, 'exploreTools', 'Explore medicine tools')}</h2>
+        <div className="tool-grid">
+          {([
+            ['international', 'btnIntl', 'International Medicine Search', Search],
+            ['leaflet', 'btnLeaflet', 'Medicine Leaflet', FileText],
+            ['generic', 'btnGen', 'Search Generic', Pill],
+            ['condition', 'btnCond', 'Search by Medical Condition', HeartPulse],
+            ['pets', 'btnPets', 'Meds 4 Pets', PawPrint],
+            ['triage', 'btnTriage', 'Symptoms Triage', Stethoscope],
+          ] as const).map(([value, key, fallback, Icon]) => (
+            <button type="button" key={value} className={`tool-card ${mode === value ? 'is-active' : ''}`}
+              aria-pressed={mode === value} onClick={() => resetFieldsForMode(value)}>
+              <span className="tool-icon"><Icon size={25} aria-hidden="true" /></span>
+              <span className="tool-label">{F(ui, key, fallback)}</span><ArrowRight size={16} className="tool-arrow" aria-hidden="true" />
+            </button>
+          ))}
+        </div>
+      </aside>
+      </div>
+      <section className="care-section" id="find-care">
+        <h2>{F(ui, 'careNearby', 'Find care nearby')}</h2>
+        <p>{F(ui, 'careIntro', 'Locate healthcare services at your destination.')}</p>
+        <div className="care-grid">
+          {([
+            ['pharmacy', 'btnPharmacy', 'Search Pharmacy', Cross],
+            ['doctor', 'btnDoctor', 'Search Doctor', Stethoscope],
+            ['hospital', 'btnHospital', 'Search Hospital', Hospital],
+            ['gp', 'btnGP', 'Search GP', UserRound],
+          ] as const).map(([value, key, fallback, Icon]) => (
+            <button type="button" key={value} className={`care-card ${mode === value ? 'is-active' : ''}`}
+              aria-pressed={mode === value} onClick={() => { resetFieldsForMode(value); document.getElementById('medicine-search')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }}>
+              <span className="tool-icon"><Icon size={24} aria-hidden="true" /></span>
+              <span>{F(ui, key, fallback)}</span><ArrowRight size={18} aria-hidden="true" />
+            </button>
+          ))}
+        </div>
+      </section>
 
       {/* RESULTS */}
       {mode !== 'triage' && (
@@ -1457,15 +1260,8 @@ const sloganHTML = (() => {
         </div>
       )}
 
-      {/* TRIAGE */}
-      {mode === 'triage' && (
-        <div style={{ marginTop: 16 }}>
-          <SymptomTriage />
-        </div>
-      )}
-
       {/* DISCLAIMER */}
-      <div style={{ fontSize: '0.85rem', color: '#333', marginTop: '2rem' }}>
+      <div className="medical-disclaimer">
         <p style={{ textAlign: 'justify' }}>
           <strong style={{ color: '#cc0000', textDecoration: 'underline' }}>{F(t as any, 'disclaimerTitle', 'DISCLAIMER')}</strong>
         </p>

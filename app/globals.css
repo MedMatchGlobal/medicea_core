@@ -457,3 +457,72 @@ body {
   display: flex;
   justify-content: center;
 }
+
+/* Modern medicea responsive interface */
+html { font-size:16px; scroll-behavior:smooth; }
+body { background:#f5f8fc; color:#112445; }
+* { box-sizing:border-box; }
+.medicea-shell { max-width:1240px; margin:0 auto; padding:0 28px 30px; }
+.site-header { display:flex; align-items:center; justify-content:space-between; gap:24px; min-height:102px; }
+.brand-link { display:block; width:190px; }
+.brand-link img { display:block; width:100%; height:auto; }
+.header-nav { display:flex; gap:36px; }
+.header-nav a { color:#233b5b; text-decoration:none; font-size:14px; font-weight:600; }
+.language-control button { color:#233b5b; min-height:44px; font:inherit; }
+.welcome-hero { min-height:260px; padding:44px 32px 74px; border-radius:22px; background:linear-gradient(90deg,#eef7ff 15%,rgba(238,247,255,.85) 40%,rgba(238,247,255,.1) 100%),url('/medicea-coast.png') center right/cover; }
+.hero-copy { max-width:740px; }
+.hero-eyebrow { text-transform:uppercase; letter-spacing:.15em; font-size:11px; font-weight:700; color:#246fbe; }
+.hero-copy h1 { font-size:clamp(28px,3.2vw,44px); letter-spacing:-.045em; line-height:1.12; max-width:680px; margin:14px 0; }
+.hero-copy p { color:#4d6482; font-size:17px; line-height:1.6; margin:0; max-width:580px; }
+.workspace-grid { display:grid; grid-template-columns:minmax(0,1.3fr) minmax(0,1fr); gap:22px; position:relative; margin: -36px 22px 0; align-items:start; }
+.search-area,.medicine-tools,.care-section { background:#fff; border:1px solid #e1e9f3; border-radius:18px; box-shadow:0 8px 28px #173e6510; padding:26px; min-width:0; }
+.section-heading { display:flex; align-items:center; gap:12px; margin-bottom:22px; }
+.section-icon,.tool-icon { display:inline-flex; justify-content:center; align-items:center; flex-shrink:0; color:#1872e9; background:#eaf4ff; border-radius:12px; width:46px; height:46px; }
+.medicea-shell h2 { margin:0; font-size:21px; line-height:1.35; letter-spacing:-.025em; }
+.section-heading p,.care-section>p { color:#64758d; font-size:13px; margin:6px 0 0; line-height:1.5; }
+.medicine-form { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:18px; }
+.medicine-form>div { min-width:0; }
+.medicine-form>div>div { color:#293f5c; font-size:12px; line-height:1.5; min-height:19px; }
+.medicine-form input:not([type=checkbox]),.medicine-form select,.medicine-form textarea { width:100%; padding:12px 13px; border:1px solid #dbe4ef; border-radius:10px; min-height:46px; font:inherit; font-size:14px; color:#233b5b; background:#fff; box-shadow:0 2px 3px #183a5b03; }
+.medicine-form input::placeholder,.medicine-form textarea::placeholder { color:#8694a8; }
+.medicine-form select { text-overflow:ellipsis; }
+.medicine-form>label { grid-column:1/-1; min-height:44px; font-size:14px; }
+.medicine-form>div:has(textarea) { grid-column:1/-1; }
+.medicine-form .pill,.medicea-shell .pill { border:0; border-radius:11px; background:#1673ed; color:#fff; font-size:14px; font-weight:600; box-shadow:none; min-height:46px; width:auto; padding:12px 18px; gap:12px; }
+.medicea-shell .pill::before,.medicea-shell .pill::after { display:none; }
+.medicea-shell .pill:disabled { background:#b6cdec; opacity:1; color:#344e72; cursor:not-allowed; }
+.medicine-form .search-submit { grid-column:1/-1; width:100%; margin-top:6px; display:flex; align-items:center; justify-content:center; min-height:50px; }
+.search-submit>svg:last-child { margin-inline-start:auto; }
+.search-note { grid-column:1/-1; display:flex; align-items:flex-start; gap:8px; color:#60738f; font-size:11px; line-height:1.5; margin:0; }
+.search-note svg { flex-shrink:0; color:#2174db; }
+.medicine-tools h2 { margin-bottom:20px; }
+.tool-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
+.tool-card { display:flex; flex-direction:column; align-items:flex-start; text-align:start; position:relative; min-height:126px; gap:13px; border:1px solid #e1e9f3; background:#fff; border-radius:12px; padding:15px; cursor:pointer; color:#233b5b; font:inherit; transition:background .18s,border-color .18s,transform .18s; }
+.tool-label { font-size:12px; line-height:1.45; font-weight:650; padding-inline-end:14px; }
+.tool-arrow { position:absolute; inset-inline-end:12px; bottom:16px; color:#1872e9; }
+.tool-card.is-active,.care-card.is-active { background:#f0f7ff; border-color:#5398ee; }
+.tool-card:hover,.care-card:hover { background:#f5f9ff; border-color:#9cbdeb; transform:translateY(-2px); }
+.care-section { margin:22px 22px 0; }
+.care-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; margin-top:20px; }
+.care-card { display:flex; align-items:center; text-align:start; gap:12px; min-height:80px; padding:12px; background:#fff; border:1px solid #e1e9f3; border-radius:12px; cursor:pointer; color:#233b5b; font:inherit; font-size:12px; font-weight:600; }
+.care-card>svg { margin-inline-start:auto; color:#1872e9; flex-shrink:0; }
+.medical-disclaimer { margin:32px 22px 0; font-size:12px; color:#64758d; line-height:1.7; }
+.ai-plain { background:#fff; border:1px solid #e1e9f3; border-radius:16px; padding:24px; overflow-wrap:anywhere; white-space:pre-wrap; line-height:1.7; }
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible { outline:3px solid #659ef1; outline-offset:3px; }
+@media(max-width:900px) { .workspace-grid { grid-template-columns:1fr; } .care-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } .header-nav { gap:20px; } }
+@media(max-width:600px) {
+ html { font-size:16px; } .medicea-shell { padding:0 14px 22px; }
+ .site-header { min-height:78px; gap:12px; } .brand-link { width:140px; } .header-nav { display:none; }
+ .language-control button { min-width:92px!important; font-size:12px; }
+ .welcome-hero { padding:24px 20px 60px; min-height:245px; background-position:65% center; }
+ .hero-copy h1 { font-size:30px; max-width:290px; } .hero-copy p { font-size:13px; max-width:260px; }
+ .hero-eyebrow { font-size:9px; } .workspace-grid { margin:-30px 0 0; gap:16px; }
+ .search-area,.medicine-tools,.care-section { padding:20px; border-radius:15px; }
+ .medicine-form { grid-template-columns:1fr; gap:15px; } .medicea-shell h2 { font-size:19px; }
+ .section-heading { margin-bottom:18px; } .section-heading p { font-size:12px; }
+ .tool-grid { gap:10px; } .tool-card { min-height:116px; padding:13px; } .tool-label { font-size:12px; }
+ .care-section { margin:16px 0 0; } .care-card { min-height:76px; gap:8px; padding:10px; font-size:11px; }
+ .care-card .tool-icon { width:34px; height:38px; } .care-card>svg { width:14px; }
+ .medical-disclaimer { margin:24px 5px 0; font-size:11px; }
+}
+@media(prefers-reduced-motion:reduce) { html { scroll-behavior:auto; } *,*::before,*::after { transition:none!important; animation:none!important; } }
