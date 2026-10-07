@@ -561,14 +561,27 @@ function Home() {
   const [result, setResult] = useState<string>('');
   const [loading, setLoading] = useState(false);
   const [screen, setScreen] = useState<'search' | 'tools' | 'care' | 'results'>('search');
+  const [activeSection, setActiveSection] = useState<'search' | 'tools' | 'care'>('search');
   const [searched, setSearched] = useState(false);
   const [searchFailed, setSearchFailed] = useState(false);
 
+  function revealWorkspace() {
+    requestAnimationFrame(() => {
+      const nav = document.getElementById('workspace-start');
+      if (!nav) return;
+      const headerBottom = document.querySelector('.site-header')?.getBoundingClientRect().bottom ?? 0;
+      const rect = nav.getBoundingClientRect();
+      // Switching visible tabs must not move the page. Reveal navigation only
+      // when returning from results or a tool further down the page.
+      if (rect.top < headerBottom || rect.bottom > window.innerHeight) {
+        window.scrollTo({ top: Math.max(0, window.scrollY + rect.top - headerBottom - 12), behavior: 'instant' });
+      }
+    });
+  }
   function showScreen(next: 'search' | 'tools' | 'care' | 'results') {
     setScreen(next);
-    requestAnimationFrame(() => {
-      document.getElementById(next === 'results' ? 'search-results' : 'workspace-start')?.scrollIntoView({ block: 'start', behavior: 'instant' });
-    });
+    if (next === 'tools' || next === 'care') setActiveSection(next);
+    revealWorkspace();
   }
   function clearSearch() {
     resetFieldsForMode(mode);
@@ -643,18 +656,7 @@ function Home() {
     setViewLeaflet({});
     setUserAddress('');
     setUseGeo(false);
-    // Wait for the selected tool's inputs to render before revealing the form.
-    requestAnimationFrame(() => {
-      const form = document.getElementById('medicine-search');
-      if (!form) return;
-      const headerBottom = document.querySelector('.site-header')?.getBoundingClientRect().bottom ?? 0;
-      const title = document.getElementById('search-title')?.getBoundingClientRect();
-      // Keep an already visible form anchored; reveal it only when off-screen.
-      if (title && (title.top < headerBottom + 12 || title.bottom > window.innerHeight - 24)) {
-        window.scrollTo({ top: Math.max(0, window.scrollY + form.getBoundingClientRect().top - headerBottom - 16), behavior: 'instant' });
-      }
-      form.focus({ preventScroll: true });
-    });
+    revealWorkspace();
   }
 
   const plainText = useMemo(() => (typeof result === 'string' ? result : ''), [result]);
@@ -906,8 +908,8 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
       <header className="site-header">
         <a className="brand-link" href="/" aria-label="medicea home"><img src="/logo.png" alt="medicéa" /></a>
         <nav className="header-nav" aria-label="Main navigation">
-          <a href="#workspace-start" onClick={() => showScreen('tools')}>{F(ui, 'medicineTools', 'Medicine tools')}</a>
-          <a href="#workspace-start" onClick={() => showScreen('care')}>{F(ui, 'findCare', 'Find care')}</a>
+          <a href="#workspace-start" onClick={(event) => { event.preventDefault(); showScreen('tools'); }}>{F(ui, 'medicineTools', 'Medicine tools')}</a>
+          <a href="#workspace-start" onClick={(event) => { event.preventDefault(); showScreen('care'); }}>{F(ui, 'findCare', 'Find care')}</a>
         </nav>
         <div className="language-control"><LanguageButton /></div>
       </header>
@@ -919,10 +921,11 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
         </div>
       </section>
       <nav className="workspace-nav" id="workspace-start" aria-label={F(ui, 'medicineTools', 'Medicine tools')}>
-        <button aria-pressed={screen === 'search'} onClick={() => showScreen('search')}><Search size={18}/>{F(ui, 'findMedicine', 'Find a medicine')}</button>
-        <button aria-pressed={screen === 'tools'} onClick={() => showScreen('tools')}><Pill size={18}/>{F(ui, 'medicineTools', 'Medicine tools')}</button>
-        <button aria-pressed={screen === 'care'} onClick={() => showScreen('care')}><Cross size={18}/>{F(ui, 'careNearby', 'Find care nearby')}</button>
+        <button aria-pressed={activeSection === 'search'} onClick={() => { setActiveSection('search'); resetFieldsForMode('international'); }}><Search size={18}/>{F(ui, 'findMedicine', 'Find a medicine')}</button>
+        <button aria-pressed={activeSection === 'tools'} onClick={() => showScreen('tools')}><Pill size={18}/>{F(ui, 'medicineTools', 'Medicine tools')}</button>
+        <button aria-pressed={activeSection === 'care'} onClick={() => showScreen('care')}><Cross size={18}/>{F(ui, 'careNearby', 'Find care nearby')}</button>
       </nav>
+      <div className="workspace-panels">
       <div className="workspace-grid">
       <section className="search-area" id="medicine-search" tabIndex={-1} aria-labelledby="search-title">
       <div className="section-heading"><span className="section-icon"><Search size={22} /></span><div>
@@ -1296,6 +1299,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
         </section>
       )}
 
+      </div>
       {/* DISCLAIMER */}
       <div className="medical-disclaimer">
         <p style={{ textAlign: 'justify' }}>

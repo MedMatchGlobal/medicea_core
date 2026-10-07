@@ -556,7 +556,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 .flow-care .care-section { margin-top:22px; }
 .results-view { display:none; margin:22px; scroll-margin-top:120px; }
 .flow-results .results-view { display:block; }
-.flow-results .welcome-hero { display:none; }
+
 .results-heading { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:16px; background:white; padding:24px; border:1px solid #dce7f8; border-radius:18px; margin-bottom:20px; }
 .results-heading h2 { margin:0 0 8px; font-size:26px; color:#172d50; }
 .results-heading p { margin:0; color:#557194; }
@@ -582,3 +582,8 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
  .results-actions button { flex:1; }
  .country-options { min-width:0; }
 }
+
+/* Reserve a consistent panel area so shorter tabs cannot clamp the scroll. */
+.workspace-panels { display:flow-root; min-height:680px; }
+html { scrollbar-gutter:stable; }
+@media(max-width:600px) { .workspace-panels { min-height:740px; } }
