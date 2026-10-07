@@ -1,6 +1,22 @@
 {
   "langName": "Čeština",
   "ui": {
+    "travelCompanion": "Váš průvodce léky",
+    "modernHeadline": "Vaše léky, ať jste kdekoli.",
+    "modernSubtitle": "Prozkoumejte informace o lécích a jejich ekvivalentech v různých zemích.",
+    "findMedicine": "Najít lék",
+    "findCare": "Najít zdravotní péči",
+    "searchIntro": "Vyplňte údaje a začněte.",
+    "educationalNote": "Informace o lécích slouží ke vzdělávání. Vhodnost ověřte u lékárníka.",
+    "exploreTools": "Prozkoumat nástroje pro léky",
+    "careNearby": "Najít péči v okolí",
+    "careIntro": "Vyhledejte zdravotní služby v cílové destinaci.",
+    "medicineTools": "Nástroje pro léky",
+    "myHealth": "Moje zdraví",
+    "medicineServiceError": "Informace o lécích jsou dočasně nedostupné. Zkuste to za chvíli znovu.",
+    "leafletFail": "Nepodařilo se načíst příbalový leták.",
+    "petEquivHeader": "Ekvivalentní veterinární léčiva",
+
     "slogan": "Inspirováno Panacéou, bohyní univerzálního léku, je medicéa® vaším pasem k medicíně kdekoliv na světě — naše mise je spojovat lidi se život zachraňující léčbou bez hranic.",
     "btnIntl": "Mezinárodní vyhledávání léčiv",
     "btnCond": "Hledat podle Zdravotního Stavu",

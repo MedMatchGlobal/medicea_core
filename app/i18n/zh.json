@@ -1,6 +1,22 @@
 {
   "langName": "中文",
   "ui": {
+    "travelCompanion": "您的用药助手",
+    "modernHeadline": "无论身在何处，都能找到您的药。",
+    "modernSubtitle": "了解不同国家的药品信息及同等药品。",
+    "findMedicine": "查找药品",
+    "findCare": "查找医疗服务",
+    "searchIntro": "填写信息以开始。",
+    "educationalNote": "药品信息仅供学习参考。请向药剂师确认药品是否适合您。",
+    "exploreTools": "探索药品工具",
+    "careNearby": "查找附近的医疗服务",
+    "careIntro": "查找目的地的医疗服务。",
+    "medicineTools": "药品工具",
+    "myHealth": "我的健康",
+    "medicineServiceError": "药品信息暂时无法使用。请稍后重试。",
+    "leafletFail": "无法获取药品说明书。",
+    "petEquivHeader": "同等宠物药品",
+
     "slogan": "灵感源自万灵之女神帕纳刻亚，medicéa® 是您通往全球医疗的护照——我们的使命是连接人们与跨越国界的救命治疗。",
     "btnIntl": "国际药品查询",
     "btnCond": "按病症查询",

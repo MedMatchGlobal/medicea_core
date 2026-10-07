@@ -1,6 +1,22 @@
 {
   "langName": "Magyar",
   "ui": {
+    "travelCompanion": "Társa a gyógyszerek világában",
+    "modernHeadline": "Gyógyszerei, bárhol is jár.",
+    "modernSubtitle": "Ismerje meg a gyógyszereket és más országokban elérhető megfelelőiket.",
+    "findMedicine": "Gyógyszer keresése",
+    "findCare": "Egészségügyi ellátás keresése",
+    "searchIntro": "A kezdéshez töltse ki az adatokat.",
+    "educationalNote": "A gyógyszerinformációk oktatási célúak. Az alkalmasságot egyeztesse gyógyszerésszel.",
+    "exploreTools": "Gyógyszereszközök felfedezése",
+    "careNearby": "Ellátás keresése a közelben",
+    "careIntro": "Keressen egészségügyi szolgáltatásokat az úti célján.",
+    "medicineTools": "Gyógyszereszközök",
+    "myHealth": "Az egészségem",
+    "medicineServiceError": "A gyógyszerinformációk átmenetileg nem érhetők el. Próbálja újra később.",
+    "leafletFail": "Nem sikerült betölteni a betegtájékoztatót.",
+    "petEquivHeader": "Megfelelő állatgyógyszerek",
+
     "slogan": "A mindent gyógyító istennő, Panacéa ihletésére a medicéa® az ön útlevele az orvosláshoz bárhol a világon — küldetésünk, hogy az embereket határok nélkül összekapcsoljuk életmentő kezelésekkel.",
     "btnIntl": "Nemzetközi gyógyszerkereső",
     "btnCond": "Keresés Egészségi Állapot Szerint",

@@ -1,6 +1,22 @@
 {
   "langName": "Suomi",
   "ui": {
+    "travelCompanion": "Kumppanisi lääkeasioissa",
+    "modernHeadline": "Lääkkeesi, missä ikinä oletkin.",
+    "modernSubtitle": "Tutustu lääketietoihin ja vastaaviin lääkkeisiin eri maissa.",
+    "findMedicine": "Etsi lääke",
+    "findCare": "Etsi hoitoa",
+    "searchIntro": "Täytä tiedot aloittaaksesi.",
+    "educationalNote": "Lääketiedot ovat opetuksellisia. Varmista lääkkeen sopivuus apteekista.",
+    "exploreTools": "Tutustu lääketyökaluihin",
+    "careNearby": "Etsi hoitoa läheltä",
+    "careIntro": "Löydä terveyspalveluja määränpäästäsi.",
+    "medicineTools": "Lääketyökalut",
+    "myHealth": "Oma terveys",
+    "medicineServiceError": "Lääketiedot eivät ole tilapäisesti saatavilla. Yritä hetken kuluttua uudelleen.",
+    "leafletFail": "Pakkausselosteen hakeminen epäonnistui.",
+    "petEquivHeader": "Vastaavat eläinlääkkeet",
+
     "slogan": "Panacéasta, yleislääkkeen jumalattaresta, innoituksensa saanut medicéa® on passisi lääketieteeseen kaikkialla maailmassa — tehtävämme on yhdistää ihmiset henkiä pelastaviin hoitoihin ilman rajoja.",
     "btnIntl": "Kansainvälinen lääkkeenhaku",
     "btnCond": "Hae Lääketieteellisen Tilanteen Perusteella",

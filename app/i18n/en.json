@@ -1,6 +1,22 @@
 {
   "langName": "English",
   "ui": {
+    "travelCompanion": "Your medicine companion",
+    "modernHeadline": "Your medicine, wherever you are.",
+    "modernSubtitle": "Explore medicine information and equivalents across countries.",
+    "findMedicine": "Find a medicine",
+    "findCare": "Find care",
+    "searchIntro": "Choose your details to get started.",
+    "educationalNote": "Medicine information is educational. Confirm suitability with a pharmacist.",
+    "exploreTools": "Explore medicine tools",
+    "careNearby": "Find care nearby",
+    "careIntro": "Locate healthcare services at your destination.",
+    "medicineTools": "Medicine tools",
+    "myHealth": "My Health",
+    "medicineServiceError": "Medicine information is temporarily unavailable. Please try again shortly.",
+    "leafletFail": "Failed to fetch leaflet.",
+    "petEquivHeader": "Equivalent pet medicines",
+
     "slogan": "Inspired by Panacéa, the goddess of the universal cure, medicéa® is your passport to medicine anywhere in the world — connecting people to life-saving treatments without borders is our mission.",
     "btnIntl": "International Medicine Search",
     "btnCond": "Search by Medical Condition",

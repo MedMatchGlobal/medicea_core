@@ -1,6 +1,22 @@
 {
   "langName": "日本語",
   "ui": {
+    "travelCompanion": "あなたのお薬パートナー",
+    "modernHeadline": "どこにいても、あなたのお薬を。",
+    "modernSubtitle": "各国の医薬品情報や同等の医薬品を調べましょう。",
+    "findMedicine": "医薬品を探す",
+    "findCare": "医療機関を探す",
+    "searchIntro": "必要な情報を入力して始めましょう。",
+    "educationalNote": "医薬品情報は学習用です。適切かどうかは薬剤師に確認してください。",
+    "exploreTools": "医薬品ツールを使う",
+    "careNearby": "近くの医療機関を探す",
+    "careIntro": "目的地の医療サービスを探しましょう。",
+    "medicineTools": "医薬品ツール",
+    "myHealth": "私の健康",
+    "medicineServiceError": "医薬品情報を一時的に取得できません。しばらくしてから再度お試しください。",
+    "leafletFail": "添付文書を取得できませんでした。",
+    "petEquivHeader": "同等の動物用医薬品",
+
     "slogan": "万病に効く女神パナケイアに着想を得た medicéa® は、世界中どこでも医療へつながるあなたのパスポートです——国境を越えて命を救う治療へ人々をつなぐことが私たちの使命です.",
     "btnIntl": "国際医薬品検索",
     "btnCond": "病状で検索する",

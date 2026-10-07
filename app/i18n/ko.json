@@ -1,6 +1,22 @@
 {
   "langName": "한국어",
   "ui": {
+    "travelCompanion": "당신의 의약품 길잡이",
+    "modernHeadline": "어디서든, 당신의 의약품을.",
+    "modernSubtitle": "여러 나라의 의약품 정보와 동등한 의약품을 알아보세요.",
+    "findMedicine": "의약품 찾기",
+    "findCare": "의료 서비스 찾기",
+    "searchIntro": "시작하려면 정보를 입력하세요.",
+    "educationalNote": "의약품 정보는 교육용입니다. 적합한지 약사에게 확인하세요.",
+    "exploreTools": "의약품 도구 살펴보기",
+    "careNearby": "주변 의료 서비스 찾기",
+    "careIntro": "목적지의 의료 서비스를 찾아보세요.",
+    "medicineTools": "의약품 도구",
+    "myHealth": "내 건강",
+    "medicineServiceError": "의약품 정보를 일시적으로 사용할 수 없습니다. 잠시 후 다시 시도하세요.",
+    "leafletFail": "설명서를 가져오지 못했습니다.",
+    "petEquivHeader": "동등한 동물용 의약품",
+
     "slogan": "보편적 치유의 여신 파나케이아에서 영감을 얻은 medicéa®는 전 세계 어디서나 의료로 가는 당신의 여권입니다 — 국경을 넘어 생명을 구하는 치료로 사람들을 연결하는 것이 우리의 사명입니다.",
     "btnIntl": "국제 의약품 검색",
     "btnCond": "의학적 상태로 검색",

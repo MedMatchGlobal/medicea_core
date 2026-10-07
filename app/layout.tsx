@@ -11,6 +11,8 @@ export const metadata = {
   description: "Global drug matching for safe travel and relocation.",
 };
 
+export const viewport = { width: 'device-width', initialScale: 1, viewportFit: 'cover' };
+
 const GA_ID = "G-0T2C9SV02B";
 
 export default function RootLayout({
@@ -41,7 +43,7 @@ export default function RootLayout({
           `}
         </Script>
       </head>
-      <body style={{ overflow: "scroll" }}>
+      <body>
         <Suspense fallback={null}>
           <GATracker />
         </Suspense>

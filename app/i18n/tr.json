@@ -1,6 +1,22 @@
 {
   "langName": "Türkçe",
   "ui": {
+    "travelCompanion": "İlaç rehberiniz",
+    "modernHeadline": "İlaçlarınız, nerede olursanız olun.",
+    "modernSubtitle": "Farklı ülkelerdeki ilaç bilgilerini ve eşdeğerlerini keşfedin.",
+    "findMedicine": "İlaç bul",
+    "findCare": "Sağlık hizmeti bul",
+    "searchIntro": "Başlamak için bilgileri girin.",
+    "educationalNote": "İlaç bilgileri eğitim amaçlıdır. Uygunluğunu eczacınıza danışın.",
+    "exploreTools": "İlaç araçlarını keşfedin",
+    "careNearby": "Yakındaki sağlık hizmetlerini bulun",
+    "careIntro": "Gideceğiniz yerdeki sağlık hizmetlerini bulun.",
+    "medicineTools": "İlaç araçları",
+    "myHealth": "Sağlığım",
+    "medicineServiceError": "İlaç bilgileri geçici olarak kullanılamıyor. Lütfen biraz sonra tekrar deneyin.",
+    "leafletFail": "Kullanma talimatı alınamadı.",
+    "petEquivHeader": "Eşdeğer hayvan ilaçları",
+
     "slogan": "Evrensel şifanın tanrıçası Panacéa’dan ilham alan medicéa® dünyadaki her yerde tıbba açılan pasaportunuzdur — insanları sınır tanımayan, hayat kurtaran tedavilerle buluşturmak misyonumuzdur.",
     "btnIntl": "Uluslararası İlaç Arama",
     "btnCond": "Tıbbi Duruma Göre Ara",

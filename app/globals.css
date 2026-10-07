@@ -526,3 +526,15 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
  .medical-disclaimer { margin:24px 5px 0; font-size:11px; }
 }
 @media(prefers-reduced-motion:reduce) { html { scroll-behavior:auto; } *,*::before,*::after { transition:none!important; animation:none!important; } }
+/* Persistent app navigation and a clear destination for every tool. */
+.site-header { position:sticky; top:0; z-index:60; background:#f5f8fc; padding-top:env(safe-area-inset-top,0px); box-shadow:0 8px 16px #173e6508; }
+.medicea-shell { padding-bottom:max(30px,env(safe-area-inset-bottom,0px)); }
+.search-area { scroll-margin-top:calc(118px + env(safe-area-inset-top,0px)); }
+.medicine-form input:not([type=checkbox]),.medicine-form select,.medicine-form textarea { background:#f1f7ff!important; border-color:#94b9eb!important; }
+.medicine-form input:focus,.medicine-form select:focus,.medicine-form textarea:focus { background:#fff!important; border-color:#1872e9!important; box-shadow:0 0 0 3px #1872e920; }
+.medicine-form input:disabled { background:#eef1f5!important; border-color:#dbe4ef!important; }
+@media(max-width:600px) { .search-area { scroll-margin-top:calc(94px + env(safe-area-inset-top,0px)); } .language-control { gap:8px!important; } .language-control>a { font-size:11px!important; white-space:normal!important; max-width:64px; } .brand-link { width:120px; flex-shrink:0; } }
+@media(prefers-reduced-motion:reduce) { html { scroll-behavior:auto; } .tool-card,.care-card { transition:none; } }
+.medicine-form>div:has(>input:required)>div:first-child::after,.medicine-form>div:has(>select:required)>div:first-child::after { content:' *'; color:#1872e9; font-weight:700; }
+.medicine-form input:required,.medicine-form select:required { border-color:#649ce3!important; }
+.search-area textarea { background:#f1f7ff; border-color:#94b9eb; }

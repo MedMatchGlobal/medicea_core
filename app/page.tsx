@@ -29,7 +29,8 @@ import { registerUsage } from './lib/subscriptionClient';
 import { hasFreeQuota, incrementUsage } from './lib/usageTracker';
 
 /** Feature flag: turn free-usage limits on/off from env */
-const LIMITS_ON = process.env.NEXT_PUBLIC_ENABLE_USAGE_LIMITS === 'true';
+const BETA_TESTING = process.env.NEXT_PUBLIC_BETA_TESTING === 'true';
+const LIMITS_ON = !BETA_TESTING && process.env.NEXT_PUBLIC_ENABLE_USAGE_LIMITS === 'true';
 
 /* -------------------------- WRAPPER -------------------------- */
 
@@ -624,6 +625,12 @@ function Home() {
     setViewLeaflet({});
     setUserAddress('');
     setUseGeo(false);
+    // Wait for the selected tool's inputs to render before revealing the form.
+    requestAnimationFrame(() => {
+      const form = document.getElementById('medicine-search');
+      form?.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
+      form?.focus({ preventScroll: true });
+    });
   }
 
   const plainText = useMemo(() => (typeof result === 'string' ? result : ''), [result]);
@@ -658,7 +665,7 @@ type PremiumMode = Extract<Mode, 'pets' | 'generic' | 'triage'>;
 const isPremiumMode = (m: Mode): m is PremiumMode =>
   m === 'pets' || m === 'generic' || m === 'triage';
 
-if (isPremiumMode(mode)) {
+if (!BETA_TESTING && isPremiumMode(mode)) {
   const reason: PaywallReason = mode === 'pets' ? 'pets' : mode === 'generic' ? 'generics' : 'triage';
   setPaywallReason(reason);
   setPaywallVisible(true);
@@ -884,14 +891,17 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
         </div>
       </section>
       <div className="workspace-grid">
-      <section className="search-area" id="medicine-search">
+      <section className="search-area" id="medicine-search" tabIndex={-1} aria-labelledby="search-title">
       <div className="section-heading"><span className="section-icon"><Search size={22} /></span><div>
-        <h2>{mode === 'international' ? F(ui, 'findMedicine', 'Find a medicine') :
+        <h2 id="search-title">{mode === 'international' ? F(ui, 'findMedicine', 'Find a medicine') :
           mode === 'generic' ? F(ui, 'btnGen', 'Search Generic') :
           mode === 'leaflet' ? F(ui, 'btnLeaflet', 'Medicine Leaflet') :
           mode === 'condition' ? F(ui, 'btnCond', 'Search by Medical Condition') :
           mode === 'triage' ? F(ui, 'btnTriage', 'Symptoms Triage') :
-          mode === 'pets' ? F(ui, 'btnPets', 'Meds 4 Pets') : F(ui, 'findCare', 'Find care')}</h2>
+          mode === 'pets' ? F(ui, 'btnPets', 'Meds 4 Pets') :
+          mode === 'pharmacy' ? F(ui, 'btnPharmacy', 'Search Pharmacy') :
+          mode === 'doctor' ? F(ui, 'btnDoctor', 'Search Doctor') :
+          mode === 'hospital' ? F(ui, 'btnHospital', 'Search Hospital') : F(ui, 'btnGP', 'Search GP')}</h2>
         <p>{F(ui, 'searchIntro', 'Choose your details to get started.')}</p>
       </div></div>
       {/* FORM */}
@@ -901,7 +911,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
           {mode !== 'condition' && mode !== 'pharmacy' && mode !== 'gp' && mode !== 'hospital' && mode !== 'doctor' && (
             <div>
               <div style={{ fontWeight: 600, marginBottom: 4 }}>{F(ui, 'phHome', 'Please select your Home Country')}</div>
-              <select aria-label={F(ui, 'phHome', 'Home country')} value={originCode} onChange={(e) => setOriginCode(e.target.value)} style={select}>
+              <select required aria-label={F(ui, 'phHome', 'Home country')} value={originCode} onChange={(e) => setOriginCode(e.target.value)} style={select}>
                 <option value="" disabled>—</option>
                 {Object.entries(countriesByRegion).map(([region, list]) => (
                   <optgroup key={region} label={region}>
@@ -917,7 +927,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
             <>
               <div>
                 <div style={{ fontWeight: 600, marginBottom: 4 }}>{F(ui, 'condSelect', 'Select or type a condition')}</div>
-                <select onChange={(e) => setSelectedCondition(e.target.value)} value={selectedCondition} style={select}>
+                <select required aria-label={F(ui, 'condSelect', 'Select or type a condition')} onChange={(e) => setSelectedCondition(e.target.value)} value={selectedCondition} style={select}>
                   <option value="" disabled>—</option>
                   {(conditionGroups ?? []).map((g) => (
                     <optgroup key={g.id} label={(groupLabels[g.id] || g.label)}>
@@ -960,7 +970,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
                 <div style={{ fontWeight: 600, marginBottom: 4 }}>{F(ui, 'phMed', 'Please select/enter medicine name')}</div>
                 <input
                   type="text"
-                  aria-label={F(ui, 'phMed', 'Medicine name')} placeholder={F(ui, 'phMedPH', 'Please select/enter medicine name')}
+                  required aria-label={F(ui, 'phMed', 'Medicine name')} placeholder={F(ui, 'phMedPH', 'Please select/enter medicine name')}
                   value={selectedDrug}
                   onChange={(e) => setSelectedDrug(e.target.value)}
                   style={input}
@@ -983,7 +993,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
           {(mode === 'international' || mode === 'condition' || mode === 'pets') && (
             <div>
               <div style={{ fontWeight: 600, marginBottom: 4 }}>{F(ui, 'phTarget', 'Please select the Country to search')}</div>
-              <select aria-label={F(ui, 'phTarget', 'Destination country')} value={targetCode} onChange={(e) => setTargetCode(e.target.value)} style={select}>
+              <select required aria-label={F(ui, 'phTarget', 'Destination country')} value={targetCode} onChange={(e) => setTargetCode(e.target.value)} style={select}>
                 <option value="" disabled>—</option>
                 {Object.entries(countriesByRegion).map(([region, list]) => (
                   <optgroup key={region} label={region}>
@@ -1001,7 +1011,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
                 <div style={{ fontWeight: 600, marginBottom: 4 }}>{F(ui, 'addressPrompt', 'Enter an address (or use device location')}</div>
                 <input
                   type="text"
-                  placeholder={F(ui, 'addressPH', 'Street, City, Country…')}
+                  required={!useGeo} aria-label={F(ui, 'addressPrompt', 'Enter an address (or use device location)')} placeholder={F(ui, 'addressPH', 'Street, City, Country…')}
                   value={userAddress}
                   onChange={(e) => setUserAddress(e.target.value)}
                   style={input}
@@ -1094,7 +1104,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
             ['gp', 'btnGP', 'Search GP', UserRound],
           ] as const).map(([value, key, fallback, Icon]) => (
             <button type="button" key={value} className={`care-card ${mode === value ? 'is-active' : ''}`}
-              aria-pressed={mode === value} onClick={() => { resetFieldsForMode(value); document.getElementById('medicine-search')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }}>
+              aria-pressed={mode === value} onClick={() => resetFieldsForMode(value)}>
               <span className="tool-icon"><Icon size={24} aria-hidden="true" /></span>
               <span>{F(ui, key, fallback)}</span><ArrowRight size={18} aria-hidden="true" />
             </button>

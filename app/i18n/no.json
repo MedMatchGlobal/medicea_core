@@ -1,6 +1,22 @@
 {
   "langName": "Norsk",
   "ui": {
+    "travelCompanion": "Din følgesvenn for legemidler",
+    "modernHeadline": "Dine legemidler, uansett hvor du er.",
+    "modernSubtitle": "Utforsk legemiddelinformasjon og tilsvarende legemidler i andre land.",
+    "findMedicine": "Finn et legemiddel",
+    "findCare": "Finn helsehjelp",
+    "searchIntro": "Fyll inn opplysningene for å komme i gang.",
+    "educationalNote": "Informasjonen er til opplæring. Spør en farmasøyt om legemidlet er egnet.",
+    "exploreTools": "Utforsk legemiddelverktøy",
+    "careNearby": "Finn helsehjelp i nærheten",
+    "careIntro": "Finn helsetjenester på reisemålet ditt.",
+    "medicineTools": "Legemiddelverktøy",
+    "myHealth": "Min helse",
+    "medicineServiceError": "Legemiddelinformasjon er midlertidig utilgjengelig. Prøv igjen om litt.",
+    "leafletFail": "Kunne ikke hente pakningsvedlegget.",
+    "petEquivHeader": "Tilsvarende legemidler til dyr",
+
     "slogan": "Inspirert av Panacéa, gudinnen for den universelle kuren, er medicéa® ditt pass til medisin hvor som helst i verden — vår misjon er å knytte mennesker til livreddende behandlinger uten grenser.",
     "btnIntl": "Internasjonalt legemiddelsøk",
     "btnCond": "Søk etter Medisinsk Tilstand",

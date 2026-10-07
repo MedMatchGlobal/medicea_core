@@ -1,6 +1,22 @@
 {
   "langName": "Svenska",
   "ui": {
+    "travelCompanion": "Din följeslagare för läkemedel",
+    "modernHeadline": "Dina läkemedel, var du än är.",
+    "modernSubtitle": "Utforska läkemedelsinformation och motsvarande läkemedel i andra länder.",
+    "findMedicine": "Hitta ett läkemedel",
+    "findCare": "Hitta vård",
+    "searchIntro": "Fyll i uppgifterna för att börja.",
+    "educationalNote": "Informationen är i utbildningssyfte. Fråga en farmaceut om läkemedlet är lämpligt.",
+    "exploreTools": "Utforska läkemedelsverktyg",
+    "careNearby": "Hitta vård i närheten",
+    "careIntro": "Hitta vårdtjänster på din destination.",
+    "medicineTools": "Läkemedelsverktyg",
+    "myHealth": "Min hälsa",
+    "medicineServiceError": "Läkemedelsinformation är tillfälligt otillgänglig. Försök igen om en stund.",
+    "leafletFail": "Kunde inte hämta bipacksedeln.",
+    "petEquivHeader": "Motsvarande djurläkemedel",
+
     "slogan": "Inspirerad av Panacéa, gudinnan för den universella boten, är medicéa® ditt pass till vård var du än är i världen — vår mission är att knyta människor till livräddande behandlingar utan gränser.",
     "btnIntl": "Internationell läkemedelssökning",
     "btnCond": "Sök efter Medicinskt Tillstånd",

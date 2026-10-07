@@ -1,6 +1,22 @@
 {
   "langName": "Română",
   "ui": {
+    "travelCompanion": "Partenerul tău pentru medicamente",
+    "modernHeadline": "Medicamentele tale, oriunde te-ai afla.",
+    "modernSubtitle": "Explorează informații despre medicamente și echivalentele lor în diferite țări.",
+    "findMedicine": "Găsește un medicament",
+    "findCare": "Găsește îngrijire medicală",
+    "searchIntro": "Completează datele pentru a începe.",
+    "educationalNote": "Informațiile despre medicamente sunt educative. Confirmă cu un farmacist dacă medicamentul este potrivit.",
+    "exploreTools": "Explorează instrumentele pentru medicamente",
+    "careNearby": "Găsește îngrijire în apropiere",
+    "careIntro": "Localizează servicii medicale la destinație.",
+    "medicineTools": "Instrumente pentru medicamente",
+    "myHealth": "Sănătatea mea",
+    "medicineServiceError": "Informațiile despre medicamente sunt temporar indisponibile. Încearcă din nou în curând.",
+    "leafletFail": "Nu s-a putut obține prospectul.",
+    "petEquivHeader": "Medicamente echivalente pentru animale",
+
     "slogan": "Inspirat de Panacéa, zeița leacului universal, medicéa® este pașaportul tău către medicină oriunde în lume — misiunea noastră este să conectăm oamenii la tratamente care salvează vieți, fără frontiere.",
     "btnIntl": "Căutare internațională de medicamente",
     "btnCond": "Caută după Condiție Medicală",

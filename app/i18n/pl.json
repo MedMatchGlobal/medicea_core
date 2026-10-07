@@ -1,6 +1,22 @@
 {
   "langName": "Polski",
   "ui": {
+    "travelCompanion": "Twój towarzysz w świecie leków",
+    "modernHeadline": "Twoje leki, gdziekolwiek jesteś.",
+    "modernSubtitle": "Poznaj informacje o lekach i ich odpowiednikach w różnych krajach.",
+    "findMedicine": "Znajdź lek",
+    "findCare": "Znajdź opiekę medyczną",
+    "searchIntro": "Wypełnij pola, aby rozpocząć.",
+    "educationalNote": "Informacje o lekach mają charakter edukacyjny. Potwierdź z farmaceutą, czy lek jest odpowiedni.",
+    "exploreTools": "Poznaj narzędzia dotyczące leków",
+    "careNearby": "Znajdź opiekę w pobliżu",
+    "careIntro": "Znajdź usługi medyczne w miejscu docelowym.",
+    "medicineTools": "Narzędzia dotyczące leków",
+    "myHealth": "Moje zdrowie",
+    "medicineServiceError": "Informacje o lekach są chwilowo niedostępne. Spróbuj ponownie za chwilę.",
+    "leafletFail": "Nie udało się pobrać ulotki.",
+    "petEquivHeader": "Odpowiedniki leków dla zwierząt",
+
     "slogan": "Zainspirowana przez Panacéę, boginię uniwersalnego leku, medicéa® jest Twoim paszportem do medycyny na całym świecie — naszą misją jest łączenie ludzi z ratującymi życie terapiami bez granic.",
     "btnIntl": "Międzynarodowe wyszukiwanie leków",
     "btnCond": "Szukaj według Stanu Medycznego",

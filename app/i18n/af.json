@@ -1,6 +1,22 @@
 {
   "langName": "Afrikaans",
   "ui": {
+    "travelCompanion": "Jou metgesel vir medisyne",
+    "modernHeadline": "Jou medisyne, waar jy ook al is.",
+    "modernSubtitle": "Verken inligting oor medisyne en ekwivalente in verskillende lande.",
+    "findMedicine": "Vind medisyne",
+    "findCare": "Vind gesondheidsorg",
+    "searchIntro": "Vul die besonderhede in om te begin.",
+    "educationalNote": "Medisyne-inligting is opvoedkundig. Bevestig geskiktheid met ’n apteker.",
+    "exploreTools": "Verken medisynehulpmiddels",
+    "careNearby": "Vind sorg naby jou",
+    "careIntro": "Vind gesondheidsdienste by jou bestemming.",
+    "medicineTools": "Medisynehulpmiddels",
+    "myHealth": "My gesondheid",
+    "medicineServiceError": "Medisyne-inligting is tydelik nie beskikbaar nie. Probeer asseblief weer binnekort.",
+    "leafletFail": "Kon nie die pamflet laai nie.",
+    "petEquivHeader": "Ekwivalente dieremedisyne",
+
     "slogan": "Geïnspireer deur Panacéa, die godin van die universele geneesmiddel, is medicéa® jou paspoort tot medisyne oral in die wêreld — om mense sonder grense met lewensreddende behandelings te verbind, is ons missie.",
     "btnIntl": "Internasionale medikasiesoektog",
     "btnCond": "Soek volgens Mediese Toestand",

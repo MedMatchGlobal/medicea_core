@@ -1,6 +1,22 @@
 {
   "langName": "Español",
   "ui": {
+    "travelCompanion": "Tu compañero para los medicamentos",
+    "modernHeadline": "Tus medicamentos, estés donde estés.",
+    "modernSubtitle": "Explora información sobre medicamentos y sus equivalentes en distintos países.",
+    "findMedicine": "Buscar un medicamento",
+    "findCare": "Buscar atención sanitaria",
+    "searchIntro": "Introduce los datos para empezar.",
+    "educationalNote": "La información es educativa. Consulta con un farmacéutico si el medicamento es adecuado para ti.",
+    "exploreTools": "Explora las herramientas de medicamentos",
+    "careNearby": "Encuentra atención cerca",
+    "careIntro": "Localiza servicios sanitarios en tu destino.",
+    "medicineTools": "Herramientas de medicamentos",
+    "myHealth": "Mi salud",
+    "medicineServiceError": "La información sobre medicamentos no está disponible temporalmente. Inténtalo de nuevo en breve.",
+    "leafletFail": "No se pudo obtener el prospecto.",
+    "petEquivHeader": "Medicamentos equivalentes para animales",
+
   "slogan": "Inspirada en Panacéa, la diosa de la cura universal, medicéa® es tu pasaporte a la medicina en cualquier lugar del mundo — conectar a las personas con tratamientos que salvan vidas sin fronteras es nuestra misión.",
     "btnIntl": "Búsqueda internacional de medicamentos",
     "btnCond": "Buscar por Condición Médica",

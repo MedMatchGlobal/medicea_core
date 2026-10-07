@@ -1,6 +1,22 @@
 {
   "langName": "Deutsch",
   "ui": {
+    "travelCompanion": "Ihr Begleiter für Medikamente",
+    "modernHeadline": "Ihre Medikamente, wo immer Sie sind.",
+    "modernSubtitle": "Entdecken Sie Informationen zu Medikamenten und ihren Entsprechungen in anderen Ländern.",
+    "findMedicine": "Medikament finden",
+    "findCare": "Medizinische Versorgung finden",
+    "searchIntro": "Geben Sie Ihre Angaben ein, um zu beginnen.",
+    "educationalNote": "Diese Arzneimittelinformationen dienen der Aufklärung. Klären Sie die Eignung in einer Apotheke.",
+    "exploreTools": "Medikamentenwerkzeuge entdecken",
+    "careNearby": "Medizinische Versorgung in der Nähe",
+    "careIntro": "Finden Sie Gesundheitsdienste an Ihrem Reiseziel.",
+    "medicineTools": "Medikamentenwerkzeuge",
+    "myHealth": "Meine Gesundheit",
+    "medicineServiceError": "Arzneimittelinformationen sind vorübergehend nicht verfügbar. Bitte versuchen Sie es später erneut.",
+    "leafletFail": "Die Packungsbeilage konnte nicht geladen werden.",
+    "petEquivHeader": "Entsprechende Tierarzneimittel",
+
   "slogan": "Inspiriert von Panacéa, der Göttin des universellen Heilmittels, ist medicéa® Ihr Reisepass zur Medizin überall auf der Welt — Menschen ohne Grenzen mit lebensrettenden Behandlungen zu verbinden, ist unsere Mission.",
     "btnIntl": "Internationale Arzneimittelsuche",
     "btnCond": "Nach Medizinischer Erkrankung Suchen",

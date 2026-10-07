@@ -1,6 +1,22 @@
 {
   "langName": "Nederlands",
   "ui": {
+    "travelCompanion": "Uw metgezel voor medicijnen",
+    "modernHeadline": "Uw medicijnen, waar u ook bent.",
+    "modernSubtitle": "Ontdek informatie over medicijnen en vergelijkbare middelen in andere landen.",
+    "findMedicine": "Een medicijn zoeken",
+    "findCare": "Zorg zoeken",
+    "searchIntro": "Vul uw gegevens in om te beginnen.",
+    "educationalNote": "Deze informatie is educatief. Vraag een apotheker of het middel geschikt is.",
+    "exploreTools": "Ontdek de medicijnhulpmiddelen",
+    "careNearby": "Zorg in de buurt zoeken",
+    "careIntro": "Vind zorgverleners op uw bestemming.",
+    "medicineTools": "Medicijnhulpmiddelen",
+    "myHealth": "Mijn gezondheid",
+    "medicineServiceError": "Medicijninformatie is tijdelijk niet beschikbaar. Probeer het later opnieuw.",
+    "leafletFail": "De bijsluiter kon niet worden opgehaald.",
+    "petEquivHeader": "Vergelijkbare diergeneesmiddelen",
+
     "slogan": "Geïnspireerd door Panacéa, de godin van het universele geneesmiddel, is medicéa® uw paspoort naar geneeskunde overal ter wereld — mensen zonder grenzen verbinden met levensreddende behandelingen is onze missie.",
     "btnIntl": "Internationale medicijnzoeker",
     "btnCond": "Zoeken op Medische Aandoening",
