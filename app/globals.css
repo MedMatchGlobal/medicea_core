@@ -540,5 +540,5 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 .search-area textarea { background:#f1f7ff; border-color:#94b9eb; }
 
 /* Tool changes should not move the viewport or the desktop care section. */
-.workspace-grid { overflow-anchor:none; }
+.medicea-shell { overflow-anchor:none; }
 @media(min-width:901px) { .workspace-grid { min-height:680px; } }
