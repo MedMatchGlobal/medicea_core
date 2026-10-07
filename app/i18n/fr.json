@@ -1,6 +1,7 @@
 {
   "langName": "Français",
   "ui": {
+    "medicineDetails": "Informations sur le médicament",
     "searchCountry": "Rechercher un pays",
     "allRegions": "Tous les continents",
     "noCountries": "Aucun pays trouvé",

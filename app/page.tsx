@@ -579,9 +579,12 @@ function Home() {
     });
   }
   function showScreen(next: 'search' | 'tools' | 'care' | 'results') {
+    const returningFromResults = screen === 'results' && next !== 'results';
     setScreen(next);
     if (next === 'tools' || next === 'care') setActiveSection(next);
-    revealWorkspace();
+    if (returningFromResults) {
+      requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: 'instant' }));
+    } else revealWorkspace();
   }
   function clearSearch() {
     resetFieldsForMode(mode);
@@ -656,7 +659,8 @@ function Home() {
     setViewLeaflet({});
     setUserAddress('');
     setUseGeo(false);
-    revealWorkspace();
+    if (screen === 'results') requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: 'instant' }));
+    else revealWorkspace();
   }
 
   const plainText = useMemo(() => (typeof result === 'string' ? result : ''), [result]);
@@ -1144,6 +1148,14 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
             <div><h2>{F(ui, 'searchResults', 'Search results')}</h2><p role="status" aria-live="polite">{loading ? F(ui, 'searching', 'Searching…') : searchFailed ? F(ui, 'medicineServiceError', 'Medicine information is temporarily unavailable. Please try again shortly.') : F(ui, 'searchComplete', 'Search complete')}</p></div>
             <div className="results-actions"><button disabled={loading} onClick={() => showScreen('search')}>{F(ui, 'editSearch', 'Edit search')}</button><button disabled={loading} onClick={clearSearch}>{F(ui, 'newSearch', 'New search')}</button></div>
           </div>
+          {/* Leaflet content */}
+          {(mode === 'leaflet' || mode === 'international' || mode === 'generic' || mode === 'pets') && leafletRaw && (
+            <div className="leaflet-block">
+              <h2>{F(ui, 'medicineDetails', 'Medicine details')} — {selectedDrug}</h2>
+              {renderLeafletPretty(extractLeafletText(leafletRaw), t)}
+            </div>
+          )}
+
           {/* >>> Banner ONLY for international/generic/pets (NOT leaflet) <<< */}
           {(mode === 'international' || mode === 'generic' || mode === 'pets') && leafletRaw && (
             <div
@@ -1282,13 +1294,6 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
                   </div>
                 );
               })}
-            </div>
-          )}
-
-          {/* Leaflet content */}
-          {(mode === 'leaflet' || mode === 'international' || mode === 'generic' || mode === 'pets') && leafletRaw && (
-            <div className="leaflet-block">
-              {renderLeafletPretty(extractLeafletText(leafletRaw), t)}
             </div>
           )}
 

@@ -1,6 +1,7 @@
 {
   "langName": "Svenska",
   "ui": {
+    "medicineDetails": "Läkemedelsinformation",
     "searchCountry": "Sök efter länder",
     "allRegions": "Alla kontinenter",
     "noCountries": "Inga länder hittades",

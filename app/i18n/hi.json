@@ -1,6 +1,7 @@
 {
   "langName": "हिन्दी",
   "ui": {
+    "medicineDetails": "दवा की जानकारी",
     "searchCountry": "देश खोजें",
     "allRegions": "सभी महाद्वीप",
     "noCountries": "कोई देश नहीं मिला",

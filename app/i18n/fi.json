@@ -1,6 +1,7 @@
 {
   "langName": "Suomi",
   "ui": {
+    "medicineDetails": "Lääkkeen tiedot",
     "searchCountry": "Hae maita",
     "allRegions": "Kaikki maanosat",
     "noCountries": "Maita ei löytynyt",

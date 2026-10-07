@@ -1,6 +1,7 @@
 {
   "langName": "Afrikaans",
   "ui": {
+    "medicineDetails": "Medisynebesonderhede",
     "searchCountry": "Soek lande",
     "allRegions": "Alle vastelande",
     "noCountries": "Geen lande gevind nie",

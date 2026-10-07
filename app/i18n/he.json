@@ -1,6 +1,7 @@
 {
   "langName": "עברית",
   "ui": {
+    "medicineDetails": "פרטי התרופה",
     "searchCountry": "חיפוש מדינות",
     "allRegions": "כל היבשות",
     "noCountries": "לא נמצאו מדינות",

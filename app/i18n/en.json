@@ -1,6 +1,7 @@
 {
   "langName": "English",
   "ui": {
+    "medicineDetails": "Medicine details",
     "searchCountry": "Search countries",
     "allRegions": "All continents",
     "noCountries": "No countries found",

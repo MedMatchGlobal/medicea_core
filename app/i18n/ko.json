@@ -1,6 +1,7 @@
 {
   "langName": "한국어",
   "ui": {
+    "medicineDetails": "의약품 상세 정보",
     "searchCountry": "국가 검색",
     "allRegions": "모든 대륙",
     "noCountries": "국가를 찾을 수 없습니다",

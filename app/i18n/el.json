@@ -1,6 +1,7 @@
 {
   "langName": "Ελληνικά",
   "ui": {
+    "medicineDetails": "Πληροφορίες φαρμάκου",
     "searchCountry": "Αναζήτηση χωρών",
     "allRegions": "Όλες οι ήπειροι",
     "noCountries": "Δεν βρέθηκαν χώρες",

@@ -1,6 +1,7 @@
 {
   "langName": "Русский",
   "ui": {
+    "medicineDetails": "Сведения о лекарстве",
     "searchCountry": "Поиск стран",
     "allRegions": "Все континенты",
     "noCountries": "Страны не найдены",

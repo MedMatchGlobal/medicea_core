@@ -1,6 +1,7 @@
 {
   "langName": "日本語",
   "ui": {
+    "medicineDetails": "医薬品の詳細",
     "searchCountry": "国を検索",
     "allRegions": "すべての大陸",
     "noCountries": "国が見つかりません",

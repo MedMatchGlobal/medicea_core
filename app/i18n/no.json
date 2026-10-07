@@ -1,6 +1,7 @@
 {
   "langName": "Norsk",
   "ui": {
+    "medicineDetails": "Legemiddelinformasjon",
     "searchCountry": "Søk etter land",
     "allRegions": "Alle kontinenter",
     "noCountries": "Ingen land funnet",

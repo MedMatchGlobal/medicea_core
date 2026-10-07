@@ -1,6 +1,7 @@
 {
   "langName": "Română",
   "ui": {
+    "medicineDetails": "Detalii despre medicament",
     "searchCountry": "Caută țări",
     "allRegions": "Toate continentele",
     "noCountries": "Nu s-au găsit țări",

@@ -1,6 +1,7 @@
 {
   "langName": "Polski",
   "ui": {
+    "medicineDetails": "Informacje o leku",
     "searchCountry": "Szukaj krajów",
     "allRegions": "Wszystkie kontynenty",
     "noCountries": "Nie znaleziono krajów",

@@ -1,6 +1,7 @@
 {
   "langName": "Čeština",
   "ui": {
+    "medicineDetails": "Podrobnosti o léku",
     "searchCountry": "Hledat země",
     "allRegions": "Všechny kontinenty",
     "noCountries": "Žádné země nenalezeny",

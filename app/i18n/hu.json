@@ -1,6 +1,7 @@
 {
   "langName": "Magyar",
   "ui": {
+    "medicineDetails": "Gyógyszeradatok",
     "searchCountry": "Országok keresése",
     "allRegions": "Minden kontinens",
     "noCountries": "Nem található ország",

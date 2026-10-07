@@ -1,6 +1,7 @@
 {
   "langName": "Nederlands",
   "ui": {
+    "medicineDetails": "Medicijngegevens",
     "searchCountry": "Landen zoeken",
     "allRegions": "Alle continenten",
     "noCountries": "Geen landen gevonden",

@@ -1,6 +1,7 @@
 {
   "langName": "العربية",
   "ui": {
+    "medicineDetails": "تفاصيل الدواء",
     "searchCountry": "البحث عن دول",
     "allRegions": "جميع القارات",
     "noCountries": "لم يتم العثور على دول",

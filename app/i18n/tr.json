@@ -1,6 +1,7 @@
 {
   "langName": "Türkçe",
   "ui": {
+    "medicineDetails": "İlaç bilgileri",
     "searchCountry": "Ülke ara",
     "allRegions": "Tüm kıtalar",
     "noCountries": "Ülke bulunamadı",

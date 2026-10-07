@@ -1,6 +1,7 @@
 {
   "langName": "中文",
   "ui": {
+    "medicineDetails": "药品详情",
     "searchCountry": "搜索国家",
     "allRegions": "所有大洲",
     "noCountries": "未找到国家",
