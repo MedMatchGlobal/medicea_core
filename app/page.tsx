@@ -628,8 +628,14 @@ function Home() {
     // Wait for the selected tool's inputs to render before revealing the form.
     requestAnimationFrame(() => {
       const form = document.getElementById('medicine-search');
-      form?.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
-      form?.focus({ preventScroll: true });
+      if (!form) return;
+      const headerBottom = document.querySelector('.site-header')?.getBoundingClientRect().bottom ?? 0;
+      const title = document.getElementById('search-title')?.getBoundingClientRect();
+      // Keep an already visible form anchored; reveal it only when off-screen.
+      if (title && (title.top < headerBottom + 12 || title.bottom > window.innerHeight - 24)) {
+        window.scrollTo({ top: Math.max(0, window.scrollY + form.getBoundingClientRect().top - headerBottom - 16), behavior: 'instant' });
+      }
+      form.focus({ preventScroll: true });
     });
   }
 
