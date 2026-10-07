@@ -1,6 +1,16 @@
 {
   "langName": "Dansk",
   "ui": {
+    "searchCountry": "Søg efter lande",
+    "allRegions": "Alle kontinenter",
+    "noCountries": "Ingen lande fundet",
+    "clearSearch": "Ryd søgning",
+    "searchResults": "Søgeresultater",
+    "searchComplete": "Søgning afsluttet",
+    "editSearch": "Rediger søgning",
+    "newSearch": "Ny søgning",
+    "viewResults": "Se resultater",
+
     "travelCompanion": "Din ledsager til medicin",
     "modernHeadline": "Din medicin, uanset hvor du er.",
     "modernSubtitle": "Udforsk medicinoplysninger og tilsvarende lægemidler i andre lande.",

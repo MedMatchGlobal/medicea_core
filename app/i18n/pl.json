@@ -1,6 +1,16 @@
 {
   "langName": "Polski",
   "ui": {
+    "searchCountry": "Szukaj krajów",
+    "allRegions": "Wszystkie kontynenty",
+    "noCountries": "Nie znaleziono krajów",
+    "clearSearch": "Wyczyść wyszukiwanie",
+    "searchResults": "Wyniki wyszukiwania",
+    "searchComplete": "Wyszukiwanie zakończone",
+    "editSearch": "Edytuj wyszukiwanie",
+    "newSearch": "Nowe wyszukiwanie",
+    "viewResults": "Zobacz wyniki",
+
     "travelCompanion": "Twój towarzysz w świecie leków",
     "modernHeadline": "Twoje leki, gdziekolwiek jesteś.",
     "modernSubtitle": "Poznaj informacje o lekach i ich odpowiednikach w różnych krajach.",

@@ -1,6 +1,16 @@
 {
   "langName": "Türkçe",
   "ui": {
+    "searchCountry": "Ülke ara",
+    "allRegions": "Tüm kıtalar",
+    "noCountries": "Ülke bulunamadı",
+    "clearSearch": "Aramayı temizle",
+    "searchResults": "Arama sonuçları",
+    "searchComplete": "Arama tamamlandı",
+    "editSearch": "Aramayı düzenle",
+    "newSearch": "Yeni arama",
+    "viewResults": "Sonuçları görüntüle",
+
     "travelCompanion": "İlaç rehberiniz",
     "modernHeadline": "İlaçlarınız, nerede olursanız olun.",
     "modernSubtitle": "Farklı ülkelerdeki ilaç bilgilerini ve eşdeğerlerini keşfedin.",

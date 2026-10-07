@@ -1,6 +1,16 @@
 {
   "langName": "Deutsch",
   "ui": {
+    "searchCountry": "Länder suchen",
+    "allRegions": "Alle Kontinente",
+    "noCountries": "Keine Länder gefunden",
+    "clearSearch": "Suche löschen",
+    "searchResults": "Suchergebnisse",
+    "searchComplete": "Suche abgeschlossen",
+    "editSearch": "Suche bearbeiten",
+    "newSearch": "Neue Suche",
+    "viewResults": "Ergebnisse anzeigen",
+
     "travelCompanion": "Ihr Begleiter für Medikamente",
     "modernHeadline": "Ihre Medikamente, wo immer Sie sind.",
     "modernSubtitle": "Entdecken Sie Informationen zu Medikamenten und ihren Entsprechungen in anderen Ländern.",

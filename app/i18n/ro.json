@@ -1,6 +1,16 @@
 {
   "langName": "Română",
   "ui": {
+    "searchCountry": "Caută țări",
+    "allRegions": "Toate continentele",
+    "noCountries": "Nu s-au găsit țări",
+    "clearSearch": "Șterge căutarea",
+    "searchResults": "Rezultatele căutării",
+    "searchComplete": "Căutare finalizată",
+    "editSearch": "Modifică căutarea",
+    "newSearch": "Căutare nouă",
+    "viewResults": "Vezi rezultatele",
+
     "travelCompanion": "Partenerul tău pentru medicamente",
     "modernHeadline": "Medicamentele tale, oriunde te-ai afla.",
     "modernSubtitle": "Explorează informații despre medicamente și echivalentele lor în diferite țări.",

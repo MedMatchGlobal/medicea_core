@@ -1,6 +1,16 @@
 {
   "langName": "Svenska",
   "ui": {
+    "searchCountry": "Sök efter länder",
+    "allRegions": "Alla kontinenter",
+    "noCountries": "Inga länder hittades",
+    "clearSearch": "Rensa sökning",
+    "searchResults": "Sökresultat",
+    "searchComplete": "Sökningen är klar",
+    "editSearch": "Ändra sökning",
+    "newSearch": "Ny sökning",
+    "viewResults": "Visa resultat",
+
     "travelCompanion": "Din följeslagare för läkemedel",
     "modernHeadline": "Dina läkemedel, var du än är.",
     "modernSubtitle": "Utforska läkemedelsinformation och motsvarande läkemedel i andra länder.",

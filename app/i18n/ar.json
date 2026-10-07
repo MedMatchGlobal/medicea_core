@@ -1,6 +1,16 @@
 {
   "langName": "العربية",
   "ui": {
+    "searchCountry": "البحث عن دول",
+    "allRegions": "جميع القارات",
+    "noCountries": "لم يتم العثور على دول",
+    "clearSearch": "مسح البحث",
+    "searchResults": "نتائج البحث",
+    "searchComplete": "اكتمل البحث",
+    "editSearch": "تعديل البحث",
+    "newSearch": "بحث جديد",
+    "viewResults": "عرض النتائج",
+
     "travelCompanion": "رفيقك في عالم الأدوية",
     "modernHeadline": "أدويتك، أينما كنت.",
     "modernSubtitle": "استكشف معلومات الأدوية وبدائلها في مختلف البلدان.",

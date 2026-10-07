@@ -1,6 +1,16 @@
 {
   "langName": "עברית",
   "ui": {
+    "searchCountry": "חיפוש מדינות",
+    "allRegions": "כל היבשות",
+    "noCountries": "לא נמצאו מדינות",
+    "clearSearch": "ניקוי החיפוש",
+    "searchResults": "תוצאות החיפוש",
+    "searchComplete": "החיפוש הושלם",
+    "editSearch": "עריכת החיפוש",
+    "newSearch": "חיפוש חדש",
+    "viewResults": "הצגת התוצאות",
+
     "travelCompanion": "השותף שלך למידע על תרופות",
     "modernHeadline": "התרופות שלך, בכל מקום.",
     "modernSubtitle": "מידע על תרופות ותחליפים במדינות שונות.",

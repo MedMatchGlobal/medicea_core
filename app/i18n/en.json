@@ -1,6 +1,16 @@
 {
   "langName": "English",
   "ui": {
+    "searchCountry": "Search countries",
+    "allRegions": "All continents",
+    "noCountries": "No countries found",
+    "clearSearch": "Clear search",
+    "searchResults": "Search results",
+    "searchComplete": "Search complete",
+    "editSearch": "Edit search",
+    "newSearch": "New search",
+    "viewResults": "View results",
+
     "travelCompanion": "Your medicine companion",
     "modernHeadline": "Your medicine, wherever you are.",
     "modernSubtitle": "Explore medicine information and equivalents across countries.",

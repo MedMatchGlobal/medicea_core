@@ -1,6 +1,16 @@
 {
   "langName": "Русский",
   "ui": {
+    "searchCountry": "Поиск стран",
+    "allRegions": "Все континенты",
+    "noCountries": "Страны не найдены",
+    "clearSearch": "Очистить поиск",
+    "searchResults": "Результаты поиска",
+    "searchComplete": "Поиск завершён",
+    "editSearch": "Изменить поиск",
+    "newSearch": "Новый поиск",
+    "viewResults": "Посмотреть результаты",
+
     "travelCompanion": "Ваш помощник в мире лекарств",
     "modernHeadline": "Ваши лекарства, где бы вы ни были.",
     "modernSubtitle": "Узнайте о лекарствах и их аналогах в разных странах.",

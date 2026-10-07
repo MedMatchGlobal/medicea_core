@@ -1,6 +1,16 @@
 {
   "langName": "Magyar",
   "ui": {
+    "searchCountry": "Országok keresése",
+    "allRegions": "Minden kontinens",
+    "noCountries": "Nem található ország",
+    "clearSearch": "Keresés törlése",
+    "searchResults": "Keresési eredmények",
+    "searchComplete": "Keresés befejezve",
+    "editSearch": "Keresés szerkesztése",
+    "newSearch": "Új keresés",
+    "viewResults": "Eredmények megtekintése",
+
     "travelCompanion": "Társa a gyógyszerek világában",
     "modernHeadline": "Gyógyszerei, bárhol is jár.",
     "modernSubtitle": "Ismerje meg a gyógyszereket és más országokban elérhető megfelelőiket.",

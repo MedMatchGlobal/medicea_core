@@ -1,6 +1,16 @@
 {
   "langName": "Suomi",
   "ui": {
+    "searchCountry": "Hae maita",
+    "allRegions": "Kaikki maanosat",
+    "noCountries": "Maita ei löytynyt",
+    "clearSearch": "Tyhjennä haku",
+    "searchResults": "Hakutulokset",
+    "searchComplete": "Haku valmis",
+    "editSearch": "Muokkaa hakua",
+    "newSearch": "Uusi haku",
+    "viewResults": "Näytä tulokset",
+
     "travelCompanion": "Kumppanisi lääkeasioissa",
     "modernHeadline": "Lääkkeesi, missä ikinä oletkin.",
     "modernSubtitle": "Tutustu lääketietoihin ja vastaaviin lääkkeisiin eri maissa.",

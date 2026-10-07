@@ -1,6 +1,16 @@
 {
   "langName": "Afrikaans",
   "ui": {
+    "searchCountry": "Soek lande",
+    "allRegions": "Alle vastelande",
+    "noCountries": "Geen lande gevind nie",
+    "clearSearch": "Vee soektog uit",
+    "searchResults": "Soekresultate",
+    "searchComplete": "Soektog voltooi",
+    "editSearch": "Wysig soektog",
+    "newSearch": "Nuwe soektog",
+    "viewResults": "Bekyk resultate",
+
     "travelCompanion": "Jou metgesel vir medisyne",
     "modernHeadline": "Jou medisyne, waar jy ook al is.",
     "modernSubtitle": "Verken inligting oor medisyne en ekwivalente in verskillende lande.",

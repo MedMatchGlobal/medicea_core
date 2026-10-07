@@ -20,6 +20,7 @@ import { ArrowRight, Search, FileText, Pill, Stethoscope, PawPrint, Hospital, He
 import countriesByRegion from '../data/countries';
 import { LanguageProvider, useLanguage } from './LanguageProvider';
 import LanguageButton from './components/LanguageButton';
+import CountryPicker from './components/CountryPicker';
 import SymptomTriage from './components/SymptomTriage';
 
 import PremiumPaywall from './components/PremiumPaywall';
@@ -559,6 +560,21 @@ function Home() {
   const [mode, setMode] = useState<Mode>('international');
   const [result, setResult] = useState<string>('');
   const [loading, setLoading] = useState(false);
+  const [screen, setScreen] = useState<'search' | 'tools' | 'care' | 'results'>('search');
+  const [searched, setSearched] = useState(false);
+  const [searchFailed, setSearchFailed] = useState(false);
+
+  function showScreen(next: 'search' | 'tools' | 'care' | 'results') {
+    setScreen(next);
+    requestAnimationFrame(() => {
+      document.getElementById(next === 'results' ? 'search-results' : 'workspace-start')?.scrollIntoView({ block: 'start', behavior: 'instant' });
+    });
+  }
+  function clearSearch() {
+    resetFieldsForMode(mode);
+    setOriginCode(''); setTargetCode(''); setSearched(false);
+    showScreen('search');
+  }
   const [visits, setVisits] = useState<number | null>(null);
   const [leafletRaw, setLeafletRaw] = useState('');
   const [matches, setMatches] = useState<any[]>([]);
@@ -612,6 +628,8 @@ function Home() {
 
   function resetFieldsForMode(m: Mode) {
     setMode(m);
+    setScreen('search');
+    setSearched(false);
     setResult('');
     setSelectedDrug('');
     setSelectedDosage('');
@@ -711,6 +729,9 @@ if (!BETA_TESTING && isPremiumMode(mode)) {
       }
     }
 
+    setSearchFailed(false);
+    setSearched(true);
+    showScreen('results');
     setLoading(true);
     setResult(F(ui, 'searching', 'Searching…'));
     setMatches([]);
@@ -835,6 +856,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
 
       setLoading(false);
     } catch {
+      setSearchFailed(true);
       setLeafletRaw('');
       setResult(F(ui, 'medicineServiceError', 'Medicine information is temporarily unavailable. Please try again shortly.'));
       setLoading(false);
@@ -880,12 +902,12 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
   /* -------------------------- RENDER -------------------------- */
 
   return (
-    <main key={lang} className="medicea-shell" dir={isRTL(lang) ? 'rtl' : 'ltr'}>
+    <main key={lang} className={`medicea-shell flow-${screen}`} dir={isRTL(lang) ? 'rtl' : 'ltr'}>
       <header className="site-header">
         <a className="brand-link" href="/" aria-label="medicea home"><img src="/logo.png" alt="medicéa" /></a>
         <nav className="header-nav" aria-label="Main navigation">
-          <a href="#medicine-tools">{F(ui, 'medicineTools', 'Medicine tools')}</a>
-          <a href="#find-care">{F(ui, 'findCare', 'Find care')}</a>
+          <a href="#workspace-start" onClick={() => showScreen('tools')}>{F(ui, 'medicineTools', 'Medicine tools')}</a>
+          <a href="#workspace-start" onClick={() => showScreen('care')}>{F(ui, 'findCare', 'Find care')}</a>
         </nav>
         <div className="language-control"><LanguageButton /></div>
       </header>
@@ -896,6 +918,11 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
           <p>{F(ui, 'modernSubtitle', 'Explore medicine information and equivalents across countries.')}</p>
         </div>
       </section>
+      <nav className="workspace-nav" id="workspace-start" aria-label={F(ui, 'medicineTools', 'Medicine tools')}>
+        <button aria-pressed={screen === 'search'} onClick={() => showScreen('search')}><Search size={18}/>{F(ui, 'findMedicine', 'Find a medicine')}</button>
+        <button aria-pressed={screen === 'tools'} onClick={() => showScreen('tools')}><Pill size={18}/>{F(ui, 'medicineTools', 'Medicine tools')}</button>
+        <button aria-pressed={screen === 'care'} onClick={() => showScreen('care')}><Cross size={18}/>{F(ui, 'careNearby', 'Find care nearby')}</button>
+      </nav>
       <div className="workspace-grid">
       <section className="search-area" id="medicine-search" tabIndex={-1} aria-labelledby="search-title">
       <div className="section-heading"><span className="section-icon"><Search size={22} /></span><div>
@@ -910,6 +937,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
           mode === 'hospital' ? F(ui, 'btnHospital', 'Search Hospital') : F(ui, 'btnGP', 'Search GP')}</h2>
         <p>{F(ui, 'searchIntro', 'Choose your details to get started.')}</p>
       </div></div>
+      {searched && !loading && <button className="return-results" onClick={() => showScreen('results')}>{F(ui, 'viewResults', 'View results')} <ArrowRight size={16}/></button>}
       {/* FORM */}
       {mode !== 'triage' && (
         <div className="medicine-form">
@@ -917,16 +945,18 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
           {mode !== 'condition' && mode !== 'pharmacy' && mode !== 'gp' && mode !== 'hospital' && mode !== 'doctor' && (
             <div>
               <div style={{ fontWeight: 600, marginBottom: 4 }}>{F(ui, 'phHome', 'Please select your Home Country')}</div>
-              <select required aria-label={F(ui, 'phHome', 'Home country')} value={originCode} onChange={(e) => setOriginCode(e.target.value)} style={select}>
-                <option value="" disabled>—</option>
-                {Object.entries(countriesByRegion).map(([region, list]) => (
-                  <optgroup key={region} label={region}>
-                    {list.map((c) => (<option key={c} value={c}>{c}</option>))}
-                  </optgroup>
-                ))}
-              </select>
+              <CountryPicker label={F(ui, 'phHome', 'Home country')} value={originCode} onChange={setOriginCode} searchLabel={F(ui, 'searchCountry', 'Search countries')} regionLabel={F(ui, 'allRegions', 'All continents')} emptyLabel={F(ui, 'noCountries', 'No countries found')} />
             </div>
           )}
+
+          {/* Target country */}
+          {(mode === 'international' || mode === 'condition' || mode === 'pets') && (
+            <div>
+              <div style={{ fontWeight: 600, marginBottom: 4 }}>{F(ui, 'phTarget', 'Please select the Country to search')}</div>
+              <CountryPicker label={F(ui, 'phTarget', 'Destination country')} value={targetCode} onChange={setTargetCode} searchLabel={F(ui, 'searchCountry', 'Search countries')} regionLabel={F(ui, 'allRegions', 'All continents')} emptyLabel={F(ui, 'noCountries', 'No countries found')} />
+            </div>
+          )}
+
 
           {/* Condition mode */}
           {mode === 'condition' && (
@@ -995,21 +1025,6 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
             </>
           )}
 
-          {/* Target country */}
-          {(mode === 'international' || mode === 'condition' || mode === 'pets') && (
-            <div>
-              <div style={{ fontWeight: 600, marginBottom: 4 }}>{F(ui, 'phTarget', 'Please select the Country to search')}</div>
-              <select required aria-label={F(ui, 'phTarget', 'Destination country')} value={targetCode} onChange={(e) => setTargetCode(e.target.value)} style={select}>
-                <option value="" disabled>—</option>
-                {Object.entries(countriesByRegion).map(([region, list]) => (
-                  <optgroup key={region} label={region}>
-                    {list.map((c) => (<option key={c} value={c}>{c}</option>))}
-                  </optgroup>
-                ))}
-              </select>
-            </div>
-          )}
-
           {/* Location flows */}
           {(mode === 'pharmacy' || mode === 'gp' || mode === 'hospital' || mode === 'doctor') && (
             <>
@@ -1040,6 +1055,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
             </>
           )}
 
+          <button type="button" className="clear-search" disabled={loading} onClick={clearSearch}>{F(ui, 'clearSearch', 'Clear search')}</button>
           {/* Submit */}
           <button
             onClick={handleSearch}
@@ -1119,15 +1135,12 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
       </section>
 
       {/* RESULTS */}
-      {mode !== 'triage' && (
-        <div style={{ marginTop: 12 }}>
-          {/* Leaflet content */}
-          {(mode === 'leaflet' || mode === 'international' || mode === 'generic' || mode === 'pets') && leafletRaw && (
-            <div className="leaflet-block">
-              {renderLeafletPretty(extractLeafletText(leafletRaw), t)}
-            </div>
-          )}
-
+      {mode !== 'triage' && searched && (
+        <section id="search-results" className="results-view" tabIndex={-1} aria-label={F(ui, 'searchResults', 'Search results')}>
+          <div className="results-heading">
+            <div><h2>{F(ui, 'searchResults', 'Search results')}</h2><p role="status" aria-live="polite">{loading ? F(ui, 'searching', 'Searching…') : searchFailed ? F(ui, 'medicineServiceError', 'Medicine information is temporarily unavailable. Please try again shortly.') : F(ui, 'searchComplete', 'Search complete')}</p></div>
+            <div className="results-actions"><button disabled={loading} onClick={() => showScreen('search')}>{F(ui, 'editSearch', 'Edit search')}</button><button disabled={loading} onClick={clearSearch}>{F(ui, 'newSearch', 'New search')}</button></div>
+          </div>
           {/* >>> Banner ONLY for international/generic/pets (NOT leaflet) <<< */}
           {(mode === 'international' || mode === 'generic' || mode === 'pets') && leafletRaw && (
             <div
@@ -1269,11 +1282,18 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
             </div>
           )}
 
+          {/* Leaflet content */}
+          {(mode === 'leaflet' || mode === 'international' || mode === 'generic' || mode === 'pets') && leafletRaw && (
+            <div className="leaflet-block">
+              {renderLeafletPretty(extractLeafletText(leafletRaw), t)}
+            </div>
+          )}
+
           {/* Plain AI text (e.g., for condition mode) */}
           {!!plainText && (!Array.isArray(matches) || matches.length === 0) && (
             <div className="ai-plain" dangerouslySetInnerHTML={{ __html: formattedHTML }} />
           )}
-        </div>
+        </section>
       )}
 
       {/* DISCLAIMER */}

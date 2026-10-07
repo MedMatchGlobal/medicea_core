@@ -1,6 +1,16 @@
 {
   "langName": "Italiano",
   "ui": {
+    "searchCountry": "Cerca Paesi",
+    "allRegions": "Tutti i continenti",
+    "noCountries": "Nessun Paese trovato",
+    "clearSearch": "Cancella ricerca",
+    "searchResults": "Risultati della ricerca",
+    "searchComplete": "Ricerca completata",
+    "editSearch": "Modifica ricerca",
+    "newSearch": "Nuova ricerca",
+    "viewResults": "Visualizza risultati",
+
     "travelCompanion": "Il tuo compagno di viaggio per i farmaci",
     "modernHeadline": "I tuoi farmaci, ovunque tu sia.",
     "modernSubtitle": "Esplora informazioni sui farmaci e i loro equivalenti nei diversi Paesi.",

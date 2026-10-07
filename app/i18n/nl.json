@@ -1,6 +1,16 @@
 {
   "langName": "Nederlands",
   "ui": {
+    "searchCountry": "Landen zoeken",
+    "allRegions": "Alle continenten",
+    "noCountries": "Geen landen gevonden",
+    "clearSearch": "Zoekopdracht wissen",
+    "searchResults": "Zoekresultaten",
+    "searchComplete": "Zoeken voltooid",
+    "editSearch": "Zoekopdracht aanpassen",
+    "newSearch": "Nieuwe zoekopdracht",
+    "viewResults": "Resultaten bekijken",
+
     "travelCompanion": "Uw metgezel voor medicijnen",
     "modernHeadline": "Uw medicijnen, waar u ook bent.",
     "modernSubtitle": "Ontdek informatie over medicijnen en vergelijkbare middelen in andere landen.",

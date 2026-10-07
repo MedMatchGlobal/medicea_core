@@ -1,6 +1,16 @@
 {
   "langName": "हिन्दी",
   "ui": {
+    "searchCountry": "देश खोजें",
+    "allRegions": "सभी महाद्वीप",
+    "noCountries": "कोई देश नहीं मिला",
+    "clearSearch": "खोज साफ़ करें",
+    "searchResults": "खोज परिणाम",
+    "searchComplete": "खोज पूरी हुई",
+    "editSearch": "खोज बदलें",
+    "newSearch": "नई खोज",
+    "viewResults": "परिणाम देखें",
+
     "travelCompanion": "दवाओं के लिए आपका साथी",
     "modernHeadline": "आपकी दवाएँ, आप जहाँ भी हों।",
     "modernSubtitle": "विभिन्न देशों में दवाओं की जानकारी और उनके समकक्ष विकल्प खोजें।",

@@ -1,6 +1,16 @@
 {
   "langName": "日本語",
   "ui": {
+    "searchCountry": "国を検索",
+    "allRegions": "すべての大陸",
+    "noCountries": "国が見つかりません",
+    "clearSearch": "検索をクリア",
+    "searchResults": "検索結果",
+    "searchComplete": "検索が完了しました",
+    "editSearch": "検索を編集",
+    "newSearch": "新しい検索",
+    "viewResults": "結果を見る",
+
     "travelCompanion": "あなたのお薬パートナー",
     "modernHeadline": "どこにいても、あなたのお薬を。",
     "modernSubtitle": "各国の医薬品情報や同等の医薬品を調べましょう。",

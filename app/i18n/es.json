@@ -1,6 +1,16 @@
 {
   "langName": "Español",
   "ui": {
+    "searchCountry": "Buscar países",
+    "allRegions": "Todos los continentes",
+    "noCountries": "No se encontraron países",
+    "clearSearch": "Borrar búsqueda",
+    "searchResults": "Resultados de búsqueda",
+    "searchComplete": "Búsqueda completada",
+    "editSearch": "Editar búsqueda",
+    "newSearch": "Nueva búsqueda",
+    "viewResults": "Ver resultados",
+
     "travelCompanion": "Tu compañero para los medicamentos",
     "modernHeadline": "Tus medicamentos, estés donde estés.",
     "modernSubtitle": "Explora información sobre medicamentos y sus equivalentes en distintos países.",

@@ -1,6 +1,16 @@
 {
   "langName": "Čeština",
   "ui": {
+    "searchCountry": "Hledat země",
+    "allRegions": "Všechny kontinenty",
+    "noCountries": "Žádné země nenalezeny",
+    "clearSearch": "Vymazat hledání",
+    "searchResults": "Výsledky hledání",
+    "searchComplete": "Hledání dokončeno",
+    "editSearch": "Upravit hledání",
+    "newSearch": "Nové hledání",
+    "viewResults": "Zobrazit výsledky",
+
     "travelCompanion": "Váš průvodce léky",
     "modernHeadline": "Vaše léky, ať jste kdekoli.",
     "modernSubtitle": "Prozkoumejte informace o lécích a jejich ekvivalentech v různých zemích.",

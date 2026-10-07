@@ -1,6 +1,16 @@
 {
   "langName": "Norsk",
   "ui": {
+    "searchCountry": "Søk etter land",
+    "allRegions": "Alle kontinenter",
+    "noCountries": "Ingen land funnet",
+    "clearSearch": "Tøm søk",
+    "searchResults": "Søkeresultater",
+    "searchComplete": "Søk fullført",
+    "editSearch": "Rediger søk",
+    "newSearch": "Nytt søk",
+    "viewResults": "Vis resultater",
+
     "travelCompanion": "Din følgesvenn for legemidler",
     "modernHeadline": "Dine legemidler, uansett hvor du er.",
     "modernSubtitle": "Utforsk legemiddelinformasjon og tilsvarende legemidler i andre land.",
