@@ -1,0 +1,24 @@
+Private fictional-data vault preview
+
+Uses existing current medicine-search website; no replacement of the homepage.
+Routes: /account (email code and authenticator), /account/recovery (help), /vault (test medicine list and documents).
+The feature remains disabled until MEDICEA_VAULT_BETA_ENABLED=true.
+Set the following in the Vercel Preview environment only:
+NEXT_PUBLIC_SUPABASE_URL — URL for the existing Supabase project
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY — publishable key, never a service-role key
+MEDICEA_VAULT_BETA_ENABLED — true
+Keep Vercel deployment protection enabled. Do not promote this preview to production yet.
+Native recovery codes remain disabled in production builds while the support ticket is pending.
+
+Database setup: existing document table and bucket are already installed.
+Medicine table migration 20261009 was applied by Sergio on 9 October 2026.
+Ten medicine RLS checks passed in Supabase SQL Editor, with simulated claims and rolled-back temporary records. This does not replace real-session phone/cross-account tests.
+Local account/document/medicine security tests and build must pass before preview testing.
+
+Preview checklist:
+1. With two disposable accounts: email sign-in, authenticator enrolment and verification.
+2. Save and remove a fictional medicine, reopen the page and verify persistence.
+3. Upload, download and delete a fictional PDF/JPEG/PNG up to 3 MB.
+4. Other account cannot access first account's record/file; signed-out and email-only sessions stay blocked.
+5. Sign out of all sessions and check that vault/file routes no longer work.
+6. Verify small-screen forms and keyboard behaviour before publication.
