@@ -1,6 +1,7 @@
 Larger private documents — engineering requirements, 9 October 2026
 
-Status: preparation only. Current deployed upload limit remains 3 MiB.
+Status: 50 MB implementation prepared in draft preview; Supabase migration and
+live provider/browser validation still pending. See LARGE-UPLOAD-RELEASE.txt.
 The existing account/vault checks do not validate this new transfer path.
 
 Why a larger number alone is insufficient:
@@ -13,7 +14,7 @@ https://vercel.com/docs/errors/function_payload_too_large
 https://supabase.com/docs/guides/storage/uploads/resumable-uploads
 https://supabase.com/docs/guides/storage/uploads/file-limits
 
-Initial target for review: up to 50 MiB for PDF/JPEG/PNG attachments, subject to
+Initial target for review: up to 50 decimal MB for PDF/JPEG/PNG attachments, subject to
 the project's actual global storage limit, account quotas and cost review.
 DICOM studies and multi-file specialist imaging need a separate design; a larger
 attachment limit does not provide a medical viewer or clinical interpretation.
@@ -50,3 +51,15 @@ Run supabase/large-file-readiness.sql as a NEW read-only query and send its four
 result tables. No records or file contents are queried. Report the global storage
 upload limit from dashboard settings and the largest approximate file sizes you
 expect. Continue using fictional files for preview tests.
+
+Research update: 9 October 2026
+3 MiB insufficient; 50 MB initial export phase cannot support all diagnostic studies.
+Published short ECG example 117.2 KB; Holter examples exceed 60 MB; TCIA CT
+dataset implied mean about 116 MB/study. Proposed future caps, subject to design:
+100 MB for document exports and 2 GB total for specialist study intake with
+controlled larger-study exceptions. No guarantee all studies fit. DICOM, ZIP,
+video and raw waveform formats remain unsupported until separately implemented.
+Supabase Free documented global cap 50 MB; exact byte setting requires dashboard
+confirmation. New large-file-readiness-json.sql returns all metadata in one cell
+for export because screenshot only shows truncated policy results. Full sourced
+research saved in deliverables/diagnostic-file-size-research.txt at workspace root.

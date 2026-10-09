@@ -1,5 +1,5 @@
 export const VAULT_BUCKET = 'medicea-vault-beta';
-export const MAX_FILE_BYTES = 3 * 1024 * 1024;
+export const MAX_FILE_BYTES = 50_000_000;
 export function documentType(bytes: Uint8Array): { mime: string; extension: string } | null {
   if ([37,80,68,70,45].every((v,i) => bytes[i] === v)) return { mime: 'application/pdf', extension: 'pdf' };
   if ([137,80,78,71,13,10,26,10].every((v,i) => bytes[i] === v)) return { mime: 'image/png', extension: 'png' };

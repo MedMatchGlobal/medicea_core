@@ -13,6 +13,7 @@ function harness({allowed=true,record=null}={}){
   const output=ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2020}}).outputText;
   const imports={
     '@/app/health-i18n/server':{healthServerText:async text=>text==='Document unavailable.'?'Document indisponible.':'Veuillez vérifier votre authentificateur.'},
+    '@/lib/vault-storage':{privateObject:async()=>{calls.push(['download']);return new Response('fictional');}},
     '@/lib/vault-files':{VAULT_BUCKET:'private',validDocumentId:value=>value===id},
     '@/lib/vault-access':{vaultAccess:async()=>allowed?{ok:true,user:{id:'secondary-account'},client:{from:()=>query,storage:{from:()=>({download:async()=>{calls.push(['download']);return {data:new Blob(['fictional']),error:null};}})}}}:{ok:false}},
   };

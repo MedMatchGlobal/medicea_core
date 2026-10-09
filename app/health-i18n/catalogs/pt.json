@@ -115,7 +115,6 @@
   "Document title": "Título do documento",
   "Example test report": "Exemplo de relatório de teste",
   "Test document": "Documento de teste",
-  "PDF, JPEG or PNG, up to 3 MB. Downloads are attachments; files are not rendered or sent to AI.": "PDF, JPEG ou PNG, até 3 MB. Downloads são anexos; arquivos não são renderizados ou enviados para IA.",
   "This file contains fictional test data only.": "Este arquivo contém apenas dados de teste fictícios.",
   "Uploading…": "Fazendo upload…",
   "Upload test document": "Fazer upload de documento de teste",
@@ -160,7 +159,6 @@
   "Sign in and verify your authenticator before using the beta vault.": "Faça login e verifique seu autenticador antes de usar o cofre beta.",
   "Confirm that this is a fictional test document.": "Confirme que este é um documento de teste fictício.",
   "Enter a title between 1 and 120 characters.": "Digite um título entre 1 e 120 caracteres.",
-  "Choose a PDF, JPEG or PNG up to 3 MB.": "Escolha um PDF, JPEG ou PNG de até 3 MB.",
   "The file must be a PDF, JPEG or PNG. Renaming a file is not enough.": "O arquivo deve ser um PDF, JPEG ou PNG. Renomear um arquivo não é suficiente.",
   "Upload failed. Check that beta storage is configured, then try again.": "Upload falhou. Verifique se o armazenamento beta está configurado e tente novamente.",
   "The document could not be registered. Please try again.": "O documento não pôde ser registrado. Por favor, tente novamente.",
@@ -182,5 +180,7 @@
   "Document unavailable.": "Documento indisponível.",
   "You have {count} verified authenticators. At your next sign-in, choose whichever one you can access.": "Você tem {count} autenticadores verificados. No seu próximo login, escolha qualquer um que você possa acessar.",
   "{count} unused recovery codes remain.": "{count} códigos de recuperação não utilizados permanecem.",
-  "Sign in and verify your authenticator.": "Faça login e verifique seu autenticador."
+  "Sign in and verify your authenticator.": "Faça login e verifique seu autenticador.",
+  "PDF, JPEG or PNG, up to 50 MB. Downloads are attachments; files are not rendered or sent to AI.": "PDF, JPEG ou PNG, até 50 MB. Downloads são anexos; arquivos não são renderizados ou enviados para IA.",
+  "Choose a PDF, JPEG or PNG up to 50 MB.": "Escolha um PDF, JPEG ou PNG de até 50 MB."
 }

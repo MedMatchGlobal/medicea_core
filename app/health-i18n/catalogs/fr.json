@@ -115,7 +115,6 @@
   "Document title": "Titre du document",
   "Example test report": "Exemple de rapport de test",
   "Test document": "Document de test",
-  "PDF, JPEG or PNG, up to 3 MB. Downloads are attachments; files are not rendered or sent to AI.": "PDF, JPEG ou PNG, jusqu'à 3 Mo. Les téléchargements sont des pièces jointes ; les fichiers ne sont pas rendus ou envoyés à l'IA.",
   "This file contains fictional test data only.": "Ce fichier contient uniquement des données de test fictives.",
   "Uploading…": "Téléversement en cours…",
   "Upload test document": "Téléverser le document de test",
@@ -160,7 +159,6 @@
   "Sign in and verify your authenticator before using the beta vault.": "Connectez-vous et vérifiez votre authentificateur avant d'utiliser le coffre-fort bêta.",
   "Confirm that this is a fictional test document.": "Confirmez qu'il s'agit d'un document de test fictif.",
   "Enter a title between 1 and 120 characters.": "Entrez un titre entre 1 et 120 caractères.",
-  "Choose a PDF, JPEG or PNG up to 3 MB.": "Choisissez un PDF, JPEG ou PNG jusqu'à 3 Mo.",
   "The file must be a PDF, JPEG or PNG. Renaming a file is not enough.": "Le fichier doit être un PDF, JPEG ou PNG. Renommer un fichier ne suffit pas.",
   "Upload failed. Check that beta storage is configured, then try again.": "Échec du téléversement. Vérifiez que le stockage bêta est configuré, puis réessayez.",
   "The document could not be registered. Please try again.": "Le document n'a pas pu être enregistré. Veuillez réessayer.",
@@ -182,5 +180,7 @@
   "Document unavailable.": "Document indisponible.",
   "You have {count} verified authenticators. At your next sign-in, choose whichever one you can access.": "Vous avez {count} authentificateurs vérifiés. Lors de votre prochaine connexion, choisissez celui auquel vous pouvez accéder.",
   "{count} unused recovery codes remain.": "{count} codes de récupération inutilisés restent.",
-  "Sign in and verify your authenticator.": "Connectez-vous et vérifiez votre authentificateur."
+  "Sign in and verify your authenticator.": "Connectez-vous et vérifiez votre authentificateur.",
+  "PDF, JPEG or PNG, up to 50 MB. Downloads are attachments; files are not rendered or sent to AI.": "PDF, JPEG ou PNG, jusqu'à 50 Mo. Les téléchargements sont des pièces jointes ; les fichiers ne sont pas rendus ou envoyés à l'IA.",
+  "Choose a PDF, JPEG or PNG up to 50 MB.": "Choisissez un PDF, JPEG ou PNG jusqu'à 50 Mo."
 }

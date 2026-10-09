@@ -115,7 +115,6 @@
   "Document title": "Titlul documentului",
   "Example test report": "Exemplu de raport de test",
   "Test document": "Document de test",
-  "PDF, JPEG or PNG, up to 3 MB. Downloads are attachments; files are not rendered or sent to AI.": "PDF, JPEG sau PNG, până la 3 MB. Descărcările sunt atașamente; fișierele nu sunt redimensionate sau trimise către AI.",
   "This file contains fictional test data only.": "Acest fișier conține doar date fictive de test.",
   "Uploading…": "Se încarcă…",
   "Upload test document": "Încarcă document de test",
@@ -160,7 +159,6 @@
   "Sign in and verify your authenticator before using the beta vault.": "Autentifică-te și verifică autentificatorul tău înainte de a folosi seiful beta.",
   "Confirm that this is a fictional test document.": "Confirmă că acesta este un document de test fictiv.",
   "Enter a title between 1 and 120 characters.": "Introdu un titlu între 1 și 120 de caractere.",
-  "Choose a PDF, JPEG or PNG up to 3 MB.": "Alege un PDF, JPEG sau PNG de până la 3 MB.",
   "The file must be a PDF, JPEG or PNG. Renaming a file is not enough.": "Fișierul trebuie să fie un PDF, JPEG sau PNG. Renaming-ul unui fișier nu este suficient.",
   "Upload failed. Check that beta storage is configured, then try again.": "Încărcarea a eșuat. Verifică dacă stocarea beta este configurată, apoi încearcă din nou.",
   "The document could not be registered. Please try again.": "Documentul nu a putut fi înregistrat. Te rog să încerci din nou.",
@@ -182,5 +180,7 @@
   "Document unavailable.": "Document indisponibil.",
   "You have {count} verified authenticators. At your next sign-in, choose whichever one you can access.": "Ai {count} autentificatoare verificate. La următoarea ta autentificare, alege oricare dintre ele la care poți avea acces.",
   "{count} unused recovery codes remain.": "{count} coduri de recuperare neutilizate rămân.",
-  "Sign in and verify your authenticator.": "Autentifică-te și verifică autentificatorul tău."
+  "Sign in and verify your authenticator.": "Autentifică-te și verifică autentificatorul tău.",
+  "PDF, JPEG or PNG, up to 50 MB. Downloads are attachments; files are not rendered or sent to AI.": "PDF, JPEG sau PNG, până la 50 MB. Descărcările sunt atașamente; fișierele nu sunt redimensionate sau trimise către AI.",
+  "Choose a PDF, JPEG or PNG up to 50 MB.": "Alege un PDF, JPEG sau PNG de până la 50 MB."
 }

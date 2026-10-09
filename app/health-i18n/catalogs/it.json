@@ -115,7 +115,6 @@
   "Document title": "Titolo del documento",
   "Example test report": "Esempio di rapporto di test",
   "Test document": "Documento di test",
-  "PDF, JPEG or PNG, up to 3 MB. Downloads are attachments; files are not rendered or sent to AI.": "PDF, JPEG o PNG, fino a 3 MB. I download sono allegati; i file non vengono visualizzati o inviati all'AI.",
   "This file contains fictional test data only.": "Questo file contiene solo dati di test fittizi.",
   "Uploading…": "Caricamento…",
   "Upload test document": "Carica documento di test",
@@ -160,7 +159,6 @@
   "Sign in and verify your authenticator before using the beta vault.": "Accedi e verifica il tuo autenticatore prima di utilizzare la vault beta.",
   "Confirm that this is a fictional test document.": "Conferma che questo è un documento di test fittizio.",
   "Enter a title between 1 and 120 characters.": "Inserisci un titolo tra 1 e 120 caratteri.",
-  "Choose a PDF, JPEG or PNG up to 3 MB.": "Scegli un PDF, JPEG o PNG fino a 3 MB.",
   "The file must be a PDF, JPEG or PNG. Renaming a file is not enough.": "Il file deve essere un PDF, JPEG o PNG. Rinominare un file non è sufficiente.",
   "Upload failed. Check that beta storage is configured, then try again.": "Caricamento non riuscito. Controlla che l'archiviazione beta sia configurata, poi riprova.",
   "The document could not be registered. Please try again.": "Il documento non può essere registrato. Riprova.",
@@ -182,5 +180,7 @@
   "Document unavailable.": "Documento non disponibile.",
   "You have {count} verified authenticators. At your next sign-in, choose whichever one you can access.": "Hai {count} autenticatori verificati. Al tuo prossimo accesso, scegli quello a cui puoi accedere.",
   "{count} unused recovery codes remain.": "{count} codici di recupero non utilizzati rimangono.",
-  "Sign in and verify your authenticator.": "Accedi e verifica il tuo autenticatore."
+  "Sign in and verify your authenticator.": "Accedi e verifica il tuo autenticatore.",
+  "PDF, JPEG or PNG, up to 50 MB. Downloads are attachments; files are not rendered or sent to AI.": "PDF, JPEG o PNG, fino a 50 MB. I download sono allegati; i file non vengono visualizzati o inviati all'AI.",
+  "Choose a PDF, JPEG or PNG up to 50 MB.": "Scegli un PDF, JPEG o PNG fino a 50 MB."
 }

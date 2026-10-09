@@ -115,7 +115,6 @@
   "Document title": "Documenttitel",
   "Example test report": "Voorbeeld testrapport",
   "Test document": "Testdocument",
-  "PDF, JPEG or PNG, up to 3 MB. Downloads are attachments; files are not rendered or sent to AI.": "PDF, JPEG of PNG, tot 3 MB. Downloads zijn bijlagen; bestanden worden niet weergegeven of naar AI verzonden.",
   "This file contains fictional test data only.": "Dit bestand bevat alleen fictieve testgegevens.",
   "Uploading…": "Uploaden…",
   "Upload test document": "Upload testdocument",
@@ -160,7 +159,6 @@
   "Sign in and verify your authenticator before using the beta vault.": "Meld je aan en verifieer je authenticator voordat je de bèta-kluis gebruikt.",
   "Confirm that this is a fictional test document.": "Bevestig dat dit een fictief testdocument is.",
   "Enter a title between 1 and 120 characters.": "Voer een titel in van 1 tot 120 tekens.",
-  "Choose a PDF, JPEG or PNG up to 3 MB.": "Kies een PDF, JPEG of PNG tot 3 MB.",
   "The file must be a PDF, JPEG or PNG. Renaming a file is not enough.": "Het bestand moet een PDF, JPEG of PNG zijn. Het hernoemen van een bestand is niet voldoende.",
   "Upload failed. Check that beta storage is configured, then try again.": "Uploaden mislukt. Controleer of de bèta-opslag is geconfigureerd, probeer het dan opnieuw.",
   "The document could not be registered. Please try again.": "Het document kon niet worden geregistreerd. Probeer het opnieuw.",
@@ -182,5 +180,7 @@
   "Document unavailable.": "Document niet beschikbaar.",
   "You have {count} verified authenticators. At your next sign-in, choose whichever one you can access.": "Je hebt {count} geverifieerde authenticators. Kies bij je volgende aanmelding welke je kunt gebruiken.",
   "{count} unused recovery codes remain.": "{count} ongebruikte herstelcodes blijven over.",
-  "Sign in and verify your authenticator.": "Meld je aan en verifieer je authenticator."
+  "Sign in and verify your authenticator.": "Meld je aan en verifieer je authenticator.",
+  "PDF, JPEG or PNG, up to 50 MB. Downloads are attachments; files are not rendered or sent to AI.": "PDF, JPEG of PNG, tot 50 MB. Downloads zijn bijlagen; bestanden worden niet weergegeven of naar AI verzonden.",
+  "Choose a PDF, JPEG or PNG up to 50 MB.": "Kies een PDF, JPEG of PNG tot 50 MB."
 }

@@ -1,0 +1,88 @@
+{
+  "policies": [
+    {
+      "cmd": "ALL",
+      "qual": "(( SELECT (auth.jwt() ->> 'aal'::text)) = 'aal2'::text)",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "vault_beta_documents",
+      "permissive": "RESTRICTIVE",
+      "policyname": "vault_beta_mfa",
+      "schemaname": "public",
+      "with_check": "(( SELECT (auth.jwt() ->> 'aal'::text)) = 'aal2'::text)"
+    },
+    {
+      "cmd": "ALL",
+      "qual": "(( SELECT auth.uid() AS uid) = user_id)",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "vault_beta_documents",
+      "permissive": "PERMISSIVE",
+      "policyname": "vault_beta_owner",
+      "schemaname": "public",
+      "with_check": "(( SELECT auth.uid() AS uid) = user_id)"
+    },
+    {
+      "cmd": "DELETE",
+      "qual": "(bucket_id = 'medicea-vault-beta'::text)",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "objects",
+      "permissive": "PERMISSIVE",
+      "policyname": "vault_beta_storage_delete",
+      "schemaname": "storage",
+      "with_check": null
+    },
+    {
+      "cmd": "ALL",
+      "qual": "((bucket_id <> 'medicea-vault-beta'::text) OR ((( SELECT (auth.jwt() ->> 'aal'::text)) = 'aal2'::text) AND ((storage.foldername(name))[1] = (( SELECT auth.uid() AS uid))::text) AND (owner_id = (( SELECT auth.uid() AS uid))::text)))",
+      "roles": [
+        "public"
+      ],
+      "tablename": "objects",
+      "permissive": "RESTRICTIVE",
+      "policyname": "vault_beta_storage_guard",
+      "schemaname": "storage",
+      "with_check": "((bucket_id <> 'medicea-vault-beta'::text) OR ((( SELECT (auth.jwt() ->> 'aal'::text)) = 'aal2'::text) AND ((storage.foldername(name))[1] = (( SELECT auth.uid() AS uid))::text) AND (owner_id = (( SELECT auth.uid() AS uid))::text)))"
+    },
+    {
+      "cmd": "INSERT",
+      "qual": null,
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "objects",
+      "permissive": "PERMISSIVE",
+      "policyname": "vault_beta_storage_insert",
+      "schemaname": "storage",
+      "with_check": "(bucket_id = 'medicea-vault-beta'::text)"
+    },
+    {
+      "cmd": "UPDATE",
+      "qual": "(bucket_id <> 'medicea-vault-beta'::text)",
+      "roles": [
+        "public"
+      ],
+      "tablename": "objects",
+      "permissive": "RESTRICTIVE",
+      "policyname": "vault_beta_storage_no_overwrite",
+      "schemaname": "storage",
+      "with_check": "(bucket_id <> 'medicea-vault-beta'::text)"
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "(bucket_id = 'medicea-vault-beta'::text)",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "objects",
+      "permissive": "PERMISSIVE",
+      "policyname": "vault_beta_storage_read",
+      "schemaname": "storage",
+      "with_check": null
+    }
+  ]
+}

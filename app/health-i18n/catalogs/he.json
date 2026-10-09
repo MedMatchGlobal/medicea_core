@@ -115,7 +115,6 @@
   "Document title": "כותרת המסמך",
   "Example test report": "דו\"ח בדיקה לדוגמה",
   "Test document": "מסמך בדיקה",
-  "PDF, JPEG or PNG, up to 3 MB. Downloads are attachments; files are not rendered or sent to AI.": "PDF, JPEG או PNG, עד 3 MB. הורדות הן קבצים מצורפים; קבצים אינם מוצגים או נשלחים ל-AI.",
   "This file contains fictional test data only.": "קובץ זה מכיל נתוני בדיקה פיקטיביים בלבד.",
   "Uploading…": "מעלה…",
   "Upload test document": "העלה מסמך בדיקה",
@@ -160,7 +159,6 @@
   "Sign in and verify your authenticator before using the beta vault.": "היכנס ואמת את האוטנטיקטור שלך לפני השימוש בכספת הבטא.",
   "Confirm that this is a fictional test document.": "אשר שזהו מסמך בדיקה פיקטיבי.",
   "Enter a title between 1 and 120 characters.": "הזן כותרת בין 1 ל-120 תווים.",
-  "Choose a PDF, JPEG or PNG up to 3 MB.": "בחר PDF, JPEG או PNG עד 3 MB.",
   "The file must be a PDF, JPEG or PNG. Renaming a file is not enough.": "הקובץ חייב להיות PDF, JPEG או PNG. שינוי שם של קובץ אינו מספיק.",
   "Upload failed. Check that beta storage is configured, then try again.": "ההעלאה נכשלה. בדוק שהאחסון בבטא מוגדר, ואז נסה שוב.",
   "The document could not be registered. Please try again.": "המסמך לא יכול היה להירשם. אנא נסה שוב.",
@@ -182,5 +180,7 @@
   "Document unavailable.": "מסמך אינו זמין.",
   "You have {count} verified authenticators. At your next sign-in, choose whichever one you can access.": "יש לך {count} אוטנטיקטורים מאומתים. בהיכנסך הבא, בחר כל אחד מהם שאתה יכול לגשת אליו.",
   "{count} unused recovery codes remain.": "{count} קודי שחזור לא בשימוש נשארים.",
-  "Sign in and verify your authenticator.": "היכנס ואמת את האוטנטיקטור שלך."
+  "Sign in and verify your authenticator.": "היכנס ואמת את האוטנטיקטור שלך.",
+  "PDF, JPEG or PNG, up to 50 MB. Downloads are attachments; files are not rendered or sent to AI.": "PDF, JPEG או PNG, עד 50 MB. הורדות הן קבצים מצורפים; קבצים אינם מוצגים או נשלחים ל-AI.",
+  "Choose a PDF, JPEG or PNG up to 50 MB.": "בחר PDF, JPEG או PNG עד 50 MB."
 }

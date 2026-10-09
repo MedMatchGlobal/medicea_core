@@ -115,7 +115,6 @@
   "Document title": "Dokumenttitel",
   "Example test report": "Beispiel-Testbericht",
   "Test document": "Testdokument",
-  "PDF, JPEG or PNG, up to 3 MB. Downloads are attachments; files are not rendered or sent to AI.": "PDF, JPEG oder PNG, bis zu 3 MB. Downloads sind Anhänge; Dateien werden nicht gerendert oder an KI gesendet.",
   "This file contains fictional test data only.": "Diese Datei enthält nur fiktive Testdaten.",
   "Uploading…": "Hochladen…",
   "Upload test document": "Testdokument hochladen",
@@ -160,7 +159,6 @@
   "Sign in and verify your authenticator before using the beta vault.": "Melde dich an und überprüfe deinen Authentifikator, bevor du den Beta-Vault verwendest.",
   "Confirm that this is a fictional test document.": "Bestätige, dass dies ein fiktives Testdokument ist.",
   "Enter a title between 1 and 120 characters.": "Gib einen Titel zwischen 1 und 120 Zeichen ein.",
-  "Choose a PDF, JPEG or PNG up to 3 MB.": "Wähle ein PDF, JPEG oder PNG bis zu 3 MB.",
   "The file must be a PDF, JPEG or PNG. Renaming a file is not enough.": "Die Datei muss ein PDF, JPEG oder PNG sein. Das Umbenennen einer Datei reicht nicht aus.",
   "Upload failed. Check that beta storage is configured, then try again.": "Hochladen fehlgeschlagen. Überprüfe, ob der Beta-Speicher konfiguriert ist, und versuche es erneut.",
   "The document could not be registered. Please try again.": "Das Dokument konnte nicht registriert werden. Bitte versuche es erneut.",
@@ -182,5 +180,7 @@
   "Document unavailable.": "Dokument nicht verfügbar.",
   "You have {count} verified authenticators. At your next sign-in, choose whichever one you can access.": "Du hast {count} verifizierte Authentifikatoren. Wähle bei deiner nächsten Anmeldung denjenigen aus, auf den du zugreifen kannst.",
   "{count} unused recovery codes remain.": "{count} ungenutzte Wiederherstellungscodes bleiben.",
-  "Sign in and verify your authenticator.": "Melde dich an und überprüfe deinen Authentifikator."
+  "Sign in and verify your authenticator.": "Melde dich an und überprüfe deinen Authentifikator.",
+  "PDF, JPEG or PNG, up to 50 MB. Downloads are attachments; files are not rendered or sent to AI.": "PDF, JPEG oder PNG, bis zu 50 MB. Downloads sind Anhänge; Dateien werden nicht gerendert oder an KI gesendet.",
+  "Choose a PDF, JPEG or PNG up to 50 MB.": "Wähle ein PDF, JPEG oder PNG bis zu 50 MB."
 }

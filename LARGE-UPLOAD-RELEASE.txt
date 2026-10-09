@@ -1,0 +1,50 @@
+50 MB private preview transfers — 9 October 2026
+
+Apply supabase/migrations/20261009_large_document_uploads.sql in a NEW SQL Editor
+query after reviewing. It raises the private bucket and document constraint to
+50,000,000 bytes, creates temporary intake records and RPCs, and restricts direct
+creation to a live owner-bound reservation. No existing documents are deleted.
+Public site and native Android build are not promoted by this change.
+
+Preview guardrails: PDF/JPEG/PNG only; fictional-data consent; 100 documents,
+250,000,000 total reserved/registered bytes per account; 3 simultaneous intake
+records; 1-hour reservation expiry. These are preview quotas, not paid product
+allowances. Reservation creation and completion serialize per-account quota
+changes. Storage owner/MFA and overwrite protections remain. Metadata-only
+registration checks actual storage size/type. Application completion checks magic
+bytes; this is not full PDF/image parsing, malware scanning or clinical validation.
+Clients can call public RPCs directly; SQL completion validates metadata, not magic
+bytes. Never treat these checks as an anti-malware guarantee.
+
+Transfers: browser-to-storage TUS, 6 MiB chunks, progress, bounded automatic retries.
+Retry with the Upload button retains same-tab transfer progress. Refresh/closing
+the tab loses in-memory resume state and requires a new upload. No localStorage
+upload URLs/fingerprints or bearer credentials persisted by this transfer feature.
+Tokens refreshed before each request; storage validates actual AAL/ownership.
+Cancel aborts the local transfer, revokes reservation, removes any completed object
+and releases quota only once no object remains. Existing records stay private and
+stream through authenticated download route without signed bearer URLs.
+
+Expired/cancelled reservation cleanup occurs when owner begins another upload.
+Scheduled privileged cleanup of abandoned completed objects is NOT enabled.
+Unfinished TUS provider URLs have their own documented 24-hour lifecycle. Before
+real-data use, implement/test scheduled object cleanup, scanning/quarantine and
+account erasure including pending objects. No real patient records in this preview.
+
+Required live tests AFTER migration and new preview deployment:
+1. Fictional PDF/PNG/JPEG larger than 3 MB and 6 MB: upload, refresh, download/open,
+   compare original/download SHA-256; reject over 50,000,000 bytes.
+2. Interrupt network mid-transfer then restore; confirm automatic/same-tab retry,
+   no duplicate listing. Cancel during allocation/transfer/finalization; refresh.
+3. Secondary account cannot list or fetch another account's object/download URL;
+   switch account mid-transfer, verify denial. Fresh email-only session cannot
+   upload, complete, read or delete until MFA verified.
+4. Provider info returns contentType/size and authenticated Range request returns
+   206. TUS creation/completion metadata must satisfy new INSERT RLS checks.
+5. Expired reservation cannot commit; new intake safely cleans expired objects.
+   Confirm quotas, immutable objects, no-overwrite, all 25 locales and phone layout.
+6. Test 50 MB download on actual Vercel preview and slower network; streaming
+   function duration/provider disconnects remain practical limits.
+
+Isolated PostgreSQL tests model the exported policies/schema. They do not emulate
+Supabase TUS service internals or replace these provider/browser checks.

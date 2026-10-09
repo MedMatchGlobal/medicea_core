@@ -115,7 +115,6 @@
   "Document title": "Tytuł dokumentu",
   "Example test report": "Przykładowy raport testowy",
   "Test document": "Dokument testowy",
-  "PDF, JPEG or PNG, up to 3 MB. Downloads are attachments; files are not rendered or sent to AI.": "PDF, JPEG lub PNG, do 3 MB. Pobrania są załącznikami; pliki nie są renderowane ani wysyłane do AI.",
   "This file contains fictional test data only.": "Ten plik zawiera tylko fikcyjne dane testowe.",
   "Uploading…": "Przesyłanie…",
   "Upload test document": "Prześlij dokument testowy",
@@ -160,7 +159,6 @@
   "Sign in and verify your authenticator before using the beta vault.": "Zaloguj się i zweryfikuj swoją aplikację uwierzytelniającą przed użyciem sejfu beta.",
   "Confirm that this is a fictional test document.": "Potwierdź, że jest to fikcyjny dokument testowy.",
   "Enter a title between 1 and 120 characters.": "Wprowadź tytuł między 1 a 120 znaków.",
-  "Choose a PDF, JPEG or PNG up to 3 MB.": "Wybierz PDF, JPEG lub PNG do 3 MB.",
   "The file must be a PDF, JPEG or PNG. Renaming a file is not enough.": "Plik musi być w formacie PDF, JPEG lub PNG. Zmiana nazwy pliku nie wystarczy.",
   "Upload failed. Check that beta storage is configured, then try again.": "Przesyłanie nie powiodło się. Sprawdź, czy przechowywanie beta jest skonfigurowane, a następnie spróbuj ponownie.",
   "The document could not be registered. Please try again.": "Dokument nie mógł zostać zarejestrowany. Proszę spróbować ponownie.",
@@ -182,5 +180,7 @@
   "Document unavailable.": "Dokument niedostępny.",
   "You have {count} verified authenticators. At your next sign-in, choose whichever one you can access.": "Masz {count} zweryfikowanych aplikacji uwierzytelniających. Przy następnym logowaniu wybierz dowolną, do której masz dostęp.",
   "{count} unused recovery codes remain.": "{count} nieużytych kodów odzyskiwania pozostało.",
-  "Sign in and verify your authenticator.": "Zaloguj się i zweryfikuj swoją aplikację uwierzytelniającą."
+  "Sign in and verify your authenticator.": "Zaloguj się i zweryfikuj swoją aplikację uwierzytelniającą.",
+  "PDF, JPEG or PNG, up to 50 MB. Downloads are attachments; files are not rendered or sent to AI.": "PDF, JPEG lub PNG, do 50 MB. Pobrania są załącznikami; pliki nie są renderowane ani wysyłane do AI.",
+  "Choose a PDF, JPEG or PNG up to 50 MB.": "Wybierz PDF, JPEG lub PNG do 50 MB."
 }

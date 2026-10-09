@@ -115,7 +115,6 @@
   "Document title": "Dokumenttitel",
   "Example test report": "Exempel på testrapport",
   "Test document": "Testdokument",
-  "PDF, JPEG or PNG, up to 3 MB. Downloads are attachments; files are not rendered or sent to AI.": "PDF, JPEG eller PNG, upp till 3 MB. Nedladdningar är bilagor; filer renderas inte eller skickas till AI.",
   "This file contains fictional test data only.": "Denna fil innehåller endast fiktiva testdata.",
   "Uploading…": "Laddar upp…",
   "Upload test document": "Ladda upp testdokument",
@@ -160,7 +159,6 @@
   "Sign in and verify your authenticator before using the beta vault.": "Logga in och verifiera din autentiserare innan du använder beta-valvet.",
   "Confirm that this is a fictional test document.": "Bekräfta att detta är ett fiktivt testdokument.",
   "Enter a title between 1 and 120 characters.": "Ange en titel mellan 1 och 120 tecken.",
-  "Choose a PDF, JPEG or PNG up to 3 MB.": "Välj en PDF, JPEG eller PNG upp till 3 MB.",
   "The file must be a PDF, JPEG or PNG. Renaming a file is not enough.": "Filen måste vara en PDF, JPEG eller PNG. Att byta namn på en fil är inte tillräckligt.",
   "Upload failed. Check that beta storage is configured, then try again.": "Uppladdning misslyckades. Kontrollera att beta-lagringen är konfigurerad, och försök igen.",
   "The document could not be registered. Please try again.": "Dokumentet kunde inte registreras. Vänligen försök igen.",
@@ -182,5 +180,7 @@
   "Document unavailable.": "Dokument inte tillgängligt.",
   "You have {count} verified authenticators. At your next sign-in, choose whichever one you can access.": "Du har {count} verifierade autentiserare. Vid nästa inloggning, välj vilken du kan komma åt.",
   "{count} unused recovery codes remain.": "{count} oanvända återställningskoder återstår.",
-  "Sign in and verify your authenticator.": "Logga in och verifiera din autentiserare."
+  "Sign in and verify your authenticator.": "Logga in och verifiera din autentiserare.",
+  "PDF, JPEG or PNG, up to 50 MB. Downloads are attachments; files are not rendered or sent to AI.": "PDF, JPEG eller PNG, upp till 50 MB. Nedladdningar är bilagor; filer renderas inte eller skickas till AI.",
+  "Choose a PDF, JPEG or PNG up to 50 MB.": "Välj en PDF, JPEG eller PNG upp till 50 MB."
 }

@@ -115,7 +115,6 @@
   "Document title": "Asiakirjan otsikko",
   "Example test report": "Esimerkkitestiraportti",
   "Test document": "Testiasiakirja",
-  "PDF, JPEG or PNG, up to 3 MB. Downloads are attachments; files are not rendered or sent to AI.": "PDF, JPEG tai PNG, enintään 3 MB. Lataukset ovat liitteitä; tiedostoja ei renderöidä tai lähetetä AI:lle.",
   "This file contains fictional test data only.": "Tämä tiedosto sisältää vain kuvitteellisia testitietoja.",
   "Uploading…": "Ladataan…",
   "Upload test document": "Lataa testiasiakirja",
@@ -160,7 +159,6 @@
   "Sign in and verify your authenticator before using the beta vault.": "Kirjaudu sisään ja vahvista autentikoijasi ennen beetavaultin käyttöä.",
   "Confirm that this is a fictional test document.": "Vahvista, että tämä on kuvitteellinen testiasiakirja.",
   "Enter a title between 1 and 120 characters.": "Syötä otsikko, joka on 1–120 merkkiä pitkä.",
-  "Choose a PDF, JPEG or PNG up to 3 MB.": "Valitse PDF, JPEG tai PNG, enintään 3 MB.",
   "The file must be a PDF, JPEG or PNG. Renaming a file is not enough.": "Tiedoston on oltava PDF, JPEG tai PNG. Tiedoston nimeäminen uudelleen ei riitä.",
   "Upload failed. Check that beta storage is configured, then try again.": "Lataus epäonnistui. Tarkista, että beetatallennus on määritetty, ja yritä uudelleen.",
   "The document could not be registered. Please try again.": "Asiakirjaa ei voitu rekisteröidä. Yritä uudelleen.",
@@ -182,5 +180,7 @@
   "Document unavailable.": "Asiakirja ei ole saatavilla.",
   "You have {count} verified authenticators. At your next sign-in, choose whichever one you can access.": "Sinulla on {count} vahvistettua autentikoijaa. Seuraavassa kirjautumisessasi valitse mikä tahansa, johon pääset käsiksi.",
   "{count} unused recovery codes remain.": "{count} käyttämätöntä palautuskoodia on jäljellä.",
-  "Sign in and verify your authenticator.": "Kirjaudu sisään ja vahvista autentikoijasi."
+  "Sign in and verify your authenticator.": "Kirjaudu sisään ja vahvista autentikoijasi.",
+  "PDF, JPEG or PNG, up to 50 MB. Downloads are attachments; files are not rendered or sent to AI.": "PDF, JPEG tai PNG, enintään 50 MB. Lataukset ovat liitteitä; tiedostoja ei renderöidä tai lähetetä AI:lle.",
+  "Choose a PDF, JPEG or PNG up to 50 MB.": "Valitse PDF, JPEG tai PNG, enintään 50 MB."
 }

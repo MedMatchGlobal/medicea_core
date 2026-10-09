@@ -115,7 +115,6 @@
   "Document title": "Document title",
   "Example test report": "Example test report",
   "Test document": "Test document",
-  "PDF, JPEG or PNG, up to 3 MB. Downloads are attachments; files are not rendered or sent to AI.": "PDF, JPEG or PNG, up to 3 MB. Downloads are attachments; files are not rendered or sent to AI.",
   "This file contains fictional test data only.": "This file contains fictional test data only.",
   "Uploading…": "Uploading…",
   "Upload test document": "Upload test document",
@@ -160,7 +159,6 @@
   "Sign in and verify your authenticator before using the beta vault.": "Sign in and verify your authenticator before using the beta vault.",
   "Confirm that this is a fictional test document.": "Confirm that this is a fictional test document.",
   "Enter a title between 1 and 120 characters.": "Enter a title between 1 and 120 characters.",
-  "Choose a PDF, JPEG or PNG up to 3 MB.": "Choose a PDF, JPEG or PNG up to 3 MB.",
   "The file must be a PDF, JPEG or PNG. Renaming a file is not enough.": "The file must be a PDF, JPEG or PNG. Renaming a file is not enough.",
   "Upload failed. Check that beta storage is configured, then try again.": "Upload failed. Check that beta storage is configured, then try again.",
   "The document could not be registered. Please try again.": "The document could not be registered. Please try again.",
@@ -182,5 +180,7 @@
   "Document unavailable.": "Document unavailable.",
   "You have {count} verified authenticators. At your next sign-in, choose whichever one you can access.": "You have {count} verified authenticators. At your next sign-in, choose whichever one you can access.",
   "{count} unused recovery codes remain.": "{count} unused recovery codes remain.",
-  "Sign in and verify your authenticator.": "Sign in and verify your authenticator."
+  "Sign in and verify your authenticator.": "Sign in and verify your authenticator.",
+  "PDF, JPEG or PNG, up to 50 MB. Downloads are attachments; files are not rendered or sent to AI.": "PDF, JPEG or PNG, up to 50 MB. Downloads are attachments; files are not rendered or sent to AI.",
+  "Choose a PDF, JPEG or PNG up to 50 MB.": "Choose a PDF, JPEG or PNG up to 50 MB."
 }

@@ -64,7 +64,7 @@ deployment, not automatically to a later commit or every future health feature.
 | Feature | Implemented in this branch | Scope of evidence / further work |
 | --- | --- | --- |
 | Medicine list | Fictional name, strength and notes; save/remove | Persistence and list isolation checked live; action validation and MFA tested automatically |
-| Private documents | PDF, JPEG, PNG up to 3 MiB; upload/download/delete | Persistence, owner download and other-account list/direct-link denial checked live |
+| Private documents | PDF, JPEG, PNG up to 50 MB after new migration; upload/download/delete | Persistence, owner download and other-account list/direct-link denial checked live |
 | Prescription attachment | Uses the ordinary supported-file route | Storage controls apply; no prescribing, dispensing, renewal or clinical validation workflow |
 | X-ray attachment | An ordinary JPEG/PNG/PDF within the limit | No DICOM, diagnostic viewer, image interpretation or specialist imaging workflow |
 | Appointments | Not implemented in this branch | Fictional prototype exists separately; persistence, ownership, date/time, status and reminder tests still needed |
@@ -94,3 +94,14 @@ dependency findings and rebuild the patched Android wrapper. Record evidence per
 feature and deployment. Privacy/retention, inactivity reminders, erasure with fresh
 MFA and an alternative rights-request route, processor/backup handling and legal
 review remain release requirements. A test report is not GDPR certification.
+
+
+### Larger document transfer update
+
+The new 50,000,000-byte upload path uses direct TUS transfers, temporary owner/MFA
+reservations, quotas and private streaming downloads. Apply
+`supabase/migrations/20261009_large_document_uploads.sql` before testing it.
+`LARGE-UPLOAD-RELEASE.txt` records exact deployment steps, same-tab retry scope,
+cleanup limits and mandatory provider/browser checks. Existing mobile evidence
+does not automatically validate this new path. Run `node --test tests/*.cjs` for
+unit, localization and isolated PostgreSQL migration/policy checks.

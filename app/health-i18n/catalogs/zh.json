@@ -115,7 +115,6 @@
   "Document title": "文档标题",
   "Example test report": "示例测试报告",
   "Test document": "测试文档",
-  "PDF, JPEG or PNG, up to 3 MB. Downloads are attachments; files are not rendered or sent to AI.": "PDF、JPEG或PNG，最大3 MB。下载为附件；文件不会被呈现或发送给AI。",
   "This file contains fictional test data only.": "此文件仅包含虚构测试数据。",
   "Uploading…": "上传中…",
   "Upload test document": "上传测试文档",
@@ -160,7 +159,6 @@
   "Sign in and verify your authenticator before using the beta vault.": "登录并验证您的身份验证器，然后使用测试库。",
   "Confirm that this is a fictional test document.": "确认这是一个虚构的测试文档。",
   "Enter a title between 1 and 120 characters.": "输入一个介于1到120个字符之间的标题。",
-  "Choose a PDF, JPEG or PNG up to 3 MB.": "选择一个最大3 MB的PDF、JPEG或PNG。",
   "The file must be a PDF, JPEG or PNG. Renaming a file is not enough.": "文件必须是PDF、JPEG或PNG。重命名文件是不够的。",
   "Upload failed. Check that beta storage is configured, then try again.": "上传失败。检查测试存储是否已配置，然后重试。",
   "The document could not be registered. Please try again.": "文档无法注册。请重试。",
@@ -182,5 +180,7 @@
   "Document unavailable.": "文档不可用。",
   "You have {count} verified authenticators. At your next sign-in, choose whichever one you can access.": "您有 {count} 个经过验证的身份验证器。在下次登录时，选择您可以访问的任意一个。",
   "{count} unused recovery codes remain.": "{count} 个未使用的恢复代码仍然存在。",
-  "Sign in and verify your authenticator.": "登录并验证您的身份验证器。"
+  "Sign in and verify your authenticator.": "登录并验证您的身份验证器。",
+  "PDF, JPEG or PNG, up to 50 MB. Downloads are attachments; files are not rendered or sent to AI.": "PDF、JPEG或PNG，最大50 MB。下载为附件；文件不会被呈现或发送给AI。",
+  "Choose a PDF, JPEG or PNG up to 50 MB.": "选择一个最大50 MB的PDF、JPEG或PNG。"
 }

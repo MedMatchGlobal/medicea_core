@@ -115,7 +115,6 @@
   "Document title": "दस्तावेज़ का शीर्षक",
   "Example test report": "उदाहरण परीक्षण रिपोर्ट",
   "Test document": "परीक्षण दस्तावेज़",
-  "PDF, JPEG or PNG, up to 3 MB. Downloads are attachments; files are not rendered or sent to AI.": "PDF, JPEG या PNG, 3 MB तक। डाउनलोड अटैचमेंट हैं; फ़ाइलें प्रदर्शित या एआई को नहीं भेजी जाती हैं।",
   "This file contains fictional test data only.": "यह फ़ाइल केवल काल्पनिक परीक्षण डेटा शामिल करती है।",
   "Uploading…": "अपलोड हो रहा है…",
   "Upload test document": "परीक्षण दस्तावेज़ अपलोड करें",
@@ -160,7 +159,6 @@
   "Sign in and verify your authenticator before using the beta vault.": "बीटा वॉल्ट का उपयोग करने से पहले साइन इन करें और अपने प्रमाणीकरण को सत्यापित करें।",
   "Confirm that this is a fictional test document.": "कृपया पुष्टि करें कि यह एक काल्पनिक परीक्षण दस्तावेज़ है।",
   "Enter a title between 1 and 120 characters.": "1 से 120 वर्णों के बीच एक शीर्षक दर्ज करें।",
-  "Choose a PDF, JPEG or PNG up to 3 MB.": "3 MB तक का PDF, JPEG या PNG चुनें।",
   "The file must be a PDF, JPEG or PNG. Renaming a file is not enough.": "फ़ाइल PDF, JPEG या PNG होनी चाहिए। फ़ाइल का नाम बदलना पर्याप्त नहीं है।",
   "Upload failed. Check that beta storage is configured, then try again.": "अपलोड विफल। जांचें कि बीटा भंडारण कॉन्फ़िगर किया गया है, फिर पुनः प्रयास करें।",
   "The document could not be registered. Please try again.": "दस्तावेज़ को पंजीकृत नहीं किया जा सका। कृपया पुनः प्रयास करें।",
@@ -182,5 +180,7 @@
   "Document unavailable.": "दस्तावेज़ अनुपलब्ध।",
   "You have {count} verified authenticators. At your next sign-in, choose whichever one you can access.": "आपके पास {count} सत्यापित प्रमाणीकरण हैं। आपके अगले साइन-इन पर, वह चुनें जिसे आप एक्सेस कर सकते हैं।",
   "{count} unused recovery codes remain.": "{count} अप्रयुक्त पुनर्प्राप्ति कोड शेष हैं।",
-  "Sign in and verify your authenticator.": "साइन इन करें और अपने प्रमाणीकरण को सत्यापित करें।"
+  "Sign in and verify your authenticator.": "साइन इन करें और अपने प्रमाणीकरण को सत्यापित करें।",
+  "PDF, JPEG or PNG, up to 50 MB. Downloads are attachments; files are not rendered or sent to AI.": "PDF, JPEG या PNG, 50 MB तक। डाउनलोड अटैचमेंट हैं; फ़ाइलें प्रदर्शित या एआई को नहीं भेजी जाती हैं।",
+  "Choose a PDF, JPEG or PNG up to 50 MB.": "50 MB तक का PDF, JPEG या PNG चुनें।"
 }

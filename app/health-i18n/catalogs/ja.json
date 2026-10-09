@@ -115,7 +115,6 @@
   "Document title": "ドキュメントタイトル",
   "Example test report": "例のテストレポート",
   "Test document": "テストドキュメント",
-  "PDF, JPEG or PNG, up to 3 MB. Downloads are attachments; files are not rendered or sent to AI.": "PDF、JPEGまたはPNG、最大3MB。ダウンロードは添付ファイルです; ファイルはレンダリングされず、AIに送信されません。",
   "This file contains fictional test data only.": "このファイルには架空のテストデータのみが含まれています。",
   "Uploading…": "アップロード中…",
   "Upload test document": "テストドキュメントをアップロード",
@@ -160,7 +159,6 @@
   "Sign in and verify your authenticator before using the beta vault.": "サインインして認証者を確認してからベータボールトを使用してください。",
   "Confirm that this is a fictional test document.": "これは架空のテストドキュメントであることを確認してください。",
   "Enter a title between 1 and 120 characters.": "1から120文字の間でタイトルを入力してください。",
-  "Choose a PDF, JPEG or PNG up to 3 MB.": "最大3MBのPDF、JPEGまたはPNGを選択してください。",
   "The file must be a PDF, JPEG or PNG. Renaming a file is not enough.": "ファイルはPDF、JPEGまたはPNGでなければなりません。ファイル名を変更するだけでは不十分です。",
   "Upload failed. Check that beta storage is configured, then try again.": "アップロードに失敗しました。ベータストレージが設定されていることを確認してから、もう一度お試しください。",
   "The document could not be registered. Please try again.": "ドキュメントを登録できませんでした。もう一度お試しください。",
@@ -182,5 +180,7 @@
   "Document unavailable.": "ドキュメントは利用できません。",
   "You have {count} verified authenticators. At your next sign-in, choose whichever one you can access.": "あなたは{count}の確認された認証者を持っています。次回のサインイン時に、アクセスできるものを選択してください。",
   "{count} unused recovery codes remain.": "{count}の未使用の回復コードが残っています。",
-  "Sign in and verify your authenticator.": "サインインして認証者を確認してください。"
+  "Sign in and verify your authenticator.": "サインインして認証者を確認してください。",
+  "PDF, JPEG or PNG, up to 50 MB. Downloads are attachments; files are not rendered or sent to AI.": "PDF、JPEGまたはPNG、最大50MB。ダウンロードは添付ファイルです; ファイルはレンダリングされず、AIに送信されません。",
+  "Choose a PDF, JPEG or PNG up to 50 MB.": "最大50MBのPDF、JPEGまたはPNGを選択してください。"
 }

@@ -115,7 +115,6 @@
   "Document title": "Dokumenttitel",
   "Example test report": "Eksempel testrapport",
   "Test document": "Testdokument",
-  "PDF, JPEG or PNG, up to 3 MB. Downloads are attachments; files are not rendered or sent to AI.": "PDF, JPEG eller PNG, op til 3 MB. Downloads er vedhæftninger; filer gengives ikke eller sendes til AI.",
   "This file contains fictional test data only.": "Denne fil indeholder kun fiktive testdata.",
   "Uploading…": "Uploader…",
   "Upload test document": "Upload testdokument",
@@ -160,7 +159,6 @@
   "Sign in and verify your authenticator before using the beta vault.": "Log ind og verificer din autentifikator, før du bruger beta vault.",
   "Confirm that this is a fictional test document.": "Bekræft, at dette er et fiktivt testdokument.",
   "Enter a title between 1 and 120 characters.": "Indtast en titel mellem 1 og 120 tegn.",
-  "Choose a PDF, JPEG or PNG up to 3 MB.": "Vælg en PDF, JPEG eller PNG op til 3 MB.",
   "The file must be a PDF, JPEG or PNG. Renaming a file is not enough.": "Filtypen skal være en PDF, JPEG eller PNG. At omdøbe en fil er ikke nok.",
   "Upload failed. Check that beta storage is configured, then try again.": "Upload mislykkedes. Tjek at beta opbevaring er konfigureret, og prøv igen.",
   "The document could not be registered. Please try again.": "Dokumentet kunne ikke registreres. Prøv venligst igen.",
@@ -182,5 +180,7 @@
   "Document unavailable.": "Dokument ikke tilgængeligt.",
   "You have {count} verified authenticators. At your next sign-in, choose whichever one you can access.": "Du har {count} verificerede autentifikatorer. Ved dit næste log ind, vælg hvilken som helst, du kan få adgang til.",
   "{count} unused recovery codes remain.": "{count} ubrugte gendannelseskoder er tilbage.",
-  "Sign in and verify your authenticator.": "Log ind og verificer din autentifikator."
+  "Sign in and verify your authenticator.": "Log ind og verificer din autentifikator.",
+  "PDF, JPEG or PNG, up to 50 MB. Downloads are attachments; files are not rendered or sent to AI.": "PDF, JPEG eller PNG, op til 50 MB. Downloads er vedhæftninger; filer gengives ikke eller sendes til AI.",
+  "Choose a PDF, JPEG or PNG up to 50 MB.": "Vælg en PDF, JPEG eller PNG op til 50 MB."
 }

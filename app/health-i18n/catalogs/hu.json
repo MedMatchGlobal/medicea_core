@@ -115,7 +115,6 @@
   "Document title": "Dokumentum címe",
   "Example test report": "Példa teszt jelentés",
   "Test document": "Teszt dokumentum",
-  "PDF, JPEG or PNG, up to 3 MB. Downloads are attachments; files are not rendered or sent to AI.": "PDF, JPEG vagy PNG, legfeljebb 3 MB. A letöltések mellékletek; a fájlok nem jelennek meg vagy nem küldődnek az AI-nek.",
   "This file contains fictional test data only.": "Ez a fájl csak fiktív tesztadatokat tartalmaz.",
   "Uploading…": "Feltöltés…",
   "Upload test document": "Teszt dokumentum feltöltése",
@@ -160,7 +159,6 @@
   "Sign in and verify your authenticator before using the beta vault.": "Jelentkezz be és ellenőrizd az authentikálód, mielőtt használnád a béta tárat.",
   "Confirm that this is a fictional test document.": "Erősítsd meg, hogy ez egy fiktív teszt dokumentum.",
   "Enter a title between 1 and 120 characters.": "Írj be egy címet 1 és 120 karakter között.",
-  "Choose a PDF, JPEG or PNG up to 3 MB.": "Válassz egy PDF, JPEG vagy PNG fájlt legfeljebb 3 MB méretben.",
   "The file must be a PDF, JPEG or PNG. Renaming a file is not enough.": "A fájlnak PDF, JPEG vagy PNG formátumúnak kell lennie. A fájl átnevezése nem elegendő.",
   "Upload failed. Check that beta storage is configured, then try again.": "A feltöltés nem sikerült. Ellenőrizd, hogy a béta tárolás be van-e állítva, majd próbáld újra.",
   "The document could not be registered. Please try again.": "A dokumentumot nem sikerült regisztrálni. Kérlek, próbáld újra.",
@@ -182,5 +180,7 @@
   "Document unavailable.": "Dokumentum nem elérhető.",
   "You have {count} verified authenticators. At your next sign-in, choose whichever one you can access.": "Van {count} ellenőrzött authentikálód. A következő bejelentkezésedkor válaszd ki azt, amelyikhez hozzáférsz.",
   "{count} unused recovery codes remain.": "{count} fel nem használt helyreállítási kód maradt.",
-  "Sign in and verify your authenticator.": "Jelentkezz be és ellenőrizd az authentikálód."
+  "Sign in and verify your authenticator.": "Jelentkezz be és ellenőrizd az authentikálód.",
+  "PDF, JPEG or PNG, up to 50 MB. Downloads are attachments; files are not rendered or sent to AI.": "PDF, JPEG vagy PNG, legfeljebb 50 MB. A letöltések mellékletek; a fájlok nem jelennek meg vagy nem küldődnek az AI-nek.",
+  "Choose a PDF, JPEG or PNG up to 50 MB.": "Válassz egy PDF, JPEG vagy PNG fájlt legfeljebb 50 MB méretben."
 }

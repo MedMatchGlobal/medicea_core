@@ -12,47 +12,25 @@ function load(file, imports = {}, env = {}) {
   return module.exports;
 }
 const files = load('lib/vault-files.ts');
-function uploadHarness({allowed=true,uploadError=null,insertError=null,cleanupError=null}={}) {
-  const calls=[];
-  const storage={upload:async(...args)=>{calls.push(['upload',...args]);return {error:uploadError};},remove:async paths=>{calls.push(['remove',paths]);return {error:cleanupError};}};
-  const actions=load('app/vault/actions.ts',{
-    'node:crypto':{randomUUID:()=> 'f2ac5baa-06ad-4cbc-a123-a85313ccef15'},
-    'next/cache':{revalidatePath:p=>calls.push(['refresh',p])},
-    '@/lib/vault-access':{vaultAccess:async()=>allowed?{ok:true,user:{id:'owner'},client:{storage:{from:()=>storage},from:()=>({insert:async row=>{calls.push(['insert',row]);return {error:insertError};}})}}:{ok:false}},
-    '@/lib/vault-files':files,
-  });
-  return {calls,upload:actions.uploadDocument};
+function intakeHarness({allowed=true}={}) {
+ const calls=[];
+ const actions=load('app/vault/actions.ts',{
+  'next/cache':{revalidatePath:p=>calls.push(['refresh',p])},
+  '@/lib/vault-storage':{privateObject:async()=>{throw Error('unexpected');}},
+  '@/lib/vault-access':{vaultAccess:async()=>allowed?{ok:true,user:{id:'owner'},client:{from:()=>({select(){return this;},eq(){return this;},limit:async()=>({data:[]})}),rpc:async(name,args)=>{calls.push([name,args]);return {data:{id:'generated',user_id:'owner',object_path:'owner/generated.pdf'},error:null};}}}:{ok:false}},
+  '@/lib/vault-files':files,
+ });return {actions,calls};
 }
-function uploadForm(bytes=new Uint8Array([37,80,68,70,45]),name='test.pdf',type='application/pdf') {
-  const form=new FormData();
-  form.set('title',' Fictional test report ');form.set('fictional','yes');
-  form.set('document',new File([bytes],name,{type}));return form;
-}
-test('upload rejects missing consent, title, empty, oversized and disguised files before storage',async()=>{
-  const forms=[uploadForm(new Uint8Array()),uploadForm(new Uint8Array(files.MAX_FILE_BYTES+1)),uploadForm(new TextEncoder().encode('not a PDF'),'renamed.pdf')];
-  const noConsent=uploadForm();noConsent.delete('fictional');forms.push(noConsent);
-  const noTitle=uploadForm();noTitle.set('title','');forms.push(noTitle);
-  for(const form of forms){const h=uploadHarness();assert.ok((await h.upload(form)).error);assert.deepEqual(h.calls,[]);}
-  const h=uploadHarness({allowed:false});assert.ok((await h.upload(uploadForm())).error);assert.deepEqual(h.calls,[]);
+test('reservation rejects missing consent, invalid MIME, title, size and non-MFA sessions',async()=>{
+ const valid={title:'Fictional',size:50000000,mime:'application/pdf',fictional:true};
+ for(const change of [{fictional:false},{size:0},{size:50000001},{size:1.5},{mime:'video/mp4'},{title:''}]){
+  const h=intakeHarness();assert.ok((await h.actions.beginDocument({...valid,...change})).error);assert.equal(h.calls.length,0);
+ }
+ const h=intakeHarness({allowed:false});assert.ok((await h.actions.beginDocument(valid)).error);assert.equal(h.calls.length,0);
 });
-test('exactly 3 MiB is accepted with a generated owner path and detected MIME',async()=>{
-  const bytes=new Uint8Array(files.MAX_FILE_BYTES);bytes.set([37,80,68,70,45]);
-  const h=uploadHarness();assert.ok((await h.upload(uploadForm(bytes,'../../fake.png','text/plain'))).success);
-  const uploaded=h.calls[0];assert.equal(uploaded[1],'owner/f2ac5baa-06ad-4cbc-a123-a85313ccef15.pdf');
-  assert.equal(uploaded[3].contentType,'application/pdf');assert.equal(uploaded[3].upsert,false);
-  assert.equal(h.calls[1][1].size_bytes,files.MAX_FILE_BYTES);assert.equal(h.calls[1][1].title,'Fictional test report');
-  assert.equal(h.calls[2][0],'refresh');
-});
-test('storage failure never creates a document listing or reports success',async()=>{
-  const h=uploadHarness({uploadError:{message:'private provider diagnostic'}});
-  const result=await h.upload(uploadForm());assert.ok(result.error);assert.equal(result.success,undefined);
-  assert.deepEqual(h.calls.map(c=>c[0]),['upload']);assert.ok(!result.error.includes('private provider'));
-});
-test('listing failure removes only the uploaded object and does not report success',async()=>{
-  const h=uploadHarness({insertError:{message:'database unavailable'}});
-  assert.ok((await h.upload(uploadForm())).error);
-  assert.deepEqual(h.calls.map(c=>c[0]),['upload','insert','remove']);
-  assert.deepEqual(Array.from(h.calls[2][1]),[h.calls[0][1]]);
+test('exact 50 decimal MB reservation allocates through quota-checked RPC without file bytes',async()=>{
+ const h=intakeHarness();assert.ok((await h.actions.beginDocument({title:' Fictional ',size:50000000,mime:'application/pdf',fictional:true})).intake);
+ assert.equal(h.calls[0][0],'vault_begin_upload');assert.equal(h.calls[0][1].p_size,50000000);assert.equal(h.calls[0][1].p_title,'Fictional');assert.equal(files.MAX_FILE_BYTES,50000000);
 });
 test('file validation rejects unsupported and truncated formats',()=>{
   for(const bytes of [[],[255,216],[137,80,78],[60,104,116,109,108,62]]) assert.equal(files.documentType(new Uint8Array(bytes)),null);

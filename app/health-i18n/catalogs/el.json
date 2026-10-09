@@ -115,7 +115,6 @@
   "Document title": "Τίτλος εγγράφου",
   "Example test report": "Παράδειγμα δοκιμαστικής αναφοράς",
   "Test document": "Δοκιμαστικό έγγραφο",
-  "PDF, JPEG or PNG, up to 3 MB. Downloads are attachments; files are not rendered or sent to AI.": "PDF, JPEG ή PNG, έως 3 MB. Οι λήψεις είναι συνημμένα; τα αρχεία δεν αποδίδονται ή αποστέλλονται σε AI.",
   "This file contains fictional test data only.": "Αυτό το αρχείο περιέχει μόνο φανταστικά δεδομένα δοκιμής.",
   "Uploading…": "Ανεβάζω…",
   "Upload test document": "Ανεβάστε το δοκιμαστικό έγγραφο",
@@ -160,7 +159,6 @@
   "Sign in and verify your authenticator before using the beta vault.": "Συνδεθείτε και επαληθεύστε την αυθεντικοποιητή σας πριν χρησιμοποιήσετε το beta vault.",
   "Confirm that this is a fictional test document.": "Επιβεβαιώστε ότι αυτό είναι ένα φανταστικό δοκιμαστικό έγγραφο.",
   "Enter a title between 1 and 120 characters.": "Εισάγετε έναν τίτλο μεταξύ 1 και 120 χαρακτήρων.",
-  "Choose a PDF, JPEG or PNG up to 3 MB.": "Επιλέξτε ένα PDF, JPEG ή PNG έως 3 MB.",
   "The file must be a PDF, JPEG or PNG. Renaming a file is not enough.": "Το αρχείο πρέπει να είναι PDF, JPEG ή PNG. Η μετονομασία ενός αρχείου δεν είναι αρκετή.",
   "Upload failed. Check that beta storage is configured, then try again.": "Η ανέβασμα απέτυχε. Ελέγξτε ότι η αποθήκευση beta είναι ρυθμισμένη, στη συνέχεια δοκιμάστε ξανά.",
   "The document could not be registered. Please try again.": "Το έγγραφο δεν μπόρεσε να καταχωρηθεί. Παρακαλώ δοκιμάστε ξανά.",
@@ -182,5 +180,7 @@
   "Document unavailable.": "Έγγραφο μη διαθέσιμο.",
   "You have {count} verified authenticators. At your next sign-in, choose whichever one you can access.": "Έχετε {count} επαληθευμένες αυθεντικοποιητές. Στην επόμενη είσοδό σας, επιλέξτε όποια μπορείτε να αποκτήσετε πρόσβαση.",
   "{count} unused recovery codes remain.": "{count} μη χρησιμοποιημένοι κωδικοί αποκατάστασης παραμένουν.",
-  "Sign in and verify your authenticator.": "Συνδεθείτε και επαληθεύστε την αυθεντικοποιητή σας."
+  "Sign in and verify your authenticator.": "Συνδεθείτε και επαληθεύστε την αυθεντικοποιητή σας.",
+  "PDF, JPEG or PNG, up to 50 MB. Downloads are attachments; files are not rendered or sent to AI.": "PDF, JPEG ή PNG, έως 50 MB. Οι λήψεις είναι συνημμένα; τα αρχεία δεν αποδίδονται ή αποστέλλονται σε AI.",
+  "Choose a PDF, JPEG or PNG up to 50 MB.": "Επιλέξτε ένα PDF, JPEG ή PNG έως 50 MB."
 }

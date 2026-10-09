@@ -115,7 +115,6 @@
   "Document title": "Dokument titel",
   "Example test report": "Voorbeeld toets verslag",
   "Test document": "Toets dokument",
-  "PDF, JPEG or PNG, up to 3 MB. Downloads are attachments; files are not rendered or sent to AI.": "PDF, JPEG of PNG, tot 3 MB. Aflaaie is aanhangsels; lêers word nie gerender of na KI gestuur nie.",
   "This file contains fictional test data only.": "Hierdie lêer bevat slegs fiktiewe toetsdata.",
   "Uploading…": "Oplaai…",
   "Upload test document": "Laai toets dokument op",
@@ -160,7 +159,6 @@
   "Sign in and verify your authenticator before using the beta vault.": "Teken in en verifieer jou authenticator voordat jy die beta kluis gebruik.",
   "Confirm that this is a fictional test document.": "Bevestig dat dit ‘n fiktiewe toets dokument is.",
   "Enter a title between 1 and 120 characters.": "Voer ‘n titel in tussen 1 en 120 karakters.",
-  "Choose a PDF, JPEG or PNG up to 3 MB.": "Kies ‘n PDF, JPEG of PNG tot 3 MB.",
   "The file must be a PDF, JPEG or PNG. Renaming a file is not enough.": "Die lêer moet ‘n PDF, JPEG of PNG wees. Om ‘n lêer te hernoem is nie genoeg nie.",
   "Upload failed. Check that beta storage is configured, then try again.": "Oplaai het misluk. Kontroleer of beta berging geconfigureer is, probeer dan weer.",
   "The document could not be registered. Please try again.": "Die dokument kon nie geregistreer word nie. Probeer asseblief weer.",
@@ -182,5 +180,7 @@
   "Document unavailable.": "Dokument nie beskikbaar nie.",
   "You have {count} verified authenticators. At your next sign-in, choose whichever one you can access.": "Jy het {count} geverifieerde authenticators. By jou volgende teken-in, kies enige een waartoe jy toegang kan hê.",
   "{count} unused recovery codes remain.": "{count} ongebruikte herstelkodes bly.",
-  "Sign in and verify your authenticator.": "Teken in en verifieer jou authenticator."
+  "Sign in and verify your authenticator.": "Teken in en verifieer jou authenticator.",
+  "PDF, JPEG or PNG, up to 50 MB. Downloads are attachments; files are not rendered or sent to AI.": "PDF, JPEG of PNG, tot 50 MB. Aflaaie is aanhangsels; lêers word nie gerender of na KI gestuur nie.",
+  "Choose a PDF, JPEG or PNG up to 50 MB.": "Kies ‘n PDF, JPEG of PNG tot 50 MB."
 }

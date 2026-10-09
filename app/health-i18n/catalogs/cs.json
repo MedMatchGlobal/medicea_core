@@ -115,7 +115,6 @@
   "Document title": "Název dokumentu",
   "Example test report": "Příklad testovací zprávy",
   "Test document": "Testovací dokument",
-  "PDF, JPEG or PNG, up to 3 MB. Downloads are attachments; files are not rendered or sent to AI.": "PDF, JPEG nebo PNG, až 3 MB. Stahování jsou přílohy; soubory nejsou zobrazeny ani odesílány AI.",
   "This file contains fictional test data only.": "Tento soubor obsahuje pouze fiktivní testovací data.",
   "Uploading…": "Nahrávání…",
   "Upload test document": "Nahrát testovací dokument",
@@ -160,7 +159,6 @@
   "Sign in and verify your authenticator before using the beta vault.": "Přihlaste se a ověřte svůj autentizátor před použitím beta trezoru.",
   "Confirm that this is a fictional test document.": "Potvrďte, že se jedná o fiktivní testovací dokument.",
   "Enter a title between 1 and 120 characters.": "Zadejte název mezi 1 a 120 znaky.",
-  "Choose a PDF, JPEG or PNG up to 3 MB.": "Vyberte PDF, JPEG nebo PNG až do velikosti 3 MB.",
   "The file must be a PDF, JPEG or PNG. Renaming a file is not enough.": "Soubor musí být ve formátu PDF, JPEG nebo PNG. Přejmenování souboru nestačí.",
   "Upload failed. Check that beta storage is configured, then try again.": "Nahrání se nezdařilo. Zkontrolujte, zda je beta úložiště nakonfigurováno, a zkuste to znovu.",
   "The document could not be registered. Please try again.": "Dokument se nepodařilo zaregistrovat. Zkuste to prosím znovu.",
@@ -182,5 +180,7 @@
   "Document unavailable.": "Dokument není k dispozici.",
   "You have {count} verified authenticators. At your next sign-in, choose whichever one you can access.": "Máte {count} ověřených autentizátorů. Při dalším přihlášení si vyberte ten, ke kterému máte přístup.",
   "{count} unused recovery codes remain.": "{count} nepoužitých obnovovacích kódů zůstává.",
-  "Sign in and verify your authenticator.": "Přihlaste se a ověřte svůj autentizátor."
+  "Sign in and verify your authenticator.": "Přihlaste se a ověřte svůj autentizátor.",
+  "PDF, JPEG or PNG, up to 50 MB. Downloads are attachments; files are not rendered or sent to AI.": "PDF, JPEG nebo PNG, až 50 MB. Stahování jsou přílohy; soubory nejsou zobrazeny ani odesílány AI.",
+  "Choose a PDF, JPEG or PNG up to 50 MB.": "Vyberte PDF, JPEG nebo PNG až do velikosti 50 MB."
 }

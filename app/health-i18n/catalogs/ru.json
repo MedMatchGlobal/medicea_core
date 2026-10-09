@@ -115,7 +115,6 @@
   "Document title": "Название документа",
   "Example test report": "Пример тестового отчета",
   "Test document": "Тестовый документ",
-  "PDF, JPEG or PNG, up to 3 MB. Downloads are attachments; files are not rendered or sent to AI.": "PDF, JPEG или PNG, до 3 МБ. Загрузки являются вложениями; файлы не отображаются и не отправляются ИИ.",
   "This file contains fictional test data only.": "Этот файл содержит только вымышленные тестовые данные.",
   "Uploading…": "Загрузка…",
   "Upload test document": "Загрузить тестовый документ",
@@ -160,7 +159,6 @@
   "Sign in and verify your authenticator before using the beta vault.": "Войдите и проверьте ваш аутентификатор перед использованием бета-ва vault.",
   "Confirm that this is a fictional test document.": "Подтвердите, что это вымышленный тестовый документ.",
   "Enter a title between 1 and 120 characters.": "Введите заголовок от 1 до 120 символов.",
-  "Choose a PDF, JPEG or PNG up to 3 MB.": "Выберите PDF, JPEG или PNG до 3 МБ.",
   "The file must be a PDF, JPEG or PNG. Renaming a file is not enough.": "Файл должен быть в формате PDF, JPEG или PNG. Переименование файла недостаточно.",
   "Upload failed. Check that beta storage is configured, then try again.": "Загрузка не удалась. Проверьте, настроено ли бета-хранение, затем попробуйте снова.",
   "The document could not be registered. Please try again.": "Документ не удалось зарегистрировать. Пожалуйста, попробуйте снова.",
@@ -182,5 +180,7 @@
   "Document unavailable.": "Документ недоступен.",
   "You have {count} verified authenticators. At your next sign-in, choose whichever one you can access.": "У вас {count} проверенных аутентификаторов. При следующем входе выберите любой, к которому вы можете получить доступ.",
   "{count} unused recovery codes remain.": "{count} неиспользованных кодов восстановления осталось.",
-  "Sign in and verify your authenticator.": "Войдите и проверьте ваш аутентификатор."
+  "Sign in and verify your authenticator.": "Войдите и проверьте ваш аутентификатор.",
+  "PDF, JPEG or PNG, up to 50 MB. Downloads are attachments; files are not rendered or sent to AI.": "PDF, JPEG или PNG, до 50 МБ. Загрузки являются вложениями; файлы не отображаются и не отправляются ИИ.",
+  "Choose a PDF, JPEG or PNG up to 50 MB.": "Выберите PDF, JPEG или PNG до 50 МБ."
 }

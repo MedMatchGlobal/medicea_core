@@ -115,7 +115,6 @@
   "Document title": "عنوان المستند",
   "Example test report": "تقرير اختبار مثال",
   "Test document": "مستند اختبار",
-  "PDF, JPEG or PNG, up to 3 MB. Downloads are attachments; files are not rendered or sent to AI.": "PDF، JPEG أو PNG، حتى 3 ميغابايت. التنزيلات هي مرفقات؛ الملفات لا تُعرض أو تُرسل إلى الذكاء الاصطناعي.",
   "This file contains fictional test data only.": "هذا الملف يحتوي على بيانات اختبار خيالية فقط.",
   "Uploading…": "جارٍ التحميل…",
   "Upload test document": "قم بتحميل مستند الاختبار",
@@ -160,7 +159,6 @@
   "Sign in and verify your authenticator before using the beta vault.": "قم بتسجيل الدخول والتحقق من مصادقتك قبل استخدام خزنة النسخة التجريبية.",
   "Confirm that this is a fictional test document.": "أكد أن هذا مستند اختبار خيالي.",
   "Enter a title between 1 and 120 characters.": "أدخل عنوانًا بين 1 و 120 حرفًا.",
-  "Choose a PDF, JPEG or PNG up to 3 MB.": "اختر PDF، JPEG أو PNG حتى 3 ميغابايت.",
   "The file must be a PDF, JPEG or PNG. Renaming a file is not enough.": "يجب أن يكون الملف PDF أو JPEG أو PNG. إعادة تسمية الملف ليست كافية.",
   "Upload failed. Check that beta storage is configured, then try again.": "فشل التحميل. تحقق من تكوين التخزين التجريبي، ثم حاول مرة أخرى.",
   "The document could not be registered. Please try again.": "لم يكن بالإمكان تسجيل المستند. يرجى المحاولة مرة أخرى.",
@@ -182,5 +180,7 @@
   "Document unavailable.": "المستند غير متاح.",
   "You have {count} verified authenticators. At your next sign-in, choose whichever one you can access.": "لديك {count} مصادقات موثوقة. عند تسجيل الدخول التالي، اختر أي منها يمكنك الوصول إليه.",
   "{count} unused recovery codes remain.": "{count} رموز استرداد غير مستخدمة متبقية.",
-  "Sign in and verify your authenticator.": "قم بتسجيل الدخول والتحقق من مصادقتك."
+  "Sign in and verify your authenticator.": "قم بتسجيل الدخول والتحقق من مصادقتك.",
+  "PDF, JPEG or PNG, up to 50 MB. Downloads are attachments; files are not rendered or sent to AI.": "PDF، JPEG أو PNG، حتى 50 ميغابايت. التنزيلات هي مرفقات؛ الملفات لا تُعرض أو تُرسل إلى الذكاء الاصطناعي.",
+  "Choose a PDF, JPEG or PNG up to 50 MB.": "اختر PDF، JPEG أو PNG حتى 50 ميغابايت."
 }

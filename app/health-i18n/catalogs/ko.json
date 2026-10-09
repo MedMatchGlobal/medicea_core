@@ -115,7 +115,6 @@
   "Document title": "문서 제목",
   "Example test report": "예시 테스트 보고서",
   "Test document": "테스트 문서",
-  "PDF, JPEG or PNG, up to 3 MB. Downloads are attachments; files are not rendered or sent to AI.": "PDF, JPEG 또는 PNG, 최대 3 MB. 다운로드는 첨부 파일이며, 파일은 렌더링되거나 AI에 전송되지 않습니다.",
   "This file contains fictional test data only.": "이 파일은 허구의 테스트 데이터만 포함합니다.",
   "Uploading…": "업로드 중…",
   "Upload test document": "테스트 문서 업로드",
@@ -160,7 +159,6 @@
   "Sign in and verify your authenticator before using the beta vault.": "로그인하고 인증기를 확인한 후 베타 금고를 사용하세요.",
   "Confirm that this is a fictional test document.": "이것이 허구의 테스트 문서임을 확인하세요.",
   "Enter a title between 1 and 120 characters.": "1자에서 120자 사이의 제목을 입력하세요.",
-  "Choose a PDF, JPEG or PNG up to 3 MB.": "PDF, JPEG 또는 PNG를 선택하세요. 최대 3 MB.",
   "The file must be a PDF, JPEG or PNG. Renaming a file is not enough.": "파일은 PDF, JPEG 또는 PNG여야 합니다. 파일 이름을 바꾸는 것만으로는 충분하지 않습니다.",
   "Upload failed. Check that beta storage is configured, then try again.": "업로드 실패. 베타 저장소가 구성되었는지 확인한 후 다시 시도하세요.",
   "The document could not be registered. Please try again.": "문서를 등록할 수 없습니다. 다시 시도하세요.",
@@ -182,5 +180,7 @@
   "Document unavailable.": "문서를 사용할 수 없습니다.",
   "You have {count} verified authenticators. At your next sign-in, choose whichever one you can access.": "{count}개의 검증된 인증기가 있습니다. 다음 로그인 시 접근할 수 있는 인증기를 선택하세요.",
   "{count} unused recovery codes remain.": "{count}개의 사용되지 않은 복구 코드가 남아 있습니다.",
-  "Sign in and verify your authenticator.": "로그인하고 인증기를 확인하세요."
+  "Sign in and verify your authenticator.": "로그인하고 인증기를 확인하세요.",
+  "PDF, JPEG or PNG, up to 50 MB. Downloads are attachments; files are not rendered or sent to AI.": "PDF, JPEG 또는 PNG, 최대 50 MB. 다운로드는 첨부 파일이며, 파일은 렌더링되거나 AI에 전송되지 않습니다.",
+  "Choose a PDF, JPEG or PNG up to 50 MB.": "PDF, JPEG 또는 PNG를 선택하세요. 최대 50 MB."
 }
