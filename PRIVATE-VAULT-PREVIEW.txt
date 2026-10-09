@@ -31,3 +31,7 @@ Capacitor advisory GHSA-rvm3-566m-v7fv requires rebuilding and distributing nati
 All 25 existing account/vault automated security tests passed with the patched installation.
 User reports preview medicine/document save, removal, refresh, download and signed-out checks completed. These remain user-reported evidence; real-session cross-account and phone checks remain to be verified.
 Public-release requirements include localization of all account/vault screens into the homepage's 25 languages, GDPR/privacy review, evidence audit, retention/inactivity policy, tested erasure and secure recovery. Real health records remain disabled pending these requirements.
+
+Localization and live evidence update — 9 October 2026 (supersedes pending items above):
+184 generic UI messages in all 25 homepage languages now cover account, MFA, recovery/help, medicine list and document vault. Language/date/direction selection is local; no patient data is translated. Production build/type checks and 31 automated security/localization tests passed. Native-language and phone layout review remain pending.
+Sergio supplied mobile persistence/removal, two-account medicine/document list isolation, owner download/open and secondary-account copied-download-URL denial evidence for cit9vd019. These checks do not validate the separately existing My Health appointments/therapies/profile prototype, prescription workflows or DICOM imaging. README.md contains the scope matrix and remaining release requirements.
