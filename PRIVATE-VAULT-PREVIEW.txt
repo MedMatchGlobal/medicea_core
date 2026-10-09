@@ -1,0 +1,37 @@
+Private fictional-data vault preview
+
+Uses existing current medicine-search website; no replacement of the homepage.
+Routes: /account (email code and authenticator), /account/recovery (help), /vault (test medicine list and documents).
+The feature remains disabled until MEDICEA_VAULT_BETA_ENABLED=true.
+Set the following in the Vercel Preview environment only:
+NEXT_PUBLIC_SUPABASE_URL — URL for the existing Supabase project
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY — publishable key, never a service-role key
+MEDICEA_VAULT_BETA_ENABLED — true
+Keep Vercel deployment protection enabled. Do not promote this preview to production yet.
+Native recovery codes remain disabled in production builds while the support ticket is pending.
+
+Database setup: existing document table and bucket are already installed.
+Medicine table migration 20261009 was applied by Sergio on 9 October 2026.
+Ten medicine RLS checks passed in Supabase SQL Editor, with simulated claims and rolled-back temporary records. This does not replace real-session phone/cross-account tests.
+Local account/document/medicine security tests and build must pass before preview testing.
+
+Preview checklist:
+1. With two disposable accounts: email sign-in, authenticator enrolment and verification.
+2. Save and remove a fictional medicine, reopen the page and verify persistence.
+3. Upload, download and delete a fictional PDF/JPEG/PNG up to 3 MB.
+4. Other account cannot access first account's record/file; signed-out and email-only sessions stay blocked.
+5. Sign out of all sessions and check that vault/file routes no longer work.
+6. Verify small-screen forms and keyboard behaviour before publication.
+
+Security dependency review — 9 October 2026:
+Compatible updates applied through npm audit fix --package-lock-only --ignore-scripts, without forced major-version changes.
+Patched lockfile includes Capacitor Android/core/iOS 7.6.9, axios 1.20.0, next-intl 4.14.9, uuid 11.1.1 and sharp 0.35.5.
+Runtime lockfile audit changed from 21 findings (including two critical) to 10 findings (zero critical; six high and four moderate). Remaining findings include Prisma configuration, Next/PostCSS and AI SDK/undici dependencies; these still require review before real-data release. Development-tool dependencies also have unresolved findings.
+Capacitor advisory GHSA-rvm3-566m-v7fv requires rebuilding and distributing native apps; the existing build 15 is not patched by changing this web lockfile. A patched Android release is required before account/vault use in the native app.
+All 25 existing account/vault automated security tests passed with the patched installation.
+User reports preview medicine/document save, removal, refresh, download and signed-out checks completed. These remain user-reported evidence; real-session cross-account and phone checks remain to be verified.
+Public-release requirements include localization of all account/vault screens into the homepage's 25 languages, GDPR/privacy review, evidence audit, retention/inactivity policy, tested erasure and secure recovery. Real health records remain disabled pending these requirements.
+
+Localization and live evidence update — 9 October 2026 (supersedes pending items above):
+184 generic UI messages in all 25 homepage languages now cover account, MFA, recovery/help, medicine list and document vault. Language/date/direction selection is local; no patient data is translated. Production build/type checks and 31 automated security/localization tests passed. Native-language and phone layout review remain pending.
+Sergio supplied mobile persistence/removal, two-account medicine/document list isolation, owner download/open and secondary-account copied-download-URL denial evidence for cit9vd019. These checks do not validate the separately existing My Health appointments/therapies/profile prototype, prescription workflows or DICOM imaging. README.md contains the scope matrix and remaining release requirements.
