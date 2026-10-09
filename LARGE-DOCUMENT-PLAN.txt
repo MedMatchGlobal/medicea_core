@@ -1,0 +1,52 @@
+Larger private documents — engineering requirements, 9 October 2026
+
+Status: preparation only. Current deployed upload limit remains 3 MiB.
+The existing account/vault checks do not validate this new transfer path.
+
+Why a larger number alone is insufficient:
+The current server action receives the whole file through Vercel. Vercel Functions
+have a 4.5 MB request payload limit. Large download responses need review too.
+Supabase recommends resumable TUS transfers for files over 6 MB or unreliable
+networks. Bucket/database/global limits must agree with the application limit.
+Sources:
+https://vercel.com/docs/errors/function_payload_too_large
+https://supabase.com/docs/guides/storage/uploads/resumable-uploads
+https://supabase.com/docs/guides/storage/uploads/file-limits
+
+Initial target for review: up to 50 MiB for PDF/JPEG/PNG attachments, subject to
+the project's actual global storage limit, account quotas and cost review.
+DICOM studies and multi-file specialist imaging need a separate design; a larger
+attachment limit does not provide a medical viewer or clinical interpretation.
+No lossy compression of an original should occur without an explicit decision.
+
+Implementation sequence:
+1. Inspect bucket size/type settings, database checks and all storage/document
+   policies using large-file-readiness.sql. Confirm the global storage limit in
+   the Supabase dashboard. Preserve private bucket, owner restrictions and AAL2.
+2. Design an authenticated intake record: server-generated id/path, verified
+   owner, allowed size/type, expiry and state. Never accept a caller-supplied
+   owner/path or expose a service-role key. Upload permission must be restricted
+   to that intake; copied URLs and session changes must be tested explicitly.
+3. Use browser-to-storage TUS with progress, pause/retry and account-bound resume
+   state. Do not overwrite existing objects. Do not persist bearer credentials
+   in upload fingerprints, URLs, logs or analytics.
+4. Finalize server-side only after validating actual stored size/type, completeness
+   and intake ownership. Files stay unavailable through document routes until
+   finalization passes. Do not rely on client-declared MIME/size alone. Specify
+   malware/quarantine handling before real-data release.
+5. Handle cancelled, expired and incomplete uploads with safe cleanup and retry.
+   Account erasure must also cover pending objects. Bound per-account storage and
+   concurrent intake counts before increasing limits.
+6. Design authenticated large downloads without buffering the whole file through
+   the current function. Streaming/private storage delivery must preserve the
+   promised account/session boundary; assess any signed-URL expiry/replay tradeoff.
+7. Update all 25 language catalogs and test upload/download boundaries, network
+   interruption, duplicate finalization, cancellation, expired authorization,
+   cross-account direct URLs, changed account mid-upload, deletion, quotas and
+   mobile operation. Exercise real provider policies as well as unit tests.
+
+Immediate user check:
+Run supabase/large-file-readiness.sql as a NEW read-only query and send its four
+result tables. No records or file contents are queried. Report the global storage
+upload limit from dashboard settings and the largest approximate file sizes you
+expect. Continue using fictional files for preview tests.
