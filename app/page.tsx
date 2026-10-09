@@ -1151,7 +1151,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
           {/* Leaflet content */}
           {(mode === 'leaflet' || mode === 'international' || mode === 'generic' || mode === 'pets') && leafletRaw && (
             <div className="leaflet-block">
-              <h2>{F(ui, 'medicineDetails', 'Medicine details')} — {selectedDrug}</h2>
+              <h2 className="medicine-section-title">{F(ui, 'medicineDetails', 'Medicine details')} — {selectedDrug}</h2>
               {renderLeafletPretty(extractLeafletText(leafletRaw), t)}
             </div>
           )}
@@ -1221,7 +1221,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
 
                 return (
                   <>
-                    <strong style={{ color: '#8d052eff' }}>{header}</strong>
+                    <h2 className="medicine-section-title">{header}</h2>
                     <div style={{ fontSize: '0.85rem', marginTop: 4 }}>
                       {F(ui, introKey, introDefault, {
                         drugName: baseName,

@@ -560,6 +560,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 .results-heading { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:16px; background:white; padding:24px; border:1px solid #dce7f8; border-radius:18px; margin-bottom:20px; }
 .results-heading h2 { margin:0 0 8px; font-size:26px; color:#172d50; }
 .results-heading p { margin:0; color:#557194; }
+.results-view .medicine-section-title { margin:0; color:#172d50; font-size:21px; line-height:1.35; font-weight:700; letter-spacing:-.025em; }
 .results-actions { display:flex; gap:10px; }
 .results-actions button,.clear-search,.return-results { padding:10px 16px; background:#edf4ff; color:#245bc1; border:1px solid #ccdcf5; border-radius:10px; cursor:pointer; font-weight:600; }
 .return-results { display:flex; align-items:center; gap:12px; margin-bottom:20px; }
@@ -590,3 +591,5 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 .workspace-panels { display:flow-root; min-height:680px; }
 html { scrollbar-gutter:stable; }
 @media(max-width:600px) { .workspace-panels { min-height:740px; } }
+
+@media (max-width: 640px) { .results-view .medicine-section-title { font-size:19px; } }
