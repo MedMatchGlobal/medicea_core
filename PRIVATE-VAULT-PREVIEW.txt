@@ -22,3 +22,12 @@ Preview checklist:
 4. Other account cannot access first account's record/file; signed-out and email-only sessions stay blocked.
 5. Sign out of all sessions and check that vault/file routes no longer work.
 6. Verify small-screen forms and keyboard behaviour before publication.
+
+Security dependency review — 9 October 2026:
+Compatible updates applied through npm audit fix --package-lock-only --ignore-scripts, without forced major-version changes.
+Patched lockfile includes Capacitor Android/core/iOS 7.6.9, axios 1.20.0, next-intl 4.14.9, uuid 11.1.1 and sharp 0.35.5.
+Runtime lockfile audit changed from 21 findings (including two critical) to 10 findings (zero critical; six high and four moderate). Remaining findings include Prisma configuration, Next/PostCSS and AI SDK/undici dependencies; these still require review before real-data release. Development-tool dependencies also have unresolved findings.
+Capacitor advisory GHSA-rvm3-566m-v7fv requires rebuilding and distributing native apps; the existing build 15 is not patched by changing this web lockfile. A patched Android release is required before account/vault use in the native app.
+All 25 existing account/vault automated security tests passed with the patched installation.
+User reports preview medicine/document save, removal, refresh, download and signed-out checks completed. These remain user-reported evidence; real-session cross-account and phone checks remain to be verified.
+Public-release requirements include localization of all account/vault screens into the homepage's 25 languages, GDPR/privacy review, evidence audit, retention/inactivity policy, tested erasure and secure recovery. Real health records remain disabled pending these requirements.
