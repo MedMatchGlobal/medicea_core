@@ -952,7 +952,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
           {mode !== 'condition' && mode !== 'pharmacy' && mode !== 'gp' && mode !== 'hospital' && mode !== 'doctor' && (
             <div>
               <div style={{ fontWeight: 600, marginBottom: 4 }}>{F(ui, 'phHome', 'Please select your Home Country')}</div>
-              <CountryPicker label={F(ui, 'phHome', 'Home country')} value={originCode} onChange={setOriginCode} searchLabel={F(ui, 'searchCountry', 'Search countries')} regionLabel={F(ui, 'allRegions', 'All continents')} emptyLabel={F(ui, 'noCountries', 'No countries found')} />
+              <CountryPicker rememberHome label={F(ui, 'phHome', 'Home country')} value={originCode} onChange={setOriginCode} searchLabel={F(ui, 'searchCountry', 'Search countries')} regionLabel={F(ui, 'allRegions', 'All continents')} emptyLabel={F(ui, 'noCountries', 'No countries found')} />
             </div>
           )}
 

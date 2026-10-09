@@ -568,7 +568,10 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 .country-trigger { display:flex; justify-content:space-between; align-items:center; width:100%; min-height:46px; padding:12px 14px; border:1px solid #99b8f5; background:#f2f6ff; border-radius:10px; color:#233b5b; text-align:start; cursor:pointer; }
 .country-options { position:absolute; z-index:30; top:calc(100% + 6px); left:0; right:0; min-width:240px; background:white; box-shadow:0 12px 36px #17355b26; padding:12px; border:1px solid #cbdcf5; border-radius:12px; }
 .country-options input,.country-options select { width:100%; margin-bottom:8px; }
-.country-list { max-height:240px; overflow:auto; overscroll-behavior:contain; }
+.country-options { display:flex; flex-direction:column; box-sizing:border-box; }
+.country-options input,.country-options select { flex-shrink:0; }
+.country-list { min-height:0; max-height:240px; overflow:auto; overscroll-behavior:contain; }
+.country-list .country-preferred { font-weight:600; background:#eaf2ff; margin-bottom:8px; }
 .country-list h3 { margin:8px 0; font-size:12px; color:#627895; }
 .country-list button { display:block; width:100%; padding:10px; border:0; border-radius:6px; background:white; color:#233b5b; text-align:start; cursor:pointer; }
 .country-list button:hover,.country-list button:focus-visible,.country-list button[aria-pressed=true] { background:#eaf2ff; }
