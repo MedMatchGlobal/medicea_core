@@ -16,9 +16,10 @@ Fixed banner logic for "Generics" label + country, and removed banner from Leafl
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
+import Link from 'next/link';
 import { ArrowRight, Search, FileText, Pill, Stethoscope, Hospital, HeartPulse, UserRound, Cross, ShieldCheck } from 'lucide-react';
 import countriesByRegion from '../data/countries';
-import { LanguageProvider, useLanguage } from './LanguageProvider';
+import { useLanguage } from './LanguageProvider';
 import LanguageButton from './components/LanguageButton';
 import CountryPicker from './components/CountryPicker';
 import ConditionPicker from './components/ConditionPicker';
@@ -40,11 +41,7 @@ const LIMITS_ON = !BETA_TESTING && process.env.NEXT_PUBLIC_ENABLE_USAGE_LIMITS =
 /* -------------------------- WRAPPER -------------------------- */
 
 export function MedicineWorkspace({ petMode = false }: { petMode?: boolean }) {
-  return (
-    <LanguageProvider>
-      <Home petMode={petMode} />
-    </LanguageProvider>
-  );
+  return <Home petMode={petMode} />;
 }
 
 /* -------------------------- HELPERS -------------------------- */
@@ -926,12 +923,12 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
   return (
     <main key={lang} className={`medicea-shell flow-${screen}`} dir={isRTL(lang) ? 'rtl' : 'ltr'}>
       <header className="site-header">
-        <a className="brand-link" href="/" aria-label="medicea home"><img src="/logo.png" alt="medicéa" /></a>
+        <Link className="brand-link" href="/" aria-label="medicea home"><img src="/logo.png" alt="medicéa" /></Link>
         <nav className="header-nav" aria-label="Main navigation">
-          <a href="/" aria-current={!petMode && activeSection === 'search' ? 'page' : undefined} onClick={petMode ? undefined : (event) => {event.preventDefault(); setActiveSection('search'); resetFieldsForMode('international');}}>{F(ui, 'findMedicine', 'Find a medicine')}</a>
-          <a href="/?section=tools" aria-current={!petMode && activeSection === 'tools' ? 'page' : undefined} onClick={petMode ? undefined : (event) => {event.preventDefault(); showScreen('tools');}}>{F(ui, 'medicineTools', 'Health tools')}</a>
-          <a href="/?section=care" aria-current={!petMode && activeSection === 'care' ? 'page' : undefined} onClick={petMode ? undefined : (event) => {event.preventDefault(); showScreen('care');}}>{F(ui, 'findCare', 'Find care')}</a>
-          <a href="/pets" aria-current={petMode ? 'page' : undefined}>{F(ui, 'btnPets', 'Meds 4 Pets')}</a>
+          <Link href="/" aria-current={!petMode && activeSection === 'search' ? 'page' : undefined} onClick={petMode ? undefined : (event) => {event.preventDefault(); setActiveSection('search'); resetFieldsForMode('international');}}>{F(ui, 'findMedicine', 'Find a medicine')}</Link>
+          <Link href="/?section=tools" aria-current={!petMode && activeSection === 'tools' ? 'page' : undefined} onClick={petMode ? undefined : (event) => {event.preventDefault(); showScreen('tools');}}>{F(ui, 'medicineTools', 'Health tools')}</Link>
+          <Link href="/?section=care" aria-current={!petMode && activeSection === 'care' ? 'page' : undefined} onClick={petMode ? undefined : (event) => {event.preventDefault(); showScreen('care');}}>{F(ui, 'findCare', 'Find care')}</Link>
+          <Link href="/pets" aria-current={petMode ? 'page' : undefined}>{F(ui, 'btnPets', 'Meds 4 Pets')}</Link>
         </nav>
         <div className="language-control"><LanguageButton /></div>
       </header>
