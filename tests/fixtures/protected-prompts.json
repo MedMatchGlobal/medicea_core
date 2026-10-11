@@ -1,0 +1,340 @@
+{
+  "app/api/openai/equivalent-search/route.ts": [
+    {
+      "name": "system1",
+      "expression": "\"You are a structured medical data extractor. Return JSON only with medicine_name, origin_country, and active_ingredients[{name, strength}].\""
+    },
+    {
+      "name": "user1",
+      "expression": "`\nFind the full composition (active ingredient names AND exact label strengths) of the medicine called \"${drugName}\"\nsold in ${originCountry}${drugDosage ? ` (user-entered dosage hint: \"${drugDosage}\")` : \"\"}.\nReturn strictly JSON with keys: medicine_name, origin_country, active_ingredients[{name, strength}]. No extra text.\n`.trim()"
+    },
+    {
+      "name": "model",
+      "expression": "\"gpt-4o\""
+    },
+    {
+      "name": "temperature",
+      "expression": "0"
+    },
+    {
+      "name": "response_format",
+      "expression": "{ type: \"json_object\" }"
+    },
+    {
+      "name": "message content",
+      "expression": "system1"
+    },
+    {
+      "name": "message content",
+      "expression": "user1"
+    },
+    {
+      "name": "system2",
+      "expression": "\"You are a strict data retriever for licensed medicines. Output only the requested list; do not explain.\""
+    },
+    {
+      "name": "user2",
+      "expression": "\"Return preferably 10 products available in \" + targetCountry + \" that contain \" + explicitList + \".\""
+    },
+    {
+      "name": "model",
+      "expression": "\"gpt-4o\""
+    },
+    {
+      "name": "temperature",
+      "expression": "0"
+    },
+    {
+      "name": "seed",
+      "expression": "12345"
+    },
+    {
+      "name": "message content",
+      "expression": "system2"
+    },
+    {
+      "name": "message content",
+      "expression": "user2"
+    }
+  ],
+  "app/api/openai/generics/route.ts": [
+    {
+      "name": "system1",
+      "expression": "\"You are a structured medical data extractor. Return JSON only with medicine_name, origin_country, and active_ingredients[{name, strength}].\""
+    },
+    {
+      "name": "user1",
+      "expression": "`\nFind the full composition (active ingredient names AND exact label strengths) of the medicine called \"${drugName}\"\nsold in ${originCountry}${drugDosage ? ` (user-entered dosage hint: \"${drugDosage}\")` : \"\"}.\nReturn strictly JSON with keys: medicine_name, origin_country, active_ingredients[{name, strength}]. No extra text.\n`.trim()"
+    },
+    {
+      "name": "model",
+      "expression": "\"gpt-4o\""
+    },
+    {
+      "name": "temperature",
+      "expression": "0"
+    },
+    {
+      "name": "response_format",
+      "expression": "{ type: \"json_object\" }"
+    },
+    {
+      "name": "message content",
+      "expression": "system1"
+    },
+    {
+      "name": "message content",
+      "expression": "user1"
+    },
+    {
+      "name": "system2",
+      "expression": "\"You are a strict data retriever for licensed medicines. Output only the requested list; do not explain.\""
+    },
+    {
+      "name": "user2",
+      "expression": "`Return preferably 10 non branded/generic products available in ${originCountry} that contain ${explicitList}.`.trim()"
+    },
+    {
+      "name": "model",
+      "expression": "\"gpt-4o\""
+    },
+    {
+      "name": "temperature",
+      "expression": "0"
+    },
+    {
+      "name": "seed",
+      "expression": "12345"
+    },
+    {
+      "name": "message content",
+      "expression": "system2"
+    },
+    {
+      "name": "message content",
+      "expression": "user2"
+    }
+  ],
+  "app/api/openai/pets/route.ts": [
+    {
+      "name": "system1",
+      "expression": "\"You are a structured veterinary medical data extractor. Return JSON only with medicine_name, origin_country, and active_ingredients[{name, strength}].\""
+    },
+    {
+      "name": "user1",
+      "expression": "`\nFind the full composition (active ingredient names AND exact label strengths) of the veterinary medicine called \"${drugName}\"\nsold in ${originCountry}${drugDosage ? ` (user-entered dosage hint: \"${drugDosage}\")` : \"\"}.\nReturn strictly JSON with keys: medicine_name, origin_country, active_ingredients[{name, strength}]. No extra text.\n`.trim()"
+    },
+    {
+      "name": "model",
+      "expression": "\"gpt-4o\""
+    },
+    {
+      "name": "temperature",
+      "expression": "0"
+    },
+    {
+      "name": "response_format",
+      "expression": "{ type: \"json_object\" }"
+    },
+    {
+      "name": "message content",
+      "expression": "system1"
+    },
+    {
+      "name": "message content",
+      "expression": "user1"
+    },
+    {
+      "name": "system2",
+      "expression": "\"You are a strict data retriever for licensed veterinary medicines. Output only the requested list; do not explain.\""
+    },
+    {
+      "name": "user2",
+      "expression": "`Return preferably 10 veterinary products available in ${targetCountry} that contain ${explicitList}.`.trim()"
+    },
+    {
+      "name": "model",
+      "expression": "\"gpt-4o\""
+    },
+    {
+      "name": "temperature",
+      "expression": "0"
+    },
+    {
+      "name": "seed",
+      "expression": "12345"
+    },
+    {
+      "name": "message content",
+      "expression": "system2"
+    },
+    {
+      "name": "message content",
+      "expression": "user2"
+    }
+  ],
+  "app/api/openai/leaflet/route.ts": [
+    {
+      "name": "system",
+      "expression": "`\nYou are a knowledgeable and factual medical assistant who writes concise, easy-to-read medicine leaflets for the general public and add indicative price, strength and legal classification.\nClose with average selling price.\nReturn the result as plain JSON with just one key: \"leaflet_text\".\nDo not invent data if unavailable; use \"Not specified\" instead.\n`.trim()"
+    },
+    {
+      "name": "user",
+      "expression": "`\nFetch the official medicine leaflet for ${drugName} sold in ${originCountry}.\n`.trim()"
+    },
+    {
+      "name": "model",
+      "expression": "\"gpt-4o\""
+    },
+    {
+      "name": "temperature",
+      "expression": "0.2"
+    },
+    {
+      "name": "seed",
+      "expression": "12345"
+    },
+    {
+      "name": "message content",
+      "expression": "system"
+    },
+    {
+      "name": "message content",
+      "expression": "user"
+    },
+    {
+      "name": "translatorSystem",
+      "expression": "`\nYou are a precise medical translator. Translate the leaflet content into the target language while preserving structure and bullet points.\nDo NOT change section headings — keep them in English so they remain detectable by the client formatter.\nKeep list bullets using \"-\" or numbered lists. Do not add extra commentary.\nReturn JSON with exactly one top-level key: \"leaflet_text\".\n`.trim()"
+    },
+    {
+      "name": "translatorUser",
+      "expression": "`\nTarget language: ${language}\n\nTranslate ONLY the body prose of each section into the target language.\nKeep section headings in ENGLISH (e.g., \"Active Ingredients\", \"Uses\", \"Dosage\", \"Contraindications\", \"Warnings\", \"Precautions\", \"Side Effects\", \"Storage\", \"Legal Classification\", \"Average Selling Price\", \"Manufacturer\", \"Overview\", \"Description\", \"Interactions\", \"Mechanism of Action\", \"Note\", \"Disclaimer\").\n\nSource leaflet_text:\n${leafletText}\n`.trim()"
+    },
+    {
+      "name": "model",
+      "expression": "\"gpt-4o\""
+    },
+    {
+      "name": "temperature",
+      "expression": "0.2"
+    },
+    {
+      "name": "message content",
+      "expression": "translatorSystem"
+    },
+    {
+      "name": "message content",
+      "expression": "translatorUser"
+    }
+  ],
+  "app/api/openai/route.ts": [
+    {
+      "name": "prompt",
+      "expression": "`Tell me everything you know about the medicine \"${drugName}\" in ${originCountry}:\nInclude:\n- Active ingredients with available strengths, dosages, and formulations\n- Legal classification (Rx/OTC)\n- Contraindications and precautions (age, pregnancy, allergy)\n- Side effects\n- Interactions\n- Price in ${originCountry}\n- Manufacturer or brands`"
+    },
+    {
+      "name": "system",
+      "expression": "`You are a cautious pharmacist. Only respond with factual and known information. Use the local currency for prices and never invent data.`"
+    },
+    {
+      "name": "model",
+      "expression": "\"gpt-4\""
+    },
+    {
+      "name": "message content",
+      "expression": "system"
+    },
+    {
+      "name": "message content",
+      "expression": "prompt"
+    },
+    {
+      "name": "temperature",
+      "expression": "0.2"
+    }
+  ],
+  "app/api/ai-search/route.ts": [
+    {
+      "name": "structuredInstruction",
+      "expression": "`\nYou are a careful medical educator. Write **strictly in ${languageName}**.\n\nTask: Provide a short educational overview for the following condition.\n- Condition: \"${selectedCondition || \"N/A\"}\"\n- Extra context (patient-provided): \"${conditionDetails || \"N/A\"}\"\n- Allergies / comorbidities (if any): \"${allergies || \"N/A\"}\"\n- Country context (optional): Home=\"${originCountry || \"-\"}\", Target=\"${targetCountry || \"-\"}\"\n\nGuidance:\n- This is **educational information only**, not medical advice or diagnosis.\n- Use clear, plain language, suitable for the public.\n- Prefer concise paragraphs and bullet points.\n- Include sections with headings (in ${languageName}):\n  - Educational Overview\n  - Key Symptoms\n  - Red Flags / When to Seek Care Now\n  - Typical Treatments\n  - Notes or Lifestyle Considerations\n- Do **not** fabricate dosages or specific personal recommendations.\n- If a section is not applicable, omit it.\n    `.trim()"
+    },
+    {
+      "name": "model",
+      "expression": "process.env.OPENAI_MODEL || \"gpt-4o\""
+    },
+    {
+      "name": "temperature",
+      "expression": "0.2"
+    },
+    {
+      "name": "max_tokens",
+      "expression": "900"
+    },
+    {
+      "name": "message content",
+      "expression": "\"You are an accurate, concise medical educator. Provide educational information, not diagnosis or personalized medical advice. Always follow the requested output language.\""
+    },
+    {
+      "name": "message content",
+      "expression": "userQuery + `\\n\\nIMPORTANT: Answer strictly in ${languageName}.`"
+    }
+  ],
+  "app/api/translate/route.ts": [
+    {
+      "name": "system",
+      "expression": "\"You are a precise technical translator. Preserve all HTML/Markdown, bullets, line breaks, punctuation, numbers, and units. Do not add commentary—return translated text only.\""
+    },
+    {
+      "name": "prompt",
+      "expression": "`Translate the following text into ${target}. Keep any HTML/Markdown exactly as-is.\\n\\n${text}`"
+    },
+    {
+      "name": "model",
+      "expression": "MODEL"
+    },
+    {
+      "name": "temperature",
+      "expression": "0.2"
+    },
+    {
+      "name": "message content",
+      "expression": "system"
+    },
+    {
+      "name": "message content",
+      "expression": "prompt"
+    }
+  ],
+  "app/api/translate-json/route.ts": [
+    {
+      "name": "system",
+      "expression": "\"You translate JSON VALUES but must preserve all KEYS exactly as they are. \" +\n      \"Return ONLY valid JSON (no code fences, no explanations). \" +\n      \"Rules: (1) Keep keys unchanged. (2) Translate every string value into the target language. \" +\n      \"(3) Preserve ALL HTML tags and Markdown in values. (4) Preserve units, numbers, and symbols. \" +\n      \"(5) Never add/remove/reorder fields. (6) If a value contains JSON or HTML, keep its structure intact.\""
+    },
+    {
+      "name": "user",
+      "expression": "`Target language: ${targetLanguage}\\n` +\n      \"Task: Translate every STRING VALUE in the following JSON object into the target language. \" +\n      \"Keep KEYS as-is. Keep HTML/Markdown intact. Return ONLY JSON.\\n\\n\" +\n      jsonStr"
+    },
+    {
+      "name": "model",
+      "expression": "MODEL"
+    },
+    {
+      "name": "temperature",
+      "expression": "0.2"
+    },
+    {
+      "name": "message content",
+      "expression": "system"
+    },
+    {
+      "name": "message content",
+      "expression": "user"
+    }
+  ],
+  "app/MedicineWorkspace.tsx": [
+    {
+      "name": "query",
+      "expression": "`\nYou are a careful medical information assistant. Write in ${lang}. Audience: layperson.\n**Do NOT diagnose. Do NOT give specific doses.** Use metric units. If something is unknown, say \"Not available\".\n\nCondition: \"${selectedCondition}\"\nCountry focus: ${country || 'Not specified'}\nUser context (optional): ${conditionDetails || 'None'}\nAllergies / other conditions (optional): ${userNotes || 'None'}\n\nReturn **clear, concise Markdown** with these sections and short bullet points where natural. Use localized headings if obvious in ${lang}:\n\n1) Quick summary — 100 words max.\n2) What it usually is & common causes — bullets.\n3) What you can do now (self-care & lifestyle) — bullets; safe, generic, no dosing.\n4) Medicines in ${country || \"the user's country\"} — split into **OTC vs Rx**; generic examples only; note if access requires a prescription or pharmacist consultation.\n5) How to navigate the healthcare system in ${country || \"the user's country\"} — step-by-step (e.g., pharmacist → GP/primary care → specialist; how referrals/urgent care typically work). Include useful links on the healthcare system in ${country || \"the user's country\"}.\n6) What to say to a pharmacist/doctor — 1–2 short example phrases the user can read out **in ${lang}**.\n7) Red flags — bullet list of symptoms that require urgent care **now**.\n8) Special populations — pregnancy, children, older adults, chronic conditions (concise bullets).\n9) Trusted authorities to search — name national services/regulator (e.g., NHS, Ministry of Health, medicines regulator). **Names only; no links.**\n10) Recommendations\n\nTone: calm, supportive, non-alarming. Be country-aware about access rules and pathways. Keep it compact.\n`.trim()"
+    }
+  ]
+}

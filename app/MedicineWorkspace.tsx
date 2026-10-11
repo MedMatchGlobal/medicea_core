@@ -571,6 +571,14 @@ function Home({ petMode = false }: { petMode?: boolean }) {
   const [searched, setSearched] = useState(false);
   const [searchFailed, setSearchFailed] = useState(false);
 
+  useEffect(() => {
+    if (petMode) return;
+    const section = new URLSearchParams(window.location.search).get('section');
+    if (section === 'tools' || section === 'care') {
+      setScreen(section); setActiveSection(section);
+    }
+  }, [petMode]);
+
   function revealWorkspace() {
     requestAnimationFrame(() => {
       const nav = document.getElementById('workspace-start');
@@ -785,7 +793,7 @@ if (!BETA_TESTING && isPremiumMode(mode)) {
 You are a careful medical information assistant. Write in ${lang}. Audience: layperson.
 **Do NOT diagnose. Do NOT give specific doses.** Use metric units. If something is unknown, say "Not available".
 
-Condition: "${selectedCondition.trim()}"
+Condition: "${selectedCondition}"
 Country focus: ${country || 'Not specified'}
 User context (optional): ${conditionDetails || 'None'}
 Allergies / other conditions (optional): ${userNotes || 'None'}
@@ -804,7 +812,6 @@ Return **clear, concise Markdown** with these sections and short bullet points w
 10) Recommendations
 
 Tone: calm, supportive, non-alarming. Be country-aware about access rules and pathways. Keep it compact.
-The suggestions are not exhaustive. If the condition name is unclear or unrecognized, say so and ask for clarification; do not invent a condition or assume it is harmless. For cancer or other specialist-managed conditions, emphasize the treating specialist/care team; do not imply OTC medicines can treat the underlying condition.
 `.trim();
 
         const res = await fetch('/api/ai-search', {
@@ -921,10 +928,10 @@ The suggestions are not exhaustive. If the condition name is unclear or unrecogn
       <header className="site-header">
         <a className="brand-link" href="/" aria-label="medicea home"><img src="/logo.png" alt="medicéa" /></a>
         <nav className="header-nav" aria-label="Main navigation">
-          {petMode ? <a href="/">{F(ui, 'findMedicine', 'Find a medicine')}</a> : <>
-          <a href="#workspace-start" onClick={(event) => { event.preventDefault(); showScreen('tools'); }}>{F(ui, 'medicineTools', 'Health tools')}</a>
-          <a href="#workspace-start" onClick={(event) => { event.preventDefault(); showScreen('care'); }}>{F(ui, 'findCare', 'Find care')}</a>
-          <a href="/pets">{F(ui, 'btnPets', 'Meds 4 Pets')}</a></>}
+          <a href="/" aria-current={!petMode && activeSection === 'search' ? 'page' : undefined} onClick={petMode ? undefined : (event) => {event.preventDefault(); setActiveSection('search'); resetFieldsForMode('international');}}>{F(ui, 'findMedicine', 'Find a medicine')}</a>
+          <a href="/?section=tools" aria-current={!petMode && activeSection === 'tools' ? 'page' : undefined} onClick={petMode ? undefined : (event) => {event.preventDefault(); showScreen('tools');}}>{F(ui, 'medicineTools', 'Health tools')}</a>
+          <a href="/?section=care" aria-current={!petMode && activeSection === 'care' ? 'page' : undefined} onClick={petMode ? undefined : (event) => {event.preventDefault(); showScreen('care');}}>{F(ui, 'findCare', 'Find care')}</a>
+          <a href="/pets" aria-current={petMode ? 'page' : undefined}>{F(ui, 'btnPets', 'Meds 4 Pets')}</a>
         </nav>
         <div className="language-control"><LanguageButton /></div>
       </header>
@@ -935,11 +942,7 @@ The suggestions are not exhaustive. If the condition name is unclear or unrecogn
           <p>{petMode ? searchFeedback(lang).petNotice : F(ui, 'modernSubtitle', 'Explore medicine information and equivalents across countries.')}</p>
         </div>
       </section>
-      {!petMode && <nav className="workspace-nav" id="workspace-start" aria-label={F(ui, 'medicineTools', 'Health tools')}>
-        <button aria-pressed={activeSection === 'search'} onClick={() => { setActiveSection('search'); resetFieldsForMode('international'); }}><Search size={18}/>{F(ui, 'findMedicine', 'Find a medicine')}</button>
-        <button aria-pressed={activeSection === 'tools'} onClick={() => showScreen('tools')}><Pill size={18}/>{F(ui, 'medicineTools', 'Medicine tools')}</button>
-        <button aria-pressed={activeSection === 'care'} onClick={() => showScreen('care')}><Cross size={18}/>{F(ui, 'careNearby', 'Find care nearby')}</button>
-      </nav>}
+      <div id="workspace-start" />
       <div className="workspace-panels">
       <div className="workspace-grid">
       <section className="search-area" id="medicine-search" tabIndex={-1} aria-labelledby="search-title">

@@ -27,3 +27,5 @@ Preview acceptance:
 3. Open pet medicines from the header: confirm a separate page and no human leaflet button in results.
 4. Search Great Britain in the country picker and check the United Kingdom option.
 5. Review Health tools, generic-medication wording and the urgent-care text in symptom triage.
+
+Navigation follow-up: one persistent four-choice header replaces the duplicate navigation. The same choices appear on human and pet pages and on narrow screens. Cross-page Health tools and Find care links open the intended section. The original condition query from pre-feedback commit 0f327f3 has been restored verbatim. All search API prompt templates remain unchanged from that revision. PROMPT-AUDIT.md contains exact templates and settings; tests/prompt-preservation.cjs protects the baseline. All 41 checks and the production build passed. Visual acceptance remains pending.
