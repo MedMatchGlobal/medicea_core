@@ -3,6 +3,7 @@
 
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useLanguage } from '../LanguageProvider';
+import { urgentCareNotice } from '../i18n/search-feedback';
 
 type Msg = { id: string; role: 'user' | 'assistant'; text: string };
 
@@ -174,6 +175,7 @@ export default function SymptomTriage() {
 
         <div style={styles.disclaimer}>
           <strong>{tri.disclaimerTitle}:</strong> {tri.disclaimer}
+          <p>{urgentCareNotice(lang)} <a href="https://www.nhs.uk/nhs-services/urgent-and-emergency-care-services/when-to-use-111/" target="_blank" rel="noopener noreferrer">NHS 111</a></p>
         </div>
       </div>
     </div>
