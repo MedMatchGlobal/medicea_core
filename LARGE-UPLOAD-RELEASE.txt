@@ -48,3 +48,16 @@ Required live tests AFTER migration and new preview deployment:
 
 Isolated PostgreSQL tests model the exported policies/schema. They do not emulate
 Supabase TUS service internals or replace these provider/browser checks.
+
+11 October correction after live upload failure:
+Apply supabase/migrations/20261011_tus_permission_metadata.sql AFTER the
+20261009 migration, in a new query. TUS permission probes use contentLength
+before commit; stored object metadata uses size. The original reservation policy
+required size for both phases and rejected preflight. The corrected policy accepts
+contentLength for preflight, prefers size if present and still rejects missing or
+mismatched length/type. Owner/MFA/path/expiry/cancellation checks remain unchanged.
+Final registration still requires actual stored size. No records/objects deleted.
+Source: https://github.com/supabase/storage/blob/master/src/http/routes/tus/lifecycle.ts
+Regression: isolated PostgreSQL probes with declared size, wrong size/type, missing
+size, conflicting actual size, secondary account and email-only session; actual
+stored metadata required to finalize. Full suite: 37 passed. Live retest pending.

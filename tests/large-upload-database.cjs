@@ -26,6 +26,7 @@ async function database(){
   await db.exec(`create policy ${p.policyname} on ${p.schemaname}.${p.tablename} as ${p.permissive} for ${p.cmd} to ${p.roles.join(',')} ${p.qual?'using ('+p.qual+')':''} ${p.with_check?'with check ('+p.with_check+')':''}`);
  }
  await db.exec(fs.readFileSync(require('node:path').join(__dirname,'../supabase/migrations/20261009_large_document_uploads.sql'),'utf8'));
+ await db.exec(fs.readFileSync(require("node:path").join(__dirname,"../supabase/migrations/20261011_tus_permission_metadata.sql"),"utf8"));
  return db;
 }
 async function account(db,id=A,aal='aal2'){
@@ -68,5 +69,30 @@ test('byte boundaries, concurrent reservation ceiling and total quota enforced i
   await db.exec('reset role;delete from vault_beta_uploads;');await account(db);
   for(let i=0;i<5;i++){const u=await begin(db);await object(db,u);await db.query('select vault_finish_upload($1)',[u.id]);}
   await assert.rejects(()=>begin(db,1));
+ }finally{await db.close();}
+});
+
+// Supabase TUS canUpload probes INSERT with contentLength before bytes are committed.
+test('TUS preflight accepts declared length while completion still requires actual stored size',async()=>{
+ const db=await database();try{
+  await account(db);const u=await begin(db,130000);
+  async function probe(metadata,owner=A){
+   await db.exec('begin');
+   try {await db.query(`insert into storage.objects(bucket_id,name,owner_id,metadata) values('medicea-vault-beta',$1,$2,$3)`,[u.object_path,owner,JSON.stringify(metadata)]);}
+   finally {await db.exec('rollback');}
+  }
+  await probe({contentLength:130000,mimetype:'application/pdf'});
+  await assert.rejects(()=>probe({contentLength:130001,mimetype:'application/pdf'}));
+  await assert.rejects(()=>probe({mimetype:'application/pdf'}));
+  await assert.rejects(()=>probe({contentLength:130000,mimetype:'image/png'}));
+  await assert.rejects(()=>probe({size:1,contentLength:130000,mimetype:'application/pdf'}));
+  await account(db,B);await assert.rejects(()=>probe({contentLength:130000,mimetype:'application/pdf'},B));
+  await account(db,A,'aal1');await assert.rejects(()=>probe({contentLength:130000,mimetype:'application/pdf'}));
+  await account(db);
+  await db.query(`insert into storage.objects(bucket_id,name,owner_id,metadata) values('medicea-vault-beta',$1,$2,$3)`,[u.object_path,A,JSON.stringify({contentLength:130000,mimetype:'application/pdf'})]);
+  await assert.rejects(()=>db.query('select vault_finish_upload($1)',[u.id]));
+  await db.query('delete from storage.objects where name=$1',[u.object_path]);
+  await object(db,u,130000);await db.query('select vault_finish_upload($1)',[u.id]);
+  assert.equal((await db.query('select * from vault_beta_documents')).rows.length,1);
  }finally{await db.close();}
 });
