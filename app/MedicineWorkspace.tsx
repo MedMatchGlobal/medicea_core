@@ -24,6 +24,8 @@ import LanguageButton from './components/LanguageButton';
 import CountryPicker from './components/CountryPicker';
 import ConditionPicker from './components/ConditionPicker';
 import VeterinaryCare from './components/VeterinaryCare';
+import PetMedicineInformation from './components/PetMedicineInformation';
+import {veterinaryIngredients, type VeterinaryIngredient} from './lib/veterinary-details';
 import {petGenericsLabel} from './i18n/pet-generics';
 import { conditionAdditions } from '../data/condition-additions';
 import { searchFeedback } from './i18n/search-feedback';
@@ -610,6 +612,7 @@ function Home({ petMode = false }: { petMode?: boolean }) {
   const [visits, setVisits] = useState<number | null>(null);
   const [leafletRaw, setLeafletRaw] = useState('');
   const [matches, setMatches] = useState<any[]>([]);
+  const [petOriginIngredients, setPetOriginIngredients] = useState<VeterinaryIngredient[]>([]);
   const [leafletLoading, setLeafletLoading] = useState<Record<string, boolean>>({});
   const [leaflets, setLeaflets] = useState<Record<string, string>>({});
   const [viewLeaflet, setViewLeaflet] = useState<Record<string, boolean>>({});
@@ -671,6 +674,7 @@ function Home({ petMode = false }: { petMode?: boolean }) {
     setConditionDetails('');
     setUserNotes('');
     setMatches([]);
+    setPetOriginIngredients([]);
     setLeafletRaw('');
     setLeaflets({});
     setLeafletLoading({});
@@ -758,6 +762,7 @@ if (!BETA_TESTING && isPremiumMode(mode)) {
     setLoading(true);
     setResult(F(ui, 'searching', 'Searching…'));
     setMatches([]);
+    setPetOriginIngredients([]);
     setLeafletRaw('');
     setLeaflets({});
     setLeafletLoading({});
@@ -876,6 +881,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
       if (!res2.ok) throw new Error('Medicine service unavailable');
       const payload2 = await res2.json();
       if (version !== searchVersion.current) return;
+      if (mode === 'pets' || mode === 'pet-generic') setPetOriginIngredients(veterinaryIngredients(payload2.originProfile));
 
       if (Array.isArray(payload2?.matches) && payload2.matches.length) {
         setMatches(payload2.matches);
@@ -1181,6 +1187,12 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
             <div><h2>{F(ui, 'searchResults', 'Search results')}</h2><p role="status" aria-live="polite">{loading ? F(ui, 'searching', 'Searching…') : searchFailed ? F(ui, 'medicineServiceError', 'Medicine information is temporarily unavailable. Please try again shortly.') : F(ui, 'searchComplete', 'Search complete')}</p></div>
             <div className="results-actions"><button disabled={loading} onClick={() => showScreen('search')}>{F(ui, 'editSearch', 'Edit search')}</button><button disabled={loading} onClick={clearSearch}>{F(ui, 'newSearch', 'New search')}</button></div>
           </div>
+          {(mode === 'pets' || mode === 'pet-generic') && !loading && !searchFailed && <div className="leaflet-block">
+            <h2 className="medicine-section-title">{F(ui, 'medicineDetails', 'Medicine details')}</h2>
+            <PetMedicineInformation key={selectedDrug + originCode + lang} medicineName={selectedDrug} country={originCode} lang={lang}
+              ingredients={petOriginIngredients} ingredientLabel={(t as any).leafletHeadings?.['Active Ingredients'] || 'Active ingredients'}
+              loadingLabel={F(ui, 'searching', 'Searching…')} errorLabel={F(ui, 'medicineServiceError', 'Medicine information is temporarily unavailable. Please try again shortly.')} />
+          </div>}
           {/* Leaflet content */}
           {(mode === 'leaflet' || mode === 'international' || mode === 'generic') && leafletRaw && (
             <div className="leaflet-block">
@@ -1273,6 +1285,10 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
             <div style={{ marginTop: 12 }}>
               {matches.map((m: any, idx: number) => {
                 const medname = m?.medicine_name ?? m?.Medicine_name ?? `Medicine ${idx + 1}`;
+                if (mode === 'pets' || mode === 'pet-generic') return <PetMedicineInformation key={medname + lang}
+                  medicineName={medname} country={mode === 'pets' ? targetCode || originCode : originCode} lang={lang}
+                  ingredientLabel={(t as any).leafletHeadings?.['Active Ingredients'] || 'Active ingredients'}
+                  loadingLabel={F(ui, 'searching', 'Searching…')} errorLabel={F(ui, 'medicineServiceError', 'Medicine information is temporarily unavailable. Please try again shortly.')} />;
                 const isLeafletLoading = !!leafletLoading[medname];
                 const leafletText = leaflets[medname];
                 const showLF = !!viewLeaflet[medname];
@@ -1289,7 +1305,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
                   >
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
                       <div style={{ fontWeight: 700, color: '#0f172a' }}>{medname}</div>
-                      {mode !== 'pets' && mode !== 'pet-generic' && <div style={{ display: 'flex', gap: 8 }}>
+                      <div style={{ display: 'flex', gap: 8 }}>
                         <button
                           onClick={() => {
                             if (!leafletText) {
@@ -1307,7 +1323,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
                             ? F(ui, 'hideLeaflet', 'Hide leaflet')
                             : F(ui, 'viewLeaflet', 'View leaflet')}
                         </button>
-                      </div>}
+                      </div>
                     </div>
 
                     {showLF && leafletText && (
