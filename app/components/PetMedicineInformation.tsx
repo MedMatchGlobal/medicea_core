@@ -6,20 +6,20 @@ import {leafletActions} from '../i18n/leaflet-actions';
 import {veterinaryInformationCopy} from '../i18n/veterinary-information';
 import {officialVeterinaryLeafletSearch, type VeterinaryIngredient} from '../lib/veterinary-details';
 
-export default function PetMedicineInformation({medicineName, country, lang, ingredients, ingredientLabel, loadingLabel, errorLabel, headings = {}, initiallyExpanded = false}: {
+export default function PetMedicineInformation({medicineName, country, lang, ingredients, ingredientLabel, loadingLabel, errorLabel, headings = {}, initiallyExpanded = false, initialInformation, onInformation}: {
   medicineName:string; country:string; lang:string; ingredients?:VeterinaryIngredient[];
   ingredientLabel:string; loadingLabel:string; errorLabel:string;
-  headings?:Record<string,string>; initiallyExpanded?:boolean;
+  headings?:Record<string,string>; initiallyExpanded?:boolean; initialInformation?:VeterinarySection[]; onInformation?:(sections:VeterinarySection[])=>void;
 }) {
   const copy = {...veterinaryInformationCopy(lang), ...leafletActions(lang)};
   const id = useId();
-  const [information, setInformation] = useState<VeterinarySection[] | null>(null);
+  const [information, setInformation] = useState<VeterinarySection[] | null>(initialInformation || null);
   const [open, setOpen] = useState(initiallyExpanded);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
   const controller = useRef<AbortController | null>(null);
   useEffect(() => {
-    if (initiallyExpanded) void toggle();
+    if (initiallyExpanded && !initialInformation) void toggle();
     return () => controller.current?.abort();
   }, [initiallyExpanded]);
   async function toggle() {
@@ -34,7 +34,7 @@ export default function PetMedicineInformation({medicineName, country, lang, ing
       if (!response.ok) throw new Error('unavailable');
       const payload = await response.json();
       if (!Array.isArray(payload.sections) || !payload.sections.length) throw new Error('empty');
-      if (!request.signal.aborted) setInformation(payload.sections);
+      if (!request.signal.aborted) {setInformation(payload.sections);onInformation?.(payload.sections);}
     } catch {if (!request.signal.aborted) setError(true);}
     finally {if (!request.signal.aborted) setLoading(false);}
   }

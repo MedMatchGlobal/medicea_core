@@ -17,6 +17,12 @@ Fixed banner logic for "Generics" label + country, and removed banner from Leafl
 
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
+import {useRouter} from 'next/navigation';
+import DOMPurify from 'dompurify';
+import SavedSearches from './components/SavedSearches';
+import {SAVED_SEARCH_KEY, readSavedSearches, addSavedSearch, isSavedMode, type SavedSearch} from './lib/saved-searches';
+import {savedSearchCopy} from './i18n/saved-searches';
+import type {VeterinarySection} from './lib/veterinary-sections';
 import { ArrowRight, Search, FileText, Pill, Stethoscope, Hospital, HeartPulse, UserRound, Cross, ShieldCheck } from 'lucide-react';
 import countriesByRegion from '../data/countries';
 import { useLanguage } from './LanguageProvider';
@@ -38,7 +44,7 @@ import SymptomTriage from './components/SymptomTriage';
 
 import PremiumPaywall from './components/PremiumPaywall';
 import enStrings from './i18n/en.json';
-import { isRTL, loadStrings } from './i18n/i18n';
+import { isRTL, loadStrings, SUPPORTED_LANGS } from './i18n/i18n';
 import { registerUsage } from './lib/subscriptionClient';
 import { hasFreeQuota, incrementUsage } from './lib/usageTracker';
 
@@ -402,7 +408,9 @@ function Home({ petMode = false }: { petMode?: boolean }) {
   const [conditionOptions, setConditionOptions] = useState<string[]>([]);
   const [conditionGroups, setConditionGroups] = useState<Array<{ id: string; label: string; items: string[] }> | undefined>(undefined);
 
-  const { lang } = useLanguage();
+  const { lang, setLang } = useLanguage();
+  const router = useRouter();
+  const pendingSavedSearch = useRef<SavedSearch | null>(null);
 
   // Load translated conditions + groups
   useEffect(() => {
@@ -583,6 +591,11 @@ function Home({ petMode = false }: { petMode?: boolean }) {
   const pharmacyOpenRef = useRef(false);
 
   useLayoutEffect(() => {
+    if (pendingSavedSearch.current) {
+      const saved = pendingSavedSearch.current;
+      if ((saved.mode === 'pets' || saved.mode === 'pet-generic') === petMode) {pendingSavedSearch.current = null; applySavedSearch(saved);}
+      return;
+    }
     if (isPharmacyTripEntry(window.history.state, pharmacyTripRef.current)) return;
     resetFieldsForMode(petMode ? 'pets' : 'international');
     if (petMode) {setActiveSection('search'); return;}
@@ -673,6 +686,50 @@ function Home({ petMode = false }: { petMode?: boolean }) {
   const [leafletLoading, setLeafletLoading] = useState<Record<string, boolean>>({});
   const [leaflets, setLeaflets] = useState<Record<string, string>>({});
   const [viewLeaflet, setViewLeaflet] = useState<Record<string, boolean>>({});
+  const [savedSearches, setSavedSearches] = useState<SavedSearch[]>([]);
+  const [saveMessage, setSaveMessage] = useState('');
+  const [restoredSearch, setRestoredSearch] = useState<SavedSearch | null>(null);
+  const completedSearchContext = useRef<{lang:string;mode:Mode;originCode:string;targetCode:string;selectedDrug:string;selectedDosage:string} | null>(null);
+  const [petInformation, setPetInformation] = useState<Record<string,VeterinarySection[]>>({});
+  useEffect(() => {
+    try {setSavedSearches(readSavedSearches(localStorage.getItem(SAVED_SEARCH_KEY)));} catch {}
+    const sync=(event:StorageEvent)=>{if(event.key===SAVED_SEARCH_KEY || event.key===null) setSavedSearches(readSavedSearches(event.newValue));};
+    window.addEventListener('storage',sync);return ()=>window.removeEventListener('storage',sync);
+  }, []);
+  function saveCurrentSearch() {
+    if (!isSavedMode(mode) || loading || searchFailed || !searched) return;
+    try {
+      const existing=readSavedSearches(localStorage.getItem(SAVED_SEARCH_KEY));
+      const context=completedSearchContext.current;
+      if (!context || !isSavedMode(context.mode)) return;
+      const next=addSavedSearch(existing,{...context,id:crypto.randomUUID(),savedAt:new Date().toISOString(),mode:context.mode,
+        result,leafletRaw,matches,petOriginIngredients,leaflets,petInformation});
+      localStorage.setItem(SAVED_SEARCH_KEY,JSON.stringify(next));setSavedSearches(next);
+      setSaveMessage(`${savedSearchCopy(lang).save} ✓ · ${savedSearchCopy(lang).notice}`);
+    } catch {setSaveMessage(savedSearchCopy(lang).error);}
+  }
+  function removeSavedSearch(id:string) {
+    try {const next=readSavedSearches(localStorage.getItem(SAVED_SEARCH_KEY)).filter(s=>s.id!==id);
+      localStorage.setItem(SAVED_SEARCH_KEY,JSON.stringify(next));setSavedSearches(next);setSaveMessage('');
+    } catch {setSaveMessage(savedSearchCopy(lang).error);}
+  }
+  function applySavedSearch(saved:SavedSearch) {
+    resetFieldsForMode(saved.mode);
+    completedSearchContext.current=saved;
+    setOriginCode(saved.originCode);setTargetCode(saved.targetCode);setSelectedDrug(saved.selectedDrug);setSelectedDosage(saved.selectedDosage);
+    setResult(DOMPurify.sanitize(saved.result));setLeafletRaw(saved.leafletRaw);setMatches(saved.matches);
+    setPetOriginIngredients(saved.petOriginIngredients);setLeaflets(saved.leaflets);setPetInformation(saved.petInformation);
+    setSearchFailed(false);setSearched(true);setScreen('results');setActiveSection(saved.mode==='generic'||saved.mode==='leaflet'?'tools':'search');
+    setRestoredSearch(saved);setSaveMessage('');
+    if (SUPPORTED_LANGS.includes(saved.lang as any)) setLang(saved.lang as typeof lang);
+    requestAnimationFrame(()=>window.scrollTo({top:0,behavior:'instant'}));
+  }
+  function openSavedSearch(saved:SavedSearch) {
+    abandonPharmacyTrip();
+    const isPet=saved.mode==='pets'||saved.mode==='pet-generic';
+    if (isPet !== petMode) {pendingSavedSearch.current=saved;router.push(isPet?'/pets':'/');}
+    else {window.history.replaceState(window.history.state,'',isPet?'/pets':'/');applySavedSearch(saved);}
+  }
   const [userAddress, setUserAddress] = useState('');
   const [useGeo, setUseGeo] = useState(false);
   const [geoStr, setGeoStr] = useState('');
@@ -723,6 +780,7 @@ function Home({ petMode = false }: { petMode?: boolean }) {
     searchVersion.current += 1;
     setLoading(false);
     setMode(m);
+    setRestoredSearch(null);setSaveMessage('');setPetInformation({});completedSearchContext.current=null;
     setScreen('search');
     setSearched(false);
     setResult('');
@@ -816,6 +874,8 @@ if (!BETA_TESTING && isPremiumMode(mode)) {
 
     if (version !== searchVersion.current) return;
     setSearchFailed(false);
+    setRestoredSearch(null);setSaveMessage('');setPetInformation({});
+    completedSearchContext.current={lang,mode,originCode,targetCode,selectedDrug,selectedDosage};
     setSearched(true);
     showScreen('results');
     setLoading(true);
@@ -1024,6 +1084,8 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
           <p>{petMode ? searchFeedback(lang).petNotice : F(ui, 'modernSubtitle', 'Explore medicine information and equivalents across countries.')}</p>
         </div>
       </section>
+      <SavedSearches lang={lang} entries={savedSearches} modeLabel={saved=>saved.mode==='pets'?F(ui,'petEquivHeader','Equivalent pet medicines'):saved.mode==='pet-generic'?petGenericsLabel(lang):saved.mode==='generic'?F(ui,'genHeader','Generics'):saved.mode==='leaflet'?F(ui,'btnLeaflet','Medicine leaflet'):F(ui,'equivHeader','Equivalent medicines')} onOpen={openSavedSearch} onRemove={removeSavedSearch} />
+      {saveMessage && <p className="saved-search-status" role="status">{saveMessage}</p>}
       <div id="workspace-start" />
       {petMode && <nav className="workspace-nav" aria-label={F(ui, 'btnPets', 'Meds 4 Pets')}>
         <button type="button" aria-pressed={mode === 'pets'} disabled={loading} onClick={() => resetFieldsForMode('pets')}>{F(ui, 'petEquivHeader', 'Equivalent pet medicines')}</button>
@@ -1031,6 +1093,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
       </nav>}
       {pharmacyTrip && <div hidden={!pharmacyOpen}>
         <PharmacyTripPanel key={pharmacyTrip.id} trip={pharmacyTrip} lang={lang} onBack={backFromPharmacy}
+          onSave={saveCurrentSearch} saveLabel={savedSearchCopy(lang).save}
           title={F(ui, 'btnPharmacy', 'Search pharmacy')} addressLabel={F(ui, 'addressPrompt', 'Enter an address (or use device location)')}
           addressPlaceholder={F(ui, 'addressPH', 'Street, City, Country…')} useLocationLabel={F(ui, 'useDeviceLocation', 'Use device location')}
           openLabel={F(ui, 'openMaps', 'Open in Google Maps')} notice={searchFeedback(lang).careNotice} />
@@ -1252,12 +1315,15 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
         <section id="search-results" className="results-view" tabIndex={-1} aria-label={F(ui, 'searchResults', 'Search results')}>
           <div className="results-heading">
             <div><h2>{F(ui, 'searchResults', 'Search results')}</h2><p role="status" aria-live="polite">{loading ? F(ui, 'searching', 'Searching…') : searchFailed ? F(ui, 'medicineServiceError', 'Medicine information is temporarily unavailable. Please try again shortly.') : F(ui, 'searchComplete', 'Search complete')}</p></div>
-            <div className="results-actions"><button disabled={loading} onClick={() => showScreen('search')}>{F(ui, 'editSearch', 'Edit search')}</button><button disabled={loading} onClick={clearSearch}>{F(ui, 'newSearch', 'New search')}</button></div>
+            <div className="results-actions">{isSavedMode(mode) && <button disabled={loading || searchFailed} onClick={saveCurrentSearch}>{savedSearchCopy(lang).save}</button>}<button disabled={loading} onClick={() => showScreen('search')}>{F(ui, 'editSearch', 'Edit search')}</button><button disabled={loading} onClick={clearSearch}>{F(ui, 'newSearch', 'New search')}</button></div>
           </div>
+          {restoredSearch && <p className="search-note">{savedSearchCopy(lang).historical} · {new Date(restoredSearch.savedAt).toLocaleString(lang)}</p>}
           {(mode === 'pets' || mode === 'pet-generic') && !loading && !searchFailed && <div className="leaflet-block">
             <h2 className="medicine-section-title">{F(ui, 'medicineDetails', 'Medicine details')} — {selectedDrug}</h2>
-            <PetMedicineInformation key={selectedDrug + originCode + lang} medicineName={selectedDrug} country={originCode} lang={lang}
-              initiallyExpanded headings={(t as any).leafletHeadings || {}}
+            <PetMedicineInformation key={selectedDrug + originCode + lang + (restoredSearch?.id || "")} medicineName={selectedDrug} country={originCode} lang={lang}
+              initiallyExpanded initialInformation={petInformation[selectedDrug + originCode + lang]}
+              onInformation={sections=>setPetInformation(previous=>({...previous,[selectedDrug + originCode + lang]:sections}))}
+              headings={(t as any).leafletHeadings || {}}
               ingredients={petOriginIngredients} ingredientLabel={(t as any).leafletHeadings?.['Active Ingredients'] || 'Active ingredients'}
               loadingLabel={F(ui, 'searching', 'Searching…')} errorLabel={F(ui, 'medicineServiceError', 'Medicine information is temporarily unavailable. Please try again shortly.')} />
           </div>}
@@ -1361,7 +1427,9 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
             <div style={{ marginTop: 12 }}>
               {matches.map((m: any, idx: number) => {
                 const medname = m?.medicine_name ?? m?.Medicine_name ?? `Medicine ${idx + 1}`;
-                if (mode === 'pets' || mode === 'pet-generic') return <PetMedicineInformation key={medname + lang}
+                if (mode === 'pets' || mode === 'pet-generic') return <PetMedicineInformation key={medname + lang + (restoredSearch?.id || "")}
+                  initialInformation={petInformation[medname + (mode === 'pets' ? targetCode || originCode : originCode) + lang]}
+                  onInformation={sections=>setPetInformation(previous=>({...previous,[medname + (mode === 'pets' ? targetCode || originCode : originCode) + lang]:sections}))}
                   headings={(t as any).leafletHeadings || {}}
                   medicineName={medname} country={mode === 'pets' ? targetCode || originCode : originCode} lang={lang}
                   ingredientLabel={(t as any).leafletHeadings?.['Active Ingredients'] || 'Active ingredients'}

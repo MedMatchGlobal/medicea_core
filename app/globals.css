@@ -666,3 +666,10 @@ html { scrollbar-gutter:stable; }
 .pharmacy-map-link { text-decoration:none; }
 .pet-theme .pharmacy-reminder { background:#f2f9f4; border-color:#d6e9dd; }
 @media(max-width:600px) { .pharmacy-trip-panel { margin:16px 0; padding:20px; } }
+
+.saved-searches { margin: 12px 0 20px; padding: 14px 18px; background: #fff; border: 1px solid #dde5f1; border-radius: 14px; }
+.saved-searches summary { cursor: pointer; font-weight: 650; color: #344b78; }
+.saved-search-row { display:flex; align-items:center; justify-content:space-between; gap:16px; padding:14px 0; border-top:1px solid #e5eaf2; }
+.saved-search-row p { margin:4px 0; font-size:.85rem; overflow-wrap:anywhere; }
+.saved-search-status { margin:10px 0; }
+@media(max-width:640px) { .saved-search-row { align-items:flex-start; flex-direction:column; } }

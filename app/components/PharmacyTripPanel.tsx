@@ -3,9 +3,9 @@ import {useState} from 'react';
 import type {PharmacyTrip} from '../lib/pharmacy-trip';
 import {pharmacyTripCopy} from '../i18n/pharmacy-trip';
 import {careSearchQuery} from '../lib/care-search';
-export default function PharmacyTripPanel({trip, lang, onBack, title, addressLabel, addressPlaceholder, useLocationLabel, openLabel, notice}: {
+export default function PharmacyTripPanel({trip, lang, onBack, title, addressLabel, addressPlaceholder, useLocationLabel, openLabel, notice, onSave, saveLabel}: {
   trip:PharmacyTrip; lang:string; onBack:()=>void; title:string; addressLabel:string;
-  addressPlaceholder:string; useLocationLabel:string; openLabel:string; notice:string;
+  addressPlaceholder:string; useLocationLabel:string; openLabel:string; notice:string;onSave?:()=>void;saveLabel?:string;
 }) {
   const [address,setAddress]=useState(trip.country);
   const [useLocation,setUseLocation]=useState(false);
@@ -24,6 +24,7 @@ export default function PharmacyTripPanel({trip, lang, onBack, title, addressLab
     <div className="pharmacy-reminder"><strong>{copy.reminder}</strong>
       <ul>{trip.medicines.map(name=><li key={name}>{name}</li>)}</ul>
     </div>
+    {onSave && <button type="button" className="clear-search" onClick={onSave}>{saveLabel}</button>}
     <h2>{title}</h2>
     <label>{addressLabel}<input type="text" maxLength={250} placeholder={addressPlaceholder}
       value={address} onChange={event=>setAddress(event.target.value)} /></label>
