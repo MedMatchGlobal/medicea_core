@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import type { LangCode } from './i18n/i18n'; // ← was ./i18n/manifest (fix)
-import { isRTL, loadStrings } from './i18n/i18n';
+import { isRTL, loadStrings, SUPPORTED_LANGS } from './i18n/i18n';
 
 export type SupportedLang = LangCode;
 
@@ -26,7 +26,13 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     try {
       const saved = localStorage.getItem(LS_KEY) as SupportedLang | null;
-      if (saved) setLangState(saved);
+      if (saved && SUPPORTED_LANGS.includes(saved)) setLangState(saved);
+      else {
+        for (const locale of navigator.languages || [navigator.language]) {
+          const language = locale.toLowerCase().split('-')[0] as SupportedLang;
+          if (SUPPORTED_LANGS.includes(language)) {setLangState(language); break;}
+        }
+      }
     } catch {}
     setMounted(true);
   }, []);

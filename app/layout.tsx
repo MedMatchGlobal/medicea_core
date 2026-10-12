@@ -1,5 +1,6 @@
 import Script from "next/script";
 import { Suspense } from "react";
+import { LanguageProvider } from "./LanguageProvider";
 
 // ✅ Import the global CSS from *this* folder
 import "./globals.css";
@@ -47,7 +48,7 @@ export default function RootLayout({
         <Suspense fallback={null}>
           <GATracker />
         </Suspense>
-        {children}
+        <LanguageProvider>{children}</LanguageProvider>
       </body>
     </html>
   );

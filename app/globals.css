@@ -566,6 +566,15 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 .return-results { display:flex; align-items:center; gap:12px; margin-bottom:20px; }
 .clear-search { justify-self:start; grid-column:1/-1; }
 .country-picker { position:relative; }
+.condition-picker { position:relative; }
+.condition-field { display:flex; border:1px solid #99b8f5; border-radius:10px; background:#f2f6ff; }
+.condition-field input { flex:1; min-width:0; border:0; background:transparent; color:#233b5b; }
+.condition-field button { border:0; background:transparent; color:#233b5b; padding:12px; cursor:pointer; }
+.field-hint { font-size:13px; line-height:1.5; color:#557194; margin:8px 0; }
+.condition-options { position:absolute; z-index:30; width:100%; box-sizing:border-box; max-height:300px; overflow:auto; overscroll-behavior:contain; padding:12px; border:1px solid #cbdcf5; border-radius:12px; background:white; box-shadow:0 12px 36px #17355b26; }
+.condition-options h3 { margin:8px 0; font-size:12px; color:#627895; }
+.condition-options button { display:block; width:100%; padding:10px; border:0; border-radius:6px; background:white; color:#233b5b; text-align:start; cursor:pointer; }
+.condition-options button:hover,.condition-options button:focus-visible { background:#eaf2ff; }
 .country-trigger { display:flex; justify-content:space-between; align-items:center; width:100%; min-height:46px; padding:12px 14px; border:1px solid #99b8f5; background:#f2f6ff; border-radius:10px; color:#233b5b; text-align:start; cursor:pointer; }
 .country-options { position:absolute; z-index:30; top:calc(100% + 6px); left:0; right:0; min-width:240px; background:white; box-shadow:0 12px 36px #17355b26; padding:12px; border:1px solid #cbdcf5; border-radius:12px; }
 .country-options input,.country-options select { width:100%; margin-bottom:8px; }
@@ -593,3 +602,74 @@ html { scrollbar-gutter:stable; }
 @media(max-width:600px) { .workspace-panels { min-height:740px; } }
 
 @media (max-width: 640px) { .results-view .medicine-section-title { font-size:19px; } }
+
+/* One persistent navigation on human and pet pages, including narrow screens. */
+.site-header { flex-wrap:wrap; }
+.header-nav { display:flex; gap:8px; flex-wrap:wrap; }
+.header-nav a { min-height:44px; display:flex; align-items:center; justify-content:center; padding:10px 12px; border:1px solid #ccdcf5; border-radius:10px; background:white; }
+.header-nav a[aria-current=page] { background:#eaf2ff; color:#245bc1; border-color:#99b8f5; }
+.header-nav a:hover { background:#edf4ff; }
+@media(max-width:900px) {
+ .header-nav { order:3; flex-basis:100%; display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:6px; padding-bottom:12px; }
+ .header-nav a { font-size:12px; text-align:center; padding:9px 6px; }
+}
+@media(max-width:380px) { .header-nav { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+
+.veterinary-care { margin:22px; padding:26px; border:1px solid #dce7f8; border-radius:20px; background:white; }
+.veterinary-care h2 { margin:0 0 10px; color:#172d50; font-size:24px; }
+.veterinary-care > p { line-height:1.5; color:#557194; }
+.veterinary-care label { display:block; font-weight:600; margin-bottom:8px; }
+.veterinary-care input { display:block; width:100%; padding:13px; border:1px solid #99b8f5; border-radius:10px; background:#f2f6ff; }
+.veterinary-care-link { display:inline-flex; min-height:44px; align-items:center; padding:12px 18px; margin-top:16px; border:1px solid #99b8f5; border-radius:10px; background:#eaf2ff; color:#245bc1; font:inherit; font-weight:600; text-decoration:none; }
+.veterinary-care-link:disabled { opacity:.55; cursor:not-allowed; }
+@media(max-width:600px) { .veterinary-care { margin:16px 0; padding:20px; } }
+.pet-information-card { margin:12px 0; padding:18px; background:white; border:1px solid #dce7f8; border-radius:14px; }
+.pet-information-card h3 { font-size:17px; margin:0 0 12px; color:#172d50; }
+.pet-information-actions { display:flex; flex-wrap:wrap; align-items:center; gap:10px; }
+.pet-information-actions button,.pet-information-actions a { min-height:44px; display:inline-flex; align-items:center; padding:10px 14px; border:1px solid #ccdcf5; border-radius:10px; background:#edf4ff; color:#245bc1; text-decoration:none; font:inherit; font-weight:600; cursor:pointer; }
+.pet-information-actions button:disabled { opacity:.6; cursor:wait; }
+.pet-information-text { padding:14px; margin-top:12px; border-radius:10px; background:#f6f9ff; white-space:pre-wrap; overflow-wrap:anywhere; line-height:1.6; }
+/* Shared result controls; pets use the same geometry with a soft green accent. */
+.leaflet-actions { display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin:8px 0; }
+.official-leaflet-link { display:inline-flex; align-items:center; min-height:44px; padding:10px 14px; border:1px solid #ccdcf5; border-radius:10px; background:#edf4ff; color:#245bc1; text-decoration:none; font-size:13px; font-weight:600; }
+.medicine-result-header { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:8px; }
+.medicine-result-card h3 { font-size:16px; margin:0; font-weight:700; }
+.pet-information-card { padding:12px 14px; margin:8px 0; border-radius:12px; }
+.pet-information-actions { margin:0; }
+.pet-information-actions button.pill { background:#4b78e6; color:white; border:0; border-radius:11px; }
+.medicine-origin-card { border:0; padding:0; background:transparent; }
+.medicine-origin-card .medicine-result-header { justify-content:flex-start; margin-bottom:10px; }
+.pet-theme .medicine-result-card,.pet-theme .results-heading { border-color:#d6e9dd; }
+.pet-theme .pill--blue,.pet-theme .pet-information-actions button.pill { background:#36785a; color:white; }
+.pet-theme .official-leaflet-link,.pet-theme .workspace-nav button[aria-pressed=true],.pet-theme .header-nav a[aria-current=page] { background:#eaf5ee; color:#285f46; border-color:#bcdac8; }
+.pet-theme .medicine-leaflet-content > div { background:#f2f9f4 !important; border-color:#d6e9dd !important; }
+.pet-theme .condition-field,.pet-theme .country-trigger,.pet-theme .medicine-form input,.pet-theme .veterinary-care input { background:#f2f9f4; border-color:#bcdac8; }
+@media(max-width:600px) {
+ .medicine-result-header { align-items:flex-start; }
+ .medicine-result-card .leaflet-actions { width:100%; }
+ .medicine-result-card .leaflet-actions > * { flex:1; justify-content:center; text-align:center; }
+}
+.equivalent-section-heading { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom:8px; }
+.structured-veterinary-leaflet { padding:14px 16px; background:#f2f9f4; border:1px solid #d6e9dd; border-radius:12px; }
+.structured-veterinary-leaflet section { margin-bottom:10px; }
+.structured-veterinary-leaflet ul { margin:6px 0 6px 16px; padding:0; }
+.structured-veterinary-leaflet li { margin:4px 0; line-height:1.5; }
+.pharmacy-trip-active .workspace-panels,.pharmacy-trip-active .workspace-nav { display:none; }
+.pharmacy-trip-panel { margin:22px; padding:26px; background:white; border:1px solid #dce7f8; border-radius:20px; }
+.pharmacy-trip-panel h2 { margin:22px 0 16px; }
+.pharmacy-trip-panel > label { display:block; font-weight:600; margin:16px 0; }
+.pharmacy-trip-panel input[type=text] { display:block; width:100%; padding:13px; margin-top:8px; border:1px solid #99b8f5; border-radius:10px; background:#f2f6ff; font:inherit; }
+.pharmacy-trip-panel .pharmacy-location-choice { display:flex; align-items:center; gap:8px; font-weight:400; }
+.pharmacy-reminder { margin:18px 0; padding:16px; background:#f2f6ff; border:1px solid #dce7f8; border-radius:12px; }
+.pharmacy-reminder ul { display:flex; flex-wrap:wrap; gap:8px; padding:0; margin:12px 0 0; list-style:none; }
+.pharmacy-reminder li { padding:6px 10px; border:1px solid #ccdcf5; border-radius:8px; background:white; font-size:14px; }
+.pharmacy-map-link { text-decoration:none; }
+.pet-theme .pharmacy-reminder { background:#f2f9f4; border-color:#d6e9dd; }
+@media(max-width:600px) { .pharmacy-trip-panel { margin:16px 0; padding:20px; } }
+
+.saved-searches { margin: 12px 0 20px; padding: 14px 18px; background: #fff; border: 1px solid #dde5f1; border-radius: 14px; }
+.saved-searches summary { cursor: pointer; font-weight: 650; color: #344b78; }
+.saved-search-row { display:flex; align-items:center; justify-content:space-between; gap:16px; padding:14px 0; border-top:1px solid #e5eaf2; }
+.saved-search-row p { margin:4px 0; font-size:.85rem; overflow-wrap:anywhere; }
+.saved-search-status { margin:10px 0; }
+@media(max-width:640px) { .saved-search-row { align-items:flex-start; flex-direction:column; } }

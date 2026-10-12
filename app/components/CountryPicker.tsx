@@ -4,6 +4,12 @@ import { useEffect, useId, useRef, useState, type CSSProperties } from 'react';
 import countriesByRegion from '../../data/countries';
 
 const allCountries = Object.values(countriesByRegion).flat();
+function matchesCountry(country: string, query: string) {
+  const names = country === 'United Kingdom'
+    ? `${country} UK Great Britain Britain England Scotland Wales Northern Ireland`
+    : country;
+  return names.toLocaleLowerCase().includes(query.trim().toLocaleLowerCase());
+}
 
 export default function CountryPicker({ label, value, onChange, searchLabel, regionLabel, emptyLabel, rememberHome = false }: {
   label: string; value: string; onChange: (value: string) => void;
@@ -64,7 +70,7 @@ export default function CountryPicker({ label, value, onChange, searchLabel, reg
     };
   }, [open]);
   const pinned = (value || preferred);
-  const showPinned = rememberHome && allCountries.includes(pinned) && !region && pinned.toLocaleLowerCase().includes(query.trim().toLocaleLowerCase());
+  const showPinned = rememberHome && allCountries.includes(pinned) && !region && matchesCountry(pinned, query);
   function choose(country: string) {
     onChange(country);
     if (rememberHome) {
@@ -75,7 +81,7 @@ export default function CountryPicker({ label, value, onChange, searchLabel, reg
     trigger.current?.focus();
   }
   const groups = Object.entries(countriesByRegion).map(([name, countries]) => [name,
-    countries.filter(country => (!region || name === region) && country.toLocaleLowerCase().includes(query.trim().toLocaleLowerCase()))
+    countries.filter(country => (!region || name === region) && matchesCountry(country, query))
   ] as const).filter(([, countries]) => countries.length > 0);
   return <div ref={root} className="country-picker" onKeyDown={event => { if (event.key === 'Escape') { setOpen(false); trigger.current?.focus(); } }}>
     <button ref={trigger} type="button" className="country-trigger" aria-label={label} aria-expanded={open} aria-controls={id}

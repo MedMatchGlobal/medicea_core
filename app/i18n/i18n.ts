@@ -11,6 +11,8 @@ export type LangCode =
   | 'he' | 'hi' | 'hu' | 'it' | 'ja' | 'ko' | 'nl' | 'no' | 'pl' | 'pt'
   | 'ro' | 'ru' | 'sv' | 'tr' | 'zh';
 
+export const SUPPORTED_LANGS: LangCode[] = ['en','af','ar','cs','da','de','el','es','fi','fr','he','hi','hu','it','ja','ko','nl','no','pl','pt','ro','ru','sv','tr','zh'];
+
 export function isRTL(lang: string): boolean {
   return ['ar', 'he', 'fa', 'ur'].includes((lang || '').toLowerCase());
 }
