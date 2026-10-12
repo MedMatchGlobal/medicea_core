@@ -46,3 +46,18 @@ test('missing-condition suggestions and care guidance cover all supported langua
     if (lang !== 'en') assert.notEqual(hint, conditionAdditions('en').hint);
   }
 });
+
+test('combined veterinary discovery keeps the location encoded in one Maps search', () => {
+  const {veterinaryCareUrl} = load('app/lib/veterinary-care.ts');
+  const url = new URL(veterinaryCareUrl('  São Paulo & Centro  '));
+  assert.equal(url.origin, 'https://www.google.com');
+  assert.equal(url.searchParams.get('api'), '1');
+  assert.equal(url.searchParams.get('query'), 'veterinarians veterinary clinics near São Paulo & Centro');
+  assert.equal([...url.searchParams.keys()].length, 2);
+  const {veterinaryCareCopy} = load('app/i18n/veterinary-care.ts');
+  for (const lang of ['en','af','ar','cs','da','de','el','es','fi','fr','he','hi','hu','it','ja','ko','nl','no','pl','pt','ro','ru','sv','tr','zh']) {
+    assert.ok(veterinaryCareCopy(lang).title.trim());
+    assert.ok(veterinaryCareCopy(lang).description.trim());
+    if (lang !== 'en') assert.notEqual(veterinaryCareCopy(lang).title, veterinaryCareCopy('en').title);
+  }
+});

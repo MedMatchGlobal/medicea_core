@@ -23,6 +23,7 @@ import { useLanguage } from './LanguageProvider';
 import LanguageButton from './components/LanguageButton';
 import CountryPicker from './components/CountryPicker';
 import ConditionPicker from './components/ConditionPicker';
+import VeterinaryCare from './components/VeterinaryCare';
 import { conditionAdditions } from '../data/condition-additions';
 import { searchFeedback } from './i18n/search-feedback';
 import { careSearchQuery } from './lib/care-search';
@@ -1124,6 +1125,11 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
         </div>
       </aside>}
       </div>
+      {petMode && screen === 'search' && <VeterinaryCare lang={lang}
+        locationLabel={F(ui, 'addressPH', 'Street, City, Country…')}
+        placeholder={F(ui, 'addressPH', 'Street, City, Country…')}
+        openLabel={F(ui, 'openMaps', 'Open in Google Maps')}
+        notice={searchFeedback(lang).careNotice} />}
       {!petMode && <section className="care-section" id="find-care">
         <h2>{F(ui, 'careNearby', 'Find care nearby')}</h2>
         <p>{F(ui, 'careIntro', 'Locate healthcare services at your destination.')}</p>
