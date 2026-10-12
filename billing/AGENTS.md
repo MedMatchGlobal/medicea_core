@@ -1,0 +1,2 @@
+# Billing preparation
+Keep all membership changes isolated and disabled in Production. Never use the vault database for billing migrations. Preserve refined medicine prompts, model settings and provider routing. Never mark this branch launch-ready until full route enforcement, Google Play Billing, sandbox lifecycle tests, fair-use/consumer terms and explicit launch approval are complete. Use test-mode payment credentials only; never commit credentials.
