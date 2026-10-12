@@ -1,7 +1,8 @@
+export const maxDuration = 60;
+import { openaiFetch } from "@/app/lib/openaiClient";
 // app/api/translate/route.ts
 import { NextRequest, NextResponse } from "next/server";
 
-const OPENAI_API_KEY = process.env.OPENAI_API_KEY!;
 const MODEL = process.env.OPENAI_MODEL || "gpt-4o-mini";
 
 /**
@@ -26,11 +27,11 @@ export async function POST(req: NextRequest) {
 
     const prompt = `Translate the following text into ${target}. Keep any HTML/Markdown exactly as-is.\n\n${text}`;
 
-    const resp = await fetch("https://api.openai.com/v1/chat/completions", {
+    const resp = await openaiFetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${OPENAI_API_KEY}`,
+
       },
       body: JSON.stringify({
         model: MODEL,

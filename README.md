@@ -40,3 +40,13 @@ The easiest way to deploy your Next.js app is to use the [Vercel Platform](https
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/pages/building-your-application/deploying) for more details.
 
 Deployed with new pill-button layout — 15.11.2025.
+
+## Separate private vault
+
+The account, authenticator, recovery and fictional-data document/medicine vault now live in the private [medicea-vault repository](https://github.com/MedMatchGlobal/medicea-vault). This core app contains public medicine discovery only; its former /account and /vault routes are removed rather than redirected to a temporary preview host.
+
+Existing Supabase users, MFA factors, records, storage buckets and policies are unchanged. Vault dependencies and security tests are maintained in the standalone project. Remove the private-vault Supabase and beta/recovery environment variables from the core Vercel project after deploying this cutover; retain them in the protected standalone Preview environment.
+
+On 12 October 2026, Sergio verified the standalone protected preview: existing account/MFA and records, exact-limit fictional upload, persistence after refresh, download/open, deletion with an unavailable old URL, and denial of an existing secondary-account document from the primary account. These are user-performed acceptance checks. They do not constitute public-vault or real-health-data release approval.
+
+Verify medicine behavior with `node --test tests/*.cjs` and `npm run build`. Refined prompts and their preservation baseline remain unchanged.

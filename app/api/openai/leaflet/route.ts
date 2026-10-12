@@ -1,3 +1,5 @@
+export const maxDuration = 60;
+import { openaiFetch } from "@/app/lib/openaiClient";
 import { NextResponse } from "next/server";
 
 const OPENAI_URL = "https://api.openai.com/v1/chat/completions";
@@ -22,11 +24,11 @@ Fetch the official medicine leaflet for ${drugName} sold in ${originCountry}.
     // ------------------------------------------------------------------
 
     // First pass: generate leaflet as you did before
-    const response = await fetch(OPENAI_URL, {
+    const response = await openaiFetch(OPENAI_URL, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+
       },
       body: JSON.stringify({
         model: "gpt-4o",
@@ -72,11 +74,11 @@ Source leaflet_text:
 ${leafletText}
 `.trim();
 
-      const translateResp = await fetch(OPENAI_URL, {
+      const translateResp = await openaiFetch(OPENAI_URL, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+
         },
         body: JSON.stringify({
           model: "gpt-4o",

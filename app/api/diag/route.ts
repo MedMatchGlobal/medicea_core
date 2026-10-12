@@ -1,12 +1,11 @@
 import { NextResponse } from "next/server";
-export const dynamic = "force-dynamic"; // don't cache on Vercel
+import { getOpenAIKeyCount } from "@/app/lib/openaiClient";
+export const dynamic = "force-dynamic";
 
 export async function GET() {
-  const key = process.env.OPENAI_API_KEY;
+  const keyCount = getOpenAIKeyCount();
   return NextResponse.json({
-    hasKey: Boolean(key),
-    keyLen: key?.length ?? 0,
-    nodeEnv: process.env.NODE_ENV,
-    runtime: "node", // should be node on Vercel functions
+    hasKey: keyCount > 0, keyCount,
+    nodeEnv: process.env.NODE_ENV, runtime: "node",
   });
 }

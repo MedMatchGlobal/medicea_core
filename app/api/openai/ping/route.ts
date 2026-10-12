@@ -1,19 +1,17 @@
+export const maxDuration = 60;
+import { openaiFetch } from "@/app/lib/openaiClient";
 import { NextResponse } from "next/server";
 export const dynamic = "force-dynamic";
 
 export async function GET() {
   try {
-    const key = process.env.OPENAI_API_KEY;
-    if (!key) {
-      return NextResponse.json({ ok: false, reason: "no OPENAI_API_KEY" }, { status: 500 });
-    }
 
     // Force the official endpoint (bypasses any Vercel AI Gateway)
-    const resp = await fetch("https://api.openai.com/v1/chat/completions", {
+    const resp = await openaiFetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${key}`,
+
       },
       body: JSON.stringify({
         model: "gpt-4o-mini",

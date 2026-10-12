@@ -1,5 +1,6 @@
 import Script from "next/script";
 import { Suspense } from "react";
+import { LanguageProvider } from "./LanguageProvider";
 
 // ✅ Import the global CSS from *this* folder
 import "./globals.css";
@@ -10,6 +11,8 @@ export const metadata = {
   title: "medicéa",
   description: "Global drug matching for safe travel and relocation.",
 };
+
+export const viewport = { width: 'device-width', initialScale: 1, viewportFit: 'cover' };
 
 const GA_ID = "G-0T2C9SV02B";
 
@@ -41,11 +44,11 @@ export default function RootLayout({
           `}
         </Script>
       </head>
-      <body style={{ overflow: "scroll" }}>
+      <body>
         <Suspense fallback={null}>
           <GATracker />
         </Suspense>
-        {children}
+        <LanguageProvider>{children}</LanguageProvider>
       </body>
     </html>
   );

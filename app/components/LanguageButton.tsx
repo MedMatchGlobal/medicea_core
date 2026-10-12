@@ -70,6 +70,9 @@ export default function LanguageButton() {
           aria-label="Language options"
           style={{
             position: 'absolute',
+            right: 0,
+            maxHeight: '65vh',
+            overflowY: 'auto',
             zIndex: 50,
             marginTop: 8,
             padding: 6,
