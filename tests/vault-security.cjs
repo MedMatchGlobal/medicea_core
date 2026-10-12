@@ -48,7 +48,7 @@ test('vault access fails closed unless configured, signed in and AAL2',async()=>
   async function run({enabled=true,configured=true,user={id:'user-a'},userError=null,aal='aal2',aalError=null}) {
     let calls=0;
     const client={auth:{getUser:async()=>({data:{user},error:userError}),mfa:{getAuthenticatorAssuranceLevel:async()=>({data:{currentLevel:aal},error:aalError})}}};
-    const access=load('lib/vault-access.ts',{'./supabase/server':{authConfigured:()=>configured,accountClient:async()=>{calls++;return client;}}},{MEDICEA_VAULT_BETA_ENABLED:enabled?'true':'false'});
+    const access=load('lib/vault-access.ts',{'./supabase/server':{authConfigured:()=>configured,accountClient:async()=>{calls++;return client;}}},{MEDICEA_VAULT_BETA_ENABLED:enabled?'true':'false',VERCEL_ENV:'preview',NODE_ENV:'production'});
     return {result:await access.vaultAccess(),calls};
   }
   assert.equal((await run({enabled:false})).calls,0);
@@ -59,4 +59,24 @@ test('vault access fails closed unless configured, signed in and AAL2',async()=>
   assert.equal((await run({aalError:{message:'provider failed'}})).result.reason,'mfa');
   assert.equal((await run({aal:null})).result.ok,false);
   assert.equal((await run({})).result.ok,true);
+});
+
+test('production cannot enable the private vault even when the preview flag is copied',async()=>{
+ for(const env of [
+  {VERCEL_ENV:'production',NODE_ENV:'production'},
+  {VERCEL_ENV:'production',NODE_ENV:'development'},
+  {NODE_ENV:'production'},
+  {},
+  {VERCEL_ENV:'staging',NODE_ENV:'production'},
+ ]) {
+  let calls=0;
+  const access=load('lib/vault-access.ts',{'./supabase/server':{authConfigured:()=>{calls++;return true;},accountClient:async()=>{calls++;throw Error('must not run');}}},{...env,MEDICEA_VAULT_BETA_ENABLED:'true'});
+  assert.equal(access.vaultEnabled(),false);
+  assert.equal((await access.vaultAccess()).reason,'disabled');
+  assert.equal(calls,0);
+ }
+ for(const env of [{VERCEL_ENV:'preview',NODE_ENV:'production'},{NODE_ENV:'development'}]) {
+  const access=load('lib/vault-access.ts',{'./supabase/server':{}},{...env,MEDICEA_VAULT_BETA_ENABLED:'true'});
+  assert.equal(access.vaultEnabled(),true);
+ }
 });
