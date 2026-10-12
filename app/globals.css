@@ -629,3 +629,23 @@ html { scrollbar-gutter:stable; }
 .pet-information-actions button,.pet-information-actions a { min-height:44px; display:inline-flex; align-items:center; padding:10px 14px; border:1px solid #ccdcf5; border-radius:10px; background:#edf4ff; color:#245bc1; text-decoration:none; font:inherit; font-weight:600; cursor:pointer; }
 .pet-information-actions button:disabled { opacity:.6; cursor:wait; }
 .pet-information-text { padding:14px; margin-top:12px; border-radius:10px; background:#f6f9ff; white-space:pre-wrap; overflow-wrap:anywhere; line-height:1.6; }
+/* Shared result controls; pets use the same geometry with a soft green accent. */
+.leaflet-actions { display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin:8px 0; }
+.official-leaflet-link { display:inline-flex; align-items:center; min-height:44px; padding:10px 14px; border:1px solid #ccdcf5; border-radius:10px; background:#edf4ff; color:#245bc1; text-decoration:none; font-size:13px; font-weight:600; }
+.medicine-result-header { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:8px; }
+.medicine-result-card h3 { font-size:16px; margin:0; font-weight:700; }
+.pet-information-card { padding:12px 14px; margin:8px 0; border-radius:12px; }
+.pet-information-actions { margin:0; }
+.pet-information-actions button.pill { background:#4b78e6; color:white; border:0; border-radius:11px; }
+.medicine-origin-card { border:0; padding:0; background:transparent; }
+.medicine-origin-card .medicine-result-header { justify-content:flex-start; margin-bottom:10px; }
+.pet-theme .medicine-result-card,.pet-theme .results-heading { border-color:#d6e9dd; }
+.pet-theme .pill--blue,.pet-theme .pet-information-actions button.pill { background:#36785a; color:white; }
+.pet-theme .official-leaflet-link,.pet-theme .workspace-nav button[aria-pressed=true],.pet-theme .header-nav a[aria-current=page] { background:#eaf5ee; color:#285f46; border-color:#bcdac8; }
+.pet-theme .medicine-leaflet-content > div { background:#f2f9f4 !important; border-color:#d6e9dd !important; }
+.pet-theme .condition-field,.pet-theme .country-trigger,.pet-theme .medicine-form input,.pet-theme .veterinary-care input { background:#f2f9f4; border-color:#bcdac8; }
+@media(max-width:600px) {
+ .medicine-result-header { align-items:flex-start; }
+ .medicine-result-card .leaflet-actions { width:100%; }
+ .medicine-result-card .leaflet-actions > * { flex:1; justify-content:center; text-align:center; }
+}

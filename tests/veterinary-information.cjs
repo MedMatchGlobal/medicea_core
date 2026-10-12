@@ -29,7 +29,7 @@ test('origin veterinary composition and medicine-information controls render wit
   }));
   assert.match(html,/ExampleIngredient/);
   assert.match(html,/25 mg/);
-  assert.match(html,/View medicine information/);
+  assert.match(html,/View medicéa leaflet/);
   assert.match(html,/Find official leaflet/);
   assert.match(html,/FictionalVetDrug &lt;img&gt;/);
   assert.doesNotMatch(html,/<img>/);
@@ -66,4 +66,17 @@ test('veterinary summary fails cleanly on empty provider content', async () => {
   });
   const response=await api.POST({json:async()=>({drugName:'FictionalVetDrug',originCountry:'Italy'})});
   assert.equal(response.status,502);
+});
+
+test('shared medicéa leaflet labels cover every language and human official searches use human terms', () => {
+  const {leafletActions} = load(path.join(root,'app/i18n/leaflet-actions.ts'));
+  for (const lang of ['en','af','ar','cs','da','de','el','es','fi','fr','he','hi','hu','it','ja','ko','nl','no','pl','pt','ro','ru','sv','tr','zh']) {
+    assert.match(leafletActions(lang).view,/medicéa/);
+    assert.match(leafletActions(lang).hide,/medicéa/);
+    assert.ok(leafletActions(lang).official.trim());
+  }
+  const helpers=load(path.join(root,'app/lib/veterinary-details.ts'));
+  const human=new URL(helpers.officialMedicineLeafletSearch('Example Human Drug','Italy')).searchParams.get('q');
+  assert.match(human,/Example Human Drug Italy official package leaflet/);
+  assert.doesNotMatch(human,/veterinary/);
 });

@@ -6,6 +6,9 @@ export function veterinaryIngredients(profile: unknown): VeterinaryIngredient[] 
   return items.filter(item => item && typeof item.name === 'string' && item.name.trim())
     .map(item => ({name:item.name.trim(), strength:typeof item.strength === 'string' ? item.strength.trim() : ''}));
 }
+export function officialMedicineLeafletSearch(medicineName: string, country: string, veterinary = false) {
+  return `https://www.google.com/search?q=${encodeURIComponent(`${medicineName} ${country} official ${veterinary ? 'veterinary ' : ''}package leaflet manufacturer regulator`)}`;
+}
 export function officialVeterinaryLeafletSearch(medicineName: string, country: string) {
-  return `https://www.google.com/search?q=${encodeURIComponent(`${medicineName} ${country} official veterinary package leaflet manufacturer regulator`)}`;
+  return officialMedicineLeafletSearch(medicineName, country, true);
 }
