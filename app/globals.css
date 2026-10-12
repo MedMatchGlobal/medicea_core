@@ -649,3 +649,8 @@ html { scrollbar-gutter:stable; }
  .medicine-result-card .leaflet-actions { width:100%; }
  .medicine-result-card .leaflet-actions > * { flex:1; justify-content:center; text-align:center; }
 }
+.equivalent-section-heading { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom:8px; }
+.structured-veterinary-leaflet { padding:14px 16px; background:#f2f9f4; border:1px solid #d6e9dd; border-radius:12px; }
+.structured-veterinary-leaflet section { margin-bottom:10px; }
+.structured-veterinary-leaflet ul { margin:6px 0 6px 16px; padding:0; }
+.structured-veterinary-leaflet li { margin:4px 0; line-height:1.5; }

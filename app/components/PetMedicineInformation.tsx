@@ -1,17 +1,19 @@
 'use client';
-import {useEffect, useId, useRef, useState, type ReactNode} from 'react';
+import {useEffect, useId, useRef, useState} from 'react';
+import VeterinaryLeafletSections from './VeterinaryLeafletSections';
+import type {VeterinarySection} from '../lib/veterinary-sections';
 import {leafletActions} from '../i18n/leaflet-actions';
 import {veterinaryInformationCopy} from '../i18n/veterinary-information';
 import {officialVeterinaryLeafletSearch, type VeterinaryIngredient} from '../lib/veterinary-details';
 
-export default function PetMedicineInformation({medicineName, country, lang, ingredients, ingredientLabel, loadingLabel, errorLabel, renderInformation, initiallyExpanded = false}: {
+export default function PetMedicineInformation({medicineName, country, lang, ingredients, ingredientLabel, loadingLabel, errorLabel, headings = {}, initiallyExpanded = false}: {
   medicineName:string; country:string; lang:string; ingredients?:VeterinaryIngredient[];
   ingredientLabel:string; loadingLabel:string; errorLabel:string;
-  renderInformation?: (text: string) => ReactNode; initiallyExpanded?:boolean;
+  headings?:Record<string,string>; initiallyExpanded?:boolean;
 }) {
   const copy = {...veterinaryInformationCopy(lang), ...leafletActions(lang)};
   const id = useId();
-  const [information, setInformation] = useState('');
+  const [information, setInformation] = useState<VeterinarySection[] | null>(null);
   const [open, setOpen] = useState(initiallyExpanded);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
@@ -31,8 +33,8 @@ export default function PetMedicineInformation({medicineName, country, lang, ing
       });
       if (!response.ok) throw new Error('unavailable');
       const payload = await response.json();
-      if (typeof payload.information_text !== 'string' || !payload.information_text.trim()) throw new Error('empty');
-      if (!request.signal.aborted) setInformation(payload.information_text);
+      if (!Array.isArray(payload.sections) || !payload.sections.length) throw new Error('empty');
+      if (!request.signal.aborted) setInformation(payload.sections);
     } catch {if (!request.signal.aborted) setError(true);}
     finally {if (!request.signal.aborted) setLoading(false);}
   }
@@ -51,7 +53,7 @@ export default function PetMedicineInformation({medicineName, country, lang, ing
     </div>}
     {open && <div id={id}>
       <p className="search-note">{copy.notice}</p>
-      {error ? <p role="alert">{errorLabel}</p> : loading ? <p role="status">{loadingLabel}</p> : <div className="medicine-leaflet-content">{renderInformation ? renderInformation(information) : <div className="pet-information-text">{information}</div>}</div>}
+      {error ? <p role="alert">{errorLabel}</p> : loading ? <p role="status">{loadingLabel}</p> : <div className="medicine-leaflet-content">{information && <VeterinaryLeafletSections sections={information} lang={lang} headings={headings} />}</div>}
     </div>}
   </article>;
 }

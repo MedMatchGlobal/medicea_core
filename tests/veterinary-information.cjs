@@ -12,7 +12,8 @@ function load(file, overrides = {}) {
   const module = {exports:{}};
   vm.runInNewContext(output, {module,exports:module.exports,require(name){
     if (overrides[name]) return overrides[name];
-    if (name.startsWith('.')) return load(path.resolve(path.dirname(file),name+'.ts'),overrides);
+    if (name.startsWith('.')) {const target=path.resolve(path.dirname(file),name); return load(fs.existsSync(target+'.ts') ? target+'.ts' : target+'.tsx',overrides);}
+    if (name.startsWith('@/app/')) return load(path.join(__dirname,'..',name.slice(2)+'.ts'),overrides);
     return require(name);
   }});
   return module.exports;
@@ -41,13 +42,14 @@ test('veterinary summary uses the requested product, country and language withou
     'next/server':{NextResponse:{json:Response.json}},
     '@/app/lib/openaiClient':{openaiFetch:async (url,options) => {
       calls.push(JSON.parse(options.body));
-      return Response.json({choices:[{message:{content:JSON.stringify({information_text:'Fictional veterinary summary'})}}]});
+      return Response.json({choices:[{message:{content:JSON.stringify({information_sections:{'Active Ingredients':['Fictional veterinary summary']}})}}]});
     }},
   });
   const response=await api.POST({json:async()=>({drugName:'FictionalVetDrug',originCountry:'Italy',lang:'it'})});
   const payload=await response.json();
   assert.equal(payload.kind,'ai_veterinary_summary');
-  assert.equal(payload.information_text,'Fictional veterinary summary');
+  assert.equal(payload.sections[0].bullets[0],'Fictional veterinary summary');
+  assert.deepEqual(payload.sections.find(section => section.key === 'Average Selling Price').bullets, []);
   assert.equal(calls[0].model,'gpt-4o');
   assert.equal(calls[0].temperature,0.2);
   assert.match(calls[0].messages[0].content,/not an official package leaflet/);
@@ -79,4 +81,15 @@ test('shared medicéa leaflet labels cover every language and human official sea
   const human=new URL(helpers.officialMedicineLeafletSearch('Example Human Drug','Italy')).searchParams.get('q');
   assert.match(human,/Example Human Drug Italy official package leaflet/);
   assert.doesNotMatch(human,/veterinary/);
+});
+
+test('fixed veterinary topics preserve bullet text and show missing price without guessing', () => {
+  const {veterinarySections,VETERINARY_TOPICS}=load(path.join(root,'app/lib/veterinary-sections.ts'));
+  const sections=veterinarySections({'Contraindications':['Contraindications include conditions mentioned in the indications.'],'Active Ingredients':['ExampleIngredient'], 'Average Selling Price':null});
+  assert.deepEqual(Array.from(sections, section => section.key),Array.from(VETERINARY_TOPICS));
+  const Renderer=load(path.join(root,'app/components/VeterinaryLeafletSections.tsx')).default;
+  const html=renderToStaticMarkup(React.createElement(Renderer,{sections,lang:'en',headings:{}}));
+  assert.match(html,/<li>Contraindications include conditions mentioned in the indications\.<\/li>/);
+  assert.match(html,/<strong>Average Selling Price:<\/strong><ul><li>Not specified<\/li>/);
+  assert.doesNotMatch(html,/£|€|\$/);
 });

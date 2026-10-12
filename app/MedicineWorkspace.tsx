@@ -579,7 +579,11 @@ function Home({ petMode = false }: { petMode?: boolean }) {
   useLayoutEffect(() => {
     resetFieldsForMode(petMode ? 'pets' : 'international');
     if (petMode) {setActiveSection('search'); return;}
-    const section = new URLSearchParams(window.location.search).get('section');
+    const navigation = new URLSearchParams(window.location.search);
+    if (navigation.get('service') === 'pharmacy') {
+      resetFieldsForMode('pharmacy'); setActiveSection('care'); setUserAddress(navigation.get('location') || ''); return;
+    }
+    const section = navigation.get('section');
     if (section === 'tools' || section === 'care') {
       setScreen(section); setActiveSection(section);
     }
@@ -1196,7 +1200,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
           {(mode === 'pets' || mode === 'pet-generic') && !loading && !searchFailed && <div className="leaflet-block">
             <h2 className="medicine-section-title">{F(ui, 'medicineDetails', 'Medicine details')} — {selectedDrug}</h2>
             <PetMedicineInformation key={selectedDrug + originCode + lang} medicineName={selectedDrug} country={originCode} lang={lang}
-              initiallyExpanded renderInformation={text => renderLeafletPretty(extractLeafletText(text), t)}
+              initiallyExpanded headings={(t as any).leafletHeadings || {}}
               ingredients={petOriginIngredients} ingredientLabel={(t as any).leafletHeadings?.['Active Ingredients'] || 'Active ingredients'}
               loadingLabel={F(ui, 'searching', 'Searching…')} errorLabel={F(ui, 'medicineServiceError', 'Medicine information is temporarily unavailable. Please try again shortly.')} />
           </div>}
@@ -1278,7 +1282,11 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
 
                 return (
                   <>
-                    <h2 className="medicine-section-title">{header}</h2>
+                    <div className="equivalent-section-heading">
+                      <h2 className="medicine-section-title">{header}</h2>
+                      <Link className="official-leaflet-link" href={`/?section=care&service=pharmacy&location=${encodeURIComponent(countryCode)}`}
+                        onClick={petMode ? undefined : event => {if (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return; event.preventDefault(); resetFieldsForMode('pharmacy'); setActiveSection('care'); setUserAddress(countryCode);}}>{F(ui, 'btnPharmacy', 'Search pharmacy')}</Link>
+                    </div>
                     <div style={{ fontSize: '0.85rem', marginTop: 4 }}>
                       {F(ui, introKey, introDefault, {
                         drugName: baseName,
@@ -1297,7 +1305,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
               {matches.map((m: any, idx: number) => {
                 const medname = m?.medicine_name ?? m?.Medicine_name ?? `Medicine ${idx + 1}`;
                 if (mode === 'pets' || mode === 'pet-generic') return <PetMedicineInformation key={medname + lang}
-                  renderInformation={text => renderLeafletPretty(extractLeafletText(text), t)}
+                  headings={(t as any).leafletHeadings || {}}
                   medicineName={medname} country={mode === 'pets' ? targetCode || originCode : originCode} lang={lang}
                   ingredientLabel={(t as any).leafletHeadings?.['Active Ingredients'] || 'Active ingredients'}
                   loadingLabel={F(ui, 'searching', 'Searching…')} errorLabel={F(ui, 'medicineServiceError', 'Medicine information is temporarily unavailable. Please try again shortly.')} />;
