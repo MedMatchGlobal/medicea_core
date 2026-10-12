@@ -24,6 +24,8 @@ import LanguageButton from './components/LanguageButton';
 import CountryPicker from './components/CountryPicker';
 import ConditionPicker from './components/ConditionPicker';
 import VeterinaryCare from './components/VeterinaryCare';
+import PharmacyTripPanel from './components/PharmacyTripPanel';
+import {pharmacyReminder, pharmacyHistoryEntry, isPharmacyTripEntry, type PharmacyTrip} from './lib/pharmacy-trip';
 import PetMedicineInformation from './components/PetMedicineInformation';
 import {veterinaryIngredients, type VeterinaryIngredient} from './lib/veterinary-details';
 import {officialMedicineLeafletSearch} from './lib/veterinary-details';
@@ -575,8 +577,13 @@ function Home({ petMode = false }: { petMode?: boolean }) {
   const [searched, setSearched] = useState(false);
   const searchVersion = useRef(0);
   const [searchFailed, setSearchFailed] = useState(false);
+  const [pharmacyTrip, setPharmacyTrip] = useState<PharmacyTrip | null>(null);
+  const [pharmacyOpen, setPharmacyOpen] = useState(false);
+  const pharmacyTripRef = useRef<PharmacyTrip | null>(null);
+  const pharmacyOpenRef = useRef(false);
 
   useLayoutEffect(() => {
+    if (isPharmacyTripEntry(window.history.state, pharmacyTripRef.current)) return;
     resetFieldsForMode(petMode ? 'pets' : 'international');
     if (petMode) {setActiveSection('search'); return;}
     const navigation = new URLSearchParams(window.location.search);
@@ -588,6 +595,48 @@ function Home({ petMode = false }: { petMode?: boolean }) {
       setScreen(section); setActiveSection(section);
     }
   }, [petMode]);
+
+  function restoreMedicineResults() {
+    pharmacyOpenRef.current = false; setPharmacyOpen(false);
+    const scrollY = pharmacyTripRef.current?.scrollY ?? 0;
+    requestAnimationFrame(() => requestAnimationFrame(() => window.scrollTo({top:scrollY,behavior:'instant'})));
+  }
+  function backFromPharmacy() {
+    if (isPharmacyTripEntry(window.history.state, pharmacyTripRef.current)) window.history.back();
+    else restoreMedicineResults();
+  }
+  function abandonPharmacyTrip() {
+    const trip = pharmacyTripRef.current;
+    if (trip && isPharmacyTripEntry(window.history.state, trip)) {
+      const {mediceaPharmacyTrip, ...state} = window.history.state;
+      window.history.replaceState(state, '', trip.returnUrl);
+    }
+    pharmacyTripRef.current = null; pharmacyOpenRef.current = false;
+    setPharmacyTrip(null); setPharmacyOpen(false);
+  }
+  function openPharmacyTrip(country: string) {
+    const trip: PharmacyTrip = {id:crypto.randomUUID(), country,
+      medicines:pharmacyReminder(selectedDrug,matches),
+      returnUrl:window.location.pathname + window.location.search + window.location.hash,
+      scrollY:window.scrollY};
+    pharmacyTripRef.current = trip; pharmacyOpenRef.current = true;
+    setPharmacyTrip(trip); setPharmacyOpen(true);
+    const destination = new URL(window.location.href);
+    destination.searchParams.set('service','pharmacy'); destination.searchParams.set('location',country);
+    destination.hash = '';
+    window.history.pushState(pharmacyHistoryEntry(window.history.state,trip.id), '', destination);
+    requestAnimationFrame(() => window.scrollTo({top:0,behavior:'instant'}));
+  }
+  useEffect(() => {
+    const onHistory = (event: PopStateEvent) => {
+      if (isPharmacyTripEntry(event.state, pharmacyTripRef.current)) {
+        pharmacyOpenRef.current = true; setPharmacyOpen(true);
+        requestAnimationFrame(() => window.scrollTo({top:0,behavior:'instant'}));
+      } else if (pharmacyOpenRef.current) restoreMedicineResults();
+    };
+    window.addEventListener('popstate',onHistory);
+    return () => window.removeEventListener('popstate',onHistory);
+  }, []);
 
   function revealWorkspace() {
     requestAnimationFrame(() => {
@@ -603,6 +652,7 @@ function Home({ petMode = false }: { petMode?: boolean }) {
     });
   }
   function showScreen(next: 'search' | 'tools' | 'care' | 'results') {
+    if (pharmacyOpenRef.current) abandonPharmacyTrip();
     const returningFromResults = screen === 'results' && next !== 'results';
     setScreen(next);
     if (next === 'tools' || next === 'care') setActiveSection(next);
@@ -669,6 +719,7 @@ function Home({ petMode = false }: { petMode?: boolean }) {
   }, [useGeo]);
 
   function resetFieldsForMode(m: Mode) {
+    abandonPharmacyTrip();
     searchVersion.current += 1;
     setLoading(false);
     setMode(m);
@@ -955,14 +1006,14 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
   /* -------------------------- RENDER -------------------------- */
 
   return (
-    <main key={lang} className={`medicea-shell flow-${screen}${petMode ? " pet-theme" : ""}`} dir={isRTL(lang) ? 'rtl' : 'ltr'}>
+    <main key={lang} className={`medicea-shell flow-${screen}${petMode ? " pet-theme" : ""}${pharmacyOpen ? " pharmacy-trip-active" : ""}`} dir={isRTL(lang) ? 'rtl' : 'ltr'}>
       <header className="site-header">
         <Link className="brand-link" href="/" aria-label="medicea home"><img src="/logo.png" alt="medicéa" /></Link>
         <nav className="header-nav" aria-label="Main navigation">
-          <Link href="/" aria-current={!petMode && activeSection === 'search' ? 'page' : undefined} onClick={petMode ? undefined : (event) => {event.preventDefault(); setActiveSection('search'); resetFieldsForMode('international');}}>{F(ui, 'findMedicine', 'Find a medicine')}</Link>
-          <Link href="/?section=tools" aria-current={!petMode && activeSection === 'tools' ? 'page' : undefined} onClick={petMode ? undefined : (event) => {event.preventDefault(); showScreen('tools');}}>{F(ui, 'medicineTools', 'Health tools')}</Link>
-          <Link href="/?section=care" aria-current={!petMode && activeSection === 'care' ? 'page' : undefined} onClick={petMode ? undefined : (event) => {event.preventDefault(); showScreen('care');}}>{F(ui, 'findCare', 'Find care')}</Link>
-          <Link href="/pets" aria-current={petMode ? 'page' : undefined}>{F(ui, 'btnPets', 'Meds 4 Pets')}</Link>
+          <Link href="/" aria-current={!pharmacyOpen && !petMode && activeSection === 'search' ? 'page' : undefined} onClick={petMode ? undefined : (event) => {event.preventDefault(); setActiveSection('search'); resetFieldsForMode('international');}}>{F(ui, 'findMedicine', 'Find a medicine')}</Link>
+          <Link href="/?section=tools" aria-current={!pharmacyOpen && !petMode && activeSection === 'tools' ? 'page' : undefined} onClick={petMode ? undefined : (event) => {event.preventDefault(); showScreen('tools');}}>{F(ui, 'medicineTools', 'Health tools')}</Link>
+          <Link href="/?section=care" aria-current={pharmacyOpen || !petMode && activeSection === 'care' ? 'page' : undefined} onClick={petMode ? undefined : (event) => {event.preventDefault(); showScreen('care');}}>{F(ui, 'findCare', 'Find care')}</Link>
+          <Link href="/pets" aria-current={petMode && !pharmacyOpen ? 'page' : undefined}>{F(ui, 'btnPets', 'Meds 4 Pets')}</Link>
         </nav>
         <div className="language-control"><LanguageButton /></div>
       </header>
@@ -978,6 +1029,12 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
         <button type="button" aria-pressed={mode === 'pets'} disabled={loading} onClick={() => resetFieldsForMode('pets')}>{F(ui, 'petEquivHeader', 'Equivalent pet medicines')}</button>
         <button type="button" aria-pressed={mode === 'pet-generic'} disabled={loading} onClick={() => resetFieldsForMode('pet-generic')}>{petGenericsLabel(lang)}</button>
       </nav>}
+      {pharmacyTrip && <div hidden={!pharmacyOpen}>
+        <PharmacyTripPanel key={pharmacyTrip.id} trip={pharmacyTrip} lang={lang} onBack={backFromPharmacy}
+          title={F(ui, 'btnPharmacy', 'Search pharmacy')} addressLabel={F(ui, 'addressPrompt', 'Enter an address (or use device location)')}
+          addressPlaceholder={F(ui, 'addressPH', 'Street, City, Country…')} useLocationLabel={F(ui, 'useDeviceLocation', 'Use device location')}
+          openLabel={F(ui, 'openMaps', 'Open in Google Maps')} notice={searchFeedback(lang).careNotice} />
+      </div>}
       <div className="workspace-panels">
       <div className="workspace-grid">
       <section className="search-area" id="medicine-search" tabIndex={-1} aria-labelledby="search-title">
@@ -1285,7 +1342,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
                     <div className="equivalent-section-heading">
                       <h2 className="medicine-section-title">{header}</h2>
                       <Link className="official-leaflet-link" href={`/?section=care&service=pharmacy&location=${encodeURIComponent(countryCode)}`}
-                        onClick={petMode ? undefined : event => {if (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return; event.preventDefault(); resetFieldsForMode('pharmacy'); setActiveSection('care'); setUserAddress(countryCode);}}>{F(ui, 'btnPharmacy', 'Search pharmacy')}</Link>
+                        onClick={event => {if (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return; event.preventDefault(); openPharmacyTrip(countryCode);}}>{F(ui, 'btnPharmacy', 'Search pharmacy')}</Link>
                     </div>
                     <div style={{ fontSize: '0.85rem', marginTop: 4 }}>
                       {F(ui, introKey, introDefault, {

@@ -654,3 +654,15 @@ html { scrollbar-gutter:stable; }
 .structured-veterinary-leaflet section { margin-bottom:10px; }
 .structured-veterinary-leaflet ul { margin:6px 0 6px 16px; padding:0; }
 .structured-veterinary-leaflet li { margin:4px 0; line-height:1.5; }
+.pharmacy-trip-active .workspace-panels,.pharmacy-trip-active .workspace-nav { display:none; }
+.pharmacy-trip-panel { margin:22px; padding:26px; background:white; border:1px solid #dce7f8; border-radius:20px; }
+.pharmacy-trip-panel h2 { margin:22px 0 16px; }
+.pharmacy-trip-panel > label { display:block; font-weight:600; margin:16px 0; }
+.pharmacy-trip-panel input[type=text] { display:block; width:100%; padding:13px; margin-top:8px; border:1px solid #99b8f5; border-radius:10px; background:#f2f6ff; font:inherit; }
+.pharmacy-trip-panel .pharmacy-location-choice { display:flex; align-items:center; gap:8px; font-weight:400; }
+.pharmacy-reminder { margin:18px 0; padding:16px; background:#f2f6ff; border:1px solid #dce7f8; border-radius:12px; }
+.pharmacy-reminder ul { display:flex; flex-wrap:wrap; gap:8px; padding:0; margin:12px 0 0; list-style:none; }
+.pharmacy-reminder li { padding:6px 10px; border:1px solid #ccdcf5; border-radius:8px; background:white; font-size:14px; }
+.pharmacy-map-link { text-decoration:none; }
+.pet-theme .pharmacy-reminder { background:#f2f9f4; border-color:#d6e9dd; }
+@media(max-width:600px) { .pharmacy-trip-panel { margin:16px 0; padding:20px; } }
