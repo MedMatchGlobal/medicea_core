@@ -15,7 +15,7 @@ Fixed banner logic for "Generics" label + country, and removed banner from Leafl
 
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { ArrowRight, Search, FileText, Pill, Stethoscope, Hospital, HeartPulse, UserRound, Cross, ShieldCheck } from 'lucide-react';
 import countriesByRegion from '../data/countries';
@@ -24,6 +24,7 @@ import LanguageButton from './components/LanguageButton';
 import CountryPicker from './components/CountryPicker';
 import ConditionPicker from './components/ConditionPicker';
 import VeterinaryCare from './components/VeterinaryCare';
+import {petGenericsLabel} from './i18n/pet-generics';
 import { conditionAdditions } from '../data/condition-additions';
 import { searchFeedback } from './i18n/search-feedback';
 import { careSearchQuery } from './lib/care-search';
@@ -546,6 +547,7 @@ function Home({ petMode = false }: { petMode?: boolean }) {
     | 'generic'
     | 'leaflet'
     | 'pets'
+    | 'pet-generic'
     | 'pharmacy'
     | 'gp'
     | 'hospital'
@@ -567,10 +569,12 @@ function Home({ petMode = false }: { petMode?: boolean }) {
   const [screen, setScreen] = useState<'search' | 'tools' | 'care' | 'results'>('search');
   const [activeSection, setActiveSection] = useState<'search' | 'tools' | 'care'>('search');
   const [searched, setSearched] = useState(false);
+  const searchVersion = useRef(0);
   const [searchFailed, setSearchFailed] = useState(false);
 
-  useEffect(() => {
-    if (petMode) return;
+  useLayoutEffect(() => {
+    resetFieldsForMode(petMode ? 'pets' : 'international');
+    if (petMode) {setActiveSection('search'); return;}
     const section = new URLSearchParams(window.location.search).get('section');
     if (section === 'tools' || section === 'care') {
       setScreen(section); setActiveSection(section);
@@ -655,6 +659,8 @@ function Home({ petMode = false }: { petMode?: boolean }) {
   }, [useGeo]);
 
   function resetFieldsForMode(m: Mode) {
+    searchVersion.current += 1;
+    setLoading(false);
     setMode(m);
     setScreen('search');
     setSearched(false);
@@ -684,6 +690,7 @@ function Home({ petMode = false }: { petMode?: boolean }) {
   }, [plainText, mode]);
 
   const handleSearch = async () => {
+    const version = searchVersion.current;
     if (mode === 'triage') return;
 
     /* ---------------- LOCAL SEARCH BRANCH: open Google Maps ---------------- */
@@ -700,12 +707,12 @@ function Home({ petMode = false }: { petMode?: boolean }) {
     /* ---------------------------------------------------------------------- */
 
     // PREMIUM-ONLY MODES: Pets, Generics, Triage (search button)
-type PremiumMode = Extract<Mode, 'pets' | 'generic' | 'triage'>;
+type PremiumMode = Extract<Mode, 'pets' | 'pet-generic' | 'generic' | 'triage'>;
 const isPremiumMode = (m: Mode): m is PremiumMode =>
-  m === 'pets' || m === 'generic' || m === 'triage';
+  m === 'pets' || m === 'pet-generic' || m === 'generic' || m === 'triage';
 
 if (!BETA_TESTING && isPremiumMode(mode)) {
-  const reason: PaywallReason = mode === 'pets' ? 'pets' : mode === 'generic' ? 'generics' : 'triage';
+  const reason: PaywallReason = (mode === 'pets' || mode === 'pet-generic') ? 'pets' : mode === 'generic' ? 'generics' : 'triage';
   setPaywallReason(reason);
   setPaywallVisible(true);
   return;
@@ -744,6 +751,7 @@ if (!BETA_TESTING && isPremiumMode(mode)) {
       }
     }
 
+    if (version !== searchVersion.current) return;
     setSearchFailed(false);
     setSearched(true);
     showScreen('results');
@@ -778,6 +786,7 @@ if (!BETA_TESTING && isPremiumMode(mode)) {
         });
         if (!res.ok) throw new Error('Medicine service unavailable');
         const payload = await res.json();
+      if (version !== searchVersion.current) return;
         setLeafletRaw(pickText(payload));
         setResult('');
         setLoading(false);
@@ -831,13 +840,14 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
 
         if (!res.ok) throw new Error('Medicine service unavailable');
         const txt = pickText(await res.json());
+      if (version !== searchVersion.current) return;
         const cleaned = stripMarkdownBasic(cleanArtifacts(txt));
         setResult(cleaned || F(ui, 'noResult', 'No results.'));
         setLoading(false);
         return;
       }
 
-      if (mode !== 'pets') {
+      if (mode !== 'pets' && mode !== 'pet-generic') {
       const leafletResp = await fetch('/api/openai/leaflet', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -845,6 +855,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
       });
       if (!leafletResp.ok) throw new Error('Medicine service unavailable');
       const leafletPayload = await leafletResp.json();
+      if (version !== searchVersion.current) return;
       setLeafletRaw(pickText(leafletPayload));
       }
 
@@ -853,6 +864,8 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
           ? '/api/openai/equivalent-search'
           : mode === 'generic'
           ? '/api/openai/generics'
+          : mode === 'pet-generic'
+          ? '/api/openai/pet-generics'
           : '/api/openai/pets';
 
       const res2 = await fetch(endpoint, {
@@ -862,6 +875,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
       });
       if (!res2.ok) throw new Error('Medicine service unavailable');
       const payload2 = await res2.json();
+      if (version !== searchVersion.current) return;
 
       if (Array.isArray(payload2?.matches) && payload2.matches.length) {
         setMatches(payload2.matches);
@@ -876,6 +890,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
 
       setLoading(false);
     } catch {
+      if (version !== searchVersion.current) return;
       setSearchFailed(true);
       setLeafletRaw('');
       setResult(F(ui, 'medicineServiceError', 'Medicine information is temporarily unavailable. Please try again shortly.'));
@@ -884,6 +899,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
   };
 
   async function handleFetchLeafletForMatch(medicineName: string) {
+    const version = searchVersion.current;
     setLeafletLoading((p) => ({ ...p, [medicineName]: true }));
     try {
       const country =
@@ -903,6 +919,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
         }),
       });
       const data = await res.json();
+      if (version !== searchVersion.current) return;
       setLeaflets((p) => ({ ...p, [medicineName]: pickText(data) }));
       setViewLeaflet((p) => ({ ...p, [medicineName]: true }));
     } catch {
@@ -941,6 +958,10 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
         </div>
       </section>
       <div id="workspace-start" />
+      {petMode && <nav className="workspace-nav" aria-label={F(ui, 'btnPets', 'Meds 4 Pets')}>
+        <button type="button" aria-pressed={mode === 'pets'} disabled={loading} onClick={() => resetFieldsForMode('pets')}>{F(ui, 'petEquivHeader', 'Equivalent pet medicines')}</button>
+        <button type="button" aria-pressed={mode === 'pet-generic'} disabled={loading} onClick={() => resetFieldsForMode('pet-generic')}>{petGenericsLabel(lang)}</button>
+      </nav>}
       <div className="workspace-panels">
       <div className="workspace-grid">
       <section className="search-area" id="medicine-search" tabIndex={-1} aria-labelledby="search-title">
@@ -950,6 +971,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
           mode === 'leaflet' ? F(ui, 'btnLeaflet', 'Medicine Leaflet') :
           mode === 'condition' ? F(ui, 'btnCond', 'Search by Medical Condition') :
           mode === 'triage' ? F(ui, 'btnTriage', 'Symptoms Triage') :
+          mode === 'pet-generic' ? petGenericsLabel(lang) :
           mode === 'pets' ? F(ui, 'btnPets', 'Meds 4 Pets') :
           mode === 'pharmacy' ? F(ui, 'btnPharmacy', 'Search Pharmacy') :
           mode === 'doctor' ? F(ui, 'btnDoctor', 'Search Doctor') :
@@ -1078,6 +1100,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
               (mode === 'leaflet' && !(originCode && selectedDrug)) ||
               (mode === 'condition' && !(selectedCondition.trim() && targetCode)) ||
               (mode === 'pets' && !(originCode && selectedDrug && targetCode)) ||
+              (mode === 'pet-generic' && !(originCode && selectedDrug)) ||
               (mode === 'pharmacy' && !(useGeo ? geoStr : userAddress.trim())) ||
               (mode === 'gp' && !(useGeo ? geoStr : userAddress.trim())) ||
               (mode === 'hospital' && !(useGeo ? geoStr : userAddress.trim())) ||
@@ -1097,12 +1120,14 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
               ? F(ui, 'searchGen', 'Search Generics')
               : mode === 'leaflet'
               ? F(ui, 'searchLeaflet', 'Search Leaflet')
+              : mode === 'pet-generic'
+              ? petGenericsLabel(lang)
               : mode === 'pets'
               ? F(ui, 'searchPets', 'Search Pet Medicines')
               : F(ui, 'openMaps', 'Open in Google Maps')}
           <ArrowRight size={19} aria-hidden="true" />
           </button>
-          <p className="search-note"><ShieldCheck size={17} />{mode === 'pets' ? searchFeedback(lang).petNotice : ['doctor','hospital','gp','pharmacy'].includes(mode) ? searchFeedback(lang).careNotice : F(ui, 'educationalNote', 'Medicine information is educational. Confirm suitability with a pharmacist.')}</p>
+          <p className="search-note"><ShieldCheck size={17} />{(mode === 'pets' || mode === 'pet-generic') ? searchFeedback(lang).petNotice : ['doctor','hospital','gp','pharmacy'].includes(mode) ? searchFeedback(lang).careNotice : F(ui, 'educationalNote', 'Medicine information is educational. Confirm suitability with a pharmacist.')}</p>
         </div>
       )}
       {mode === 'triage' && <SymptomTriage />}
@@ -1165,7 +1190,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
           )}
 
           {/* >>> Banner ONLY for international/generic/pets (NOT leaflet) <<< */}
-          {((mode === 'international' || mode === 'generic') && leafletRaw || mode === 'pets' && !loading && !searchFailed) && (
+          {((mode === 'international' || mode === 'generic') && leafletRaw || (mode === 'pets' || mode === 'pet-generic') && !loading && !searchFailed) && (
             <div
               style={{
                 marginTop: 8,
@@ -1183,7 +1208,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
                 // - generic  → originCode (home country)
                 // - intl/pets → targetCode (fallback to origin)
                 const countryCode =
-                  mode === 'generic'
+                  (mode === 'generic' || mode === 'pet-generic')
                     ? (originCode || '')
                     : (targetCode || originCode || '');
 
@@ -1200,6 +1225,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
 
                 // Dynamic header + intro per mode
                 const header =
+                  mode === 'pet-generic' ? petGenericsLabel(lang) :
                   mode === 'generic'
                     ? F(ui, 'genHeader', 'Generics')
                     : mode === 'pets'
@@ -1210,7 +1236,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
                 const baseName = bannerDrug || F(ui, 'thisMedicine', 'this medicine');
                 let introDefault = '';
 
-                if (mode === 'generic') {
+                if (mode === 'generic' || mode === 'pet-generic') {
                   introDefault = bannerCountry
                     ? `Below is the list of generics for ${baseName} available in ${bannerCountry}.`
                     : `Below is the list of generics for ${baseName}.`;
@@ -1225,7 +1251,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
                 }
 
                 const introKey =
-                  mode === 'generic' ? 'genIntro' : mode === 'pets' ? 'petEquivIntro' : 'equivIntro';
+                  (mode === 'generic' || mode === 'pet-generic') ? 'genIntro' : mode === 'pets' ? 'petEquivIntro' : 'equivIntro';
 
                 return (
                   <>
@@ -1263,7 +1289,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
                   >
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
                       <div style={{ fontWeight: 700, color: '#0f172a' }}>{medname}</div>
-                      {mode !== 'pets' && <div style={{ display: 'flex', gap: 8 }}>
+                      {mode !== 'pets' && mode !== 'pet-generic' && <div style={{ display: 'flex', gap: 8 }}>
                         <button
                           onClick={() => {
                             if (!leafletText) {
