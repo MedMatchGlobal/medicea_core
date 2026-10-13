@@ -66,3 +66,9 @@
  .page{padding:18px 18px 32px}.header img{width:110px}.back{font-size:12px}.account{padding:20px;gap:18px}.page h2{font-size:23px}.hero{grid-template-columns:1fr;padding:24px 0;gap:20px}.hero h1{font-size:34px;letter-spacing:-1px}.heroPaid{padding:24px 0}.welcome{padding:18px}.welcome h2{font-size:20px}.auth form{grid-template-columns:1fr}.auth button{justify-self:start}.travelPlans,.regularPlans{grid-template-columns:1fr;gap:10px;margin-top:14px}
  .plan{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px 14px;align-items:start;padding:16px}.plan h3{font-size:17px;grid-column:1;grid-row:1}.plan .price{font-size:27px;text-align:end;margin-top:0;grid-column:2;grid-row:1}.price span{display:block;font-size:12px}.planDescription{grid-column:1;grid-row:2;margin:0!important;font-size:13px;align-self:center}.plan button{grid-column:2;grid-row:2;width:auto;padding:10px 12px;font-size:13px;align-self:end}.regularHeading{margin-top:22px}.feedback{flex-wrap:wrap}
 }
+@media(max-width:560px){
+ .account{padding:16px;gap:14px;line-height:1.4}.account h2{font-size:21px}.account .eyebrow{margin-bottom:6px!important}.account p:not(.eyebrow){margin-top:6px;font-size:14px}.account label{gap:5px;font-size:13px}.account input{padding:9px 10px;min-height:44px}.account button{padding:9px 12px;min-height:44px}.auth form{gap:7px}.auth form+form{margin-top:10px}
+}
+@media(min-width:380px) and (max-width:560px){
+ .auth form{grid-template-columns:minmax(0,1fr) auto;gap:8px}.auth button{max-width:140px;align-self:end}
+}
