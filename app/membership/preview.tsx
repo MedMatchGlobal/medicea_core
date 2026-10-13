@@ -20,7 +20,7 @@ export default function MembershipPreview(){
  <p>Signed in as {status.email}</p>
  <p>{status.premium?'Personal paid access active':`${status.used} of ${status.limit} free searches used this month.`}</p>
  {!status.premium&&status.trialAvailable&&status.trialUsed<status.trialLimit&&<p>Welcome trial: {status.trialLimit-status.trialUsed} successful searches left.{status.trialEndsAt?` Ends ${new Date(status.trialEndsAt).toLocaleString()}.`:' Its seven-day clock has not started yet.'}</p>}
- <p>Free allowance resets {new Date(status.resetsAt).toLocaleDateString()}. {status.reserved} searches in progress.</p>
+ <p>{!status.premium&&<>Free allowance resets {new Date(status.resetsAt).toLocaleDateString()}. </>}{status.reserved} searches in progress.</p>
  {!native&&!status.premium&&<p><button disabled={busy} onClick={()=>{accessOptions.current?.scrollIntoView({block:'center'});accessOptions.current?.focus({preventScroll:true});}} style={{background:'#2563eb',color:'#fff',border:0,borderRadius:8,padding:'10px 18px',fontWeight:600,cursor:'pointer'}}>Upgrade</button></p>}
  <button disabled={busy} onClick={()=>run('auth',{action:'signout'})}>Sign out</button>
  <h2>Test a medicine search</h2><p>This isolated search tests the account quota. The public discovery interface is unchanged.</p>
