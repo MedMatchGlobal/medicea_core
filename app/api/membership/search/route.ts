@@ -1,4 +1,5 @@
 import {meteredSearch} from '@/lib/membership/meter';
+export const maxDuration = 60;
 // Preview integration probe: the existing medicine handler and prompts are unchanged.
 // This endpoint is not yet wired into the public discovery UI.
 export async function POST(req: Request) {

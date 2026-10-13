@@ -12,7 +12,8 @@ export async function reserve(user: string, requestId: string) {
   return rows[0].result;
 }
 export async function finish(user: string, requestId: string, success: boolean) {
-  await billingDb().$queryRaw`SELECT medicea_billing.finish_search(${user}::uuid, ${requestId}::uuid, ${success}::boolean)`;
+  // PostgreSQL void is not a supported Prisma result type; return text instead.
+  await billingDb().$queryRaw`SELECT medicea_billing.finish_search(${user}::uuid, ${requestId}::uuid, ${success}::boolean)::text AS result`;
 }
 export async function membershipStatus(user: string) {
   const rows = await billingDb().$queryRaw<Array<{result: {used:number; reserved:number; limit:number; premium:boolean; resetsAt:string; trialAvailable:boolean; trialEndsAt:string|null; trialUsed:number; trialLimit:number}}>>`
