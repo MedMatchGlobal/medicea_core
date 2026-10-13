@@ -4,10 +4,20 @@ export function membershipPreviewEnabled() {
     (!process.env.VERCEL_ENV && process.env.NODE_ENV === 'development')
   );
 }
+export const TRIAL = {days:7, successfulSearches:5} as const;
 export const PERSONAL_PLANS = {
-  monthly: { label: 'Monthly', amountMinor: 499, currency: 'GBP', interval: 'month' },
-  annual: { label: 'Annual', amountMinor: 4999, currency: 'GBP', interval: 'year' },
+  pass7: {label:'7-day pass',amountMinor:149,currency:'GBP',kind:'pass',days:7,interval:null},
+  pass14: {label:'14-day pass',amountMinor:199,currency:'GBP',kind:'pass',days:14,interval:null},
+  pass30: {label:'30-day pass',amountMinor:299,currency:'GBP',kind:'pass',days:30,interval:null},
+  monthly: {label:'Personal monthly',amountMinor:249,currency:'GBP',kind:'subscription',days:null,interval:'month'},
+  annual: {label:'Personal annual',amountMinor:1999,currency:'GBP',kind:'subscription',days:null,interval:'year'},
 } as const;
+export type PersonalPlan = keyof typeof PERSONAL_PLANS;
+export function isPersonalPlan(value:unknown):value is PersonalPlan {
+  return typeof value==='string'&&Object.prototype.hasOwnProperty.call(PERSONAL_PLANS,value);
+}
+// Proposal only: no scheduled switch and no automatic customer repricing.
+export const POSSIBLE_LATER_PRICES = {pass7:199,pass14:299,pass30:399,monthly:349,annual:1999} as const;
 export function periodKey(now = new Date()) {
   return now.toISOString().slice(0, 7); // UTC calendar month, shared by every device
 }

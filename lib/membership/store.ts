@@ -15,7 +15,7 @@ export async function finish(user: string, requestId: string, success: boolean) 
   await billingDb().$queryRaw`SELECT medicea_billing.finish_search(${user}::uuid, ${requestId}::uuid, ${success}::boolean)`;
 }
 export async function membershipStatus(user: string) {
-  const rows = await billingDb().$queryRaw<Array<{result: {used:number; reserved:number; limit:number; premium:boolean; resetsAt:string}}>>`
+  const rows = await billingDb().$queryRaw<Array<{result: {used:number; reserved:number; limit:number; premium:boolean; resetsAt:string; trialAvailable:boolean; trialEndsAt:string|null; trialUsed:number; trialLimit:number}}>>`
     SELECT medicea_billing.member_status(${user}::uuid) AS result`;
   return rows[0].result;
 }
