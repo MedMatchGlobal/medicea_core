@@ -13,7 +13,7 @@ export async function POST(req:Request) {
   const plan=requestedPlan;
   const price=await validatePrice(plan);
   const url=await billingDb().$transaction(async tx=>{
-   await tx.$queryRaw`SELECT pg_advisory_xact_lock(hashtextextended(${user.id}::text,0))`;
+   await tx.$queryRaw`SELECT pg_advisory_xact_lock(hashtextextended(${user.id}::text,0))::text AS result`;
    const active=await tx.$queryRaw<Array<{url:string;plan:string}>>`SELECT url,plan FROM medicea_billing.checkout WHERE member_id=${user.id}::uuid AND expires_at>now()`;
    if(active.length){if(active[0].plan!==plan)throw new Error('Checkout already in progress');return active[0].url;}
    let customers=await tx.$queryRaw<Array<{customer_id:string}>>`SELECT customer_id FROM medicea_billing.stripe_customer WHERE member_id=${user.id}::uuid`;

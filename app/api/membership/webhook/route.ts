@@ -14,7 +14,7 @@ export async function POST(req:Request){
   if(typeof sessionId!=='string'||!/^cs_test_[a-zA-Z0-9]+$/.test(sessionId))return new Response(null,{status:400});
   try {
    await billingDb().$transaction(async tx=>{
-    await tx.$queryRaw`SELECT pg_advisory_xact_lock(hashtextextended(${sessionId}::text,1))`;
+    await tx.$queryRaw`SELECT pg_advisory_xact_lock(hashtextextended(${sessionId}::text,1))::text AS result`;
     const session=await stripeRequest('/checkout/sessions/'+sessionId);
     const items=await stripeRequest('/checkout/sessions/'+sessionId+'/line_items');
     const access=passAccess(session,items,event.created);
@@ -34,7 +34,7 @@ export async function POST(req:Request){
  try{
   await billingDb().$transaction(async tx=>{
    // Retrieve latest provider state under a subscription lock; old webhook order cannot restore expired access.
-   await tx.$queryRaw`SELECT pg_advisory_xact_lock(hashtextextended(${id}::text,1))`;
+   await tx.$queryRaw`SELECT pg_advisory_xact_lock(hashtextextended(${id}::text,1))::text AS result`;
    const subscription=await stripeRequest('/subscriptions/'+id);
    const access=subscriptionAccess(subscription);
    const member=subscription.metadata?.member_id;
