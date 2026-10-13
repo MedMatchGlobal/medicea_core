@@ -4,43 +4,64 @@ import {Capacitor} from '@capacitor/core';
 import {PERSONAL_PLANS,type PersonalPlan} from '@/lib/membership/config';
 import styles from './membership.module.css';
 import {useSearchReturn} from '../components/MembershipAccess';
+import MembershipFooter from '../components/MembershipFooter';
+import MediceaBrand from '../components/MediceaBrand';
+import LanguageButton from '../components/LanguageButton';
+import {useMembershipCopy,MembershipText,membershipText,type MembershipKey} from '../i18n/membership';
 export default function MembershipPreview(){
- const [email,setEmail]=useState(''),[code,setCode]=useState(''),[status,setStatus]=useState<any>(null),[message,setMessage]=useState(''),[busy,setBusy]=useState(false),[native,setNative]=useState(true);
+ const {copy,lang,dir}=useMembershipCopy();
+ const [email,setEmail]=useState(''),[code,setCode]=useState(''),[status,setStatus]=useState<any>(null),[message,setMessage]=useState<MembershipKey|null>(null),[busy,setBusy]=useState(false),[native,setNative]=useState(true);
  const returnHref=useSearchReturn();
- const accessOptions=useRef<HTMLHeadingElement>(null);
- async function refresh(){const response=await fetch('/api/membership/status',{cache:'no-store'});const data=await response.json();if(!response.ok)throw Error('Membership is not configured yet.');setStatus(data);}
- useEffect(()=>{setNative(Capacitor.isNativePlatform());refresh().catch(e=>setMessage(e.message));},[]);
- async function run(path:string,body:any){setBusy(true);setMessage('');try{const response=await fetch('/api/membership/'+path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});const data=await response.json();if(!response.ok)throw Error(data.error||'Please try again.');if(data.url){window.location.assign(data.url);return;}setMessage(body.action==='send'?'Check your email for a sign-in code.':'Done.');await refresh();}catch(e){setMessage(e instanceof Error?e.message:'Please try again.');}finally{setBusy(false);}}
+ const accessOptions=useRef<HTMLHeadingElement>(null),refreshVersion=useRef(0);
+ async function refresh(){const version=++refreshVersion.current;const response=await fetch('/api/membership/status',{cache:'no-store'});const data=await response.json();if(!response.ok)throw Error('ACCOUNT_UNAVAILABLE');if(version===refreshVersion.current)setStatus(data);return data;}
+ useEffect(()=>{
+  setNative(Capacitor.isNativePlatform());
+  let active=true,attempts=0,timer:ReturnType<typeof setTimeout>|undefined;
+  const returned=new URLSearchParams(window.location.search).get('checkout')==='returned';
+  const update=async()=>{if(!active)return;try{const data=await refresh();if(active&&returned&&!data.premium&&attempts++<5)timer=setTimeout(update,2000);}catch{if(active)setMessage('accountError');}};
+  const onReturn=()=>{if(timer)clearTimeout(timer);void update();};
+  void update();window.addEventListener('focus',onReturn);window.addEventListener('pageshow',onReturn);
+  return()=>{active=false;refreshVersion.current++;if(timer)clearTimeout(timer);window.removeEventListener('focus',onReturn);window.removeEventListener('pageshow',onReturn);};
+ },[]);
+ useEffect(()=>{document.title=copy.account+' · medicéa';},[copy.account]);
+ async function run(path:string,body:any){setBusy(true);setMessage(null);try{
+  const response=await fetch('/api/membership/'+path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});const data=await response.json();
+  if(!response.ok)throw Error(data.error||'UNAVAILABLE');if(data.url){window.location.assign(data.url);return;}
+  setMessage(body.action==='send'?'checkEmail':'done');await refresh();
+ }catch(error){const reason=error instanceof Error?error.message:'';
+  setMessage(reason==='ACCOUNT_UNAVAILABLE'?'accountError':reason==='SIGN_IN_REQUIRED'?'errorSignIn':reason==='INVALID_CODE'?'errorCode':reason==='CODE_REQUEST_UNAVAILABLE'?'errorSend':reason==='ALREADY_SUBSCRIBED'?'errorPaid':path==='checkout'?'errorCheckout':path==='portal'?'errorPortal':path==='auth'?'errorAuth':'errorGeneric');
+ }finally{setBusy(false);}}
  const checkout=(plan:PersonalPlan)=>run('checkout',{plan});
- const price=(plan:PersonalPlan)=>new Intl.NumberFormat('en-GB',{style:'currency',currency:'GBP'}).format(PERSONAL_PLANS[plan].amountMinor/100);
+ const locale=lang==='en'?'en-GB':lang;
+ const price=(plan:PersonalPlan)=>new Intl.NumberFormat(locale,{style:'currency',currency:'GBP'}).format(PERSONAL_PLANS[plan].amountMinor/100);
+ const number=(value:number)=>new Intl.NumberFormat(locale).format(value);
+ const date=(value:string,time=false)=>time?new Date(value).toLocaleString(locale):new Date(value).toLocaleDateString(locale);
  const signedIn=!!status?.signedIn;
  const upgrade=()=>{accessOptions.current?.scrollIntoView({block:'start'});accessOptions.current?.focus({preventScroll:true});};
  const planCard=(plan:PersonalPlan,title:string,unit:string,description:string)=><article className={`${styles.plan} ${plan==='annual'?styles.featured:''}`} key={plan}>
-  <p className={styles.eyebrow}>{plan==='annual'?'A year of access':plan.startsWith('pass')?'One-time payment':'Flexible access'}</p>
-  <h3>{title}</h3><p className={styles.price}>{price(plan)} <span>{unit}</span></p><p className={styles.planDescription}>{description}</p>
-  <button className={styles.primary} disabled={busy||!signedIn||status?.premium} onClick={()=>checkout(plan)}>{status?.premium?'Paid access active':`Choose ${title.toLowerCase()}`}</button>
+  <h3>{title}</h3><p className={styles.price}><bdi>{price(plan)}</bdi> <span>{unit}</span></p><p className={styles.planDescription}>{description}</p>
+  <button className={styles.primary} aria-label={status?.premium?copy.paidActive:membershipText(copy.choosePlan,{plan:title})} disabled={busy||!signedIn||status?.premium} onClick={()=>checkout(plan)}>{status?.premium?copy.active:plan.startsWith('pass')?copy.choosePass:plan==='annual'?copy.chooseAnnual:copy.chooseMonthly}</button>
  </article>;
- return <main className={styles.page}>
- <header className={styles.header}><a href={returnHref||'/'} aria-label="medicéa medicine search"><img src="/logo.png" alt="medicéa" width="180" height="60"/></a><a className={styles.back} href={returnHref||'/'}>← {returnHref?'Back to your search':'Back to medicine search'}</a></header>
- <div className={styles.previewNotice}>Private preview · Test payments only</div>
- <section className={styles.hero}><div><p className={styles.eyebrow}>mediceaGO Personal</p><h1>Take medicéa<br/><span>with you.</span></h1><p className={styles.intro}>Explore medicine information across borders. Choose access for your next trip, or make medicéa part of your everyday life.</p><a className={styles.heroLink} href="#personal-access">Find your personal access ↓</a></div>
- <aside className={styles.welcome}><p className={styles.eyebrow}>Your welcome trial</p><h2>A little help for<br/>your next journey.</h2><p><strong>5 successful premium searches across 7 days.</strong> Your trial starts with your first successful premium search.</p><p>Each medicine search includes the information for all its returned medicines.</p><p>No card required. No automatic payment.</p><p className={styles.small}>Once per account. Failed requests and reopening saved results do not use trial searches. Afterwards, you still have 2 successful new searches per UTC calendar month, and your saved results stay available.</p></aside></section>
- <section className={styles.account} aria-labelledby="account-heading"><div><p className={styles.eyebrow}>Your account</p><h2 id="account-heading">{signedIn?(status.premium?'Personal paid access active':'Your personal access'):'Sign in to get started'}</h2>
- {signedIn?<><p className={styles.email}>{status.email}</p>{!status.premium&&<p>{status.used} of {status.limit} free searches used this month. Free allowance resets {new Date(status.resetsAt).toLocaleDateString()}.</p>}
- {!status.premium&&status.trialAvailable&&status.trialUsed<status.trialLimit&&<p>Welcome trial: <strong>{status.trialLimit-status.trialUsed} successful searches left.</strong>{status.trialEndsAt?` Ends ${new Date(status.trialEndsAt).toLocaleString()}.`:' Your seven-day clock has not started yet.'}</p>}
- {status.reserved>0&&<p>{status.reserved} searches in progress.</p>}</>:<p>We’ll email you a one-time code. Your account keeps your access together.</p>}</div>
- {signedIn?<div className={styles.actions}>{!native&&(status.premium?<button className={styles.primary} disabled={busy} onClick={()=>run('portal',{})}>Manage subscription</button>:<button className={styles.primary} disabled={busy} onClick={upgrade}>Upgrade</button>)}<button className={styles.secondary} disabled={busy} onClick={()=>run('auth',{action:'signout'})}>Sign out</button></div>:status===null?<p role="status">Loading your account…</p>:<div className={styles.auth}><form onSubmit={e=>{e.preventDefault();run('auth',{action:'send',email});}}><label>Email address<input type="email" required value={email} onChange={e=>setEmail(e.target.value)} autoComplete="email" placeholder="you@example.com"/></label><button className={styles.primary} disabled={busy||!email}>Email a code</button></form><form onSubmit={e=>{e.preventDefault();run('auth',{action:'verify',email,code});}}><label>Sign-in code<input required value={code} onChange={e=>setCode(e.target.value)} inputMode="numeric" autoComplete="one-time-code" placeholder="Code from your email"/></label><button className={styles.secondary} disabled={busy||!email||!code}>Verify code</button></form></div>}
+ return <main className={styles.page} dir={dir}>
+ <header className={styles.header}><a href="/" aria-label={copy.backHome}><img src="/logo.png" alt="medicéa" width="180" height="60"/></a><div className={styles.headerActions}><a className={styles.back} href="/">{dir==='rtl'?'→':'←'} {copy.backHome}</a><LanguageButton/></div></header>
+ <div className={styles.previewNotice}>{copy.previewNotice}</div>
+ <section className={styles.account} aria-labelledby="account-heading"><div><p className={styles.eyebrow}>{copy.yourAccount}</p><h2 id="account-heading">{signedIn?(status.premium?copy.paidActive:copy.personalAccess):copy.signInHeading}</h2>
+ {signedIn?<><p className={styles.email}><bdi>{status.email}</bdi></p>{!status.premium&&<p><MembershipText text={copy.freeUsage} params={{count:number(status.used),limit:number(status.limit),date:date(status.resetsAt)}}/></p>}
+ {!status.premium&&status.trialAvailable&&status.trialUsed<status.trialLimit&&<p><MembershipText text={copy.trialRemaining} params={{count:number(status.trialLimit-status.trialUsed)}}/> {status.trialEndsAt?membershipText(copy.trialEnds,{date:date(status.trialEndsAt,true)}):copy.trialNotStarted}</p>}
+ {status.reserved>0&&<p><MembershipText text={copy.inProgress} params={{count:number(status.reserved)}}/></p>}</>:<p>{copy.signInIntro}</p>}</div>
+ {signedIn?<div className={styles.actions}>{!native&&(status.premium?<button className={styles.primary} disabled={busy} onClick={()=>run('portal',{})}>{copy.manage}</button>:<button className={styles.primary} disabled={busy} onClick={upgrade}>{copy.upgrade}</button>)}{returnHref&&<a className={styles.continueLink} href={returnHref}>{copy.continueSearch} {dir==='rtl'?'←':'→'}</a>}<button className={styles.secondary} disabled={busy} onClick={()=>run('auth',{action:'signout'})}>{copy.signOut}</button></div>:status===null?<p role="status">{message?copy.accountUnavailable:copy.loadingAccount}</p>:<div className={styles.auth}><form onSubmit={e=>{e.preventDefault();run('auth',{action:'send',email});}}><label>{copy.email}<input type="email" required value={email} onChange={e=>setEmail(e.target.value)} autoComplete="email" placeholder={copy.emailPlaceholder}/></label><button className={styles.primary} disabled={busy||!email}>{copy.emailCode}</button></form><form onSubmit={e=>{e.preventDefault();run('auth',{action:'verify',email,code});}}><label>{copy.code}<input required value={code} onChange={e=>setCode(e.target.value)} inputMode="numeric" autoComplete="one-time-code" placeholder={copy.codePlaceholder}/></label><button className={styles.secondary} disabled={busy||!email||!code}>{copy.verify}</button></form></div>}
  </section>
- {!native&&<section className={styles.options} aria-labelledby="personal-access"><p className={styles.eyebrow}>Access that fits your plans</p><h2 id="personal-access" ref={accessOptions} tabIndex={-1}>Bring medicéa along on your travels.</h2><p className={styles.sectionIntro}>For a few days away or a longer adventure. One payment, with no automatic renewal.</p>
- <div className={styles.travelPlans}>{planCard('pass7','7 days travel pass','for 7 days','A short break. Access ends automatically after 7 days.')}{planCard('pass14','14 days travel pass','for 14 days','A little longer away. Access ends automatically after 14 days.')}{planCard('pass30','30 days travel pass','for 30 days','More time to explore. Access ends automatically after 30 days.')}</div>
- <div className={styles.regularHeading}><h2>For everyday life, too.</h2><p className={styles.sectionIntro}>Choose monthly flexibility or a full year of personal access.</p></div>
- <div className={styles.regularPlans}>{planCard('monthly','Monthly subscription','/ month',`Renews at ${price('monthly')} each month until cancelled.`)}{planCard('annual','Annual subscription','/ year',`Renews at ${price('annual')} each year until cancelled.`)}</div>
- <p className={styles.terms}>Subscriptions: cancel anytime to stop renewal. Access continues until the end of your paid billing period. We do not refund unused time, except where required by law.</p>
- {!signedIn&&<p className={styles.signInHint}>Sign in above to choose a plan.</p>}{status?.premium&&<p className={styles.signInHint}>You already have paid access. Manage your subscription from your account above.</p>}
+ <div className={styles.feedback}><p role="status" aria-live="polite">{busy?copy.working:message?copy[message]:''}</p>{status===null&&message&&<button className={styles.secondary} disabled={busy} onClick={()=>refresh().then(()=>setMessage(null)).catch(()=>setMessage('accountError'))}>{copy.tryAgain}</button>}</div>
+ <section className={`${styles.hero} ${status?.premium?styles.heroPaid:''}`}><div><p className={styles.productName}><bdi dir="ltr"><MediceaBrand/><strong>GO</strong></bdi> <small>{copy.personal}</small></p><h1><MembershipText text={copy.headline}/></h1><p className={styles.intro}>{copy.intro}</p></div>
+ {!status?.premium&&<aside className={styles.welcome}><h2>{copy.welcomeHeading}</h2><p>{copy.welcomeSummary}</p><p className={styles.small}>{copy.welcomeSeparate}</p><details><summary>{copy.welcomeDetailsHeading}</summary><p className={styles.small}>{copy.welcomeDetails}</p></details></aside>}</section>
+ {!native&&<section className={styles.options} aria-labelledby="personal-access"><h2 id="personal-access" ref={accessOptions} tabIndex={-1}>{copy.travelHeading}</h2><p className={styles.sectionIntro}>{copy.travelIntro}</p>
+ <div className={styles.travelPlans}>{planCard('pass7',copy.pass7,copy.duration7,copy.ends7)}{planCard('pass14',copy.pass14,copy.duration14,copy.ends14)}{planCard('pass30',copy.pass30,copy.duration30,copy.ends30)}</div>
+ <div className={styles.regularHeading}><h2>{copy.regularHeading}</h2><p className={styles.sectionIntro}>{copy.regularIntro}</p></div>
+ <div className={styles.regularPlans}>{planCard('monthly',copy.monthly,copy.perMonth,copy.monthlyRenewal)}{planCard('annual',copy.annual,copy.perYear,copy.annualRenewal)}</div>
+ <p className={styles.terms}>{copy.cancellation}</p>
+ {!signedIn&&<p className={styles.signInHint}>{copy.signInToChoose}</p>}{status?.premium&&<p className={styles.signInHint}>{copy.alreadyPaid}</p>}
  </section>}
- {native&&<p className={styles.previewNotice}>Android purchases are not enabled in this preview.</p>}
- {signedIn&&returnHref&&<p className={styles.signInHint}><a href={returnHref}>Continue your search →</a></p>}
- <div className={styles.feedback}><p role="status" aria-live="polite">{busy?'Working…':message}</p><button className={styles.secondary} disabled={busy} onClick={()=>refresh().catch(e=>setMessage(e.message))}>Refresh account status</button></div>
- <footer className={styles.footer}><p>Personal use only. No professional or shared-team use. Fair-use and consumer terms are being finalised for this private preview.</p><p>Medicine information is educational. Ask a pharmacist or clinician to confirm suitability.</p></footer>
+ {native&&<p className={styles.previewNotice}>{copy.nativeUnavailable}</p>}
+ <footer className={styles.footer}><p>{copy.personalOnly}</p><p>{copy.education}</p><MembershipFooter/></footer>
  </main>;
 }

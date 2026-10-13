@@ -669,6 +669,20 @@ html { scrollbar-gutter:stable; }
 
 .saved-searches { margin: 12px 0 20px; padding: 14px 18px; background: #fff; border: 1px solid #dde5f1; border-radius: 14px; }
 .saved-searches summary { cursor: pointer; font-weight: 650; color: #344b78; }
+
+/* Preview account access stays separate from the four discovery destinations. */
+.membership-preview .site-header { display:grid; grid-template-columns:minmax(100px,1fr) auto minmax(92px,1fr); gap:8px 12px; }
+.membership-preview .brand-link { grid-column:1; grid-row:1; }
+.membership-preview .header-account { grid-column:2; grid-row:1; min-height:44px; padding:10px 16px; display:flex; align-items:center; justify-content:center; color:#245b75; border:1px solid #bcd3df; border-radius:10px; background:#fff; text-decoration:none; font-size:14px; font-weight:650; }
+.membership-preview .language-control { grid-column:3; grid-row:1; justify-self:end; }
+.membership-preview .header-nav { grid-column:1/-1; grid-row:2; justify-self:center; padding-bottom:12px; }
+.membership-preview:not(.pet-theme) .medicine-tools,.membership-preview:not(.pet-theme) .care-section { background:#fff3f4; border-color:#eed8dd; }
+.membership-preview:not(.pet-theme) :is(.medicine-tools,.care-section) .tool-icon { background:#fbe5e9; color:#9e4559; }
+.membership-preview:not(.pet-theme) :is(.tool-card,.care-card).is-active { background:#fff7f8; border-color:#ce9baa; }
+.membership-preview .header-account:focus-visible { outline:3px solid #008ca5; outline-offset:3px; }
+.membership-preview .brand1{color:#5497ff}.membership-preview .brand2{color:#579ca4}
+@media(max-width:900px) { .membership-preview .header-nav { width:100%; } }
+@media(max-width:380px) { .membership-preview .site-header { column-gap:8px; }.membership-preview .brand-link { width:92px; }.membership-preview .header-account { padding:10px;font-size:12px; } }
 .saved-search-row { display:flex; align-items:center; justify-content:space-between; gap:16px; padding:14px 0; border-top:1px solid #e5eaf2; }
 .saved-search-row p { margin:4px 0; font-size:.85rem; overflow-wrap:anywhere; }
 .saved-search-status { margin:10px 0; }

@@ -42,6 +42,8 @@ import { searchFeedback } from './i18n/search-feedback';
 import { careSearchQuery } from './lib/care-search';
 import SymptomTriage from './components/SymptomTriage';
 import {useMembershipPreview} from './components/MembershipAccess';
+import MembershipFooter from './components/MembershipFooter';
+import {useMembershipCopy} from './i18n/membership';
 import {membershipFetch,checkMembershipAccess,MembershipAccessError,SAVE_DRAFT_EVENT,storeSearchDraft,takeSearchDraft,rememberSearchReturn} from './lib/membership-client';
 
 import PremiumPaywall from './components/PremiumPaywall';
@@ -373,7 +375,7 @@ function parseCoords(s: string | null | undefined): { lat: number; lng: number }
 /** Brand replacer for body content (not used for slogan) */
 function stylizeBrand(html: string) {
   if (!html) return html;
-  const logo = `<strong><span style="color:#1E73BE">medi</span><span style="color:#008080">céa</span>®</strong>`;
+  const logo = `<strong><span class="brand1">medi</span><span class="brand2">céa</span>®</strong>`;
   let out = html;
   out = out.replace(/<strong>\s*medicéa[™®]?\s*<\/strong>/gi, 'medicéa®');
   out = out.replace(/<b>\s*medicéa[™®]?\s*<\/b>/gi, 'medicéa®');
@@ -396,6 +398,7 @@ function boldConditionHeadings(raw: string) {
 
 function Home({ petMode = false }: { petMode?: boolean }) {
   const membershipEnabled=useMembershipPreview();
+  const {copy:membershipCopy}=useMembershipCopy();
   // localized group labels for condition groups
   const [groupLabels, setGroupLabels] = useState<Record<string, string>>({});
 
@@ -1109,15 +1112,15 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
   /* -------------------------- RENDER -------------------------- */
 
   return (
-    <main key={lang} className={`medicea-shell flow-${screen}${petMode ? " pet-theme" : ""}${pharmacyOpen ? " pharmacy-trip-active" : ""}`} dir={isRTL(lang) ? 'rtl' : 'ltr'}>
+    <main key={lang} className={`medicea-shell flow-${screen}${membershipEnabled ? " membership-preview" : ""}${petMode ? " pet-theme" : ""}${pharmacyOpen ? " pharmacy-trip-active" : ""}`} dir={isRTL(lang) ? 'rtl' : 'ltr'}>
       <header className="site-header">
         <Link className="brand-link" href="/" aria-label="medicea home"><img src="/logo.png" alt="medicéa" /></Link>
+        {membershipEnabled&&<Link className="header-account" href="/membership" onClick={()=>rememberSearchReturn()}>{membershipCopy.account}</Link>}
         <nav className="header-nav" aria-label="Main navigation">
           <Link href="/" aria-current={!pharmacyOpen && !petMode && activeSection === 'search' ? 'page' : undefined} onClick={petMode ? undefined : (event) => {event.preventDefault(); setActiveSection('search'); resetFieldsForMode('international');}}>{F(ui, 'findMedicine', 'Find a medicine')}</Link>
           <Link href="/?section=tools" aria-current={!pharmacyOpen && !petMode && activeSection === 'tools' ? 'page' : undefined} onClick={petMode ? undefined : (event) => {event.preventDefault(); showScreen('tools');}}>{F(ui, 'medicineTools', 'Health tools')}</Link>
           <Link href="/?section=care" aria-current={pharmacyOpen || !petMode && activeSection === 'care' ? 'page' : undefined} onClick={petMode ? undefined : (event) => {event.preventDefault(); showScreen('care');}}>{F(ui, 'findCare', 'Find care')}</Link>
           <Link href="/pets" aria-current={petMode && !pharmacyOpen ? 'page' : undefined}>{F(ui, 'btnPets', 'Meds 4 Pets')}</Link>
-          {membershipEnabled&&<Link href="/membership" onClick={()=>rememberSearchReturn()}>Account</Link>}
         </nav>
         <div className="language-control"><LanguageButton /></div>
       </header>
@@ -1586,12 +1589,13 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
       <div style={{ textAlign: 'center', margin: '20px 0', color: '#6b7280', fontSize: '0.85rem' }}>
         {hydrated && visits !== null && <div>{F(ui, 'visitsLabel', 'Visits')}: {visits.toLocaleString()}</div>}
         <div style={{ marginTop: 6 }}>
-          © {new Date().getFullYear()} <strong><span style={{ color: '#1E73BE' }}>medi</span><span style={{ color: '#008080' }}>céa</span>®</strong> by GES Consultancy Ltd. {F(t as any, 'footerAllRights', 'All rights reserved.')}
+          © {new Date().getFullYear()} <strong><span className="brand1">medi</span><span className="brand2">céa</span>®</strong> by GES Consultancy Ltd. {F(t as any, 'footerAllRights', 'All rights reserved.')}
         </div>
         <div>
-          <a href="/terms" style={{ color: '#0b74de' }}>
+          {!membershipEnabled&&<a href="/terms" style={{ color: '#0b74de' }}>
             {F((t as any).ui, 'termsLink', 'Terms & Conditions')}
-          </a>
+          </a>}
+          {membershipEnabled&&<MembershipFooter/>}
         </div>
       </div>
 
