@@ -1,8 +1,9 @@
+import {withMembership} from '@/lib/membership/meter';
 export const maxDuration = 60;
 import { NextResponse } from "next/server";
 import { createChatCompletion } from "@/app/lib/openaiClient";
 
-export async function POST(req: Request) {
+async function generate(req: Request) {
   const { drugName, originCountry } = await req.json();
 
   if (!drugName || !originCountry) {
@@ -37,3 +38,5 @@ Include:
     return NextResponse.json({ error: "OpenAI call failed", detail: err.message }, { status: 500 });
   }
 }
+
+export const POST=withMembership(generate,'text');

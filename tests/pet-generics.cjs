@@ -10,6 +10,7 @@ function route(responses) {
   const output = ts.transpileModule(source, {compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2020}}).outputText;
   const module = {exports:{}};
   vm.runInNewContext(output, {module,exports:module.exports,console:{log(){},error(){}},require(name){
+    if (name === '@/lib/membership/meter') return {withMembership:handler=>handler};
     if (name === 'next/server') return {NextResponse:{json:(data, options) => Response.json(data, options)}};
     if (name === '@/app/lib/openaiClient') return {openaiFetch:async (url, options) => {
       calls.push(JSON.parse(options.body));

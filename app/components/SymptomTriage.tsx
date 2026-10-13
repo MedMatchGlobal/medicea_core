@@ -4,6 +4,8 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useLanguage } from '../LanguageProvider';
 import { urgentCareNotice } from '../i18n/search-feedback';
+import {useMembershipPreview} from './MembershipAccess';
+import {membershipFetch,checkMembershipAccess,MembershipAccessError,SAVE_DRAFT_EVENT,storeSearchDraft,takeSearchDraft} from '../lib/membership-client';
 
 type Msg = { id: string; role: 'user' | 'assistant'; text: string };
 
@@ -30,6 +32,7 @@ function F(dict: any, key: string, def: string) {
 }
 
 export default function SymptomTriage() {
+  const membershipEnabled=useMembershipPreview();
   const { lang, t } = useLanguage();
   const ui = (t && (t.ui || t)) || {};
 
@@ -67,9 +70,20 @@ export default function SymptomTriage() {
   ]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
+  const [checkingAccess,setCheckingAccess]=useState(false);
 
   const listRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  useEffect(()=>{
+    const draft=takeSearchDraft('medicea.pending-triage');
+    if(draft&&typeof draft.input==='string')setInput(draft.input.slice(0,10000));
+    if(Array.isArray(draft?.messages))setMessages(draft.messages.filter((m:any)=>m&&['user','assistant'].includes(m.role)&&typeof m.text==='string'&&typeof m.id==='string').slice(-30));
+  },[]);
+  useEffect(()=>{
+    if(!membershipEnabled)return;
+    const save=()=>storeSearchDraft('medicea.pending-triage',{input,messages});
+    window.addEventListener(SAVE_DRAFT_EVENT,save);return()=>window.removeEventListener(SAVE_DRAFT_EVENT,save);
+  },[membershipEnabled,input,messages]);
 
   // Keep first assistant bubble synced to the localized welcome
   useEffect(() => {
@@ -94,7 +108,9 @@ export default function SymptomTriage() {
 
   async function send() {
     const text = input.trim();
-    if (!text || loading) return;
+    if (!text || loading || checkingAccess) return;
+    setCheckingAccess(true);
+    try {await checkMembershipAccess(membershipEnabled);}catch{return;}finally{setCheckingAccess(false);}
 
     const userMsg: Msg = { id: crypto.randomUUID(), role: 'user', text };
     setMessages((prev) => [...prev, userMsg]);
@@ -103,16 +119,18 @@ export default function SymptomTriage() {
 
     try {
       const history = messages.concat(userMsg).map((m) => ({ role: m.role, content: m.text }));
-      const res = await fetch('/api/ai-search', {
+      const res = await membershipFetch('/api/ai-search', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ mode: 'triage', lang, query: text, history }),
       });
+      if(!res.ok)throw Error('unavailable');
       const payload = await res.json();
       const reply = pickText(payload) || F(ui, 'noResult', 'No results.');
       const ai: Msg = { id: crypto.randomUUID(), role: 'assistant', text: reply };
       setMessages((prev) => [...prev, ai]);
-    } catch {
+    } catch (error) {
+      if(error instanceof MembershipAccessError){setInput(text);setMessages(messages);return;}
       const err: Msg = { id: crypto.randomUUID(), role: 'assistant', text: tri.errorText };
       setMessages((prev) => [...prev, err]);
     } finally {
@@ -162,11 +180,11 @@ export default function SymptomTriage() {
           />
           <button
             onClick={send}
-            disabled={loading || !input.trim()}
+            disabled={loading || checkingAccess || !input.trim()}
             style={{
               ...styles.sendBtn,
-              opacity: loading || !input.trim() ? 0.6 : 1,
-              cursor: loading || !input.trim() ? 'not-allowed' : 'pointer',
+              opacity: loading || checkingAccess || !input.trim() ? 0.6 : 1,
+              cursor: loading || checkingAccess || !input.trim() ? 'not-allowed' : 'pointer',
             }}
           >
             {loading ? '…' : tri.start}

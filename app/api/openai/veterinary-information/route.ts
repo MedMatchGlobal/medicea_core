@@ -1,9 +1,10 @@
+import {withMembership} from '@/lib/membership/meter';
 import {NextResponse} from 'next/server';
 import {openaiFetch} from '@/app/lib/openaiClient';
 import {VETERINARY_TOPICS, veterinarySections} from '@/app/lib/veterinary-sections';
 export const maxDuration = 60;
 
-export async function POST(req: Request) {
+async function generate(req: Request) {
   try {
     const {drugName, originCountry, lang} = await req.json();
     if (typeof drugName !== 'string' || !drugName.trim() || drugName.length > 250 ||
@@ -32,3 +33,5 @@ Use short factual bullets for each topic. Include all keys; use [] when reliable
     return NextResponse.json({sections:veterinarySections(parsed.information_sections),kind:'ai_veterinary_summary'});
   } catch {return NextResponse.json({error:'SERVICE_UNAVAILABLE'}, {status:502});}
 }
+
+export const POST=withMembership(generate,'information');

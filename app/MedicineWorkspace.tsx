@@ -41,6 +41,8 @@ import { conditionAdditions } from '../data/condition-additions';
 import { searchFeedback } from './i18n/search-feedback';
 import { careSearchQuery } from './lib/care-search';
 import SymptomTriage from './components/SymptomTriage';
+import {useMembershipPreview} from './components/MembershipAccess';
+import {membershipFetch,checkMembershipAccess,MembershipAccessError,SAVE_DRAFT_EVENT,storeSearchDraft,takeSearchDraft,rememberSearchReturn} from './lib/membership-client';
 
 import PremiumPaywall from './components/PremiumPaywall';
 import enStrings from './i18n/en.json';
@@ -393,6 +395,7 @@ function boldConditionHeadings(raw: string) {
 /* -------------------------- MAIN -------------------------- */
 
 function Home({ petMode = false }: { petMode?: boolean }) {
+  const membershipEnabled=useMembershipPreview();
   // localized group labels for condition groups
   const [groupLabels, setGroupLabels] = useState<Record<string, string>>({});
 
@@ -580,6 +583,7 @@ function Home({ petMode = false }: { petMode?: boolean }) {
   const [mode, setMode] = useState<Mode>(petMode ? 'pets' : 'international');
   const [result, setResult] = useState<string>('');
   const [loading, setLoading] = useState(false);
+  const [checkingAccess,setCheckingAccess]=useState(false);
   const [screen, setScreen] = useState<'search' | 'tools' | 'care' | 'results'>('search');
   const [activeSection, setActiveSection] = useState<'search' | 'tools' | 'care'>('search');
   const [searched, setSearched] = useState(false);
@@ -591,6 +595,7 @@ function Home({ petMode = false }: { petMode?: boolean }) {
   const pharmacyOpenRef = useRef(false);
 
   useLayoutEffect(() => {
+    if(new URLSearchParams(window.location.search).get('resume')==='1'&&restorePendingSearch())return;
     if (pendingSavedSearch.current) {
       const saved = pendingSavedSearch.current;
       if ((saved.mode === 'pets' || saved.mode === 'pet-generic') === petMode) {pendingSavedSearch.current = null; applySavedSearch(saved);}
@@ -683,6 +688,7 @@ function Home({ petMode = false }: { petMode?: boolean }) {
   const [originLeafletVisible, setOriginLeafletVisible] = useState(true);
   const [matches, setMatches] = useState<any[]>([]);
   const [petOriginIngredients, setPetOriginIngredients] = useState<VeterinaryIngredient[]>([]);
+  const [searchAccess,setSearchAccess]=useState<string|undefined>();
   const [leafletLoading, setLeafletLoading] = useState<Record<string, boolean>>({});
   const [leaflets, setLeaflets] = useState<Record<string, string>>({});
   const [viewLeaflet, setViewLeaflet] = useState<Record<string, boolean>>({});
@@ -703,7 +709,7 @@ function Home({ petMode = false }: { petMode?: boolean }) {
       const context=completedSearchContext.current;
       if (!context || !isSavedMode(context.mode)) return;
       const next=addSavedSearch(existing,{...context,id:crypto.randomUUID(),savedAt:new Date().toISOString(),mode:context.mode,
-        result,leafletRaw,matches,petOriginIngredients,leaflets,petInformation});
+        result,leafletRaw,matches,petOriginIngredients,leaflets,petInformation,searchAccess});
       localStorage.setItem(SAVED_SEARCH_KEY,JSON.stringify(next));setSavedSearches(next);
       setSaveMessage(`${savedSearchCopy(lang).save} ✓ · ${savedSearchCopy(lang).notice}`);
     } catch {setSaveMessage(savedSearchCopy(lang).error);}
@@ -719,6 +725,7 @@ function Home({ petMode = false }: { petMode?: boolean }) {
     setOriginCode(saved.originCode);setTargetCode(saved.targetCode);setSelectedDrug(saved.selectedDrug);setSelectedDosage(saved.selectedDosage);
     setResult(DOMPurify.sanitize(saved.result));setLeafletRaw(saved.leafletRaw);setMatches(saved.matches);
     setPetOriginIngredients(saved.petOriginIngredients);setLeaflets(saved.leaflets);setPetInformation(saved.petInformation);
+    setSearchAccess(saved.searchAccess);
     setSearchFailed(false);setSearched(true);setScreen('results');setActiveSection(saved.mode==='generic'||saved.mode==='leaflet'?'tools':'search');
     setRestoredSearch(saved);setSaveMessage('');
     if (SUPPORTED_LANGS.includes(saved.lang as any)) setLang(saved.lang as typeof lang);
@@ -776,6 +783,7 @@ function Home({ petMode = false }: { petMode?: boolean }) {
   }, [useGeo]);
 
   function resetFieldsForMode(m: Mode) {
+    setSearchAccess(undefined);
     abandonPharmacyTrip();
     searchVersion.current += 1;
     setLoading(false);
@@ -810,7 +818,34 @@ function Home({ petMode = false }: { petMode?: boolean }) {
     return mode === 'condition' ? boldConditionHeadings(plainText) : plainText;
   }, [plainText, mode]);
 
+  function restorePendingSearch() {
+    const draft=takeSearchDraft('medicea.pending-search');
+    if(!draft||!['international','generic','leaflet','condition','pets','pet-generic','triage'].includes(draft.mode)||
+      (draft.mode==='pets'||draft.mode==='pet-generic')!==petMode)return false;
+    resetFieldsForMode(draft.mode);
+    const text=(value:unknown,max=10000)=>typeof value==='string'?value.slice(0,max):'';
+    setOriginCode(text(draft.originCode,100));setTargetCode(text(draft.targetCode,100));
+    setSelectedDrug(text(draft.selectedDrug,300));setSelectedDosage(text(draft.selectedDosage,300));
+    setSelectedCondition(text(draft.selectedCondition,300));setConditionDetails(text(draft.conditionDetails));setUserNotes(text(draft.userNotes));
+    if(SUPPORTED_LANGS.includes(draft.lang))setLang(draft.lang);
+    setActiveSection(draft.mode==='generic'||draft.mode==='leaflet'||draft.mode==='condition'||draft.mode==='triage'?'tools':'search');
+    if(draft.searched&&isSavedMode(draft.mode)) {
+      // Reuse the explicit saved-result validator before restoring generated content.
+      const [saved]=readSavedSearches(JSON.stringify([{...draft,id:'pending',savedAt:new Date().toISOString()}]));
+      if(saved)applySavedSearch(saved);
+    }
+    window.history.replaceState(window.history.state,'',petMode?'/pets':'/');
+    return true;
+  }
+  useEffect(()=>{
+    if(!membershipEnabled)return;
+    const save=()=>storeSearchDraft('medicea.pending-search',{mode,lang,originCode,targetCode,selectedDrug,selectedDosage,selectedCondition,conditionDetails,userNotes,
+      searched:searched&&!loading&&!searchFailed,result,leafletRaw,matches,petOriginIngredients,leaflets,petInformation,searchAccess});
+    window.addEventListener(SAVE_DRAFT_EVENT,save);return()=>window.removeEventListener(SAVE_DRAFT_EVENT,save);
+  },[membershipEnabled,mode,lang,originCode,targetCode,selectedDrug,selectedDosage,selectedCondition,conditionDetails,userNotes,searched,loading,searchFailed,result,leafletRaw,matches,petOriginIngredients,leaflets,petInformation,searchAccess]);
+
   const handleSearch = async () => {
+    if(loading||checkingAccess)return;
     const version = searchVersion.current;
     if (mode === 'triage') return;
 
@@ -826,13 +861,15 @@ function Home({ petMode = false }: { petMode?: boolean }) {
       return; // prevent falling into AI path
     }
     /* ---------------------------------------------------------------------- */
+    setCheckingAccess(true);
+    try {await checkMembershipAccess(membershipEnabled);}catch{return;}finally{setCheckingAccess(false);}
 
     // PREMIUM-ONLY MODES: Pets, Generics, Triage (search button)
 type PremiumMode = Extract<Mode, 'pets' | 'pet-generic' | 'generic' | 'triage'>;
 const isPremiumMode = (m: Mode): m is PremiumMode =>
   m === 'pets' || m === 'pet-generic' || m === 'generic' || m === 'triage';
 
-if (!BETA_TESTING && isPremiumMode(mode)) {
+if (!membershipEnabled && !BETA_TESTING && isPremiumMode(mode)) {
   const reason: PaywallReason = (mode === 'pets' || mode === 'pet-generic') ? 'pets' : mode === 'generic' ? 'generics' : 'triage';
   setPaywallReason(reason);
   setPaywallVisible(true);
@@ -840,7 +877,7 @@ if (!BETA_TESTING && isPremiumMode(mode)) {
 }
 
     // FREE-TIER LIMITS (client/local)
-    if (LIMITS_ON) {
+    if (!membershipEnabled && LIMITS_ON) {
       if (mode === 'international' && !hasFreeQuota('equivalentSearch')) {
         setPaywallReason('equivalentSearch');
         setPaywallVisible(true);
@@ -854,7 +891,7 @@ if (!BETA_TESTING && isPremiumMode(mode)) {
     }
 
     // SERVER-SIDE LIMITS
-    if (LIMITS_ON && mode === 'international') {
+    if (!membershipEnabled && LIMITS_ON && mode === 'international') {
       const { allowed } = await registerUsage('equivalentSearch');
       if (!allowed) {
         setPaywallReason('equivalentSearch');
@@ -863,7 +900,7 @@ if (!BETA_TESTING && isPremiumMode(mode)) {
       }
     }
 
-    if (LIMITS_ON && mode === 'leaflet') {
+    if (!membershipEnabled && LIMITS_ON && mode === 'leaflet') {
       const { allowed } = await registerUsage('leaflet');
       if (!allowed) {
         setPaywallReason('leaflet');
@@ -882,6 +919,7 @@ if (!BETA_TESTING && isPremiumMode(mode)) {
     setResult(F(ui, 'searching', 'Searching…'));
     setMatches([]);
     setPetOriginIngredients([]);
+    setSearchAccess(undefined);
     setLeafletRaw('');
     setOriginLeafletVisible(true);
     setLeaflets({});
@@ -895,16 +933,16 @@ if (!BETA_TESTING && isPremiumMode(mode)) {
 
     try {
       // Count usage locally only after all checks passed
-      if (LIMITS_ON && mode === 'international') {
+      if (!membershipEnabled && LIMITS_ON && mode === 'international') {
         incrementUsage('equivalentSearch');
       }
 
-      if (LIMITS_ON && mode === 'leaflet') {
+      if (!membershipEnabled && LIMITS_ON && mode === 'leaflet') {
         incrementUsage('leaflet');
       }
 
       if (mode === 'leaflet') {
-        const res = await fetch('/api/openai/leaflet', {
+        const res = await membershipFetch('/api/openai/leaflet', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ originCountry, drugName, drugDosage, lang }),
@@ -946,7 +984,7 @@ Return **clear, concise Markdown** with these sections and short bullet points w
 Tone: calm, supportive, non-alarming. Be country-aware about access rules and pathways. Keep it compact.
 `.trim();
 
-        const res = await fetch('/api/ai-search', {
+        const res = await membershipFetch('/api/ai-search', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -972,7 +1010,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
         return;
       }
 
-      if (mode !== 'pets' && mode !== 'pet-generic') {
+      if (!membershipEnabled && mode !== 'pets' && mode !== 'pet-generic') {
       const leafletResp = await fetch('/api/openai/leaflet', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -993,14 +1031,16 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
           ? '/api/openai/pet-generics'
           : '/api/openai/pets';
 
-      const res2 = await fetch(endpoint, {
+      const res2 = await membershipFetch(membershipEnabled?'/api/membership/search':endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ originCountry, targetCountry, drugName, drugDosage, lang }),
+        body: JSON.stringify({ originCountry, targetCountry, drugName, drugDosage, lang, ...(membershipEnabled?{mode}:{}) }),
       });
       if (!res2.ok) throw new Error('Medicine service unavailable');
       const payload2 = await res2.json();
       if (version !== searchVersion.current) return;
+      setSearchAccess(payload2.searchAccess);
+      if(membershipEnabled&&payload2.originLeaflet)setLeafletRaw(pickText(payload2.originLeaflet));
       if (mode === 'pets' || mode === 'pet-generic') setPetOriginIngredients(veterinaryIngredients(payload2.originProfile));
 
       if (Array.isArray(payload2?.matches) && payload2.matches.length) {
@@ -1015,8 +1055,9 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
       }
 
       setLoading(false);
-    } catch {
+    } catch (error) {
       if (version !== searchVersion.current) return;
+      if(error instanceof MembershipAccessError){setSearched(false);setScreen('search');setLoading(false);return;}
       setSearchFailed(true);
       setLeafletRaw('');
     setOriginLeafletVisible(true);
@@ -1032,7 +1073,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
       const country =
         mode === 'international' || mode === 'pets' ? targetCode || originCode || '' : originCode || '';
 
-      const res = await fetch('/api/openai/leaflet', {
+      const res = await membershipFetch('/api/openai/leaflet', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -1043,13 +1084,15 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
           medicineName,
           drugDosage: selectedDosage || '',
           lang,
+          searchAccess,
         }),
       });
       const data = await res.json();
       if (version !== searchVersion.current) return;
       setLeaflets((p) => ({ ...p, [medicineName]: pickText(data) }));
       setViewLeaflet((p) => ({ ...p, [medicineName]: true }));
-    } catch {
+    } catch (error) {
+      if(error instanceof MembershipAccessError)return;
       setLeaflets((p) => ({ ...p, [medicineName]: F(ui, 'leafletFail', 'Failed to fetch leaflet.') }));
       setViewLeaflet((p) => ({ ...p, [medicineName]: true }));
     } finally {
@@ -1074,6 +1117,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
           <Link href="/?section=tools" aria-current={!pharmacyOpen && !petMode && activeSection === 'tools' ? 'page' : undefined} onClick={petMode ? undefined : (event) => {event.preventDefault(); showScreen('tools');}}>{F(ui, 'medicineTools', 'Health tools')}</Link>
           <Link href="/?section=care" aria-current={pharmacyOpen || !petMode && activeSection === 'care' ? 'page' : undefined} onClick={petMode ? undefined : (event) => {event.preventDefault(); showScreen('care');}}>{F(ui, 'findCare', 'Find care')}</Link>
           <Link href="/pets" aria-current={petMode && !pharmacyOpen ? 'page' : undefined}>{F(ui, 'btnPets', 'Meds 4 Pets')}</Link>
+          {membershipEnabled&&<Link href="/membership" onClick={()=>rememberSearchReturn()}>Account</Link>}
         </nav>
         <div className="language-control"><LanguageButton /></div>
       </header>
@@ -1230,7 +1274,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
           <button
             onClick={handleSearch}
             disabled={
-              loading ||
+              loading || checkingAccess ||
               (mode === 'international' && !(originCode && selectedDrug && targetCode)) ||
               (mode === 'generic' && !(originCode && selectedDrug)) ||
               (mode === 'leaflet' && !(originCode && selectedDrug)) ||
@@ -1320,7 +1364,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
           {restoredSearch && <p className="search-note">{savedSearchCopy(lang).historical} · {new Date(restoredSearch.savedAt).toLocaleString(lang)}</p>}
           {(mode === 'pets' || mode === 'pet-generic') && !loading && !searchFailed && <div className="leaflet-block">
             <h2 className="medicine-section-title">{F(ui, 'medicineDetails', 'Medicine details')} — {selectedDrug}</h2>
-            <PetMedicineInformation key={selectedDrug + originCode + lang + (restoredSearch?.id || "")} medicineName={selectedDrug} country={originCode} lang={lang}
+            <PetMedicineInformation searchAccess={searchAccess} key={selectedDrug + originCode + lang + (restoredSearch?.id || "")} medicineName={selectedDrug} country={originCode} lang={lang}
               initiallyExpanded initialInformation={petInformation[selectedDrug + originCode + lang]}
               onInformation={sections=>setPetInformation(previous=>({...previous,[selectedDrug + originCode + lang]:sections}))}
               headings={(t as any).leafletHeadings || {}}
@@ -1427,7 +1471,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
             <div style={{ marginTop: 12 }}>
               {matches.map((m: any, idx: number) => {
                 const medname = m?.medicine_name ?? m?.Medicine_name ?? `Medicine ${idx + 1}`;
-                if (mode === 'pets' || mode === 'pet-generic') return <PetMedicineInformation key={medname + lang + (restoredSearch?.id || "")}
+                if (mode === 'pets' || mode === 'pet-generic') return <PetMedicineInformation searchAccess={searchAccess} key={medname + lang + (restoredSearch?.id || "")}
                   initialInformation={petInformation[medname + (mode === 'pets' ? targetCode || originCode : originCode) + lang]}
                   onInformation={sections=>setPetInformation(previous=>({...previous,[medname + (mode === 'pets' ? targetCode || originCode : originCode) + lang]:sections}))}
                   headings={(t as any).leafletHeadings || {}}
