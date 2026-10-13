@@ -1,9 +1,10 @@
+import {withMembership} from '@/lib/membership/meter';
 export const maxDuration = 60;
 import { openaiFetch } from "@/app/lib/openaiClient";
 // app/api/triage/route.ts
 import { NextResponse } from 'next/server';
 
-export async function POST(req: Request) {
+async function generate(req: Request) {
   const { messages } = await req.json();
 
   try {
@@ -33,3 +34,5 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: err.message || 'Unexpected error' }, { status: 500 });
   }
 }
+
+export const POST=withMembership(generate,'plain');

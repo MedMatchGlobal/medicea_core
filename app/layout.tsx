@@ -6,6 +6,8 @@ import { LanguageProvider } from "./LanguageProvider";
 import "./globals.css";
 
 import GATracker from "./ga-tracker";
+import MembershipAccess from './components/MembershipAccess';
+import {membershipPreviewEnabled} from '@/lib/membership/config';
 
 export const metadata = {
   title: "medicéa",
@@ -48,7 +50,7 @@ export default function RootLayout({
         <Suspense fallback={null}>
           <GATracker />
         </Suspense>
-        <LanguageProvider>{children}</LanguageProvider>
+        <LanguageProvider><MembershipAccess enabled={membershipPreviewEnabled()}>{children}</MembershipAccess></LanguageProvider>
       </body>
     </html>
   );

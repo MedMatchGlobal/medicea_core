@@ -1,3 +1,4 @@
+import {withMembership} from '@/lib/membership/meter';
 export const maxDuration = 60;
 import { openaiFetch } from "@/app/lib/openaiClient";
 import { NextResponse } from "next/server";
@@ -102,7 +103,7 @@ function applyUserDosageOverride(
 
 // --------------------------------------------------------------
 
-export async function POST(req: Request) {
+async function generate(req: Request) {
   try {
     const { originCountry, drugName, drugDosage } = await req.json();
 
@@ -200,3 +201,5 @@ Return strictly JSON with keys: medicine_name, origin_country, active_ingredient
     );
   }
 }
+
+export const POST=withMembership(generate,'matches','generic');

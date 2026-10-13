@@ -1,3 +1,4 @@
+import {withMembership} from '@/lib/membership/meter';
 export const maxDuration = 60;
 import { openaiFetch } from "@/app/lib/openaiClient";
 import { NextResponse } from "next/server";
@@ -102,7 +103,7 @@ function applyUserDosageOverride(
 
 // --------------------------------------------------------------
 
-export async function POST(req: Request) {
+async function generate(req: Request) {
   try {
     const { originCountry, drugName, drugDosage, targetCountry } = await req.json();
 
@@ -201,3 +202,5 @@ const response2 = await openaiFetch(OPENAI_URL, {
     );
   }
 }
+
+export const POST=withMembership(generate,'matches','international');

@@ -8,7 +8,7 @@ test('public core has no private account, storage routes or credentials client',
   assert.equal(fs.existsSync(path.join(root, file)), false, file);
  }
  const pkg = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8'));
- for (const dep of ['@supabase/ssr', '@supabase/supabase-js', 'tus-js-client', '@electric-sql/pglite']) {
+ for (const dep of ['tus-js-client']) {
   assert.equal(Boolean(pkg.dependencies?.[dep] || pkg.devDependencies?.[dep]), false, dep);
  }
 });

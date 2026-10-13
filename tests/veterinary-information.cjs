@@ -12,6 +12,7 @@ function load(file, overrides = {}) {
   const module = {exports:{}};
   vm.runInNewContext(output, {module,exports:module.exports,require(name){
     if (overrides[name]) return overrides[name];
+    if (name === '@/lib/membership/meter') return {withMembership:handler=>handler};
     if (name.startsWith('.')) {const target=path.resolve(path.dirname(file),name); return load(fs.existsSync(target+'.ts') ? target+'.ts' : target+'.tsx',overrides);}
     if (name.startsWith('@/app/')) return load(path.join(__dirname,'..',name.slice(2)+'.ts'),overrides);
     return require(name);

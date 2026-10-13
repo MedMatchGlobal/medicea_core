@@ -5,11 +5,13 @@ import type {VeterinarySection} from '../lib/veterinary-sections';
 import {leafletActions} from '../i18n/leaflet-actions';
 import {veterinaryInformationCopy} from '../i18n/veterinary-information';
 import {officialVeterinaryLeafletSearch, type VeterinaryIngredient} from '../lib/veterinary-details';
+import {membershipFetch,MembershipAccessError} from '../lib/membership-client';
 
-export default function PetMedicineInformation({medicineName, country, lang, ingredients, ingredientLabel, loadingLabel, errorLabel, headings = {}, initiallyExpanded = false, initialInformation, onInformation}: {
+export default function PetMedicineInformation({medicineName, country, lang, ingredients, ingredientLabel, loadingLabel, errorLabel, headings = {}, initiallyExpanded = false, initialInformation, onInformation,searchAccess}: {
   medicineName:string; country:string; lang:string; ingredients?:VeterinaryIngredient[];
   ingredientLabel:string; loadingLabel:string; errorLabel:string;
   headings?:Record<string,string>; initiallyExpanded?:boolean; initialInformation?:VeterinarySection[]; onInformation?:(sections:VeterinarySection[])=>void;
+  searchAccess?:string;
 }) {
   const copy = {...veterinaryInformationCopy(lang), ...leafletActions(lang)};
   const id = useId();
@@ -27,15 +29,15 @@ export default function PetMedicineInformation({medicineName, country, lang, ing
     setOpen(true); setError(false); setLoading(true);
     const request = new AbortController(); controller.current = request;
     try {
-      const response = await fetch('/api/openai/veterinary-information', {
+      const response = await membershipFetch('/api/openai/veterinary-information', {
         method:'POST',headers:{'Content-Type':'application/json'},signal:request.signal,
-        body:JSON.stringify({drugName:medicineName,originCountry:country,lang}),
+        body:JSON.stringify({drugName:medicineName,originCountry:country,lang,searchAccess}),
       });
       if (!response.ok) throw new Error('unavailable');
       const payload = await response.json();
       if (!Array.isArray(payload.sections) || !payload.sections.length) throw new Error('empty');
       if (!request.signal.aborted) {setInformation(payload.sections);onInformation?.(payload.sections);}
-    } catch {if (!request.signal.aborted) setError(true);}
+    } catch (error) {if (!request.signal.aborted) {if(error instanceof MembershipAccessError)setOpen(false);else setError(true);}}
     finally {if (!request.signal.aborted) setLoading(false);}
   }
   return <article className={`medicine-result-card pet-information-card${initiallyExpanded ? " medicine-origin-card" : ""}`}>

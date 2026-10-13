@@ -1,3 +1,4 @@
+import {withMembership} from '@/lib/membership/meter';
 export const maxDuration = 60;
 // app/api/ai-search/route.ts
 import { NextResponse } from "next/server";
@@ -32,7 +33,7 @@ const LANGUAGE_NAME: Record<string, string> = {
   ko: "한국어",
 };
 
-export async function POST(req: Request) {
+async function generate(req: Request) {
   try {
     const body = await req.json();
 
@@ -104,3 +105,5 @@ Guidance:
     );
   }
 }
+
+export const POST=withMembership(generate,'text');
