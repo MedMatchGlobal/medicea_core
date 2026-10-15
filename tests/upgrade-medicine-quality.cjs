@@ -4,6 +4,18 @@ const sourced=load('source-matches');
 const ingredient=(name,strength)=>({name,strength});
 const origin={name:'Origin',country:'United Kingdom',complete:true,generic:false,form:'tablet',route:'oral',species:[],ingredients:[ingredient('Paracetamol','500 mg/tablet'),ingredient('Codeine phosphate','8 mg/tablet')],sources:['https://www.medicines.org.uk/emc/product/fixture']};
 const candidate={...origin,name:'Candidate',country:'Ireland',sources:['https://www.hpra.ie/fixture']};
+test('UK co-codamol 8/500 never accepts Italian Co Efferalgan 500/30, in either direction',()=>{
+ const uk={...origin,name:'Co-codamol 8/500 tablets'};
+ const italy={...origin,name:'Co Efferalgan 500 mg + 30 mg tablets',country:'Italy',ingredients:[ingredient('Paracetamol','500 mg/tablet'),ingredient('Codeine phosphate','30 mg/tablet')],sources:['https://www.aifa.gov.it/fixture']};
+ assert.equal(sourced.exactComposition(uk,italy),false);
+ assert.equal(sourced.exactComposition(italy,uk),false);
+ const rejected=sourced.readSourcedMatches(response([italy],[...uk.sources,...italy.sources],uk),'United Kingdom','Italy','international');
+ assert.equal(rejected.matches.length,0);
+ assert.equal(rejected.equivalentResults.raw_text,'No matches.');
+ const uk30={...italy,name:'Co-codamol 30/500 tablets',country:'United Kingdom',sources:uk.sources};
+ assert.equal(sourced.exactComposition(italy,uk30),true);
+ assert.equal(sourced.exactComposition(italy,{...uk30,form:'effervescent tablet'}),false);
+});
 function response(candidates=[candidate],sourceList=[...origin.sources,...candidate.sources],profile=origin){return {status:'completed',output:[{type:'web_search_call',status:'completed',action:{sources:sourceList.map(url=>({url}))}},{type:'message',content:[{type:'output_text',text:JSON.stringify({origin:profile,candidates})}]}]};}
 test('exact full composition rejects extra/missing/duplicate ingredients, strength/basis, salt, route and form differences',()=>{
  assert.equal(sourced.exactComposition(origin,candidate),true);
