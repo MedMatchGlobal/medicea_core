@@ -574,8 +574,8 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 .origin-choice h4 { margin:0; font-size:18px; }
 .origin-choice ul { padding-inline-start:20px; }
 .origin-choice button { margin-top:14px; max-width:100%; white-space:normal; text-align:start; }
-.travel-nav { display:flex; flex-wrap:wrap; gap:8px; max-width:1100px; margin:12px auto 16px; padding:8px 12px; }
-.travel-nav a { flex:1; min-width:100px; text-align:center; padding:12px 10px; border:1px solid #d3e1e7; border-radius:12px; background:#fff; color:#204b61; font-size:15px; font-weight:650; text-decoration:none; }
+.travel-nav { position:relative; flex-shrink:0; width:max-content; margin:0; z-index:40; }
+.travel-nav a { display:block; padding:12px 16px; border-radius:9px; color:#204b61; font-size:15px; font-weight:650; text-decoration:none; text-align:start; overflow-wrap:anywhere; }
 .travel-nav a[aria-current=page] { border-color:#69a6af; background:#e6f5f3; color:#125d65; }
 .model-test-banner { display:flex; flex-wrap:wrap; gap:6px 20px; max-width:1160px; margin:12px auto; padding:14px 18px; border:1px solid #92bdcb; border-radius:12px; background:#e8f6f7; color:#173b50; font-size:13px; line-height:1.5; overflow-wrap:anywhere; }
 .model-test-banner strong { flex-basis:100%; }
@@ -712,3 +712,11 @@ html { scrollbar-gutter:stable; }
 .saved-search-row p { margin:4px 0; font-size:.85rem; overflow-wrap:anywhere; }
 .saved-search-status { margin:10px 0; }
 @media(max-width:640px) { .saved-search-row { align-items:flex-start; flex-direction:column; } }
+
+.travel-menu-button { padding:0!important; display:flex; align-items:center; justify-content:center; width:46px; height:46px; border:1px solid #c5dbe3; border-radius:12px; background:#fff; color:#176b82; cursor:pointer; }
+.travel-menu-button:focus-visible,.travel-nav a:focus-visible { outline:3px solid #518de9; outline-offset:3px; }
+.travel-menu-links { position:absolute; inset-inline-end:0; top:100%; width:min(270px,calc(100vw - 24px)); padding:8px; background:white; border:1px solid #d3e1e7; border-radius:14px; box-shadow:0 12px 32px #17384924; }
+.travel-menu-links[hidden] { display:none; }
+.travel-discovery-nav { display:flex; justify-content:flex-end; max-width:1100px; margin:8px auto 0; padding-inline:24px; }
+
+.travel-menu-button svg { flex-shrink:0; }

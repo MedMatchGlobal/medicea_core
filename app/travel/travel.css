@@ -14,8 +14,8 @@
 .travel-app a { color:#176a92; }
 .travel-header { display:flex; align-items:center; justify-content:space-between; gap:20px; padding:8px 0 14px; }
 .travel-header img { width:158px; max-width:42vw; height:auto; display:block; }
-.travel-header label { max-width:180px; }
-.travel-app .travel-nav { padding:0; margin:0 0 20px; }
+.travel-header label { max-width:180px; margin-inline-start:auto; }
+.travel-app .travel-nav { padding:0; margin:0; }
 .travel-notice { display:flex; gap:12px; align-items:flex-start; background:#fff6e6; border:1px solid #e4cda0; border-radius:14px; padding:14px 18px; font-size:13px; color:#73561f; margin-bottom:24px; }
 .travel-notice svg { flex-shrink:0; margin-top:2px; }
 .travel-notice p { margin:5px 0 0; }
@@ -93,7 +93,8 @@
  .travel-header { padding-top:10px; }
  .travel-header img { width:135px; }
  .travel-header label { max-width:145px; }
- .travel-app .travel-nav a { min-width:60px; font-size:12px; padding:11px 5px; }
+ .travel-header { gap:10px; }
+ .travel-header label { max-width:125px; }
  .travel-notice { padding:12px; font-size:12px; }
  .travel-hero { min-height:210px; padding:22px 18px; background-position:65% center; }
  .travel-hero h1 { max-width:250px; }
@@ -114,3 +115,12 @@
  .travel-app,.travel-panel,.travel-pharmacist { max-width:none; margin:0; padding:8px; box-shadow:none; border:0; background:white; }
  .travel-pharmacist article { break-inside:avoid; }
 }
+
+.travel-reminder { margin-top:24px; padding-top:18px; border-top:1px solid #d7e6e9; }
+.travel-reminder h3 { display:flex; gap:8px; align-items:center; }
+.travel-reminder p { font-size:14px; }
+.travel-reminder label { max-width:360px; margin-bottom:16px; }
+.travel-reminder label span { overflow-wrap:anywhere; }
+.travel-feed time { color:#587786; font-size:13px; }
+
+.travel-feed h2 { overflow-wrap:anywhere; }
