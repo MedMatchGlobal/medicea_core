@@ -15,6 +15,19 @@ const country=(value:unknown)=>({uk:'united kingdom',gb:'united kingdom',us:'uni
 type Ingredient={name:string;strength:string};
 type Profile={name:string;country:string;form:string;route:string;species:string[];complete:boolean;generic:boolean;ingredients:Ingredient[];sources:string[]};
 type Mode='international'|'generic'|'pet-international'|'pet-generic';
+// A simple combination-strength selection must agree with the researched
+// origin. Compare unordered amounts because UK 8/500 and user 500 + 8 may
+// list the ingredients in different orders. Never overwrite label strengths.
+export function selectedCombinationAgrees(hint:unknown,ingredients:Ingredient[]):boolean|null {
+ if(typeof hint!=='string'||!hint.trim())return null;
+ const parts=hint.trim().split(/\s*(?:\+|\/)\s*/);
+ if(parts.length<2||parts.some(p=>!/^\d+(?:\.\d+)?\s*(?:mg)?$/i.test(p)))return null;
+ const amounts=parts.map(p=>Number.parseFloat(p)).sort((a,b)=>a-b);
+ const labels=ingredients.map(i=>i.strength.match(/^(\d+(?:\.\d+)?)\s*mg\s*(?:(?:per|\/)\s*(?:tablet|capsule))?$/i));
+ if(labels.some(m=>!m))return null;
+ const values=labels.map(m=>Number(m![1])).sort((a,b)=>a-b);
+ return JSON.stringify(amounts)===JSON.stringify(values);
+}
 function strengthKey(value:string){
  // Formatting equivalence only: 500.0 mg == 500 mg. No unit, salt or
  // concentration conversion; e.g. mg/ml must never collapse into mg/tablet.
@@ -94,6 +107,7 @@ export async function sourceMatchedSearch(input:{drugName:unknown;originCountry:
   if('error' in checked)return Response.json(checked,{status:422});
   const firstText=first.output.filter((o:any)=>o.type==='message').flatMap((o:any)=>o.content||[]).filter((c:any)=>c.type==='output_text').map((c:any)=>c.text).join('');
   const established=JSON.parse(firstText).origin as Profile;
+  if(selectedCombinationAgrees(drugDosage,established.ingredients)===false)return Response.json({error:'ORIGIN_STRENGTH_MISMATCH',originProfile:{active_ingredients:[]}},{status:422});
   if(mode.startsWith('pet-')&&(!Array.isArray(established.species)||!established.species.length))return Response.json({error:'NOT_FOUND_ORIGIN',originProfile:{active_ingredients:[]}},{status:422});
   const second=await lookup(targets,{task:'Find source-supported matching products in the target country. Brand/manufacturer may differ. The origin is already supplied; research target candidates only.',establishedOrigin:established,targetCountry,mode},true);
   return Response.json(readSourcedMatches({...second,output:[...first.output.filter((o:any)=>o.type==='web_search_call'),...second.output]},originCountry,targetCountry,mode,established));

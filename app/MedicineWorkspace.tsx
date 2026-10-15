@@ -1370,6 +1370,12 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
           <div className="results-heading">
             <div><h2>{F(ui, 'searchResults', 'Search results')}</h2><p role="status" aria-live="polite">{loading ? F(ui, 'searching', 'Searching…') : searchFailed ? F(ui, 'medicineServiceError', 'Medicine information is temporarily unavailable. Please try again shortly.') : F(ui, 'searchComplete', 'Search complete')}</p></div>
             <div className="results-actions">{isSavedMode(mode) && <button disabled={loading || searchFailed} onClick={saveCurrentSearch}>{savedSearchCopy(lang).save}</button>}<button disabled={loading} onClick={() => showScreen('search')}>{F(ui, 'editSearch', 'Edit search')}</button><button disabled={loading} onClick={clearSearch}>{F(ui, 'newSearch', 'New search')}</button></div>
+            {isSavedMode(mode) && <dl className="search-parameters">
+              <div><dt>{F(ui,'phHome','Home country')}</dt><dd>{originCode || '—'}</dd></div>
+              {(mode === 'international' || mode === 'pets') && <div><dt>{F(ui,'phTarget','Destination country')}</dt><dd>{targetCode || '—'}</dd></div>}
+              <div><dt>{F(ui,'phMed','Medicine name')}</dt><dd>{selectedDrug || '—'}</dd></div>
+              <div><dt>{F(ui,'phDose','Dosage (optional)')}</dt><dd>{selectedDosage || '—'}</dd></div>
+            </dl>}
           </div>
           {restoredSearch && <p className="search-note">{savedSearchCopy(lang).historical} · {new Date(restoredSearch.savedAt).toLocaleString(lang)}</p>}
           {!loading&&!searchFailed&&<MedicineSources sources={originSources}/>}

@@ -46,6 +46,15 @@ test('unknown country coverage fails without provider calls; lookup uses require
  assert.equal((await api.sourceMatchedSearch({drugName:'Fixture',originCountry:'Unknown place',targetCountry:'Ireland'},'international')).status,503);assert.equal(calls,0);
  const result=await api.sourceMatchedSearch({drugName:'Fixture',originCountry:'United Kingdom',targetCountry:'Ireland'},'international');assert.equal(result.status,200);assert.equal(calls,2);
 });
+test('selected 500 + 8 cannot be silently replaced by a researched 500 + 30 origin',async()=>{
+ assert.equal(sourced.selectedCombinationAgrees('500 + 8',origin.ingredients),true);
+ assert.equal(sourced.selectedCombinationAgrees('8mg/500mg',origin.ingredients),true);
+ assert.equal(sourced.selectedCombinationAgrees('500 + 30',origin.ingredients),false);
+ assert.equal(sourced.selectedCombinationAgrees('500 mg/ml',origin.ingredients),null);
+ let calls=0;const api=load('source-matches',{openaiFetch:async()=>{calls++;return Response.json(response([],origin.sources,origin));}});
+ const result=await api.sourceMatchedSearch({drugName:'Co-codamol',originCountry:'United Kingdom',targetCountry:'Italy',drugDosage:'500 + 30'},'international');
+ assert.equal(result.status,422);assert.equal((await result.json()).error,'ORIGIN_STRENGTH_MISMATCH');assert.equal(calls,1);
+});
 test('medicine summary requires known ingredients, every topic and an explicit note, rejects empty or truncated upstream output',async()=>{
  const topics=['Active Ingredients','Uses','Dosage','Contraindications','Warnings','Precautions','Side Effects','Interactions','Storage','Legal Classification','Manufacturer','Average Selling Price','Note'];const information_sections=Object.fromEntries(topics.map(t=>[t,[]]));information_sections['Active Ingredients']=['Fixture ingredient'];information_sections.Note=['AI-generated educational summary; not an official leaflet.'];
  const helper=load('medicine-summary');assert.match(helper.summaryText({known:true,information_sections}),/Active Ingredients\n- Fixture/);assert.equal(helper.summaryText({known:false,information_sections}),null);assert.equal(helper.summaryText({known:true,information_sections:{...information_sections,Note:[]}}),null);
