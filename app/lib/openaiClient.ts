@@ -4,6 +4,36 @@ const ENDPOINT = "https://api.openai.com/v1/chat/completions";
 const ATTEMPT_TIMEOUT_MS = 10_000;
 const REQUEST_TIMEOUT_MS = 25_000;
 
+/** Opt-in migration transport. Preserve every route's prompt and output contract.
+ * Production and unrecognised/pinned models keep the original request verbatim.
+ */
+export function modelUpgradeRequest(init: RequestInit): RequestInit {
+  const preview = process.env.VERCEL_ENV === "preview" ||
+    (!process.env.VERCEL_ENV && process.env.NODE_ENV === "development");
+  if (!preview || process.env.MEDICEA_OPENAI_UPGRADE !== "true") return init;
+  if (typeof init.body !== "string") throw new Error("Model upgrade requires a JSON request.");
+  const body = JSON.parse(init.body);
+  const legacy = body.model;
+  const fast = legacy === "gpt-4o-mini";
+  if (!fast && legacy !== "gpt-4o" && legacy !== "gpt-4") return init;
+  if (body.stream || body.tools || body.functions || body.function_call) {
+    throw new Error("Model upgrade requires a separate streaming/tool migration.");
+  }
+  body.model = fast ? "gpt-6-luna" : "gpt-6-astra";
+  body.reasoning_effort = fast ? "none" : "low";
+  // Astra reasoning does not accept sampling parameters. Seed is a legacy
+  // reproducibility hint; the migration does not promise deterministic outputs.
+  delete body.seed;
+  if (!fast) {
+    delete body.temperature; delete body.top_p; delete body.top_logprobs; delete body.logprobs;
+  }
+  if (body.max_tokens !== undefined) {
+    body.max_completion_tokens = body.max_tokens;
+    delete body.max_tokens;
+  }
+  return {...init, body: JSON.stringify(body)};
+}
+
 function configuredKeys(): string[] {
   if (typeof window !== "undefined") throw new Error("OpenAI is server-only.");
   return [...new Set([
@@ -34,6 +64,7 @@ function canFailOver(status: number, code: unknown): boolean {
  */
 export async function openaiFetch(url: string, init: RequestInit): Promise<Response> {
   if (url !== ENDPOINT) throw new Error("Unsupported OpenAI endpoint.");
+  init = modelUpgradeRequest(init);
   const keys = configuredKeys();
   if (!keys.length) throw new Error("No OpenAI API keys configured.");
   if (init.signal?.aborted) throw new Error("OpenAI request cancelled.");
