@@ -19,12 +19,16 @@ export function modelUpgradeRequest(init: RequestInit): RequestInit {
   if (body.stream || body.tools || body.functions || body.function_call) {
     throw new Error("Model upgrade requires a separate streaming/tool migration.");
   }
-  body.model = fast ? "gpt-6-luna" : "gpt-6-astra";
-  body.reasoning_effort = fast ? "none" : "low";
+  const medicalModel = process.env.MEDICEA_OPENAI_MEDICAL_MODEL || "gpt-6-luna";
+  if (!["gpt-6-luna", "gpt-6.1-sol", "gpt-6-astra"].includes(medicalModel)) {
+    throw new Error("Unsupported Preview medical model.");
+  }
+  body.model = fast ? "gpt-6-luna" : medicalModel;
+  body.reasoning_effort = body.model === "gpt-6-luna" ? "none" : "low";
   // Astra reasoning does not accept sampling parameters. Seed is a legacy
   // reproducibility hint; the migration does not promise deterministic outputs.
   delete body.seed;
-  if (!fast) {
+  if (body.reasoning_effort !== "none") {
     delete body.temperature; delete body.top_p; delete body.top_logprobs; delete body.logprobs;
   }
   if (body.max_tokens !== undefined) {

@@ -6,11 +6,19 @@ test('upgrade is opt-in and impossible in Production even with the switch set',(
  for(const env of [{VERCEL_ENV:'production',MEDICEA_OPENAI_UPGRADE:'true'},{VERCEL_ENV:'preview'},{NODE_ENV:'production',MEDICEA_OPENAI_UPGRADE:'true'}])assert.equal(load(env)(init),init);
 });
 test('Preview upgrade keeps prompts and JSON contracts, separates medical and fast tiers',()=>{
- const upgrade=load({VERCEL_ENV:'preview',MEDICEA_OPENAI_UPGRADE:'true'});
+ const upgrade=load({VERCEL_ENV:'preview',MEDICEA_OPENAI_UPGRADE:'true',MEDICEA_OPENAI_MEDICAL_MODEL:'gpt-6-astra'});
  const original={model:'gpt-4o',messages:[{role:'system',content:'Exact protected prompt'},{role:'user',content:'Unchanged input'}],temperature:0,seed:12345,max_tokens:900,response_format:{type:'json_object'}};
  const medical=JSON.parse(upgrade(request(original)).body);assert.equal(medical.model,'gpt-6-astra');assert.equal(medical.reasoning_effort,'low');assert.deepEqual(medical.messages,original.messages);assert.deepEqual(medical.response_format,original.response_format);assert.equal(medical.max_completion_tokens,900);for(const key of ['max_tokens','temperature','seed'])assert.ok(!(key in medical));
  const fast=JSON.parse(upgrade(request({...original,model:'gpt-4o-mini',temperature:0.2})).body);assert.equal(fast.model,'gpt-6-luna');assert.equal(fast.reasoning_effort,'none');assert.equal(fast.temperature,0.2);
  assert.equal(original.seed,12345);
+});
+test('latency-sensitive default uses Luna without reasoning and preserves sampling',()=>{
+ const upgrade=load({VERCEL_ENV:'preview',MEDICEA_OPENAI_UPGRADE:'true'});
+ const body=JSON.parse(upgrade(request({model:'gpt-4o',temperature:0,seed:12345})).body);
+ assert.equal(body.model,'gpt-6-luna');assert.equal(body.reasoning_effort,'none');assert.equal(body.temperature,0);assert.ok(!('seed'in body));
+ const sol=load({VERCEL_ENV:'preview',MEDICEA_OPENAI_UPGRADE:'true',MEDICEA_OPENAI_MEDICAL_MODEL:'gpt-6.1-sol'});
+ assert.equal(JSON.parse(sol(request({model:'gpt-4'})).body).model,'gpt-6.1-sol');
+ const invalid=load({VERCEL_ENV:'preview',MEDICEA_OPENAI_UPGRADE:'true',MEDICEA_OPENAI_MEDICAL_MODEL:'typo'});assert.throws(()=>invalid(request({model:'gpt-4o'})),/Unsupported Preview medical model/);
 });
 test('pinned/unknown models stay unchanged and unsupported tool migrations fail explicitly',()=>{
  const upgrade=load({VERCEL_ENV:'preview',MEDICEA_OPENAI_UPGRADE:'true'});

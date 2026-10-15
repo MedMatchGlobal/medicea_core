@@ -1,0 +1,31 @@
+// Manual live evaluation: incurs API charges and sends the existing prompts with public fixtures.
+// Passing structural checks does not establish product approval/composition or clinical accuracy.
+const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm');
+const root=path.join(__dirname,'..'),ts=require(path.join(root,'node_modules/typescript'));
+const key=process.env.OPENAI_API_KEY; if(!key)throw Error("Set OPENAI_API_KEY in the execution environment; never commit it.");
+const profile=process.argv[2]||'astra';
+if(!['legacy','astra','sol','luna'].includes(profile))throw Error('Unknown evaluation profile');
+const env={VERCEL_ENV:'preview',MEDICEA_OPENAI_UPGRADE:profile==='legacy'?'false':'true',MEDICEA_OPENAI_MEDICAL_MODEL:profile==='sol'?'gpt-6.1-sol':profile==='astra'?'gpt-6-astra':'gpt-6-luna',OPENAI_API_KEY:key};const traces=[];
+async function traceFetch(url,init){const start=Date.now(),r=await fetch(url,init);const data=await r.clone().json();traces.push({model:data.model,status:r.status,ms:Date.now()-start,finish:data.choices?.[0]?.finish_reason,usage:data.usage});return r;}
+const cache=new Map();function load(file){if(cache.has(file))return cache.get(file);const module={exports:{}};const source=fs.readFileSync(file,'utf8');const js=ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2020,esModuleInterop:true}}).outputText;
+vm.runInNewContext(js,{module,exports:module.exports,process:{env},fetch:traceFetch,Headers,Response,Request,AbortController,setTimeout,clearTimeout,console:{log(){},warn(){},error(){}},require(name){if(name==='next/server')return {NextResponse:{json:Response.json}};if(name==='@/lib/membership/meter')return{withMembership:handler=>handler};if(name.startsWith('@/'))return load(path.join(root,name.slice(2)+'.ts'));throw Error('Unexpected module '+name);}});cache.set(file,module.exports);return module.exports;}
+const cases=[
+ ['human-equivalents','app/api/openai/equivalent-search/route.ts',{originCountry:'United Kingdom',targetCountry:'France',drugName:'Panadol',drugDosage:'500 mg',lang:'en'},d=>d.originProfile?.active_ingredients?.some(x=>/paracetamol|acetaminophen/i.test(x.name))&&!!d.equivalentResults?.raw_text],
+ ['veterinary-information','app/api/openai/veterinary-information/route.ts',{originCountry:'United Kingdom',drugName:'Metacam',lang:'en'},d=>d.kind==='ai_veterinary_summary'&&d.sections?.length>0],
+ ['translation','app/api/translate/route.ts',{text:'Keep the dose 500 mg and the placeholder <brand/> unchanged.',target:'French'},d=>d.result?.includes('500 mg')&&d.result?.includes('<brand/>')],
+ ['condition-budget','app/api/ai-search/route.ts',{selectedCondition:'Seasonal allergic rhinitis',lang:'en'},d=>typeof d.response==='string'&&d.response.length>100]
+];
+if(process.argv[3]==='extended'){
+cases.push(
+ ['combination','app/api/openai/equivalent-search/route.ts',{originCountry:'United Kingdom',targetCountry:'Ireland',drugName:'Co-codamol 8/500 tablets'},d=>d.originProfile?.active_ingredients?.length===2&&d.originProfile.active_ingredients.some(x=>/codeine/i.test(x.name))&&d.originProfile.active_ingredients.some(x=>/paracetamol|acetaminophen/i.test(x.name))&&!!d.equivalentResults?.raw_text],
+ ['unknown-vet','app/api/openai/pet-generics/route.ts',{originCountry:'United Kingdom',drugName:'MEDICEA-NOT-A-REAL-MEDICINE-TEST-987'},d=>d.error==='NOT_FOUND_ORIGIN'],
+ ['pet-generics','app/api/openai/pet-generics/route.ts',{originCountry:'United Kingdom',drugName:'Metacam 1.5 mg/ml oral suspension for dogs'},d=>d.originProfile?.active_ingredients?.some(x=>/meloxicam/i.test(x.name))&&!!d.equivalentResults?.raw_text],
+ ['leaflet','app/api/openai/leaflet/route.ts',{originCountry:'United Kingdom',drugName:'Panadol 500 mg tablets',lang:'en'},d=>typeof d.leaflet?.leaflet_text==='string'&&d.leaflet.leaflet_text.length>100&&!/(?:can[’']?t|cannot|unable to).{0,35}(?:fetch|verify)|non posso recuperare/i.test(d.leaflet.leaflet_text)],
+ ['leaflet-it','app/api/openai/leaflet/route.ts',{originCountry:'United Kingdom',drugName:'Panadol 500 mg tablets',lang:'it'},d=>typeof d.leaflet?.leaflet_text==='string'&&d.leaflet.leaflet_text.length>100&&!/(?:can[’']?t|cannot|unable to).{0,35}(?:fetch|verify)|non posso recuperare/i.test(d.leaflet.leaflet_text)],
+ ['triage','app/api/triage/route.ts',{messages:[{role:'system',content:'Provide brief educational information only; do not diagnose.'},{role:'user',content:'What general warning signs mean someone should seek urgent help for breathing difficulty?'}]},d=>typeof d==='string'&&d.length>100]
+);
+for(const file of fs.readdirSync(path.join(root,'app/i18n/membership')).filter(f=>f.endsWith('.json'))){const lang=file.slice(0,-5);cases.push(['json-'+lang,'app/api/translate-json/route.ts',{lang,data:{title:'Find a medicine',message:'<b>Keep 500 mg</b> with <brand/>.',nested:{count:5}}},d=>d.result?.nested?.count===5&&Object.keys(d.result).join(',')==='title,message,nested'&&d.result.message.includes('500')&&d.result.message.includes('<b>')&&d.result.message.includes('</b>')&&d.result.message.includes('<brand/>')]);}
+}
+(async()=>{const results=[];for(const [name,file,input,check]of cases){const start=Date.now(),before=traces.length;let status,passed=false,data;try{const r=await load(path.join(root,file)).POST({json:async()=>input});status=r.status;data=name==='triage'?await r.text():await r.json();passed=status===200&&!!check(data)&&traces.slice(before).every(t=>t.finish==='stop');}catch{}const item={profile,name,status,passed,ms:Date.now()-start,traces:traces.slice(before)};results.push(item);console.log(JSON.stringify(item));}fs.writeFileSync(path.join(require('node:os').tmpdir(),'medicea-model-route-evaluation-'+profile+'.json'),JSON.stringify(results,null,2));if(results.some(r=>!r.passed))process.exitCode=1;})().catch(()=>{console.error('Evaluation failed');process.exitCode=1});
+
+
