@@ -3,6 +3,10 @@ function helpers(client){const cache={};function load(name){if(cache[name])retur
 const origin={name:'Co-codamol 8/500 tablets',country:'United Kingdom',form:'tablet',route:'oral',species:[],complete:true,generic:false,ingredients:[{name:'Paracetamol',strength:'500 mg/tablet'},{name:'Codeine phosphate',strength:'8 mg/tablet'}]};
 const input={drugName:'CoCodamol',originCountry:'United Kingdom',targetCountry:'Italy',drugDosage:'500 + 8'};
 const result=value=>Response.json({choices:[{finish_reason:'stop',message:{content:JSON.stringify(value)}}]});
+test('a structured refusal cannot masquerade as a successful empty match list',async()=>{
+ let calls=0;const helper=helpers({modelUpgradeEnabled:()=>true,modelTestConfiguration:()=>({researchModel:'gpt-6.1-sol'}),openaiFetch:async()=>result(++calls===1?{origin}:{refusal:'I cannot provide a list'})});
+ assert.equal((await helper.promptMatchedSearch(input,'international')).status,503);
+});
 test('prompt experiment rejects different-strength candidates without presenting generated data as source verified',async()=>{
  let calls=0;const helper=helpers({modelUpgradeEnabled:()=>true,modelTestConfiguration:()=>({researchModel:'gpt-6.1-sol'}),openaiFetch:async(url,init)=>{const body=JSON.parse(init.body);assert.equal(body.model,'gpt-6.1-sol');assert.equal(body.store,false);assert.equal(body.reasoning_effort,'low');assert.ok(body.messages[0].content.length<1800);calls++;return result(calls===1?{origin}:{candidates:[{...origin,country:'Italy',name:'Wrong 500/30',ingredients:[origin.ingredients[0],{name:'Codeine phosphate',strength:'30 mg/tablet'}]}]});}});
  const response=await helper.promptMatchedSearch(input,'international');assert.equal(response.status,200);const data=await response.json();assert.equal(data.matches.length,0);assert.equal(data.equivalentResults.verification,'model_generated_full_composition');assert.equal(calls,2);

@@ -12,7 +12,7 @@ When matching returns a structured origin composition, its ingredient strengths 
 
 Refusal and no-result sentences are rejected as medicine names by the display, saved-result normalizer and prompt-test profile validator. Refusals remain failed searches rather than confirmed empty matches. Saved searches and account-return drafts retain the new empty-result state and origin composition.
 
-Validation: all 70 offline tests and the optimized build pass. Mocked browser checks at 390 px and 1280 px cover blank dosage with returned origin strengths, normal empty results, saved-result reopening, multiline refusal rejection, valid medicine cards, and absence of overflow or page errors. These checks verify UI behavior, not medicine availability or clinical equivalence.
+Validation: all 71 offline tests and the optimized build pass. Mocked browser checks at 390 px and 1280 px cover blank dosage with returned origin strengths, normal empty results, saved-result reopening, multiline refusal rejection, valid medicine cards, and absence of overflow or page errors. These checks verify UI behavior, not medicine availability or clinical equivalence.
 
 The owner authorised this isolated test deployment on 15 October 2026. It does not replace the public app. The teal test banner and `/api/model-test/status` identify the active revision, configured models and matching mode. Preview protection is retained; use the owner's existing Vercel access if asked to sign in. Original protected prompts and Production behavior remain unchanged.
 
