@@ -1,0 +1,6 @@
+Country geometry: Natural Earth, 1:110m admin-0 countries.
+Public domain: https://www.naturalearthdata.com/about/terms-of-use/
+Source: https://github.com/nvkelso/natural-earth-vector/blob/master/geojson/ne_110m_admin_0_countries.geojson
+Downloaded 2026-10-15. Reduced to country codes and geometry only.
+Boundaries are approximate, omit some small countries/islands, and do not establish legal borders.
+Used on the device for a country suggestion with manual correction. Coordinates are not transmitted or stored.

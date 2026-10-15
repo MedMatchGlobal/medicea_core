@@ -574,6 +574,9 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 .origin-choice h4 { margin:0; font-size:18px; }
 .origin-choice ul { padding-inline-start:20px; }
 .origin-choice button { margin-top:14px; max-width:100%; white-space:normal; text-align:start; }
+.travel-nav { display:flex; flex-wrap:wrap; gap:8px; max-width:1100px; margin:12px auto 16px; padding:8px 12px; }
+.travel-nav a { flex:1; min-width:100px; text-align:center; padding:12px 10px; border:1px solid #d3e1e7; border-radius:12px; background:#fff; color:#204b61; font-size:15px; font-weight:650; text-decoration:none; }
+.travel-nav a[aria-current=page] { border-color:#69a6af; background:#e6f5f3; color:#125d65; }
 .model-test-banner { display:flex; flex-wrap:wrap; gap:6px 20px; max-width:1160px; margin:12px auto; padding:14px 18px; border:1px solid #92bdcb; border-radius:12px; background:#e8f6f7; color:#173b50; font-size:13px; line-height:1.5; overflow-wrap:anywhere; }
 .model-test-banner strong { flex-basis:100%; }
 .model-test-banner a { color:#136d82; }

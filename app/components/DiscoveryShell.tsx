@@ -1,7 +1,8 @@
 'use client';
 import {usePathname} from 'next/navigation';
 import {MedicineWorkspace} from '../MedicineWorkspace';
-export default function DiscoveryShell({sourceOriginMode=false}:{sourceOriginMode?:boolean}) {
+import TravelNav from './TravelNav';
+export default function DiscoveryShell({sourceOriginMode=false,travelDemo=false}:{sourceOriginMode?:boolean;travelDemo?:boolean}) {
   const pathname = usePathname();
-  return <MedicineWorkspace petMode={pathname === '/pets'} sourceOriginMode={sourceOriginMode} />;
+  return <>{travelDemo&&<TravelNav/>}<MedicineWorkspace petMode={pathname === '/pets'} sourceOriginMode={sourceOriginMode} /></>;
 }
