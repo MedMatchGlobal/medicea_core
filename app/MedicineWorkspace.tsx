@@ -1050,7 +1050,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
       if(membershipEnabled&&payload2.originLeaflet)setLeafletRaw(pickText(payload2.originLeaflet));
       if (mode === 'pets' || mode === 'pet-generic') setPetOriginIngredients(veterinaryIngredients(payload2.originProfile));
 
-      if (payload2?.equivalentResults?.verification==='source_cited_full_composition'&&Array.isArray(payload2.matches)) {
+      if (['source_cited_full_composition','model_generated_full_composition'].includes(payload2?.equivalentResults?.verification)&&Array.isArray(payload2.matches)) {
         setMatches(payload2.matches);
         if(!payload2.matches.length)setResult(F(ui,'noResult','No results.'));
       } else if (Array.isArray(payload2?.matches) && payload2.matches.length) {

@@ -562,6 +562,10 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 .results-heading p { margin:0; color:#557194; }
 .search-parameters { flex-basis:100%; display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px 20px; margin:0; padding-top:16px; border-top:1px solid #e3ecf6; }
 .search-parameters div { min-width:0; }
+.model-test-banner { display:flex; flex-wrap:wrap; gap:6px 20px; max-width:1160px; margin:12px auto; padding:14px 18px; border:1px solid #92bdcb; border-radius:12px; background:#e8f6f7; color:#173b50; font-size:13px; line-height:1.5; overflow-wrap:anywhere; }
+.model-test-banner strong { flex-basis:100%; }
+.model-test-banner a { color:#136d82; }
+@media(max-width:700px) { .model-test-banner { margin:10px 14px; } }
 .search-parameters dt { color:#557194; font-size:12px; line-height:1.4; }
 .search-parameters dd { margin:4px 0 0; color:#172d50; font-size:15px; line-height:1.5; font-weight:600; overflow-wrap:anywhere; white-space:pre-wrap; }
 @media(max-width:700px) { .search-parameters { grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; } }

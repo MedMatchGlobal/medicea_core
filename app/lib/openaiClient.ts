@@ -11,7 +11,19 @@ const REQUEST_TIMEOUT_MS = 25_000;
 export function modelUpgradeEnabled() {
   const preview = process.env.VERCEL_ENV === "preview" ||
     (!process.env.VERCEL_ENV && process.env.NODE_ENV === "development");
-  return preview && process.env.MEDICEA_OPENAI_UPGRADE === "true";
+  // Owner-authorised, isolated tester deployment. Explicit false remains a
+  // kill switch; no other branch or Production is opted in automatically.
+  const testerBranch = process.env.VERCEL_ENV === "preview" &&
+    process.env.VERCEL_GIT_COMMIT_REF === "feature/openai-model-upgrade-preview";
+  return preview && (process.env.MEDICEA_OPENAI_UPGRADE === "true" ||
+    (!process.env.MEDICEA_OPENAI_UPGRADE && testerBranch));
+}
+
+export function modelTestConfiguration() {
+  return {enabled:modelUpgradeEnabled(),revision:'exact-match-v2',
+    matchingMode:process.env.VERCEL_GIT_COMMIT_REF==='feature/openai-model-upgrade-preview'&&process.env.MEDICEA_OPENAI_MATCHING_MODE!=='sources'?'prompt-test':'sources',
+    researchModel:process.env.MEDICEA_OPENAI_SOURCE_MODEL||'gpt-6.1-sol',
+    informationModel:process.env.MEDICEA_OPENAI_MEDICAL_MODEL||'gpt-6-luna'};
 }
 export function modelUpgradeRequest(init: RequestInit): RequestInit {
   if (!modelUpgradeEnabled()) return init;

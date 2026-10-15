@@ -1,5 +1,7 @@
 # OpenAI model upgrade — isolated Preview preparation
 
+**Current owner-test activation:** the owner subsequently requested an accessible revised-prompt test. Only Vercel Preview for `feature/openai-model-upgrade-preview` now defaults on, with a visible `exact-match-v2` banner; explicit `MEDICEA_OPENAI_UPGRADE=false` still disables it. Human equivalents/generics default to a separate, labelled **unverified prompt experiment**, not the source-grounded pilot described below. See `MODEL-TEST.md` for the current test instructions, limits, observed failures and source-mode switch. Earlier "flag off" observations below describe the preceding preparation stage. Production and other branches are unchanged.
+
 Requested by the owner on 15 October 2026. This branch is based on `feature/monetisation-preview`; it is a separate opt-in experiment, not a Production migration. The owner subsequently authorised the targeted summary and full-composition/source fixes below. **Private QA only: do not activate globally or merge into main.** Source-country coverage and broader quality/clinical acceptance remain launch gates.
 
 ## Verified sources

@@ -2,6 +2,16 @@ const test=require('node:test'),assert=require('node:assert/strict'),fs=require(
 function client(env){const module={exports:{}};vm.runInNewContext(ts.transpileModule(fs.readFileSync(path.join(__dirname,'../app/lib/openaiClient.ts'),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2020}}).outputText,{module,exports:module.exports,process:{env}});return module.exports;}
 const load=env=>client(env).modelUpgradeRequest;
 const request=body=>({method:'POST',body:JSON.stringify(body)});
+test('only the authorised tester branch defaults on; explicit false and Production win',()=>{
+ const branch={VERCEL_ENV:'preview',VERCEL_GIT_COMMIT_REF:'feature/openai-model-upgrade-preview'};
+ assert.equal(client(branch).modelUpgradeEnabled(),true);
+ assert.equal(client({...branch,MEDICEA_OPENAI_UPGRADE:'false'}).modelUpgradeEnabled(),false);
+ assert.equal(client({...branch,MEDICEA_OPENAI_UPGRADE:'typo'}).modelUpgradeEnabled(),false);
+ assert.equal(client({...branch,VERCEL_ENV:'production',MEDICEA_OPENAI_UPGRADE:'true'}).modelUpgradeEnabled(),false);
+ assert.equal(client({...branch,VERCEL_GIT_COMMIT_REF:'feature/monetisation-preview'}).modelUpgradeEnabled(),false);
+ assert.equal(client({...branch,VERCEL_GIT_COMMIT_REF:'feature/private-vault'}).modelUpgradeEnabled(),false);
+ assert.equal(client(branch).modelTestConfiguration().revision,'exact-match-v2');
+});
 test('Responses source-research endpoint is blocked outside the opted-in Preview',async()=>{
  const endpoint='https://api.openai.com/v1/responses';
  for(const env of [{VERCEL_ENV:'production',MEDICEA_OPENAI_UPGRADE:'true'},{VERCEL_ENV:'preview'},{NODE_ENV:'production',MEDICEA_OPENAI_UPGRADE:'true'}])await assert.rejects(client(env).openaiFetch(endpoint,request({})),/Unsupported OpenAI endpoint/);
