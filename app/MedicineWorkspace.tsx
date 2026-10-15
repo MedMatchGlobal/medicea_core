@@ -41,6 +41,8 @@ import MedicineSources from './components/MedicineSources';
 import {matchingFeedback} from './i18n/matching-feedback';
 import {MatchingSearchError,matchingFailure} from './lib/matching-failure';
 import {leafletSections} from './lib/leaflet-sections';
+import {isMedicineName,isEmptyMatchText} from './lib/match-display';
+import {emptyMatchCopy} from './i18n/empty-match';
 import { conditionAdditions } from '../data/condition-additions';
 import { searchFeedback } from './i18n/search-feedback';
 import { careSearchQuery } from './lib/care-search';
@@ -320,6 +322,7 @@ function renderLeafletPretty(leafletText: string, t: UIStrings) {
 function parseMatchesFromRawText(rawText: string): Array<{ medicine_name: string }> {
   if (!rawText) return [];
   const lines = rawText.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+  if (lines.length && !isMedicineName(lines[0].replace(/^(?:\d+[.)]|[-•*])\s*/, ''))) return [];
   const items: string[] = [];
   for (const l of lines) {
     const m = l.match(/^(?:\d+[.)]|[-•*])\s*(.+)$/);
@@ -329,7 +332,7 @@ function parseMatchesFromRawText(rawText: string): Array<{ medicine_name: string
   const out: Array<{ medicine_name: string }> = [];
   for (let name of items) {
     name = name.replace(/\s*[;,.]$/, '').trim();
-    if (!name || seen.has(name)) continue;
+    if (!isMedicineName(name) || seen.has(name)) continue;
     seen.add(name);
     out.push({ medicine_name: name });
   }
@@ -669,6 +672,8 @@ function Home({ petMode = false }: { petMode?: boolean }) {
   const [originLeafletVisible, setOriginLeafletVisible] = useState(true);
   const [matches, setMatches] = useState<any[]>([]);
   const [originSources,setOriginSources]=useState<string[]>([]);
+  const [originIngredients,setOriginIngredients]=useState<VeterinaryIngredient[]>([]);
+  const [noExactMatch,setNoExactMatch]=useState(false);
   const [petOriginIngredients, setPetOriginIngredients] = useState<VeterinaryIngredient[]>([]);
   const [searchAccess,setSearchAccess]=useState<string|undefined>();
   const [leafletLoading, setLeafletLoading] = useState<Record<string, boolean>>({});
@@ -691,7 +696,7 @@ function Home({ petMode = false }: { petMode?: boolean }) {
       const context=completedSearchContext.current;
       if (!context || !isSavedMode(context.mode)) return;
       const next=addSavedSearch(existing,{...context,id:crypto.randomUUID(),savedAt:new Date().toISOString(),mode:context.mode,
-        result,leafletRaw,matches,originSources,petOriginIngredients,leaflets,petInformation,searchAccess});
+        result,leafletRaw,matches,originSources,originIngredients,noExactMatch,petOriginIngredients,leaflets,petInformation,searchAccess});
       localStorage.setItem(SAVED_SEARCH_KEY,JSON.stringify(next));setSavedSearches(next);
       setSaveMessage(`${savedSearchCopy(lang).save} ✓ · ${savedSearchCopy(lang).notice}`);
     } catch {setSaveMessage(savedSearchCopy(lang).error);}
@@ -707,6 +712,7 @@ function Home({ petMode = false }: { petMode?: boolean }) {
     setOriginCode(saved.originCode);setTargetCode(saved.targetCode);setSelectedDrug(saved.selectedDrug);setSelectedDosage(saved.selectedDosage);
     setResult(DOMPurify.sanitize(saved.result));setLeafletRaw(saved.leafletRaw);setMatches(saved.matches);
     setOriginSources(saved.originSources||[]);
+    setOriginIngredients(saved.originIngredients||[]);setNoExactMatch(saved.noExactMatch===true);
     setPetOriginIngredients(saved.petOriginIngredients);setLeaflets(saved.leaflets);setPetInformation(saved.petInformation);
     setSearchAccess(saved.searchAccess);
     setSearchFailed(false);setSearched(true);setScreen('results');setActiveSection(saved.mode==='generic'||saved.mode==='leaflet'?'tools':'search');
@@ -780,7 +786,7 @@ function Home({ petMode = false }: { petMode?: boolean }) {
     setSelectedCondition('');
     setConditionDetails('');
     setUserNotes('');
-    setMatches([]);setOriginSources([]);
+    setMatches([]);setOriginSources([]);setOriginIngredients([]);setNoExactMatch(false);
     setPetOriginIngredients([]);
     setLeafletRaw('');
     setOriginLeafletVisible(true);
@@ -823,9 +829,9 @@ function Home({ petMode = false }: { petMode?: boolean }) {
   useEffect(()=>{
     if(!membershipEnabled)return;
     const save=()=>storeSearchDraft('medicea.pending-search',{mode,lang,originCode,targetCode,selectedDrug,selectedDosage,selectedCondition,conditionDetails,userNotes,
-      searched:searched&&!loading&&!searchFailed,result,leafletRaw,matches,originSources,petOriginIngredients,leaflets,petInformation,searchAccess});
+      searched:searched&&!loading&&!searchFailed,result,leafletRaw,matches,originSources,originIngredients,noExactMatch,petOriginIngredients,leaflets,petInformation,searchAccess});
     window.addEventListener(SAVE_DRAFT_EVENT,save);return()=>window.removeEventListener(SAVE_DRAFT_EVENT,save);
-  },[membershipEnabled,mode,lang,originCode,targetCode,selectedDrug,selectedDosage,selectedCondition,conditionDetails,userNotes,searched,loading,searchFailed,result,leafletRaw,matches,originSources,petOriginIngredients,leaflets,petInformation,searchAccess]);
+  },[membershipEnabled,mode,lang,originCode,targetCode,selectedDrug,selectedDosage,selectedCondition,conditionDetails,userNotes,searched,loading,searchFailed,result,leafletRaw,matches,originSources,originIngredients,noExactMatch,petOriginIngredients,leaflets,petInformation,searchAccess]);
 
   const handleSearch = async () => {
     if(loading||checkingAccess)return;
@@ -900,7 +906,7 @@ if (!membershipEnabled && !BETA_TESTING && isPremiumMode(mode)) {
     showScreen('results');
     setLoading(true);
     setResult(F(ui, 'searching', 'Searching…'));
-    setMatches([]);setOriginSources([]);
+    setMatches([]);setOriginSources([]);setOriginIngredients([]);setNoExactMatch(false);
     setPetOriginIngredients([]);
     setSearchAccess(undefined);
     setLeafletRaw('');
@@ -1027,18 +1033,21 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
       if (version !== searchVersion.current) return;
       setSearchAccess(payload2.searchAccess);
       setOriginSources(payload2.equivalentResults?.origin_sources||[]);
+      if(mode==='international'||mode==='generic')setOriginIngredients(veterinaryIngredients(payload2.originProfile));
       if(membershipEnabled&&payload2.originLeaflet)setLeafletRaw(pickText(payload2.originLeaflet));
       if (mode === 'pets' || mode === 'pet-generic') setPetOriginIngredients(veterinaryIngredients(payload2.originProfile));
 
       if (['source_cited_full_composition','model_generated_full_composition'].includes(payload2?.equivalentResults?.verification)&&Array.isArray(payload2.matches)) {
-        setMatches(payload2.matches);
-        if(!payload2.matches.length)setResult(F(ui,'noResult','No results.'));
+        const usable=payload2.matches.filter((m:any)=>isMedicineName(m?.medicine_name));
+        if(payload2.matches.length&&!usable.length)throw matchingFailure(503,'UNUSABLE_RESULT');
+        setMatches(usable);setNoExactMatch(!usable.length);setResult('');
       } else if (Array.isArray(payload2?.matches) && payload2.matches.length) {
-        setMatches(payload2.matches);
+        const usable=payload2.matches.filter((m:any)=>isMedicineName(m?.medicine_name??m?.Medicine_name));
+        if(!usable.length)throw matchingFailure(503,'UNUSABLE_RESULT');setMatches(usable);setResult('');
       } else if (payload2?.equivalentResults?.raw_text) {
         const parsed = parseMatchesFromRawText(payload2.equivalentResults.raw_text);
         setMatches(parsed);
-        if (!parsed.length) setResult(pickText(payload2) || F(ui, 'noResult', 'No results.'));
+        if(!parsed.length){if(isEmptyMatchText(payload2.equivalentResults.raw_text)){setNoExactMatch(true);setResult('');}else throw matchingFailure(503,'UNUSABLE_RESULT');}
       } else {
         const raw = pickText(payload2) || '';
         setResult(raw || F(ui, 'noResult', 'No results.'));
@@ -1374,6 +1383,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
           {(mode === 'leaflet' || mode === 'international' || mode === 'generic') && leafletRaw && (
             <div className="leaflet-block">
               <h2 className="medicine-section-title">{F(ui, 'medicineDetails', 'Medicine details')} — {selectedDrug}</h2>
+              {originIngredients.length>0&&<div className="origin-composition"><strong>{(t.leafletHeadings as any)?.['Active Ingredients']||'Active ingredients'}</strong><ul>{originIngredients.map((ingredient,index)=><li key={index}>{ingredient.name}: <b>{ingredient.strength}</b></li>)}</ul></div>}
               <div className="leaflet-actions">
                 <button type="button" className="pill pill--blue pill-sm" aria-expanded={originLeafletVisible} onClick={() => setOriginLeafletVisible(!originLeafletVisible)}>{originLeafletVisible ? leafletActions(lang).hide : leafletActions(lang).view}</button>
                 <a className="official-leaflet-link" href={officialMedicineLeafletSearch(selectedDrug, originCode)} target="_blank" rel="noopener noreferrer">{leafletActions(lang).official}</a>
@@ -1539,7 +1549,8 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
           )}
 
           {/* Plain AI text (e.g., for condition mode) */}
-          {!!plainText && (!Array.isArray(matches) || matches.length === 0) && (
+          {!loading&&!searchFailed&&noExactMatch&&<div className="empty-match" role="status"><Search size={26} aria-hidden="true"/><div><h3>{emptyMatchCopy(lang).title}</h3><p>{emptyMatchCopy(lang).body}</p></div></div>}
+          {!noExactMatch && !!plainText && (!Array.isArray(matches) || matches.length === 0) && (
             <div className="ai-plain" dangerouslySetInnerHTML={{ __html: formattedHTML }} />
           )}
         </section>

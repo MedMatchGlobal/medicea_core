@@ -1,8 +1,18 @@
-# Owner model/prompt test — exact-match-v2.1
+# Owner model/prompt test — exact-match-v2.2
 
 Test URL: https://medicea-core-git-feature-openai-7499df-medmatchglobals-projects.vercel.app
 
 Comparison: https://medicea.global
+
+## v2.2: clear empty results and visible origin strengths
+
+A completed equivalent search with an empty list now shows a soft teal “No exact match found” panel. The explanation says that the search could not identify a medicine with the same active ingredients, strengths and formulation; it does not claim that no such product exists. This copy covers all 25 UI languages. Unconfirmed origin/strength and service failures remain distinct incomplete-search states.
+
+When matching returns a structured origin composition, its ingredient strengths are displayed separately from the generated summary, even if the user left the dosage hint blank. These are model-reported facts, not independently verified label data. If the origin cannot be identified, the existing clarification state remains necessary. No numeric strengths are fabricated or copied from the user hint into label facts. The summary and matching prompts are unchanged in this revision.
+
+Refusal and no-result sentences are rejected as medicine names by the display, saved-result normalizer and prompt-test profile validator. Refusals remain failed searches rather than confirmed empty matches. Saved searches and account-return drafts retain the new empty-result state and origin composition.
+
+Validation: all 70 offline tests and the optimized build pass. Mocked browser checks at 390 px and 1280 px cover blank dosage with returned origin strengths, normal empty results, saved-result reopening, multiline refusal rejection, valid medicine cards, and absence of overflow or page errors. These checks verify UI behavior, not medicine availability or clinical equivalence.
 
 The owner authorised this isolated test deployment on 15 October 2026. It does not replace the public app. The teal test banner and `/api/model-test/status` identify the active revision, configured models and matching mode. Preview protection is retained; use the owner's existing Vercel access if asked to sign in. Original protected prompts and Production behavior remain unchanged.
 

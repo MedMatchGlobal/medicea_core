@@ -1,12 +1,13 @@
 import {openaiFetch,modelUpgradeEnabled,modelTestConfiguration} from './openaiClient';
 import {exactComposition,selectedCombinationAgrees} from './source-matches';
+import {isMedicineName} from './match-display';
 
 // Owner-only prompt experiment. Model-reported composition is NOT independent
 // product verification; keep it distinct from the source-grounded pilot.
 const shape='A product has name,country,form,route,species:[],complete:boolean,generic:boolean,ingredients:[{name,strength}]. Use canonical English ingredient names, form and route; give each strength in mg per tablet/capsule or its actual concentration basis. Include every active ingredient.';
 const humanProfile=(p:any)=>p&&Array.isArray(p.species)&&p.species.length===1&&typeof p.species[0]==='string'&&p.species[0].trim().toLowerCase()==='human'?{...p,species:[]}:p;
 function valid(profile:any,expectedCountry:string){
- return profile&&typeof profile.name==='string'&&profile.name.trim()&&profile.name.length<=250&&
+ return profile&&isMedicineName(profile.name)&&profile.name.length<=250&&
  typeof profile.country==='string'&&profile.country.trim().toLowerCase()===expectedCountry.trim().toLowerCase()&&
  !/unknown|unspecified/i.test(profile.form+' '+profile.route)&&exactComposition(profile,profile);
 }
