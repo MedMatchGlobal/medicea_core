@@ -8,8 +8,8 @@ const OPENAI_URL = "https://api.openai.com/v1/chat/completions";
 async function generate(req: Request) {
   try {
     // Read request body (adds 'lang' support)
-    const { originCountry, drugName, drugDosage, lang } = await req.json();
-    if(modelUpgradeEnabled?.()) return (await import("@/app/lib/medicine-summary")).medicineSummary({drugName,originCountry,drugDosage,lang});
+    const { originCountry, drugName, drugDosage, lang, originSelection, originQueryName } = await req.json();
+    if(modelUpgradeEnabled?.()) return (await import("@/app/lib/medicine-summary")).medicineSummary({drugName,originCountry,drugDosage,lang,originSelection,originQueryName});
     const language = (lang || "en").trim().toLowerCase();
 
     // ------------------ ORIGINAL PROMPTS (UNCHANGED) ------------------

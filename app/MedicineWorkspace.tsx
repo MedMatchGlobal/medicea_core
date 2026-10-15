@@ -66,8 +66,8 @@ const LIMITS_ON = !BETA_TESTING && process.env.NEXT_PUBLIC_ENABLE_USAGE_LIMITS =
 
 /* -------------------------- WRAPPER -------------------------- */
 
-export function MedicineWorkspace({ petMode = false }: { petMode?: boolean }) {
-  return <Home petMode={petMode} />;
+export function MedicineWorkspace({ petMode = false,sourceOriginMode=false }: { petMode?: boolean;sourceOriginMode?:boolean }) {
+  return <Home petMode={petMode} sourceOriginMode={sourceOriginMode} />;
 }
 
 /* -------------------------- HELPERS -------------------------- */
@@ -298,7 +298,7 @@ function bulletifyBlock(text: string) {
   return <p style={styles.p}>{capitalized}</p>;
 }
 
-function renderLeafletPretty(leafletText: string, t: UIStrings) {
+function renderLeafletPretty(leafletText: string, t: UIStrings,omitComposition=false) {
   if (!leafletText) return null;
 
   const cleaned = leafletText;
@@ -308,7 +308,7 @@ function renderLeafletPretty(leafletText: string, t: UIStrings) {
 
   return (
     <div style={styles.leafletCard}>
-      {blocks.map(({ key, text }) => {
+      {blocks.filter(block=>!omitComposition||!['Active Ingredients','Strength','Formulation'].includes(block.key)).map(({ key, text }) => {
         const label = (t.leafletHeadings && (t.leafletHeadings as any)[key]) || key;
         return (
           <div key={key} style={{ marginBottom: 10 }}>
@@ -379,7 +379,7 @@ function boldConditionHeadings(raw: string) {
 
 /* -------------------------- MAIN -------------------------- */
 
-function Home({ petMode = false }: { petMode?: boolean }) {
+function Home({ petMode = false,sourceOriginMode=false }: { petMode?: boolean;sourceOriginMode?:boolean }) {
   const membershipEnabled=useMembershipPreview();
   const {copy:membershipCopy}=useMembershipCopy();
   // localized group labels for condition groups
@@ -925,6 +925,10 @@ if (!membershipEnabled && !BETA_TESTING && isPremiumMode(mode)) {
     const drugName = selectedDrug || '';
     const drugDosage = selectedDosage || '';
     let originInformation:Promise<void>|undefined;
+    const loadOriginInformation=(name:string,token?:string)=>(async()=>{
+      const response=await fetch('/api/openai/leaflet',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({originCountry,drugName:name,drugDosage,lang,...(token?{originSelection:token,originQueryName:drugName}:{})})});
+      if(!response.ok)return;const payload=await response.json();if(version!==searchVersion.current)return;setLeafletRaw(pickText(payload));
+    })().catch(()=>{});
 
     try {
       // Count usage locally only after all checks passed
@@ -1005,18 +1009,8 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
         return;
       }
 
-      if (!membershipEnabled && mode !== 'pets' && mode !== 'pet-generic') {
-      originInformation=(async()=>{
-      const leafletResp = await fetch('/api/openai/leaflet', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ originCountry, drugName:selection?.name||drugName, drugDosage, lang }),
-      });
-      if (!leafletResp.ok) return;
-      const leafletPayload = await leafletResp.json();
-      if (version !== searchVersion.current) return;
-      setLeafletRaw(pickText(leafletPayload));
-      })().catch(()=>{/* The equivalent lookup can still succeed independently. */});
+      if (!membershipEnabled && mode !== 'pets' && mode !== 'pet-generic' && (!sourceOriginMode||selection)) {
+        originInformation=loadOriginInformation(selection?.name||drugName,selection?.token);
       }
 
       const endpoint =
@@ -1035,6 +1029,13 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
       });
       if (!res2.ok) {
         const failure=await res2.json().catch(()=>({}));
+        if(version!==searchVersion.current)return;
+        if(failure.originProfile&&['international','generic'].includes(mode)){
+          setOriginIngredients(veterinaryIngredients(failure.originProfile));
+          setOriginProductName(failure.originProfile.medicine_name||selection?.name||'');
+          setOriginSources(failure.equivalentResults?.origin_sources||[]);
+          if(!membershipEnabled&&!originInformation&&failure.originProfile.selection_token)originInformation=loadOriginInformation(failure.originProfile.medicine_name,failure.originProfile.selection_token);
+        }
         if(res2.status===409&&failure.error==='CHOOSE_ORIGIN_VARIANT'&&Array.isArray(failure.variants)&&failure.variants.length){
           await originInformation;if(version!==searchVersion.current)return;
           setOriginVariants(failure.variants);setLeafletRaw('');setResult('');setLoading(false);return;
@@ -1046,6 +1047,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
       setSearchAccess(payload2.searchAccess);
       setOriginSources(payload2.equivalentResults?.origin_sources||[]);
       setOriginProductName(payload2.originProfile?.medicine_name||selection?.name||'');
+      if(!membershipEnabled&&!originInformation&&payload2.originProfile?.selection_token)originInformation=loadOriginInformation(payload2.originProfile.medicine_name,payload2.originProfile.selection_token);
       if(mode==='international'||mode==='generic')setOriginIngredients(veterinaryIngredients(payload2.originProfile));
       if(membershipEnabled&&payload2.originLeaflet)setLeafletRaw(pickText(payload2.originLeaflet));
       if (mode === 'pets' || mode === 'pet-generic') setPetOriginIngredients(veterinaryIngredients(payload2.originProfile));
@@ -1389,7 +1391,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
               <MedicineSources sources={variant.sources}/><button className="pill pill--blue" onClick={()=>handleSearch(variant)}>{originChoiceCopy(lang).choose} — {variant.name}</button>
             </article>)}
           </section>}
-          {!loading&&!searchFailed&&<MedicineSources sources={originSources}/>}
+          {!loading&&<MedicineSources sources={originSources}/>}
           {(mode === 'pets' || mode === 'pet-generic') && !loading && !searchFailed && <div className="leaflet-block">
             <h2 className="medicine-section-title">{F(ui, 'medicineDetails', 'Medicine details')} — {originProductName||selectedDrug}</h2>
             <PetMedicineInformation searchAccess={searchAccess} key={selectedDrug + originCode + lang + (restoredSearch?.id || "")} medicineName={selectedDrug} country={originCode} lang={lang}
@@ -1400,15 +1402,15 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
               loadingLabel={F(ui, 'searching', 'Searching…')} errorLabel={F(ui, 'medicineServiceError', 'Medicine information is temporarily unavailable. Please try again shortly.')} />
           </div>}
           {/* Leaflet content */}
-          {(mode === 'leaflet' || mode === 'international' || mode === 'generic') && leafletRaw && (
+          {(mode === 'leaflet' || mode === 'international' || mode === 'generic') && (leafletRaw||originIngredients.length>0) && (
             <div className="leaflet-block">
               <h2 className="medicine-section-title">{F(ui, 'medicineDetails', 'Medicine details')} — {originProductName||selectedDrug}</h2>
               {originIngredients.length>0&&<div className="origin-composition"><strong>{(t.leafletHeadings as any)?.['Active Ingredients']||'Active ingredients'}</strong><ul>{originIngredients.map((ingredient,index)=><li key={index}>{ingredient.name}: <b>{ingredient.strength}</b></li>)}</ul></div>}
-              <div className="leaflet-actions">
+              {leafletRaw&&<div className="leaflet-actions">
                 <button type="button" className="pill pill--blue pill-sm" aria-expanded={originLeafletVisible} onClick={() => setOriginLeafletVisible(!originLeafletVisible)}>{originLeafletVisible ? leafletActions(lang).hide : leafletActions(lang).view}</button>
                 <a className="official-leaflet-link" href={officialMedicineLeafletSearch(selectedDrug, originCode)} target="_blank" rel="noopener noreferrer">{leafletActions(lang).official}</a>
-              </div>
-              {originLeafletVisible && renderLeafletPretty(extractLeafletText(leafletRaw), t)}
+              </div>}
+              {leafletRaw&&originLeafletVisible && renderLeafletPretty(extractLeafletText(leafletRaw), t,originIngredients.length>0)}
             </div>
           )}
 

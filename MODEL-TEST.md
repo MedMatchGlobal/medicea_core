@@ -1,8 +1,18 @@
-# Owner model/prompt test — exact-match-v3
+# Owner model/prompt test — exact-match-v3.1
 
 Test URL: https://medicea-core-git-feature-openai-7499df-medmatchglobals-projects.vercel.app
 
 Comparison: https://medicea.global
+
+## v3.1: source-bound origin summaries
+
+An independent summary could omit strengths even after the source lookup had established a product. A prompt-only trial requiring numeric amounts exposed an additional error: Luna added caffeine to Solpadeine Max Tablets. That trial is not accepted as a fix. The human origin test flow now waits for a source-linked product, passes its signed profile to summary generation, and uses that profile deterministically for the displayed active-ingredient list. The UI omits duplicate model-generated composition sections when source composition is available. It shows the source profile even if summary generation or subsequent candidate lookup fails, and does not start an unconfirmed-origin summary. Original Production prompts and candidate matching checks remain unchanged.
+
+The summary prompt explicitly separates label strength from dosing schedules and requests every active's numeric amount and unit basis. Name-only generated ingredient bullets are rejected. Signed origin profiles are validated before use; summaries cannot replace their ingredients with model guesses. No new UI text was introduced, so existing translated labels remain in use. Source extraction and all other generated summary content remain subject to review.
+
+Validation: 82 offline tests, the optimized build, and mobile/desktop browser checks cover source-first summary requests, retained strengths after candidate/summary failure, suppression of invented duplicate caffeine content, formulation selection and saved reopening. Live API summary checks with the previously established public source profiles returned 500 mg paracetamol + 12.8 mg codeine for Tablets, and the same plus 30 mg caffeine for Soluble. These checks used source fixtures from the earlier live lookup; they do not establish universal source coverage or independently validate other summary claims. In the Preview source-origin flow, source lookup and summary are now deliberately sequential; the earlier v2.1 concurrency description applies to the other flow.
+
+The following sections describe earlier revisions.
 
 ## v3: source-assisted origin identification and formulation choice
 

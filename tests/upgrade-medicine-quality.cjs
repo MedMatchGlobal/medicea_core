@@ -56,12 +56,22 @@ test('selected 500 + 8 cannot be silently replaced by a researched 500 + 30 orig
  assert.equal(result.status,422);assert.equal((await result.json()).error,'ORIGIN_STRENGTH_MISMATCH');assert.equal(calls,1);
 });
 test('medicine summary requires known ingredients, every topic and an explicit note, rejects empty or truncated upstream output',async()=>{
- const topics=['Active Ingredients','Uses','Dosage','Contraindications','Warnings','Precautions','Side Effects','Interactions','Storage','Legal Classification','Manufacturer','Average Selling Price','Note'];const information_sections=Object.fromEntries(topics.map(t=>[t,[]]));information_sections['Active Ingredients']=['Fixture ingredient'];information_sections.Note=['AI-generated educational summary; not an official leaflet.'];
+ const topics=['Active Ingredients','Uses','Dosage','Contraindications','Warnings','Precautions','Side Effects','Interactions','Storage','Legal Classification','Manufacturer','Average Selling Price','Note'];const information_sections=Object.fromEntries(topics.map(t=>[t,[]]));information_sections['Active Ingredients']=['Fixture ingredient 5 mg per tablet'];information_sections.Note=['AI-generated educational summary; not an official leaflet.'];
  const helper=load('medicine-summary');assert.match(helper.summaryText({known:true,information_sections}),/Active Ingredients\n- Fixture/);assert.equal(helper.summaryText({known:false,information_sections}),null);assert.equal(helper.summaryText({known:true,information_sections:{...information_sections,Note:[]}}),null);
+ assert.equal(helper.summaryText({known:true,information_sections:{...information_sections,'Active Ingredients':['Paracetamol and codeine phosphate.']}}),null);
+ assert.equal(helper.summaryText({known:true,information_sections:{...information_sections,'Active Ingredients':['Paracetamol 500 mg per tablet','Codeine phosphate']}}),null);
  const api=load('medicine-summary',{openaiFetch:async()=>Response.json({choices:[{finish_reason:'length',message:{content:JSON.stringify({known:true,information_sections})}}]})});assert.equal((await api.medicineSummary({drugName:'Fixture',originCountry:'UK'})).status,503);
 });
 test('evidence URLs are bounded, deduplicated and cannot become script or credential-bearing links',()=>{
  const {medicineSources}=load('medicine-evidence');
  const urls=medicineSources(['https://www.hpra.ie/fixture','https://www.hpra.ie/fixture','javascript:alert(1)','http://www.hpra.ie/fixture','https://user:secret@www.hpra.ie/fixture']);
  assert.equal(urls.length,1);assert.equal(urls[0],'https://www.hpra.ie/fixture');
+});
+test('a signed source profile controls summary ingredients even when the model adds caffeine',async()=>{
+ const topics=['Active Ingredients','Uses','Dosage','Contraindications','Warnings','Precautions','Side Effects','Interactions','Storage','Legal Classification','Manufacturer','Average Selling Price','Note'];
+ const sections=Object.fromEntries(topics.map(t=>[t,[]]));sections['Active Ingredients']=['Caffeine 30 mg per tablet'];sections.Note=['AI educational summary; not an official leaflet.'];
+ const profile={name:'Fixture Tablets',ingredients:[{name:'Paracetamol',strength:'500 mg/tablet'},{name:'Codeine phosphate',strength:'12.8 mg/tablet'}]};
+ const api=load('medicine-summary',{readOriginSelection:token=>token==='valid'?profile:null,openaiFetch:async(url,init)=>{assert.equal(JSON.parse(init.body).messages[1].content.includes('sourceProfile'),true);return Response.json({choices:[{finish_reason:'stop',message:{content:JSON.stringify({known:true,information_sections:sections})}}]});}});
+ const response=await api.medicineSummary({drugName:'Fixture Tablets',originCountry:'United Kingdom',originQueryName:'Fixture',originSelection:'valid'});assert.equal(response.status,200);const data=await response.json();assert.match(data.leaflet.leaflet_text,/12.8 mg\/tablet/);assert.doesNotMatch(data.leaflet.leaflet_text,/Caffeine/);
+ assert.equal((await api.medicineSummary({drugName:'Fixture Tablets',originCountry:'United Kingdom',originSelection:'altered'})).status,422);
 });
