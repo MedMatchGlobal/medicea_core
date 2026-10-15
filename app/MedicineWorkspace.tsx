@@ -38,6 +38,9 @@ import {officialMedicineLeafletSearch} from './lib/veterinary-details';
 import {petGenericsLabel} from './i18n/pet-generics';
 import {leafletActions} from './i18n/leaflet-actions';
 import MedicineSources from './components/MedicineSources';
+import {matchingFeedback} from './i18n/matching-feedback';
+import {MatchingSearchError,matchingFailure} from './lib/matching-failure';
+import {leafletSections} from './lib/leaflet-sections';
 import { conditionAdditions } from '../data/condition-additions';
 import { searchFeedback } from './i18n/search-feedback';
 import { careSearchQuery } from './lib/care-search';
@@ -296,34 +299,8 @@ function renderLeafletPretty(leafletText: string, t: UIStrings) {
 
   const cleaned = leafletText;
 
-  const order = [
-    'Manufacturer','Description','Overview','What it is','Active Ingredient','Active Ingredients','Mechanism of Action',
-    'How it Works','Uses','Indications','Posology','Strength','Dosage','Interactions','Side Effects','Precautions',
-    'Contraindications','Legal Classification','Storage','Average Selling Price','Note','Disclaimer',
-  ];
-
-  const lower = cleaned.toLowerCase();
-  const marks: Array<{ key: string; idx: number }> = [];
-  for (const key of order) {
-    const i = lower.indexOf(key.toLowerCase());
-    if (i >= 0) marks.push({ key, idx: i });
-  }
-  marks.sort((a, b) => a.idx - b.idx);
-
-  if (!marks.length) {
-    return <div style={styles.leafletCard}>{bulletifyBlock(cleaned)}</div>;
-  }
-
-  const blocks: Array<{ key: string; text: string }> = [];
-  for (let i = 0; i < marks.length; i++) {
-    const { key, idx } = marks[i];
-    const end = i + 1 < marks.length ? marks[i + 1].idx : cleaned.length;
-    const slice = cleaned
-      .slice(idx, end)
-      .replace(new RegExp(`^${key}\\s*[:.-]*\\s*`, 'i'), '')
-      .trim();
-    if (slice) blocks.push({ key, text: slice });
-  }
+  const blocks = leafletSections(cleaned);
+  if (!blocks.length) return <div style={styles.leafletCard}>{bulletifyBlock(cleaned)}</div>;
 
   return (
     <div style={styles.leafletCard}>
@@ -936,6 +913,7 @@ if (!membershipEnabled && !BETA_TESTING && isPremiumMode(mode)) {
     const targetCountry = targetCode || '';
     const drugName = selectedDrug || '';
     const drugDosage = selectedDosage || '';
+    let originInformation:Promise<void>|undefined;
 
     try {
       // Count usage locally only after all checks passed
@@ -1017,15 +995,17 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
       }
 
       if (!membershipEnabled && mode !== 'pets' && mode !== 'pet-generic') {
+      originInformation=(async()=>{
       const leafletResp = await fetch('/api/openai/leaflet', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ originCountry, drugName, drugDosage, lang }),
       });
-      if (!leafletResp.ok) throw new Error('Medicine service unavailable');
+      if (!leafletResp.ok) return;
       const leafletPayload = await leafletResp.json();
       if (version !== searchVersion.current) return;
       setLeafletRaw(pickText(leafletPayload));
+      })().catch(()=>{/* The equivalent lookup can still succeed independently. */});
       }
 
       const endpoint =
@@ -1042,7 +1022,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ originCountry, targetCountry, drugName, drugDosage, lang, ...(membershipEnabled?{mode}:{}) }),
       });
-      if (!res2.ok) throw new Error('Medicine service unavailable');
+      if (!res2.ok) {const failure=await res2.json().catch(()=>({}));throw matchingFailure(res2.status,failure.error);}
       const payload2 = await res2.json();
       if (version !== searchVersion.current) return;
       setSearchAccess(payload2.searchAccess);
@@ -1064,14 +1044,16 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
         setResult(raw || F(ui, 'noResult', 'No results.'));
       }
 
+      await originInformation;
+      if (version !== searchVersion.current) return;
       setLoading(false);
     } catch (error) {
+      await originInformation;
       if (version !== searchVersion.current) return;
       if(error instanceof MembershipAccessError){setSearched(false);setScreen('search');setLoading(false);return;}
       setSearchFailed(true);
-      setLeafletRaw('');
     setOriginLeafletVisible(true);
-      setResult(F(ui, 'medicineServiceError', 'Medicine information is temporarily unavailable. Please try again shortly.'));
+      setResult(error instanceof MatchingSearchError ? matchingFeedback(lang)[error.kind] : F(ui, 'medicineServiceError', 'Medicine information is temporarily unavailable. Please try again shortly.'));
       setLoading(false);
     }
   };
@@ -1368,7 +1350,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
       {mode !== 'triage' && searched && (
         <section id="search-results" className="results-view" tabIndex={-1} aria-label={F(ui, 'searchResults', 'Search results')}>
           <div className="results-heading">
-            <div><h2>{F(ui, 'searchResults', 'Search results')}</h2><p role="status" aria-live="polite">{loading ? F(ui, 'searching', 'Searching…') : searchFailed ? F(ui, 'medicineServiceError', 'Medicine information is temporarily unavailable. Please try again shortly.') : F(ui, 'searchComplete', 'Search complete')}</p></div>
+            <div><h2>{F(ui, 'searchResults', 'Search results')}</h2><p role="status" aria-live="polite">{loading ? F(ui, 'searching', 'Searching…') : searchFailed ? (['international','generic','pets','pet-generic'].includes(mode)?matchingFeedback(lang).incomplete:F(ui, 'medicineServiceError', 'Medicine information is temporarily unavailable. Please try again shortly.')) : F(ui, 'searchComplete', 'Search complete')}</p></div>
             <div className="results-actions">{isSavedMode(mode) && <button disabled={loading || searchFailed} onClick={saveCurrentSearch}>{savedSearchCopy(lang).save}</button>}<button disabled={loading} onClick={() => showScreen('search')}>{F(ui, 'editSearch', 'Edit search')}</button><button disabled={loading} onClick={clearSearch}>{F(ui, 'newSearch', 'New search')}</button></div>
             {isSavedMode(mode) && <dl className="search-parameters">
               <div><dt>{F(ui,'phHome','Home country')}</dt><dd>{originCode || '—'}</dd></div>
@@ -1471,12 +1453,12 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
                       <Link className="official-leaflet-link" href={`/?section=care&service=pharmacy&location=${encodeURIComponent(countryCode)}`}
                         onClick={event => {if (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return; event.preventDefault(); openPharmacyTrip(countryCode);}}>{F(ui, 'btnPharmacy', 'Search pharmacy')}</Link>
                     </div>
-                    <div style={{ fontSize: '0.85rem', marginTop: 4 }}>
+                    {!loading && !searchFailed && matches.length>0 && <div style={{ fontSize: '0.85rem', marginTop: 4 }}>
                       {F(ui, introKey, introDefault, {
                         drugName: baseName,
                         targetCountry: bannerCountry,
                       })}
-                    </div>
+                    </div>}
                   </>
                 );
               })()}

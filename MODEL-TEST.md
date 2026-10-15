@@ -1,10 +1,16 @@
-# Owner model/prompt test — exact-match-v2
+# Owner model/prompt test — exact-match-v2.1
 
 Test URL: https://medicea-core-git-feature-openai-7499df-medmatchglobals-projects.vercel.app
 
 Comparison: https://medicea.global
 
 The owner authorised this isolated test deployment on 15 October 2026. It does not replace the public app. The teal test banner and `/api/model-test/status` identify the active revision, configured models and matching mode. Preview protection is retained; use the owner's existing Vercel access if asked to sign in. Original protected prompts and Production behavior remain unchanged.
+
+Revision v2.1 fixes partial-result handling without changing prompts or provider timeouts. In the non-membership test flow, the summary and equivalent requests now start together instead of running sequentially. A failed equivalent request retains the AI summary and uses a specific, translated clarification message for NOT_FOUND_ORIGIN/ORIGIN_STRENGTH_MISMATCH (422), rather than replacing everything with a generic service error. Other service failures remain distinct from an empty successful match list. A failed summary no longer prevents the independent equivalent lookup. The existing compound membership request, quota handling, version/cancellation guards and no-fallback matching rules remain intact. Summary text remains unverified educational information even when retained.
+
+The owner's `Solpadeine` / `500 + 12.8` / UK-to-Italy input was replayed through the actual API: the observed run returned 422 NOT_FOUND_ORIGIN after about 4.2 seconds, not a timeout. This reproduces one failure mode but does not prove the exact cause of the earlier hosted attempt. Product ambiguity is material: the [manufacturer](https://www.solpadeine.co.uk/product/solpadeine-max/) lists Max tablets with paracetamol 500 mg/codeine 12.8 mg, and Max soluble tablets with an additional 30 mg caffeine. Do not silently discard that extra active ingredient. The UI cannot treat an earlier generated summary as verification of the origin.
+
+The leaflet display now recognises headings at line starts, preventing `Contraindications` from becoming `Contra` + `Indications`, or manufacturer/regulator mentions in the AI notice from becoming false headings. New failure copy covers all 25 UI languages. All 67 offline tests and the optimized build pass; mocked-browser scenarios cover concurrent request start, retained summary after 422/503, matching despite summary failure, heading integrity and mobile overflow. Removing serialized requests reduces avoidable latency; no response-time guarantee or timeout increase is claimed.
 
 Only Vercel Preview for `feature/openai-model-upgrade-preview` defaults the upgrade on. `MEDICEA_OPENAI_UPGRADE=false` disables it. No other branch is automatically opted in. The exact owner branch defaults human equivalents/generics to `prompt-test`; set `MEDICEA_OPENAI_MATCHING_MODE=sources` to use the distinct source-grounded pilot. Source-mode research remains limited to its ten configured countries and retains its unresolved Italian-origin coverage limitation. Veterinary discovery still uses that source pilot.
 
