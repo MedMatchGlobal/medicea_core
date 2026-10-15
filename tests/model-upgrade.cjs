@@ -1,6 +1,12 @@
 const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),ts=require('typescript');
-function load(env){const module={exports:{}};vm.runInNewContext(ts.transpileModule(fs.readFileSync(path.join(__dirname,'../app/lib/openaiClient.ts'),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2020}}).outputText,{module,exports:module.exports,process:{env}});return module.exports.modelUpgradeRequest;}
+function client(env){const module={exports:{}};vm.runInNewContext(ts.transpileModule(fs.readFileSync(path.join(__dirname,'../app/lib/openaiClient.ts'),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2020}}).outputText,{module,exports:module.exports,process:{env}});return module.exports;}
+const load=env=>client(env).modelUpgradeRequest;
 const request=body=>({method:'POST',body:JSON.stringify(body)});
+test('Responses source-research endpoint is blocked outside the opted-in Preview',async()=>{
+ const endpoint='https://api.openai.com/v1/responses';
+ for(const env of [{VERCEL_ENV:'production',MEDICEA_OPENAI_UPGRADE:'true'},{VERCEL_ENV:'preview'},{NODE_ENV:'production',MEDICEA_OPENAI_UPGRADE:'true'}])await assert.rejects(client(env).openaiFetch(endpoint,request({})),/Unsupported OpenAI endpoint/);
+ await assert.rejects(client({VERCEL_ENV:'preview',MEDICEA_OPENAI_UPGRADE:'true'}).openaiFetch(endpoint,request({})),/No OpenAI API keys/);
+});
 test('upgrade is opt-in and impossible in Production even with the switch set',()=>{
  const init=request({model:'gpt-4o',messages:[]});
  for(const env of [{VERCEL_ENV:'production',MEDICEA_OPENAI_UPGRADE:'true'},{VERCEL_ENV:'preview'},{NODE_ENV:'production',MEDICEA_OPENAI_UPGRADE:'true'}])assert.equal(load(env)(init),init);

@@ -1,16 +1,20 @@
 import type OpenAI from "openai";
 
 const ENDPOINT = "https://api.openai.com/v1/chat/completions";
+const RESPONSES_ENDPOINT = "https://api.openai.com/v1/responses";
 const ATTEMPT_TIMEOUT_MS = 10_000;
 const REQUEST_TIMEOUT_MS = 25_000;
 
 /** Opt-in migration transport. Preserve every route's prompt and output contract.
  * Production and unrecognised/pinned models keep the original request verbatim.
  */
-export function modelUpgradeRequest(init: RequestInit): RequestInit {
+export function modelUpgradeEnabled() {
   const preview = process.env.VERCEL_ENV === "preview" ||
     (!process.env.VERCEL_ENV && process.env.NODE_ENV === "development");
-  if (!preview || process.env.MEDICEA_OPENAI_UPGRADE !== "true") return init;
+  return preview && process.env.MEDICEA_OPENAI_UPGRADE === "true";
+}
+export function modelUpgradeRequest(init: RequestInit): RequestInit {
+  if (!modelUpgradeEnabled()) return init;
   if (typeof init.body !== "string") throw new Error("Model upgrade requires a JSON request.");
   const body = JSON.parse(init.body);
   const legacy = body.model;
@@ -67,12 +71,13 @@ function canFailOver(status: number, code: unknown): boolean {
  * A timeout can have an ambiguous outcome and failover may incur another charge.
  */
 export async function openaiFetch(url: string, init: RequestInit): Promise<Response> {
-  if (url !== ENDPOINT) throw new Error("Unsupported OpenAI endpoint.");
-  init = modelUpgradeRequest(init);
+  const sourced = url === RESPONSES_ENDPOINT && modelUpgradeEnabled();
+  if (url !== ENDPOINT && !sourced) throw new Error("Unsupported OpenAI endpoint.");
+  if (!sourced) init = modelUpgradeRequest(init);
   const keys = configuredKeys();
   if (!keys.length) throw new Error("No OpenAI API keys configured.");
   if (init.signal?.aborted) throw new Error("OpenAI request cancelled.");
-  const deadline = Date.now() + REQUEST_TIMEOUT_MS;
+  const deadline = Date.now() + (sourced ? 45_000 : REQUEST_TIMEOUT_MS);
   let attempts = 0;
   for (const key of keys) {
     const remaining = deadline - Date.now();
@@ -80,14 +85,14 @@ export async function openaiFetch(url: string, init: RequestInit): Promise<Respo
     const controller = new AbortController();
     const cancel = () => controller.abort();
     init.signal?.addEventListener("abort", cancel, { once: true });
-    const timer = setTimeout(cancel, Math.min(ATTEMPT_TIMEOUT_MS, remaining));
+    const timer = setTimeout(cancel, Math.min(sourced ? 40_000 : ATTEMPT_TIMEOUT_MS, remaining));
     attempts++;
     let response: Response;
     let body: string;
     try {
       const headers = new Headers(init.headers);
       headers.set("Authorization", `Bearer ${key}`);
-      response = await fetch(ENDPOINT, {
+      response = await fetch(url, {
         ...init, headers, cache: "no-store", signal: controller.signal,
       });
       // The timeout covers the response body as well as connection establishment.
