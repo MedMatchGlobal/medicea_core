@@ -8,6 +8,7 @@ import "./globals.css";
 import GATracker from "./ga-tracker";
 import MembershipAccess from './components/MembershipAccess';
 import {membershipPreviewEnabled} from '@/lib/membership/config';
+import {modelTestConfiguration} from './lib/openaiClient';
 
 export const metadata = {
   title: "medicéa",
@@ -23,6 +24,7 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const modelTest=modelTestConfiguration();
   return (
     <html lang="en">
       <head>
@@ -47,6 +49,12 @@ export default function RootLayout({
         </Script>
       </head>
       <body>
+        {modelTest.enabled && <aside className="model-test-banner" aria-label="Model test version">
+          <strong>Model test · {modelTest.revision}</strong>
+          <span>Research: {modelTest.researchModel} · Medicine summaries: {modelTest.informationModel}</span>
+          <span>{modelTest.matchingMode==='prompt-test'?'Source-assisted origin lookup · 10-country pilot · Equivalent suggestions remain unverified.':'Official-source pilot · 10-country coverage.'} An empty result is valid.</span>
+          <a href="https://medicea.global" target="_blank" rel="noopener noreferrer">Open current version for comparison ↗</a>
+        </aside>}
         <Suspense fallback={null}>
           <GATracker />
         </Suspense>

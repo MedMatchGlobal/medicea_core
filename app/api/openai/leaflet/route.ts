@@ -1,6 +1,6 @@
 import {withMembership} from '@/lib/membership/meter';
 export const maxDuration = 60;
-import { openaiFetch } from "@/app/lib/openaiClient";
+import { openaiFetch, modelUpgradeEnabled } from "@/app/lib/openaiClient";
 import { NextResponse } from "next/server";
 
 const OPENAI_URL = "https://api.openai.com/v1/chat/completions";
@@ -8,7 +8,8 @@ const OPENAI_URL = "https://api.openai.com/v1/chat/completions";
 async function generate(req: Request) {
   try {
     // Read request body (adds 'lang' support)
-    const { originCountry, drugName, drugDosage, lang } = await req.json();
+    const { originCountry, drugName, drugDosage, lang, originSelection, originQueryName } = await req.json();
+    if(modelUpgradeEnabled?.()) return (await import("@/app/lib/medicine-summary")).medicineSummary({drugName,originCountry,drugDosage,lang,originSelection,originQueryName});
     const language = (lang || "en").trim().toLowerCase();
 
     // ------------------ ORIGINAL PROMPTS (UNCHANGED) ------------------

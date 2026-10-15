@@ -1,8 +1,58 @@
 import type OpenAI from "openai";
 
 const ENDPOINT = "https://api.openai.com/v1/chat/completions";
+const RESPONSES_ENDPOINT = "https://api.openai.com/v1/responses";
 const ATTEMPT_TIMEOUT_MS = 10_000;
 const REQUEST_TIMEOUT_MS = 25_000;
+
+/** Opt-in migration transport. Preserve every route's prompt and output contract.
+ * Production and unrecognised/pinned models keep the original request verbatim.
+ */
+export function modelUpgradeEnabled() {
+  const preview = process.env.VERCEL_ENV === "preview" ||
+    (!process.env.VERCEL_ENV && process.env.NODE_ENV === "development");
+  // Owner-authorised, isolated tester deployment. Explicit false remains a
+  // kill switch; no other branch or Production is opted in automatically.
+  const testerBranch = process.env.VERCEL_ENV === "preview" &&
+    process.env.VERCEL_GIT_COMMIT_REF === "feature/openai-model-upgrade-preview";
+  return preview && (process.env.MEDICEA_OPENAI_UPGRADE === "true" ||
+    (!process.env.MEDICEA_OPENAI_UPGRADE && testerBranch));
+}
+
+export function modelTestConfiguration() {
+  return {enabled:modelUpgradeEnabled(),revision:'exact-match-v3.1',
+    matchingMode:process.env.VERCEL_GIT_COMMIT_REF==='feature/openai-model-upgrade-preview'&&process.env.MEDICEA_OPENAI_MATCHING_MODE!=='sources'?'prompt-test':'sources',
+    researchModel:process.env.MEDICEA_OPENAI_SOURCE_MODEL||'gpt-6.1-sol',
+    informationModel:process.env.MEDICEA_OPENAI_MEDICAL_MODEL||'gpt-6-luna'};
+}
+export function modelUpgradeRequest(init: RequestInit): RequestInit {
+  if (!modelUpgradeEnabled()) return init;
+  if (typeof init.body !== "string") throw new Error("Model upgrade requires a JSON request.");
+  const body = JSON.parse(init.body);
+  const legacy = body.model;
+  const fast = legacy === "gpt-4o-mini";
+  if (!fast && legacy !== "gpt-4o" && legacy !== "gpt-4") return init;
+  if (body.stream || body.tools || body.functions || body.function_call) {
+    throw new Error("Model upgrade requires a separate streaming/tool migration.");
+  }
+  const medicalModel = process.env.MEDICEA_OPENAI_MEDICAL_MODEL || "gpt-6-luna";
+  if (!["gpt-6-luna", "gpt-6.1-sol", "gpt-6-astra"].includes(medicalModel)) {
+    throw new Error("Unsupported Preview medical model.");
+  }
+  body.model = fast ? "gpt-6-luna" : medicalModel;
+  body.reasoning_effort = body.model === "gpt-6-luna" ? "none" : "low";
+  // Astra reasoning does not accept sampling parameters. Seed is a legacy
+  // reproducibility hint; the migration does not promise deterministic outputs.
+  delete body.seed;
+  if (body.reasoning_effort !== "none") {
+    delete body.temperature; delete body.top_p; delete body.top_logprobs; delete body.logprobs;
+  }
+  if (body.max_tokens !== undefined) {
+    body.max_completion_tokens = body.max_tokens;
+    delete body.max_tokens;
+  }
+  return {...init, body: JSON.stringify(body)};
+}
 
 function configuredKeys(): string[] {
   if (typeof window !== "undefined") throw new Error("OpenAI is server-only.");
@@ -33,11 +83,13 @@ function canFailOver(status: number, code: unknown): boolean {
  * A timeout can have an ambiguous outcome and failover may incur another charge.
  */
 export async function openaiFetch(url: string, init: RequestInit): Promise<Response> {
-  if (url !== ENDPOINT) throw new Error("Unsupported OpenAI endpoint.");
+  const sourced = url === RESPONSES_ENDPOINT && modelUpgradeEnabled();
+  if (url !== ENDPOINT && !sourced) throw new Error("Unsupported OpenAI endpoint.");
+  if (!sourced) init = modelUpgradeRequest(init);
   const keys = configuredKeys();
   if (!keys.length) throw new Error("No OpenAI API keys configured.");
   if (init.signal?.aborted) throw new Error("OpenAI request cancelled.");
-  const deadline = Date.now() + REQUEST_TIMEOUT_MS;
+  const deadline = Date.now() + (sourced ? 45_000 : REQUEST_TIMEOUT_MS);
   let attempts = 0;
   for (const key of keys) {
     const remaining = deadline - Date.now();
@@ -45,14 +97,14 @@ export async function openaiFetch(url: string, init: RequestInit): Promise<Respo
     const controller = new AbortController();
     const cancel = () => controller.abort();
     init.signal?.addEventListener("abort", cancel, { once: true });
-    const timer = setTimeout(cancel, Math.min(ATTEMPT_TIMEOUT_MS, remaining));
+    const timer = setTimeout(cancel, Math.min(sourced ? 40_000 : ATTEMPT_TIMEOUT_MS, remaining));
     attempts++;
     let response: Response;
     let body: string;
     try {
       const headers = new Headers(init.headers);
       headers.set("Authorization", `Bearer ${key}`);
-      response = await fetch(ENDPOINT, {
+      response = await fetch(url, {
         ...init, headers, cache: "no-store", signal: controller.signal,
       });
       // The timeout covers the response body as well as connection establishment.
