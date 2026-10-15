@@ -1,8 +1,22 @@
-# Owner model/prompt test — exact-match-v2.2
+# Owner model/prompt test — exact-match-v3
 
 Test URL: https://medicea-core-git-feature-openai-7499df-medmatchglobals-projects.vercel.app
 
 Comparison: https://medicea.global
+
+## v3: source-assisted origin identification and formulation choice
+
+The isolated human prompt-test path now identifies origins with mandatory Responses web search on country-specific official product-information domains, rather than model memory. Coverage is bounded to the same ten human origin countries as the earlier pilot; the UK allowlist also includes the official Solpadeine manufacturer site. Unsupported/unconfirmed origins do not silently fall back to memory. Candidate discovery remains the separate, unverified short Chat Completions prompt experiment; its exact full-composition, formulation and route checks are preserved. Veterinary and Production paths are unchanged.
+
+The lookup returns up to six distinct source-linked strengths/formulations. Multiple products pause with a translated “Choose your exact product” panel showing each complete ingredient list and source links. A signed selection binds the original medicine query, country, profile and a 15-minute expiry; editing a token cannot inject a different origin composition. Selecting a product reuses that origin without another web lookup and uses the formulation-specific name for the summary. The selected name and composition survive saved-result reopening; unresolved choices cannot be saved as completed searches. A 409 choice response releases a membership reservation without consuming a completed search.
+
+Strength hints narrow amounts but may be incomplete: 500 + 12.8 must not erase the additional caffeine from a soluble formulation. All source-profile ingredients remain in the subsequent exact comparison. Wrong strengths such as 500 + 8 against a 500 + 30 origin remain rejected. The UI controls cover all 25 languages. Source-linked AI extraction still requires review; checking that supporting URLs were retrieved is not independent verification of every extracted claim, and equivalent suggestions are explicitly unverified.
+
+Validation: all 79 offline tests and the optimized build pass. Mocked mobile/desktop checks cover both tablet and soluble choices, source links, disabled saving while choosing, selected-summary context, retained caffeine, saved-name reopening, and no overflow or page errors. Live public-example API checks found both Solpadeine Max variants from the manufacturer page in about 12 seconds; selected Tablets then returned an empty Italy match list in about 3 seconds. A UK co-codamol 500/30 lookup found tablet/effervescent/capsule options from eMC in about 16 seconds. Its first candidate request failed as unavailable; a separate repeat using the just-observed tablet profile returned three generated 500/30 Italian candidates in about 8 seconds. This is not a latency guarantee or independent validation of candidate availability. Provider timeouts and the candidate prompt were not changed.
+
+A final live UK co-codamol 500/8 regression found tablet and effervescent options from eMC in about 9 seconds. Selecting Tablets then returned an empty Italy match list in about 3 seconds, with no 500/30 substitution. The 500/30 candidate-repeat check used the exact origin profile observed in the preceding live source lookup rather than repeating that web lookup.
+
+The following v2 notes describe earlier revisions, before source-assisted origin selection.
 
 ## v2.2: clear empty results and visible origin strengths
 

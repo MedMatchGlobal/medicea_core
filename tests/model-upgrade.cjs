@@ -10,7 +10,7 @@ test('only the authorised tester branch defaults on; explicit false and Producti
  assert.equal(client({...branch,VERCEL_ENV:'production',MEDICEA_OPENAI_UPGRADE:'true'}).modelUpgradeEnabled(),false);
  assert.equal(client({...branch,VERCEL_GIT_COMMIT_REF:'feature/monetisation-preview'}).modelUpgradeEnabled(),false);
  assert.equal(client({...branch,VERCEL_GIT_COMMIT_REF:'feature/private-vault'}).modelUpgradeEnabled(),false);
- assert.equal(client(branch).modelTestConfiguration().revision,'exact-match-v2.2');
+ assert.equal(client(branch).modelTestConfiguration().revision,'exact-match-v3');
 });
 test('Responses source-research endpoint is blocked outside the opted-in Preview',async()=>{
  const endpoint='https://api.openai.com/v1/responses';

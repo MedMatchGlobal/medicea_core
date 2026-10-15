@@ -105,8 +105,8 @@ function applyUserDosageOverride(
 
 async function generate(req: Request) {
   try {
-    const { originCountry, drugName, drugDosage } = await req.json();
-    if(modelUpgradeEnabled?.()&&modelTestConfiguration?.().matchingMode==='prompt-test')return (await import('@/app/lib/prompt-matches')).promptMatchedSearch({drugName,originCountry,drugDosage,targetCountry:originCountry},'generic');
+    const { originCountry, drugName, drugDosage, originSelection } = await req.json();
+    if(modelUpgradeEnabled?.()&&modelTestConfiguration?.().matchingMode==='prompt-test')return (await import('@/app/lib/prompt-matches')).promptMatchedSearch({drugName,originCountry,drugDosage,targetCountry:originCountry,originSelection},'generic');
     if(modelUpgradeEnabled?.()) return (await import("@/app/lib/source-matches")).sourceMatchedSearch({drugName,originCountry,drugDosage,targetCountry:originCountry},"generic");
 
     // ---------- STEP 1: get origin profile ----------

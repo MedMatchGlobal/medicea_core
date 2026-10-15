@@ -568,6 +568,12 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 .empty-match svg { flex-shrink:0; margin-top:3px; color:#357d80; }
 .empty-match h3 { margin:0 0 8px; font-size:19px; line-height:1.4; color:#1d454b; }
 .empty-match p { margin:0; line-height:1.6; }
+.origin-choice { padding:20px; margin:16px 0; background:#edf8f6; border:1px solid #b7d9d6; border-radius:16px; }
+.origin-choice h3 { margin:0 0 8px; }
+.origin-choice article { margin-top:16px; padding:16px; border:1px solid #cbdde5; border-radius:12px; background:white; }
+.origin-choice h4 { margin:0; font-size:18px; }
+.origin-choice ul { padding-inline-start:20px; }
+.origin-choice button { margin-top:14px; max-width:100%; white-space:normal; text-align:start; }
 .model-test-banner { display:flex; flex-wrap:wrap; gap:6px 20px; max-width:1160px; margin:12px auto; padding:14px 18px; border:1px solid #92bdcb; border-radius:12px; background:#e8f6f7; color:#173b50; font-size:13px; line-height:1.5; overflow-wrap:anywhere; }
 .model-test-banner strong { flex-basis:100%; }
 .model-test-banner a { color:#136d82; }

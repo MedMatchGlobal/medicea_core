@@ -11,9 +11,19 @@ export async function POST(req: Request) {
    ((mode==='international'||mode==='pets')&&(typeof body.targetCountry!=='string'||!body.targetCountry.trim())))return Response.json({error:'INVALID_INPUT'},{status:400});
   const providerRequest=()=>new Request(request.url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
   let originLeaflet;
+  let summaryName=body.drugName;
+  if(body.originSelection&&(mode==='international'||mode==='generic')){
+   const {modelUpgradeEnabled}=await import('@/app/lib/openaiClient');
+   if(modelUpgradeEnabled()){
+    const {readOriginSelection}=await import('@/app/lib/origin-lookup');
+    const selected=readOriginSelection(body.originSelection,body.drugName,body.originCountry,body.drugDosage);
+    if(!selected)return Response.json({error:'ORIGIN_SELECTION_EXPIRED'},{status:422});
+    summaryName=selected.name;
+   }
+  }
   if(mode==='international'||mode==='generic') {
    const {POST}=await import('@/app/api/openai/leaflet/route');
-   const leaflet=await POST(providerRequest());
+   const leaflet=await POST(new Request(request.url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({...body,drugName:summaryName})}));
    if(!leaflet.ok)return leaflet;
    originLeaflet=await leaflet.json();
   }
