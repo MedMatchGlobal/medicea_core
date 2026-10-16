@@ -132,3 +132,20 @@
 @media(max-width:700px) { .travel-library-add>button { width:100%; } .travel-library-list article>label { width:100%; min-width:0!important; } }
 
 .travel-trip-actions { justify-content:space-between; gap:12px; flex-wrap:wrap; }
+
+.travel-library-list .travel-library-entry { display:flex; align-items:flex-start; flex-wrap:nowrap; gap:12px; }
+.travel-library-list .travel-pack-select { flex:0 0 auto!important; width:auto!important; min-width:0!important; padding-top:10px; }
+.travel-pack-select input { width:22px; height:22px; accent-color:#147b83; }
+.travel-medicine-details { flex:1; min-width:0; }
+.travel-medicine-details>summary { cursor:pointer; padding:10px 0; overflow-wrap:anywhere; }
+.travel-medicine-details>summary strong { font-size:18px; }
+.travel-medicine-details>summary small,.travel-medicine-details>summary span { display:block; margin:6px 0; }
+.travel-medicine-details>label { display:block; max-width:360px; margin-top:16px; }
+.travel-medicine-details h4 { margin:0 0 10px; font-size:17px; overflow-wrap:anywhere; }
+.travel-medicine-compare { border-top:1px solid #d7e6e9; padding-top:10px; margin-top:20px; }
+.travel-medicine-compare label { display:block; max-width:360px; margin-bottom:12px; }
+.travel-comparison-history { margin:12px 0; overflow-wrap:anywhere; }
+.travel-comparison-history summary { cursor:pointer; }
+.travel-comparison-history ul { padding-inline-start:20px; }
+.travel-review-due { background:#fff4df; color:#725422; padding:8px 10px; border-radius:8px; font-size:14px; }
+.travel-medicine-details button { max-width:100%; white-space:normal; overflow-wrap:anywhere; }

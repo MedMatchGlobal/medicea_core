@@ -43,7 +43,7 @@ Before real health records or paid/public release: complete the GDPR evidence au
 
 ## Validation
 
-100 offline automated tests and the optimized build pass, including protected-prompt preservation, Preview isolation, legacy migration, fictional-only storage, comparison keying/invalidation, device-region suggestions, immutable pack records, safe offline exports, feed safety and complete 25-language copy.
+104 offline automated tests and the optimized build pass, including protected-prompt preservation, Preview isolation, legacy migration, fictional-only storage, comparison keying/invalidation, device-region suggestions, immutable pack records, safe offline exports, feed safety and complete 25-language copy.
 
 Phone/desktop browser checks cover adding the list once, comparisons without dates, saved reopening, reuse in two packs, retained original pack data after library edits/removal, offline export, two news views, home-country isolation from location, and no coordinate requests. An Italian-region suggestion can be overridden to the UK and survives reload and language changes. Library, news and pack views fit all 25 languages at 390 px. Existing packs/checklists migrate without loss; blocked storage still permits an offline download. Production retains its original public UI and returns 404 for travel and the news API.
 
@@ -52,3 +52,12 @@ No new credentials, login, payment setup or real health data are required to try
 The My medicines list now shows its count, while Country comparisons shows the selected destination, saved-result count and a separate missing-comparison message for each medicine. Travel packs has a direct return button to the main list. Saving a pack copies saved comparisons; it does not perform a new search. Unticking a medicine for a pack leaves the library entry intact.
 
 Downloaded packs use individual medicine cards with label/value rows rather than a six-column table, retaining bilingual text, comparison dates and missing-result states. They fit 320/390/1280 px without horizontal overflow. The app's pharmacist-card print layout is unchanged. Existing downloaded files are snapshots: download again to obtain the revised layout.
+
+
+## Medicine-centred saved comparisons and review
+
+My medicines now starts with collapsed medicine entries. Each summary lists its saved destination countries; opening it reveals all saved country results, origin controls, per-country demo refresh and a country comparison action. Pack selection remains independent of expanding a medicine. No saved country result is hidden by the last destination selection.
+
+An annual review flag appears on opening the app, using one calendar year after the demo check (29 February clamps to 28 February in a non-leap year). Every result shows its demo-check date and review-by date. Refresh uses the fixed fictional result, explicitly says no live source was checked, and retains up to 24 previous dated fixture results per medicine/origin/destination. Older/replayed checks cannot replace a newer record. History survives reload and accepts only prior date strings. Existing saved packs and downloads remain snapshots. Preparing a new pack reminds the user to review comparisons before every trip. These are in-app reminders, not background alerts or scheduled live research.
+
+The review interface covers all 25 languages. Additional automated tests cover calendar-year/leap-day boundaries, retained history, country isolation, fixed pack snapshots, history sanitisation/bounds and translated copy. Browser checks at 320/390/1280 px cover collapsed entries, both country results, due flags, refresh/reload/history, comparison save inside a medicine, selection exclusions without library deletion, preserved old packs and no live medicine API calls. All 25 languages fit the expanded view at 390 px.

@@ -3,7 +3,7 @@ export const DEMO_COUNTRIES=['GB','IT'] as const;
 export type DemoCountry=typeof DEMO_COUNTRIES[number];
 export type DemoMedicine='A'|'B';
 export type LibraryMedicine={id:DemoMedicine;origin:DemoCountry};
-export type DemoComparison={medicine:DemoMedicine;origin:DemoCountry;destination:DemoCountry;checkedAt:string};
+export type DemoComparison={medicine:DemoMedicine;origin:DemoCountry;destination:DemoCountry;checkedAt:string;previousChecks?:string[]};
 export type DemoTrip={id:string;home:DemoCountry;destination:DemoCountry;start:string;end:string;medicines:DemoMedicine[];checks:string[];savedAt:string;origins?:Partial<Record<DemoMedicine,DemoCountry>>;comparisons?:DemoComparison[]};
 export type DemoState={version:1;trips:DemoTrip[];home:DemoCountry;here:string;autoCountry:boolean;homeConfirmed:boolean;library:LibraryMedicine[];comparisons:DemoComparison[];otherCountry:string};
 export const CHECKS=['supply','expiry','storage','documents','review'] as const;
@@ -11,7 +11,7 @@ export function travelPreviewEnabled(){return process.env.VERCEL_ENV==='preview'
 const country=(value:unknown):value is DemoCountry=>value==='GB'||value==='IT';
 const medicine=(value:unknown):value is DemoMedicine=>value==='A'||value==='B';
 const validComparison=(v:any):v is DemoComparison=>!!v&&medicine(v.medicine)&&country(v.origin)&&country(v.destination)&&typeof v.checkedAt==='string'&&Number.isFinite(Date.parse(v.checkedAt));
-function comparisons(value:unknown):DemoComparison[]{const result:DemoComparison[]=[];if(Array.isArray(value))for(const v of value.slice(0,30)){if(validComparison(v)&&!result.some(c=>c.medicine===v.medicine&&c.origin===v.origin&&c.destination===v.destination))result.push({medicine:v.medicine,origin:v.origin,destination:v.destination,checkedAt:v.checkedAt});}return result;}
+function comparisons(value:unknown):DemoComparison[]{const result:DemoComparison[]=[];if(Array.isArray(value))for(const v of value.slice(0,30)){if(validComparison(v)&&!result.some(c=>c.medicine===v.medicine&&c.origin===v.origin&&c.destination===v.destination))result.push({medicine:v.medicine,origin:v.origin,destination:v.destination,checkedAt:v.checkedAt,...(Array.isArray(v.previousChecks)?{previousChecks:[...new Set(v.previousChecks.filter((d:unknown)=>typeof d==='string'&&Number.isFinite(Date.parse(d))&&Date.parse(d)<Date.parse(v.checkedAt)))].sort((a:any,b:any)=>Date.parse(b)-Date.parse(a)).slice(0,24) as string[]}:{})});}return result;}
 export function suggestHomeRegion(locales:readonly string[]):DemoCountry|''{for(const locale of locales){const match=locale.match(/(?:-|_)(GB|IT)(?:$|-|_)/i);if(match)return match[1].toUpperCase() as DemoCountry;}return '';}
 const date=(value:unknown):value is string=>typeof value==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(value)&&Number.isFinite(Date.parse(value+'T00:00:00Z'))&&new Date(value+'T00:00:00Z').toISOString().slice(0,10)===value;
 export function validTrip(value:unknown):value is DemoTrip{
@@ -29,7 +29,22 @@ export function readTravelDemo(raw:string|null):DemoState{
   return {version:1,trips,library,comparisons:comparisons(value.comparisons).filter(c=>library.some(m=>m.id===c.medicine&&m.origin===c.origin)),home:country(value.home)?value.home:'GB',homeConfirmed:value.homeConfirmed===true,here:typeof value.here==='string'&&/^[A-Z]{2}$/.test(value.here)?value.here:'',autoCountry:value.autoCountry===true,otherCountry:typeof value.otherCountry==='string'&&/^[A-Z]{2}$/.test(value.otherCountry)?value.otherCountry:empty.otherCountry};
  }catch{return empty;}
 }
-export function saveDemoComparisons(state:DemoState,items:DemoComparison[]):DemoState{const valid=comparisons(items).filter(c=>state.library.some(m=>m.id===c.medicine&&m.origin===c.origin));return {...state,comparisons:[...valid,...state.comparisons.filter(c=>!valid.some(v=>v.medicine===c.medicine&&v.origin===c.origin&&v.destination===c.destination))]};}
+export function saveDemoComparisons(state:DemoState,items:DemoComparison[]):DemoState{
+ const valid=comparisons(items).filter(c=>state.library.some(m=>m.id===c.medicine&&m.origin===c.origin)).map(c=>{
+  const old=state.comparisons.find(v=>v.medicine===c.medicine&&v.origin===c.origin&&v.destination===c.destination);
+  if(old&&Date.parse(c.checkedAt)<=Date.parse(old.checkedAt))return old;
+  return old?{...c,previousChecks:[...new Set([old.checkedAt,...(old.previousChecks||[])])].slice(0,24)}:c;
+ });
+ return {...state,comparisons:[...valid,...state.comparisons.filter(c=>!valid.some(v=>v.medicine===c.medicine&&v.origin===c.origin&&v.destination===c.destination))]};
+}
+export function comparisonReviewDate(checkedAt:string){
+ const d=new Date(checkedAt);if(!Number.isFinite(d.getTime()))return '';
+ const year=d.getUTCFullYear()+1,month=d.getUTCMonth(),day=d.getUTCDate();
+ return new Date(Date.UTC(year,month,Math.min(day,new Date(Date.UTC(year,month+1,0)).getUTCDate()))).toISOString().slice(0,10);
+}
+export function comparisonReviewDue(checkedAt:string,now=new Date()){
+ const review=comparisonReviewDate(checkedAt);return !review||now.toISOString().slice(0,10)>=review;
+}
 export function countryName(code:string,lang:string){try{return new Intl.DisplayNames([lang],{type:'region'}).of(code)||code;}catch{return code;}}
 type Point=number[];
 function insideRing(point:Point,ring:Point[]){let inside=false;for(let i=0,j=ring.length-1;i<ring.length;j=i++){const a=ring[i],b=ring[j];if((a[1]>point[1])!==(b[1]>point[1])&&point[0]<(b[0]-a[0])*(point[1]-a[1])/(b[1]-a[1])+a[0])inside=!inside;}return inside;}
