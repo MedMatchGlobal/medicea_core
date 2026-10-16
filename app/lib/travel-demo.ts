@@ -31,8 +31,8 @@ const euEmergency={number:'112',source:'https://europa.eu/youreurope/citizens/tr
 export const EMERGENCY_CONTACTS:Record<DemoCountry,{number:string;source:string}>={GB:{number:'999',source:'https://www.gov.uk/guidance/999-and-112-the-uks-national-emergency-numbers'},IT:euEmergency,FR:euEmergency,ES:euEmergency,DE:euEmergency,PT:euEmergency,US:{number:'911',source:'https://www.911.gov/calling-911/'},AU:{number:'000',source:'https://www.infrastructure.gov.au/media-communications/phone/triple-zero'}};
 export const CONSULAR_DIRECTORIES:Record<DemoCountry,string>={GB:'https://www.gov.uk/world/embassies',IT:'https://www.esteri.it/it/ministero/struttura/laretediplomatica/',FR:'https://www.diplomatie.gouv.fr/fr/le-ministere/reseau-diplomatique/ambassades',ES:'https://www.exteriores.gob.es/es/EmbajadasConsulados/Paginas/index.aspx',DE:'https://www.auswaertiges-amt.de/en/about-us/auslandsvertretungen',PT:'https://portaldascomunidades.mne.gov.pt/pt/rede-consular',US:'https://travel.state.gov/content/travel/en/find_us_embassies.html',AU:'https://www.dfat.gov.au/about-us/our-locations/missions/our-embassies-and-consulates-overseas'};
 export function embassySearchUrl(passport:DemoCountry,address:string,destination:DemoCountry){
- if(!country(passport)||!country(destination)||passport===destination||!cleanStayAddress(address))return '';
- return 'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent('embassy or consulate of '+countryName(passport,'en')+' near '+cleanStayAddress(address)+', '+countryName(destination,'en'));
+ if(!country(passport)||!country(destination)||passport===destination)return '';
+ return 'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent('embassy or consulate of '+countryName(passport,'en')+(cleanStayAddress(address)?' near '+cleanStayAddress(address)+', ':' in ')+countryName(destination,'en'));
 }
 export function validDestinationPack(value:unknown):value is DemoDestinationPack{
  // Reuse the fixed medicine/country validation without requiring journey dates.
