@@ -36,6 +36,11 @@ export function readOriginProducts(result:any,country:string,dosage:unknown):Ori
   console.info('[Travel origin validation]',{retrievedSources:retrieved.size,offered:offered.length,accepted:products.length,
    sourceSupported:offered.filter((p:any)=>Array.isArray(p?.sources)&&p.sources.length>0&&p.sources.every((s:unknown)=>{const url=sourceUrl(s,domains);return !!url&&retrieved.has(url);})).length,
    completeComposition:offered.filter((p:any)=>p&&exactComposition(p,p)).length,
+   markedComplete:offered.filter((p:any)=>p?.complete===true).length,
+   markedIncomplete:offered.filter((p:any)=>p?.complete===false).length,
+   validWithCompletenessFlag:offered.filter((p:any)=>p&&exactComposition({...p,complete:true},{...p,complete:true})).length,
+   humanSpecies:offered.filter((p:any)=>Array.isArray(p?.species)&&!p.species.length).length,
+   populatedIngredients:offered.filter((p:any)=>Array.isArray(p?.ingredients)&&p.ingredients.length>0).length,
    matchingCountry:offered.filter((p:any)=>typeof p?.country==='string'&&norm(p.country)===norm(country)).length,
    matchingHint:offered.filter((p:any)=>Array.isArray(p?.ingredients)&&sourceHintAgrees(dosage,p.ingredients)!==false).length});}catch{}
  }
