@@ -162,3 +162,16 @@
 .travel-saved-equivalents[open]>summary .travel-hide-equivalents { display:inline; }
 .travel-equivalent-content { border-top:1px solid #c4dedb; padding:14px 0; }
 .travel-delete-comparison { margin-top:8px; min-height:44px; text-align:start; }
+
+.travel-pack-tools,.travel-care-links { display:flex; gap:12px; flex-wrap:wrap; align-items:center; }
+.travel-care-links a { display:inline-flex; align-items:center; min-height:44px; padding:10px 14px; border:1px solid #b7d0dc; border-radius:12px; text-decoration:none; font-weight:600; }
+.travel-stay-address { margin-top:18px; }
+.travel-medicine-details { scroll-margin-top:110px; }
+.travel-nearby-care p { overflow-wrap:anywhere; }
+@media print { .travel-pack-tools { display:none!important; } }
+.travel-emergency-number { display:inline-flex; gap:10px; align-items:center; min-height:48px; font-size:28px; font-weight:700; padding:8px 14px; background:#fff4df; border-radius:12px; text-decoration:none; }
+.travel-emergency>label { max-width:360px; margin:14px 0; }
+.travel-emergency p,.travel-consular-saved { overflow-wrap:anywhere; }
+.travel-consular-saved { padding:16px; margin:16px 0; border:1px solid #c4dedb; border-radius:12px; background:#f0f8f7; }
+.travel-contact-form>summary { cursor:pointer; padding:12px 0; font-weight:600; }
+.travel-contact-form label { margin-bottom:14px; }

@@ -6,10 +6,11 @@ import {Menu,X} from 'lucide-react';
 import {useLanguage} from '../LanguageProvider';
 import {travelCopy} from '../i18n/travel-demo';
 import {libraryCopy} from '../i18n/medicine-library';
+import {destinationCopy} from '../i18n/destination-packs';
 import {loadStrings} from '../i18n/i18n';
 import en from '../i18n/en.json';
 export default function TravelNav({active='search',onSection}:{active?:string;onSection?:(section:'search'|'tools'|'care')=>void}){
- const {lang}=useLanguage(),n=libraryCopy(lang),c={...travelCopy(lang),trips:n.packs,updates:n.news},[open,setOpen]=useState(false),root=useRef<HTMLElement>(null),button=useRef<HTMLButtonElement>(null),hoverDismissed=useRef(false),id=useId();
+ const {lang}=useLanguage(),n=libraryCopy(lang),c={...travelCopy(lang),trips:destinationCopy(lang).packs,updates:n.news},[open,setOpen]=useState(false),root=useRef<HTMLElement>(null),button=useRef<HTMLButtonElement>(null),hoverDismissed=useRef(false),id=useId();
  const pathname=usePathname(),router=useRouter();
  // Account is often the first stop before opening a tool not yet visited.
  useEffect(()=>{if(active==='account')for(const href of ['/','/?section=tools','/?section=care','/pets'])router.prefetch(href);},[active,router]);

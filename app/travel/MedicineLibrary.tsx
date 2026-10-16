@@ -1,12 +1,14 @@
 'use client';
-import {useState} from 'react';
+import {useEffect,useState} from 'react';
 import {Plus,Trash2,X} from 'lucide-react';
 import {travelCopy} from '../i18n/travel-demo';
 import {libraryCopy} from '../i18n/medicine-library';
 import {reviewCopy} from '../i18n/comparison-review';
+import {destinationCopy} from '../i18n/destination-packs';
 import {countryName,DEMO_COUNTRIES,comparisonReviewDate,comparisonReviewDue,saveDemoComparisons,type DemoState,type DemoMedicine,type DemoCountry,type DemoComparison} from '../lib/travel-demo';
-export default function MedicineLibrary({state,commit,lang,selected,setSelected,destination,setDestination,onPack}:{state:DemoState;commit:(state:DemoState)=>boolean;lang:string;selected:DemoMedicine[];setSelected:(ids:DemoMedicine[])=>void;destination:DemoCountry;setDestination:(code:DemoCountry)=>void;onPack:()=>void}){
- const c=travelCopy(lang),n=libraryCopy(lang),r=reviewCopy(lang),[candidate,setCandidate]=useState<DemoMedicine>('A'),[origin,setOrigin]=useState<DemoCountry>(state.home),[preview,setPreview]=useState<DemoComparison[]>([]);
+export default function MedicineLibrary({state,commit,lang,selected,setSelected,destination,setDestination,onPack,openMedicine,backToPack}:{state:DemoState;commit:(state:DemoState)=>boolean;lang:string;selected:DemoMedicine[];setSelected:(ids:DemoMedicine[])=>void;destination:DemoCountry;setDestination:(code:DemoCountry)=>void;onPack:()=>void;openMedicine?:DemoMedicine;backToPack?:()=>void}){
+ const c=travelCopy(lang),n=libraryCopy(lang),r=reviewCopy(lang),d=destinationCopy(lang),[candidate,setCandidate]=useState<DemoMedicine>('A'),[origin,setOrigin]=useState<DemoCountry>(state.home),[preview,setPreview]=useState<DemoComparison[]>([]);
+ useEffect(()=>{if(openMedicine)document.getElementById('medicine-'+openMedicine)?.scrollIntoView({block:'start'});},[openMedicine]);
  const available=(['A','B'] as const).filter(id=>!state.library.some(m=>m.id===id));
  const chosen=available.includes(candidate)?candidate:available[0];
  const options=DEMO_COUNTRIES.map(code=><option key={code} value={code}>{countryName(code,lang)}</option>);
@@ -18,14 +20,15 @@ export default function MedicineLibrary({state,commit,lang,selected,setSelected,
    {available.length>0&&<form className="travel-library-add" onSubmit={event=>{event.preventDefault();if(!chosen)return;commit({...state,library:[...state.library,{id:chosen,origin}]});setSelected([...selected,chosen]);}}><label>{c.medicine}<select aria-label={c.medicine} value={chosen} onChange={e=>setCandidate(e.target.value as DemoMedicine)}>{available.map(id=><option key={id} value={id}>{c.medicine} {id} · {id==='A'?10:50} mg</option>)}</select></label><label>{n.origin}<select aria-label={n.origin} value={origin} onChange={e=>setOrigin(e.target.value as DemoCountry)}>{options}</select></label><button className="travel-primary" type="submit"><Plus size={18} aria-hidden="true"/>{n.add}</button></form>}
   </section>
   {state.library.length>0&&<>
-   <section className="travel-panel"><div className="travel-section-head"><h2>{n.mine}</h2><span className="travel-badge">{state.library.length}</span></div><p className="travel-caption">{n.selectSaved} · {n.packs}</p><p className="travel-caption">{r.annualHelp}</p>
+   <section className="travel-panel"><div className="travel-section-head"><h2>{n.mine}</h2><span className="travel-badge">{state.library.length}</span></div><p className="travel-caption">{n.selectSaved} · {d.packs}</p><p className="travel-caption">{r.annualHelp}</p>
    {due.length>0&&<p className="travel-review-due" role="status">{r.reviewDue}: {due.map(item=>`${c.medicine} ${item.medicine} · ${countryName(item.destination,lang)}`).join('; ')}</p>}
    <div className="travel-library-list">{state.library.map(m=>{
     const saved=state.comparisons.filter(item=>item.medicine===m.id&&item.origin===m.origin).sort((a,b)=>a.destination.localeCompare(b.destination));
     const pending=preview.filter(item=>item.medicine===m.id&&item.origin===m.origin);
     return <article key={m.id} className="travel-library-entry">
      <label className="travel-pack-select"><input type="checkbox" aria-label={`${n.selectSaved}: ${c.medicine} ${m.id}`} checked={selected.includes(m.id)} onChange={e=>setSelected(e.target.checked?[...selected,m.id]:selected.filter(id=>id!==m.id))}/></label>
-     <details className="travel-medicine-details"><summary><strong>{c.medicine} {m.id}</strong><small>{c.ingredient} {m.id} · {m.id==='A'?10:50} mg · {c.tablet} · {countryName(m.origin,lang)}</small><span className="travel-caption">{n.comparisons}: {saved.length? saved.map(item=>countryName(item.destination,lang)).join(', '):'—'}</span>{saved.some(item=>comparisonReviewDue(item.checkedAt))&&<span className="travel-review-due">{r.reviewDue}</span>}</summary>
+     <details className="travel-medicine-details" id={'medicine-'+m.id} open={openMedicine===m.id?true:undefined}><summary><strong>{c.medicine} {m.id}</strong><small>{c.ingredient} {m.id} · {m.id==='A'?10:50} mg · {c.tablet} · {countryName(m.origin,lang)}</small><span className="travel-caption">{n.comparisons}: {saved.length? saved.map(item=>countryName(item.destination,lang)).join(', '):'—'}</span>{saved.some(item=>comparisonReviewDue(item.checkedAt))&&<span className="travel-review-due">{r.reviewDue}</span>}</summary>
+      {openMedicine===m.id&&backToPack&&<button className="travel-secondary" onClick={backToPack}>{c.back} · {d.packs}</button>}
       <label>{n.origin}<select aria-label={`${n.origin}: ${c.medicine} ${m.id}`} value={m.origin} onChange={e=>{commit({...state,library:state.library.map(item=>item.id===m.id?{...item,origin:e.target.value as DemoCountry}:item),comparisons:state.comparisons.filter(item=>item.medicine!==m.id)});setPreview(preview.filter(item=>item.medicine!==m.id));}}>{options}</select></label>
       <h3>{n.comparisons}</h3>
       {!saved.length&&<p>{n.notCompared}</p>}
@@ -41,7 +44,7 @@ export default function MedicineLibrary({state,commit,lang,selected,setSelected,
      </details>
     </article>;
    })}</div></section>
-   <section className="travel-panel"><p>{r.beforeTrip}</p><button className="travel-secondary" disabled={!selected.length} onClick={onPack}>{c.createTrip} → {n.packs}</button></section>
+   <section className="travel-panel"><p>{r.beforeTrip}</p><button className="travel-secondary" disabled={!selected.length} onClick={onPack}>{d.create}</button></section>
   </>}
  </>;
 }
