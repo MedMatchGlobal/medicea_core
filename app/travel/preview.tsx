@@ -26,7 +26,7 @@ export default function TravelDemo(){
  const stateRef=useRef(state),locationVersion=useRef(0),initialAuto=useRef(false);
  const trip=state.trips.find(t=>t.id===activeId)||null,card={...travelCopy(cardLang),originCountryLabel:libraryCopy(cardLang).origin,notComparedLabel:libraryCopy(cardLang).notCompared,sourceLabel:libraryCopy(cardLang).source,checkedLabel:libraryCopy(cardLang).checked};
  useEffect(()=>{let loaded=readTravelDemo(null),stored:string|null=null;try{stored=localStorage.getItem(TRAVEL_DEMO_KEY);loaded=readTravelDemo(stored);}catch{setStatus('saveError');}setState(loaded);stateRef.current=loaded;setActiveId(loaded.trips[0]?.id||'');setPackHome(loaded.home);setSelected(loaded.library.map(m=>m.id));setMedicines(loaded.library.map(m=>m.id));setHomeDraft(stored?loaded.home:suggestHomeRegion(navigator.languages||[navigator.language]));setReady(true);},[]);
- useEffect(()=>{if(trip)setCardLang(trip.destination==='IT'?'it':'en');},[trip?.id]);
+ useEffect(()=>{if(trip)setCardLang(({IT:'it',FR:'fr',ES:'es',DE:'de',PT:'pt'} as Partial<Record<DemoCountry,LangCode>>)[trip.destination]||'en');},[trip?.id]);
  useEffect(()=>()=>{locationVersion.current++;},[]);
  function commit(next:DemoState){stateRef.current=next;setState(next);try{localStorage.setItem(TRAVEL_DEMO_KEY,JSON.stringify(next));return true;}catch{setStatus('saveError');return false;}}
  async function detectCountry(){

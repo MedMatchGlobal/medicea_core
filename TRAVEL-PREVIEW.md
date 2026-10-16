@@ -4,9 +4,9 @@ Branch: feature/travel-pack-preview. Separate owner Preview only; entry /travel 
 
 ## What to try
 
-1. Open My medicines and confirm Home country. A supported region in the device's browser locale may suggest UK/Italy; language alone never determines the country. Override the suggestion when necessary. This preference persists independently of interface language.
+1. Open My medicines and confirm Home country. A supported region in the device's browser locale may suggest any of the eight supported demo countries; language alone never determines the country. Override the suggestion when necessary. This preference persists independently of interface language.
 2. Add fictional medicine A and/or B once. Each has its own origin country, fixed fictional ingredient, strength and form. There is no free-text medicine/patient field or upload. These two fixtures are for interaction testing, not real research.
-3. Select medicines and a comparison country. Compare without entering travel dates, then save individual comparisons. Results retain the origin, destination and demonstration checking date. The source label explicitly says fictional demonstration, not a verified medicine source. No medicine API request or translation charge is incurred.
+3. Open a medicine and choose a comparison country. Compare without entering travel dates, then save individual comparisons. Results retain the origin, destination and demonstration checking date. The source label explicitly says fictional demonstration, not a verified medicine source. No medicine API request or translation charge is incurred.
 4. Reopen the list and its saved comparisons. Editing an origin invalidates that medicine's current library comparisons. Removing a library entry removes its current comparisons, without removing existing packs.
 5. Create an optional Travel pack from selected saved medicines. Choose departure country, destination and dates, then save. Dates apply to the trip/reminder, not basic comparison. Reuse the same saved list in another pack without adding the medicines again. Departure country does not overwrite the user's Home country.
 6. Reopen a pack, complete its checklist, select any of the 25 pharmacist-card languages, and print or download. Packs freeze per-medicine origins and saved comparison records. A new pack without a saved comparison says so; it does not invent a completed comparison. Existing legacy demo trips remain available and seed a deduplicated library once. An explicitly empty library is not repopulated from old packs.
@@ -43,7 +43,7 @@ Before real health records or paid/public release: complete the GDPR evidence au
 
 ## Validation
 
-104 offline automated tests and the optimized build pass, including protected-prompt preservation, Preview isolation, legacy migration, fictional-only storage, comparison keying/invalidation, device-region suggestions, immutable pack records, safe offline exports, feed safety and complete 25-language copy.
+105 offline automated tests and the optimized build pass, including protected-prompt preservation, Preview isolation, legacy migration, fictional-only storage, comparison keying/invalidation, device-region suggestions, immutable pack records, safe offline exports, feed safety and complete 25-language copy.
 
 Phone/desktop browser checks cover adding the list once, comparisons without dates, saved reopening, reuse in two packs, retained original pack data after library edits/removal, offline export, two news views, home-country isolation from location, and no coordinate requests. An Italian-region suggestion can be overridden to the UK and survives reload and language changes. Library, news and pack views fit all 25 languages at 390 px. Existing packs/checklists migrate without loss; blocked storage still permits an offline download. Production retains its original public UI and returns 404 for travel and the news API.
 
@@ -61,3 +61,12 @@ My medicines now starts with collapsed medicine entries. Each summary lists its 
 An annual review flag appears on opening the app, using one calendar year after the demo check (29 February clamps to 28 February in a non-leap year). Every result shows its demo-check date and review-by date. Refresh uses the fixed fictional result, explicitly says no live source was checked, and retains up to 24 previous dated fixture results per medicine/origin/destination. Older/replayed checks cannot replace a newer record. History survives reload and accepts only prior date strings. Existing saved packs and downloads remain snapshots. Preparing a new pack reminds the user to review comparisons before every trip. These are in-app reminders, not background alerts or scheduled live research.
 
 The review interface covers all 25 languages. Additional automated tests cover calendar-year/leap-day boundaries, retained history, country isolation, fixed pack snapshots, history sanitisation/bounds and translated copy. Browser checks at 320/390/1280 px cover collapsed entries, both country results, due flags, refresh/reload/history, comparison save inside a medicine, selection exclusions without library deletion, preserved old packs and no live medicine API calls. All 25 languages fit the expanded view at 390 px.
+
+
+## Expanded country testing and pending results
+
+Country selectors now support UK, Italy, France, Spain, Germany, Portugal, US and Australia. These are still fixed fictional medicine comparisons, not live country research. The same countries validate and persist for library origins, home preferences, comparisons and packs. New packs default the pharmacist-card language to Italian, French, Spanish, German or Portuguese for the matching destination, otherwise English; the independent language selector remains available. News coverage is unchanged: only UK MHRA headlines are connected.
+
+Changing a comparison destination no longer clears unsaved results. Multiple pending medicine/country results remain visible with country-specific Save buttons. Running another country comparison, comparing another medicine or adding a library entry does not discard them. Saving one only removes that pending result and marks its saved result with a Saved badge. Unsaved results remain temporary until explicitly saved; saved results survive reload. Origin edits still invalidate the affected medicine's comparisons.
+
+105 automated tests and the build pass. Browser regression checks at 320/390/1280 px compare all eight countries before saving, switch countries and medicines, save each result independently, reload, then build/reload a France pack containing the two correct country comparisons and a French pharmacist card.

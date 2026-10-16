@@ -1,5 +1,5 @@
 export const TRAVEL_DEMO_KEY='medicea.travel-demo.v1';
-export const DEMO_COUNTRIES=['GB','IT'] as const;
+export const DEMO_COUNTRIES=['GB','IT','FR','ES','DE','PT','US','AU'] as const;
 export type DemoCountry=typeof DEMO_COUNTRIES[number];
 export type DemoMedicine='A'|'B';
 export type LibraryMedicine={id:DemoMedicine;origin:DemoCountry};
@@ -8,11 +8,11 @@ export type DemoTrip={id:string;home:DemoCountry;destination:DemoCountry;start:s
 export type DemoState={version:1;trips:DemoTrip[];home:DemoCountry;here:string;autoCountry:boolean;homeConfirmed:boolean;library:LibraryMedicine[];comparisons:DemoComparison[];otherCountry:string};
 export const CHECKS=['supply','expiry','storage','documents','review'] as const;
 export function travelPreviewEnabled(){return process.env.VERCEL_ENV==='preview'&&process.env.VERCEL_GIT_COMMIT_REF==='feature/travel-pack-preview'||!process.env.VERCEL_ENV&&process.env.NODE_ENV==='development'&&process.env.MEDICEA_TRAVEL_DEMO==='true';}
-const country=(value:unknown):value is DemoCountry=>value==='GB'||value==='IT';
+const country=(value:unknown):value is DemoCountry=>typeof value==='string'&&(DEMO_COUNTRIES as readonly string[]).includes(value);
 const medicine=(value:unknown):value is DemoMedicine=>value==='A'||value==='B';
 const validComparison=(v:any):v is DemoComparison=>!!v&&medicine(v.medicine)&&country(v.origin)&&country(v.destination)&&typeof v.checkedAt==='string'&&Number.isFinite(Date.parse(v.checkedAt));
 function comparisons(value:unknown):DemoComparison[]{const result:DemoComparison[]=[];if(Array.isArray(value))for(const v of value.slice(0,30)){if(validComparison(v)&&!result.some(c=>c.medicine===v.medicine&&c.origin===v.origin&&c.destination===v.destination))result.push({medicine:v.medicine,origin:v.origin,destination:v.destination,checkedAt:v.checkedAt,...(Array.isArray(v.previousChecks)?{previousChecks:[...new Set(v.previousChecks.filter((d:unknown)=>typeof d==='string'&&Number.isFinite(Date.parse(d))&&Date.parse(d)<Date.parse(v.checkedAt)))].sort((a:any,b:any)=>Date.parse(b)-Date.parse(a)).slice(0,24) as string[]}:{})});}return result;}
-export function suggestHomeRegion(locales:readonly string[]):DemoCountry|''{for(const locale of locales){const match=locale.match(/(?:-|_)(GB|IT)(?:$|-|_)/i);if(match)return match[1].toUpperCase() as DemoCountry;}return '';}
+export function suggestHomeRegion(locales:readonly string[]):DemoCountry|''{for(const locale of locales){const match=locale.match(/(?:-|_)([A-Z]{2})(?:$|-|_)/i);if(match&&country(match[1].toUpperCase()))return match[1].toUpperCase() as DemoCountry;}return '';}
 const date=(value:unknown):value is string=>typeof value==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(value)&&Number.isFinite(Date.parse(value+'T00:00:00Z'))&&new Date(value+'T00:00:00Z').toISOString().slice(0,10)===value;
 export function validTrip(value:unknown):value is DemoTrip{
  if(!value||typeof value!=='object')return false;const t=value as DemoTrip;
@@ -53,7 +53,7 @@ export function locateCountry(latitude:number,longitude:number,features:any[]):s
  if(!Number.isFinite(latitude)||!Number.isFinite(longitude)||latitude < -90||latitude > 90||longitude < -180||longitude > 180)return null;
  for(const feature of features){const shape=feature.geometry;const polygons=shape?.type==='Polygon'?[shape.coordinates]:shape?.type==='MultiPolygon'?shape.coordinates:[];if(polygons.some((p:Point[][])=>insidePolygon([longitude,latitude],p)))return /^[A-Z]{2}$/.test(feature.code)?feature.code:null;}return null;
 }
-export const OFFICIAL_HEALTH_SOURCES={GB:[{name:'MHRA',url:'https://www.gov.uk/drug-device-alerts'},{name:'UKHSA',url:'https://www.gov.uk/government/organisations/uk-health-security-agency'}],IT:[{name:'AIFA',url:'https://www.aifa.gov.it/'},{name:'Ministero della Salute',url:'https://www.salute.gov.it/'}]};
+export const OFFICIAL_HEALTH_SOURCES:Partial<Record<DemoCountry,{name:string;url:string}[]>>={GB:[{name:'MHRA',url:'https://www.gov.uk/drug-device-alerts'},{name:'UKHSA',url:'https://www.gov.uk/government/organisations/uk-health-security-agency'}],IT:[{name:'AIFA',url:'https://www.aifa.gov.it/'},{name:'Ministero della Salute',url:'https://www.salute.gov.it/'}]};
 export function escapeTravelHtml(value:string){return value.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]!));}
 export function offlineTripHtml(trip:DemoTrip,lang:string,c:Record<string,string>,cardLang=lang,cardCopy=c){
  if(!validTrip(trip))throw Error('Invalid demo trip');const e=escapeTravelHtml;
