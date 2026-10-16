@@ -238,3 +238,9 @@
 }
 @media print { .travel-home-settings,.travel-news-toolbar { display:none!important; } }
 @media print { .travel-panel,.travel-pharmacist { padding:8px; margin:0; } }
+
+.travel-unlock { display:grid; gap:14px; max-width:480px; }
+.travel-generated-information { white-space:pre-wrap; overflow-wrap:anywhere; font-size:14px; margin-block:12px; }
+.travel-connected-link { text-align:end; font-size:13px; }
+.travel-account>button { margin-inline-end:10px; margin-block:6px; }
+.travel-comparison article { padding-block:10px; }

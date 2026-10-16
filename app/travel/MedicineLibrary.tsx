@@ -9,7 +9,7 @@ import {countryName,DEMO_COUNTRIES,comparisonReviewDate,comparisonReviewDue,save
 export default function MedicineLibrary({state,commit,lang,selected,setSelected,destination,setDestination,onPack,openMedicine,backToPack}:{state:DemoState;commit:(state:DemoState)=>boolean;lang:string;selected:DemoMedicine[];setSelected:(ids:DemoMedicine[])=>void;destination:DemoCountry;setDestination:(code:DemoCountry)=>void;onPack:()=>void;openMedicine?:DemoMedicine;backToPack?:()=>void}){
  const c=travelCopy(lang),n=libraryCopy(lang),r=reviewCopy(lang),d=destinationCopy(lang),[candidate,setCandidate]=useState<DemoMedicine>('A'),[origin,setOrigin]=useState<DemoCountry>(state.home),[preview,setPreview]=useState<DemoComparison[]>([]);
  useEffect(()=>{if(openMedicine)document.getElementById('medicine-'+openMedicine)?.scrollIntoView({block:'start'});},[openMedicine]);
- const available=(['A','B'] as const).filter(id=>!state.library.some(m=>m.id===id));
+ const available=(['A','B'] as DemoMedicine[]).filter(id=>!state.library.some(m=>m.id===id));
  const chosen=available.includes(candidate)?candidate:available[0];
  const options=DEMO_COUNTRIES.map(code=><option key={code} value={code}>{countryName(code,lang)}</option>);
  const date=(value:string)=>new Date(value).toLocaleDateString(lang,{timeZone:'UTC'});

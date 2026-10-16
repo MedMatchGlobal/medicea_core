@@ -1,5 +1,7 @@
 # Travel packs, trip preparation and local contacts — owner Preview
 
+Connected owner testing is now available behind separate configuration and an access gate. See [CONNECTED-DEMO.md](CONNECTED-DEMO.md) for activation, session storage, actual API costs and current provider coverage. The fictional-pilot behavior described below remains available at `/travel/pilot`; connected mode uses real public product examples instead of A/B fixtures.
+
 Branch: feature/travel-pack-preview. Entry /travel opens My medicines; /travel?tab=trips opens Travel packs. Exact branch and Preview gates keep the journey and news API unavailable in Production and other Preview branches. The separate medicine-model tester, original medical prompts, model configuration, matching, billing and request routing are unchanged.
 
 ## What to try

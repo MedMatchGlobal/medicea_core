@@ -21,7 +21,7 @@ export function modelUpgradeEnabled() {
 
 export function modelTestConfiguration() {
   return {enabled:modelUpgradeEnabled(),revision:'exact-match-v3.1',
-    matchingMode:process.env.VERCEL_GIT_COMMIT_REF==='feature/openai-model-upgrade-preview'&&process.env.MEDICEA_OPENAI_MATCHING_MODE!=='sources'?'prompt-test':'sources',
+    matchingMode:(process.env.VERCEL_GIT_COMMIT_REF==='feature/openai-model-upgrade-preview'||process.env.VERCEL_ENV==='preview'&&process.env.VERCEL_GIT_COMMIT_REF==='feature/travel-pack-preview'&&process.env.MEDICEA_TRAVEL_CONNECTED==='true')&&process.env.MEDICEA_OPENAI_MATCHING_MODE!=='sources'?'prompt-test':'sources',
     researchModel:process.env.MEDICEA_OPENAI_SOURCE_MODEL||'gpt-6.1-sol',
     informationModel:process.env.MEDICEA_OPENAI_MEDICAL_MODEL||'gpt-6-luna'};
 }
