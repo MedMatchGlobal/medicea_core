@@ -130,3 +130,5 @@
 .travel-comparison { background:#f0f8f7; border:1px solid #c4dedb; border-radius:12px; padding:18px; margin:18px 0; }
 .travel-comparison h3 { overflow-wrap:anywhere; }
 @media(max-width:700px) { .travel-library-add>button { width:100%; } .travel-library-list article>label { width:100%; min-width:0!important; } }
+
+.travel-trip-actions { justify-content:space-between; gap:12px; flex-wrap:wrap; }

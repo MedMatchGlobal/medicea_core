@@ -48,3 +48,7 @@ Before real health records or paid/public release: complete the GDPR evidence au
 Phone/desktop browser checks cover adding the list once, comparisons without dates, saved reopening, reuse in two packs, retained original pack data after library edits/removal, offline export, two news views, home-country isolation from location, and no coordinate requests. An Italian-region suggestion can be overridden to the UK and survives reload and language changes. Library, news and pack views fit all 25 languages at 390 px. Existing packs/checklists migrate without loss; blocked storage still permits an offline download. Production retains its original public UI and returns 404 for travel and the news API.
 
 No new credentials, login, payment setup or real health data are required to try this Preview.
+
+The My medicines list now shows its count, while Country comparisons shows the selected destination, saved-result count and a separate missing-comparison message for each medicine. Travel packs has a direct return button to the main list. Saving a pack copies saved comparisons; it does not perform a new search. Unticking a medicine for a pack leaves the library entry intact.
+
+Downloaded packs use individual medicine cards with label/value rows rather than a six-column table, retaining bilingual text, comparison dates and missing-result states. They fit 320/390/1280 px without horizontal overflow. The app's pharmacist-card print layout is unchanged. Existing downloaded files are snapshots: download again to obtain the revised layout.
