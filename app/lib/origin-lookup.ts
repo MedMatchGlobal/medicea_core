@@ -10,6 +10,14 @@ const sites:Record<string,string[]>={
  'united states':['dailymed.nlm.nih.gov','fda.gov'],canada:['health-products.canada.ca','dhpp.hpfb-dgpsa.ca'],australia:['tga.gov.au'],'new zealand':['medsafe.govt.nz'],
 };
 const norm=(s:string)=>s.trim().toLowerCase().replace(/\s+/g,' ');
+// Some source responses spell out the human species instead of the requested
+// empty array. Canonicalise only explicit, exclusively human labels. Missing,
+// unknown or mixed veterinary species must still fail the human-product gate.
+function humanProfile(value:any){
+ if(!value||typeof value!=='object')return value;
+ const species=Array.isArray(value.species)?value.species:typeof value.species==='string'?[value.species]:null;
+ return species?.length&&species.every((s:unknown)=>typeof s==='string'&&['human','humans','homo sapiens'].includes(norm(s)))?{...value,species:[]}:value;
+}
 // A hint may omit an active (e.g. caffeine). It narrows known amounts without
 // deleting that active from the source profile or the later exact match check.
 export function sourceHintAgrees(hint:unknown,ingredients:OriginProduct['ingredients']){
@@ -28,6 +36,7 @@ export function readOriginProducts(result:any,country:string,dosage:unknown):Ori
  const retrieved=new Set<string>();for(const o of result.output||[])if(o.type==='web_search_call'&&o.status==='completed')for(const s of o.action?.sources||[]){const url=sourceUrl(s.url,domains);if(url)retrieved.add(url);}
  const text=(result.output||[]).filter((o:any)=>o.type==='message').flatMap((o:any)=>o.content||[]).filter((c:any)=>c.type==='output_text').map((c:any)=>c.text).join('');
  const parsed=JSON.parse(text);if(!Array.isArray(parsed.products))throw Error('INVALID_ORIGIN_RESPONSE');
+ parsed.products=parsed.products.map(humanProfile);
  const products:OriginProduct[]=parsed.products.slice(0,12).filter((p:any)=>p&&isMedicineName(p.name)&&p.name.length<=250&&typeof p.country==='string'&&norm(p.country)===norm(country)&&typeof p.form==='string'&&typeof p.route==='string'&&!/unknown|unspecified/i.test(p.form+' '+p.route)&&Array.isArray(p.species)&&!p.species.length&&exactComposition(p,p)&&Array.isArray(p.sources)&&p.sources.length>0&&p.sources.length<=5&&p.sources.every((s:unknown)=>{const url=sourceUrl(s,domains);return !!url&&retrieved.has(url);})&&sourceHintAgrees(dosage,p.ingredients)!==false);
  // Aggregate owner-preview diagnostics only. Never log queries, profiles,
  // source URLs, model output, credentials or user-entered strengths.
