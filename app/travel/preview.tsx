@@ -1,13 +1,12 @@
 'use client';
 import {useEffect,useRef,useState} from 'react';
-import Link from 'next/link';
 import {useSearchParams,useRouter} from 'next/navigation';
 import {ArrowRight,Check,Download,MapPin,Newspaper,Plane,Plus,Printer,ShieldCheck,Trash2} from 'lucide-react';
 import {useLanguage} from '../LanguageProvider';
 import {SUPPORTED_LANGS,type LangCode} from '../i18n/i18n';
 import {travelCopy} from '../i18n/travel-demo';
 import MediceaBrand from '../components/MediceaBrand';
-import TravelNav from '../components/TravelNav';
+import TravelHeader from '../components/TravelHeader';
 import CalendarReminder from './CalendarReminder';
 import HealthFeed from './HealthFeed';
 import {CHECKS,DEMO_COUNTRIES,OFFICIAL_HEALTH_SOURCES,TRAVEL_DEMO_KEY,countryName,locateCountry,offlineTripHtml,readTravelDemo,validTrip,type DemoCountry,type DemoMedicine,type DemoState,type DemoTrip} from '../lib/travel-demo';
@@ -15,7 +14,7 @@ import {CHECKS,DEMO_COUNTRIES,OFFICIAL_HEALTH_SOURCES,TRAVEL_DEMO_KEY,countryNam
 function day(offset:number){return new Date(Date.now()+offset*86400000).toISOString().slice(0,10);}
 function languageName(code:string){try{return new Intl.DisplayNames([code],{type:'language'}).of(code)||code;}catch{return code;}}
 export default function TravelDemo(){
- const {lang,setLang,dir}=useLanguage(),c=travelCopy(lang),query=useSearchParams(),router=useRouter();
+ const {lang,dir}=useLanguage(),c=travelCopy(lang),query=useSearchParams(),router=useRouter();
  const tab=['trips','updates','account'].includes(query.get('tab')||'')?query.get('tab')!:'trips';
  const [state,setState]=useState<DemoState>(()=>readTravelDemo(null)),[ready,setReady]=useState(false),[creating,setCreating]=useState(false),[activeId,setActiveId]=useState('');
  const [destination,setDestination]=useState<DemoCountry>('IT'),[start,setStart]=useState(()=>day(7)),[end,setEnd]=useState(()=>day(14)),[medicines,setMedicines]=useState<DemoMedicine[]>(['A']);
@@ -51,7 +50,7 @@ export default function TravelDemo(){
  const sourceLinks=OFFICIAL_HEALTH_SOURCES[feedCountry as DemoCountry]||[];
  function countryOptions(){return DEMO_COUNTRIES.map(code=><option key={code} value={code}>{countryName(code,lang)}</option>);}
  return <main className="travel-app" dir={dir}>
-  <header className="travel-header"><Link href="/travel" aria-label="medicéa"><img src="/logo.png" alt="medicéa"/></Link><label>{c.language}<select aria-label={c.language} value={lang} onChange={e=>setLang(e.target.value as LangCode)}>{SUPPORTED_LANGS.map(l=><option key={l} value={l}>{languageName(l)}</option>)}</select></label><TravelNav active={tab}/></header>
+  <TravelHeader active={tab}/>
   <aside className="travel-notice" role="note"><ShieldCheck aria-hidden="true" size={22}/><div><strong>{tab==='updates'?c.localOnly:c.demoNotice}</strong>{tab!=='updates'&&<p>{c.localOnly}</p>}</div></aside>
   {tab==='trips'&&<>
    <section className="travel-hero"><div><span className="travel-kicker" dir="ltr"><MediceaBrand/> GO</span><h1>{c.prepare}</h1><p>{c.tripPack}</p><button className="travel-primary" onClick={()=>{setCreating(true);setStatus('');}}><Plus size={18} aria-hidden="true"/>{c.createTrip}</button></div></section>

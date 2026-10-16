@@ -43,3 +43,11 @@ No additional API keys, source accounts, billing setup or patient data are requi
 - Feed fetches have an 8-second timeout, a 500 kB body bound and no redirects. Parsing rejects entities/DOCTYPE, validates source URLs and dates, deduplicates and sorts up to 12 notices. Provider failure displays a separate unavailable state; unsupported countries are not described as having no alerts. News is never inferred from a personal medicine profile. No precise location or medicine data is forwarded.
 - Source/reuse references: https://www.gov.uk/drug-device-alerts.atom , https://www.gov.uk/help/reuse-govuk-content , https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/ . Do not imply endorsement or comprehensive/local emergency coverage.
 - Validated: 94 offline tests in total, optimized build, browser trip compatibility, calendar download, 25-language forms, touch/hover/keyboard navigation, source-failure/coverage states, and Production 404 checks for both travel and feed routes. A live local request retrieved 12 official notices; Italy returned unsupported, as intended.
+
+## Shared header and compact hero refinement
+
+The travel Preview now uses one shared `TravelHeader` on medicine, pet, trip, health-update and demo-account screens. The logo stays left, the burger is centred, and the language selector stays right on one row. The visible Language heading is removed while the selector keeps its accessible name. All core tools and travel sections live in the burger, with no duplicate button row. The menu is inside the sticky header stacking layer so landing-page navigation cannot obscure it; long menus scroll within the viewport. Existing in-page search/tool/care actions are reused.
+
+The coastal photograph is retained as a shorter hero on medicine/core discovery and My trips. Health updates and Account consistently omit it. These refinements are gated to the travel Preview and do not change medicine prompts or Production navigation.
+
+Validation: all 94 automated tests and optimized build pass. Browser checks cover all seven menu links being unobscured and pointer-reachable across seven routes at 320/390/1280 px, matching header geometry, Escape dismissal, core tools/care/search/pet navigation, 25-language phone forms and RTL menu bounds. Production still excludes the demo header/navigation and returns 404 for travel.
