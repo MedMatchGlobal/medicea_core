@@ -149,3 +149,9 @@
 .travel-comparison-history ul { padding-inline-start:20px; }
 .travel-review-due { background:#fff4df; color:#725422; padding:8px 10px; border-radius:8px; font-size:14px; }
 .travel-medicine-details button { max-width:100%; white-space:normal; overflow-wrap:anywhere; }
+
+.travel-pending-comparison { position:relative; }
+.travel-pending-comparison h4 { padding-inline-end:38px; }
+.travel-dismiss-comparison { position:absolute; top:6px; inset-inline-end:6px; display:inline-flex; align-items:center; justify-content:center; width:44px; height:44px; border:0; border-radius:8px; background:transparent; color:#335f6c; cursor:pointer; }
+.travel-dismiss-comparison:hover { background:#dcefed; }
+.travel-dismiss-comparison:focus-visible { outline:2px solid #147b83; outline-offset:1px; }

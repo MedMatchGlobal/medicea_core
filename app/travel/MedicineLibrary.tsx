@@ -1,6 +1,6 @@
 'use client';
 import {useState} from 'react';
-import {Plus,Trash2} from 'lucide-react';
+import {Plus,Trash2,X} from 'lucide-react';
 import {travelCopy} from '../i18n/travel-demo';
 import {libraryCopy} from '../i18n/medicine-library';
 import {reviewCopy} from '../i18n/comparison-review';
@@ -34,7 +34,7 @@ export default function MedicineLibrary({state,commit,lang,selected,setSelected,
        <button className="travel-secondary" aria-label={`${r.refresh}: ${c.medicine} ${m.id} · ${countryName(result.destination,lang)}`} onClick={()=>{commit(saveDemoComparisons(state,[{medicine:m.id,origin:m.origin,destination:result.destination,checkedAt:new Date().toISOString()}]));setPreview(preview.filter(item=>item.medicine!==m.id||item.destination!==result.destination));}}>{r.refresh}</button>
       </section>)}
       <div className="travel-medicine-compare"><h3>{r.compareAnother}</h3><label>{c.destination}<select aria-label={`${c.destination}: ${c.medicine} ${m.id}`} value={destination} onChange={e=>{setDestination(e.target.value as DemoCountry);}}>{options}</select></label><button className="travel-primary" onClick={()=>compare(m.id)}>{r.compareAnother}</button></div>
-      {pending.map(pending=><section key={pending.destination} className="travel-comparison travel-pending-comparison" aria-live="polite"><h4>{countryName(pending.destination,lang)} → {c.equivalent} {m.id}</h4><p className="travel-caption">{n.source}</p><p>{r.demoChecked}: {date(pending.checkedAt)}</p><button className="travel-secondary" onClick={()=>{commit(saveDemoComparisons(state,[pending]));setPreview(preview.filter(item=>item!==pending));}}>{n.saveComparison} · {c.medicine} {m.id} · {countryName(pending.destination,lang)}</button></section>)}
+      {pending.map(pending=><section key={pending.destination} className="travel-comparison travel-pending-comparison" aria-live="polite"><button type="button" className="travel-dismiss-comparison" aria-label={`${r.dismiss}: ${c.medicine} ${m.id} · ${countryName(pending.destination,lang)}`} title={r.dismiss} onClick={()=>setPreview(current=>current.filter(item=>item!==pending))}><X size={18} aria-hidden="true"/></button><h4>{countryName(pending.destination,lang)} → {c.equivalent} {m.id}</h4><p className="travel-caption">{n.source}</p><p>{r.demoChecked}: {date(pending.checkedAt)}</p><button className="travel-secondary" onClick={()=>{commit(saveDemoComparisons(state,[pending]));setPreview(preview.filter(item=>item!==pending));}}>{n.saveComparison} · {c.medicine} {m.id} · {countryName(pending.destination,lang)}</button></section>)}
       <button className="travel-text" aria-label={`${c.remove}: ${c.medicine} ${m.id}`} onClick={()=>{commit({...state,library:state.library.filter(item=>item.id!==m.id),comparisons:state.comparisons.filter(item=>item.medicine!==m.id)});setSelected(selected.filter(id=>id!==m.id));setPreview(preview.filter(item=>item.medicine!==m.id));}}><Trash2 size={16} aria-hidden="true"/>{c.remove}</button>
      </details>
     </article>;
