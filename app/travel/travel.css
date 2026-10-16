@@ -175,3 +175,10 @@
 .travel-consular-saved { padding:16px; margin:16px 0; border:1px solid #c4dedb; border-radius:12px; background:#f0f8f7; }
 .travel-contact-form>summary { cursor:pointer; padding:12px 0; font-weight:600; }
 .travel-contact-form label { margin-bottom:14px; }
+
+.travel-stays-editor { display:grid; gap:16px; margin-top:18px; }
+.travel-stay { min-width:0; margin:0; }
+.travel-stay .travel-stay-address { margin-top:0; }
+.travel-stay .travel-fields { margin-block:14px; }
+.travel-nearby-care select { max-width:100%; min-width:0; }
+.travel-selected-stay { overflow-wrap:anywhere; }

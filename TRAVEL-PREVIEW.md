@@ -59,9 +59,9 @@ The embassy Maps action no longer disappears when a stay address is absent: coun
 
 User-facing pack labels are Travel packs, Create travel pack, Save travel pack and Edit travel pack in all 25 languages. The reusable-by-country behavior and optional trip-preparation step are unchanged.
 
-## Proposed itinerary and document roadmap (not implemented)
+## Proposed sharing and document roadmap (not implemented)
 
-A prepared trip can later contain ordered stays, each with its own address and dates, so nearby-care links follow the selected stay. Reusable destination packs remain separate from individual itineraries.
+Prepared trips now support up to ten stays within the same destination country. Add another stay provides its own address and dates within the overall trip dates. Stays are sorted chronologically and cannot overlap (a same-day changeover is allowed). Choose stay scopes nearby-care and embassy Maps searches; downloads include every stay. Existing single-address journeys remain editable. Save trip replaces Save trip preparation in all 25 languages. Reusable destination packs remain separate from individual itineraries. Multi-country itineraries are not introduced.
 
 Family sharing should initially expose selected planned itinerary details through private, expiring, revocable access. It must not imply live whereabouts; live location would require a separate opt-in feature. Medicine details, health records and identity documents should be excluded from itinerary sharing by default.
 

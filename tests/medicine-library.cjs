@@ -114,3 +114,24 @@ test('manual consular contacts are bounded, sanitised, preserved in journeys and
 test('all 25 languages disclose emergency and user-entered consular contact status',()=>{
  assert.equal(Object.keys(emergencyText.EMERGENCY_TRANSLATIONS).length,25);for(const [lang,values] of Object.entries(emergencyText.EMERGENCY_TRANSLATIONS)){assert.equal(values.length,emergencyText.EMERGENCY_KEYS.length,lang);for(const value of Object.values(emergencyText.emergencyCopy(lang)))assert.ok(value.trim(),lang);}
 });
+
+const staysText=load('app/i18n/travel-stays.ts');
+test('multiple stays survive reload, sort by date, exclude unrelated fields and export safely',()=>{
+ const pack=lib.makeDestinationPack({...lib.readTravelDemo(null),library:[{id:'A',origin:'GB'}]},'de-pack','DE',['A']);
+ const stays=[{address:'Demo <Berlin>',start:'2026-11-03',end:'2026-11-07',latitude:12},{address:'Demo Mainz',start:'2026-11-01',end:'2026-11-03',secret:'private'}];
+ const journey=lib.prepareDestinationTrip(pack,'multi','2026-11-01','2026-11-07','',new Date('2026-10-16'),stays);
+ const state=lib.readTravelDemo(JSON.stringify({version:1,trips:[{...journey,checks:['supply']}]}));
+ assert.equal(state.trips[0].stays.length,2);assert.equal(state.trips[0].stays[0].address,'Demo Mainz');assert.equal(state.trips[0].checks[0],'supply');assert.doesNotMatch(JSON.stringify(state),/latitude|secret|private/);
+ const html=lib.offlineTripHtml(state.trips[0],'en',{...oldCopy.travelCopy('en'),staysLabel:'Stays'});assert.match(html,/Demo Mainz/);assert.match(html,/Demo &lt;Berlin&gt;/);assert.match(html,/2026-11-03/);assert.doesNotMatch(html,/<script|https?:/);
+ assert.equal(lib.tripStays({...trip,address:'Legacy hotel'})[0].address,'Legacy hotel');
+});
+test('stay validation rejects overlap, outside-trip dates, impossible dates, blanks and excessive entries',()=>{
+ const a={address:'Demo A',start:'2026-11-01',end:'2026-11-04'},b={address:'Demo B',start:'2026-11-04',end:'2026-11-07'};
+ assert.equal(lib.cleanTripStays([a,b],trip.start,trip.end).length,2);
+ for(const stays of [[a,{...b,start:'2026-11-03'}],[{...a,start:'2026-10-31'}],[{...b,end:'2026-11-08'}],[{...a,start:'2026-02-30'}],[{...a,address:'  '}],Array(11).fill(a)])assert.equal(lib.cleanTripStays(stays,trip.start,trip.end),null);
+ assert.equal(lib.cleanTripStays([],trip.start,trip.end).length,0);
+});
+test('stay controls and Save trip are translated for all 25 languages',()=>{
+ assert.equal(Object.keys(staysText.STAY_TRANSLATIONS).length,25);for(const [lang,values] of Object.entries(staysText.STAY_TRANSLATIONS)){assert.equal(values.length,staysText.STAY_KEYS.length);for(const text of values)assert.ok(text.trim(),lang);}
+ assert.equal(destinationsCopy.destinationCopy('en').saveTrip,'Save trip');
+});
