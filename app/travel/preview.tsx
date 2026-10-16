@@ -4,6 +4,7 @@ import {useSearchParams} from 'next/navigation';
 import {Check,MapPin,ShieldCheck,Trash2} from 'lucide-react';
 import {useLanguage} from '../LanguageProvider';
 import {travelCopy} from '../i18n/travel-demo';
+import {addressCopy} from '../i18n/travel-address';
 import {libraryCopy} from '../i18n/medicine-library';
 import MedicineLibrary from './MedicineLibrary';
 import {destinationCopy} from '../i18n/destination-packs';
@@ -25,6 +26,7 @@ export default function TravelDemo(){
  useEffect(()=>{let loaded=readTravelDemo(null),stored:string|null=null;try{stored=localStorage.getItem(TRAVEL_DEMO_KEY);loaded=readTravelDemo(stored);}catch{setStatus('saveError');}setState(loaded);stateRef.current=loaded;setSelected(loaded.library.map(m=>m.id));setHomeDraft(stored?loaded.home:suggestHomeRegion(navigator.languages||[navigator.language]));setReady(true);},[]);
  const queryCountry=query.get('country');
  useEffect(()=>{if(DEMO_COUNTRIES.includes(queryCountry as DemoCountry))setDestination(queryCountry as DemoCountry);},[queryCountry]);
+ useEffect(()=>{if(ready)setHomeDraft(state.home);},[state.home]);
  useEffect(()=>()=>{locationVersion.current++;},[]);
  function commit(next:DemoState){stateRef.current=next;setState(next);try{localStorage.setItem(TRAVEL_DEMO_KEY,JSON.stringify(next));return true;}catch{setStatus('saveError');return false;}}
  async function detectCountry(){
@@ -53,7 +55,7 @@ export default function TravelDemo(){
   <TravelHeader active={tab}/>
   <CoastalBanner title={tab==='medicines'?n.mine:c[tab as 'trips'|'updates'|'account']}/>
   <aside className="travel-notice" role="note"><ShieldCheck aria-hidden="true" size={22}/><div><strong>{tab==='updates'?c.localOnly:c.demoNotice}</strong>{tab!=='updates'&&<p>{c.localOnly}</p>}</div></aside>
-  {ready&&!state.homeConfirmed&&<form className="travel-panel" onSubmit={event=>{event.preventDefault();if(!homeDraft)return;commit({...state,home:homeDraft,homeConfirmed:true,otherCountry:state.otherCountry===homeDraft?(homeDraft==='GB'?'IT':'GB'):state.otherCountry});}}><p>{n.homePrompt}</p><label>{c.home}<select aria-label={c.home} required value={homeDraft} onChange={e=>setHomeDraft(e.target.value as DemoCountry)}><option value="">—</option>{countryOptions()}</select></label><button className="travel-secondary" type="submit">{n.confirmHome}</button></form>}
+  {ready&&(!state.homeConfirmed||tab==='account')&&<form className="travel-panel" onSubmit={event=>{event.preventDefault();if(!homeDraft)return;commit({...state,home:homeDraft,homeConfirmed:true,otherCountry:state.otherCountry===homeDraft?(homeDraft==='GB'?'IT':'GB'):state.otherCountry});}}><h2>{c.home}</h2><p>{state.homeConfirmed?addressCopy(lang).homeNote:n.homePrompt}</p><label>{c.home}<select aria-label={c.home} required value={homeDraft} onChange={e=>setHomeDraft(e.target.value as DemoCountry)}><option value="">—</option>{countryOptions()}</select></label><button className="travel-secondary" type="submit">{n.confirmHome}</button></form>}
   {tab==='medicines'&&ready&&state.homeConfirmed&&<MedicineLibrary state={state} commit={commit} lang={lang} selected={selected} setSelected={setSelected} destination={destination} setDestination={setDestination} onPack={preparePack} openMedicine={['A','B'].includes(query.get('medicine')||'')?query.get('medicine') as DemoMedicine:undefined} backToPack={['pack','trip'].includes(query.get('returnKind')||'')&&query.get('returnId')?()=>{setPackFocus({kind:query.get('returnKind') as 'pack'|'trip',id:query.get('returnId')!});goTab('trips');}:undefined}/>}
   {tab==='medicines'&&['pack','trip'].includes(query.get('returnKind')||'')&&query.get('returnId')&&<button className="travel-secondary" onClick={()=>{setPackFocus({kind:query.get('returnKind') as 'pack'|'trip',id:query.get('returnId')!});goTab('trips');}}>{c.back} · {d.packs}</button>}
   {tab==='trips'&&ready&&<DestinationWorkspace state={state} commit={commit} lang={lang} selected={selected} initialCountry={destination} createRequested={createRequested} onConsumed={()=>setCreateRequested(false)} focus={packFocus} onFocus={setPackFocus} onLibrary={()=>goTab('medicines')} onMedicine={(id,country,back)=>{setDestination(country);setPackFocus(back);window.history.pushState(null,'',`/travel?tab=medicines&medicine=${id}&country=${country}&returnKind=${back.kind}&returnId=${encodeURIComponent(back.id)}`);window.scrollTo({top:0,behavior:'instant'});}} onNews={country=>{commit({...state,otherCountry:country});setFeedView('other');goTab('updates');}}/>}

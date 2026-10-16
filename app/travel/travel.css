@@ -182,3 +182,12 @@
 .travel-stay .travel-fields { margin-block:14px; }
 .travel-nearby-care select { max-width:100%; min-width:0; }
 .travel-selected-stay { overflow-wrap:anywhere; }
+
+.travel-address-input { min-width:0; }
+.travel-address-input input { margin-top:7px; }
+.travel-address-input ul { list-style:none; padding:0; margin:6px 0; border:1px solid #b7d0dc; border-radius:10px; background:#fff; max-height:240px; overflow:auto; }
+.travel-address-input li { cursor:pointer; padding:12px; overflow-wrap:anywhere; border-bottom:1px solid #e1ebef; }
+.travel-address-input li:last-child { border-bottom:0; }
+.travel-address-input li:hover,.travel-address-input li[aria-selected=true] { background:#e5f3f4; }
+.travel-address-input .travel-caption:empty { display:none; }
+.travel-address-attribution { font-size:11px; }
