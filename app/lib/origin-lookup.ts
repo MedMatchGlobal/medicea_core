@@ -29,6 +29,16 @@ export function readOriginProducts(result:any,country:string,dosage:unknown):Ori
  const text=(result.output||[]).filter((o:any)=>o.type==='message').flatMap((o:any)=>o.content||[]).filter((c:any)=>c.type==='output_text').map((c:any)=>c.text).join('');
  const parsed=JSON.parse(text);if(!Array.isArray(parsed.products))throw Error('INVALID_ORIGIN_RESPONSE');
  const products:OriginProduct[]=parsed.products.slice(0,12).filter((p:any)=>p&&isMedicineName(p.name)&&p.name.length<=250&&typeof p.country==='string'&&norm(p.country)===norm(country)&&typeof p.form==='string'&&typeof p.route==='string'&&!/unknown|unspecified/i.test(p.form+' '+p.route)&&Array.isArray(p.species)&&!p.species.length&&exactComposition(p,p)&&Array.isArray(p.sources)&&p.sources.length>0&&p.sources.length<=5&&p.sources.every((s:unknown)=>{const url=sourceUrl(s,domains);return !!url&&retrieved.has(url);})&&sourceHintAgrees(dosage,p.ingredients)!==false);
+ // Aggregate owner-preview diagnostics only. Never log queries, profiles,
+ // source URLs, model output, credentials or user-entered strengths.
+ if(process.env.VERCEL_ENV==='preview'&&process.env.VERCEL_GIT_COMMIT_REF==='feature/travel-pack-preview'&&process.env.MEDICEA_TRAVEL_CONNECTED==='true'){
+  try{const offered=parsed.products.slice(0,12);
+  console.info('[Travel origin validation]',{retrievedSources:retrieved.size,offered:offered.length,accepted:products.length,
+   sourceSupported:offered.filter((p:any)=>Array.isArray(p?.sources)&&p.sources.length>0&&p.sources.every((s:unknown)=>{const url=sourceUrl(s,domains);return !!url&&retrieved.has(url);})).length,
+   completeComposition:offered.filter((p:any)=>p&&exactComposition(p,p)).length,
+   matchingCountry:offered.filter((p:any)=>typeof p?.country==='string'&&norm(p.country)===norm(country)).length,
+   matchingHint:offered.filter((p:any)=>Array.isArray(p?.ingredients)&&sourceHintAgrees(dosage,p.ingredients)!==false).length});}catch{}
+ }
  const key=(p:OriginProduct)=>norm(p.form)+'|'+norm(p.route)+'|'+p.ingredients.map(i=>norm(i.name)+'|'+norm(i.strength)).sort().join(';');
  return products.filter((p,i)=>products.findIndex(q=>key(q)===key(p))===i).slice(0,6);
 }
