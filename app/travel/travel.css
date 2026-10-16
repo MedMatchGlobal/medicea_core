@@ -155,3 +155,10 @@
 .travel-dismiss-comparison { position:absolute; top:6px; inset-inline-end:6px; display:inline-flex; align-items:center; justify-content:center; width:44px; height:44px; border:0; border-radius:8px; background:transparent; color:#335f6c; cursor:pointer; }
 .travel-dismiss-comparison:hover { background:#dcefed; }
 .travel-dismiss-comparison:focus-visible { outline:2px solid #147b83; outline-offset:1px; }
+
+.travel-saved-equivalents>summary { cursor:pointer; padding:10px 0; font-weight:600; color:#176a7b; }
+.travel-saved-equivalents>summary .travel-hide-equivalents { display:none; }
+.travel-saved-equivalents[open]>summary .travel-show-equivalents { display:none; }
+.travel-saved-equivalents[open]>summary .travel-hide-equivalents { display:inline; }
+.travel-equivalent-content { border-top:1px solid #c4dedb; padding:14px 0; }
+.travel-delete-comparison { margin-top:8px; min-height:44px; text-align:start; }
