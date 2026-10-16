@@ -48,6 +48,12 @@ No additional API keys, source accounts, billing setup or patient data are requi
 
 The travel Preview now uses one shared `TravelHeader` on medicine, pet, trip, health-update and demo-account screens. The logo stays left, the burger is centred, and the language selector stays right on one row. The visible Language heading is removed while the selector keeps its accessible name. All core tools and travel sections live in the burger, with no duplicate button row. The menu is inside the sticky header stacking layer so landing-page navigation cannot obscure it; long menus scroll within the viewport. Existing in-page search/tool/care actions are reused.
 
-The coastal photograph is retained as a shorter hero on medicine/core discovery and My trips. Health updates and Account consistently omit it. These refinements are gated to the travel Preview and do not change medicine prompts or Production navigation.
+The coastal photograph now uses the same shared compact banner on every Preview screen, including Health updates and Account. These refinements are gated to the travel Preview and do not change medicine prompts or Production navigation.
 
 Validation: all 94 automated tests and optimized build pass. Browser checks cover all seven menu links being unobscured and pointer-reachable across seven routes at 320/390/1280 px, matching header geometry, Escape dismissal, core tools/care/search/pet navigation, 25-language phone forms and RTL menu bounds. Production still excludes the demo header/navigation and returns 404 for travel.
+
+## Uniform coastal banner on every screen
+
+The latest owner preference supersedes the earlier image-free Account/news layout. All seven core/travel screens now render the same `CoastalBanner` directly below `TravelHeader`, with identical photographic crop, gradient, corners, typography and spacing. Only the translated page title changes. The banner measures 88 CSS pixels high on the checked 320/390 px phone layouts and 104 pixels on desktop. It can expand for unusually long translated titles rather than clipping text. Introductory hero paragraphs and the trip CTA are no longer inside the image; the trip-creation action remains directly below the demo notice. No saved trip data changes.
+
+Validation: optimized build and 94 automated tests pass. Browser checks confirm one banner and one main title across seven routes at 320/390/1280 px, placement immediately below the header, no overflow across 25 phone-language selections, and all seven burger links remain unobscured and usable. Production keeps its existing hero; this visual change is gated to the travel Preview.

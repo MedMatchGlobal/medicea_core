@@ -28,6 +28,7 @@ import countriesByRegion from '../data/countries';
 import { useLanguage } from './LanguageProvider';
 import LanguageButton from './components/LanguageButton';
 import TravelHeader from './components/TravelHeader';
+import CoastalBanner from './components/CoastalBanner';
 import CountryPicker from './components/CountryPicker';
 import ConditionPicker from './components/ConditionPicker';
 import VeterinaryCare from './components/VeterinaryCare';
@@ -1138,13 +1139,13 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
         </nav>
         <div className="language-control"><LanguageButton /></div>
       </header>}
-      <section className="welcome-hero">
+      {travelDemo?<CoastalBanner title={petMode?F(ui,'btnPets','Meds 4 Pets'):activeSection==='tools'?F(ui,'medicineTools','Health tools'):activeSection==='care'?F(ui,'findCare','Find care'):F(ui,'modernHeadline','Your medicine, wherever you are.')}/>:<section className="welcome-hero">
         <div className="hero-copy">
           <span className="hero-eyebrow">{F(ui, 'travelCompanion', 'Your medicine companion')}</span>
           <h1>{petMode ? F(ui, 'btnPets', 'Meds 4 Pets') : F(ui, 'modernHeadline', 'Your medicine, wherever you are.')}</h1>
           <p>{petMode ? searchFeedback(lang).petNotice : F(ui, 'modernSubtitle', 'Explore medicine information and equivalents across countries.')}</p>
         </div>
-      </section>
+      </section>}
       <SavedSearches lang={lang} entries={savedSearches} modeLabel={saved=>saved.mode==='pets'?F(ui,'petEquivHeader','Equivalent pet medicines'):saved.mode==='pet-generic'?petGenericsLabel(lang):saved.mode==='generic'?F(ui,'genHeader','Generics'):saved.mode==='leaflet'?F(ui,'btnLeaflet','Medicine leaflet'):F(ui,'equivHeader','Equivalent medicines')} onOpen={openSavedSearch} onRemove={removeSavedSearch} />
       {saveMessage && <p className="saved-search-status" role="status">{saveMessage}</p>}
       <div id="workspace-start" />

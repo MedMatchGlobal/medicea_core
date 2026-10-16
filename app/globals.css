@@ -742,3 +742,10 @@ html { scrollbar-gutter:stable; }
  .travel-discovery-preview .hero-copy p { font-size:13px; }
 }
 @media print { .travel-shared-header { display:none!important; } }
+
+/* Identical shallow coastal banner on all travel Preview pages. */
+.coastal-banner { background:linear-gradient(90deg,#edf7ff 0%,#edf7fff2 42%,#edf7ff12 100%),url('/medicea-coast.png') center 57%/cover; border-radius:18px; min-height:104px; padding:20px 24px; display:flex; align-items:center; margin:0 0 18px; }
+.coastal-banner h1,.travel-app .coastal-banner h1 { font:700 26px/1.2 Arial,Helvetica,sans-serif; letter-spacing:-.035em; color:#173849; margin:0; max-width:70%; overflow-wrap:anywhere; }
+[dir=rtl] .coastal-banner { background-image:linear-gradient(270deg,#edf7ff 0%,#edf7fff2 42%,#edf7ff12 100%),url('/medicea-coast.png'); }
+@media(max-width:700px) { .coastal-banner { min-height:88px; padding:16px 18px; margin-bottom:16px; border-radius:16px; } .coastal-banner h1,.travel-app .coastal-banner h1 { font-size:22px; max-width:78%; } }
+@media print { .coastal-banner { display:none!important; } }

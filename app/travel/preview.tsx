@@ -7,6 +7,7 @@ import {SUPPORTED_LANGS,type LangCode} from '../i18n/i18n';
 import {travelCopy} from '../i18n/travel-demo';
 import MediceaBrand from '../components/MediceaBrand';
 import TravelHeader from '../components/TravelHeader';
+import CoastalBanner from '../components/CoastalBanner';
 import CalendarReminder from './CalendarReminder';
 import HealthFeed from './HealthFeed';
 import {CHECKS,DEMO_COUNTRIES,OFFICIAL_HEALTH_SOURCES,TRAVEL_DEMO_KEY,countryName,locateCountry,offlineTripHtml,readTravelDemo,validTrip,type DemoCountry,type DemoMedicine,type DemoState,type DemoTrip} from '../lib/travel-demo';
@@ -51,9 +52,10 @@ export default function TravelDemo(){
  function countryOptions(){return DEMO_COUNTRIES.map(code=><option key={code} value={code}>{countryName(code,lang)}</option>);}
  return <main className="travel-app" dir={dir}>
   <TravelHeader active={tab}/>
+  <CoastalBanner title={c[tab as 'trips'|'updates'|'account']}/>
   <aside className="travel-notice" role="note"><ShieldCheck aria-hidden="true" size={22}/><div><strong>{tab==='updates'?c.localOnly:c.demoNotice}</strong>{tab!=='updates'&&<p>{c.localOnly}</p>}</div></aside>
   {tab==='trips'&&<>
-   <section className="travel-hero"><div><span className="travel-kicker" dir="ltr"><MediceaBrand/> GO</span><h1>{c.prepare}</h1><p>{c.tripPack}</p><button className="travel-primary" onClick={()=>{setCreating(true);setStatus('');}}><Plus size={18} aria-hidden="true"/>{c.createTrip}</button></div></section>
+   <div className="travel-trip-actions"><button className="travel-primary" onClick={()=>{setCreating(true);setStatus('');}}><Plus size={18} aria-hidden="true"/>{c.createTrip}</button></div>
    <div className="travel-workspace">
     <aside className="travel-list"><h2>{c.trips} <small>{state.trips.length}/10</small></h2>{!state.trips.length&&<p>{c.empty}</p>}{state.trips.map(t=><article className={activeId===t.id?'selected':''} key={t.id}><button className="travel-trip-link" onClick={()=>{setActiveId(t.id);setCreating(false);}}><strong>{countryName(t.home,lang)} <ArrowRight size={16} aria-hidden="true"/> {countryName(t.destination,lang)}</strong><span>{t.start} — {t.end}</span><span>{t.medicines.length} · {c.medicines}</span></button><button className="travel-text" aria-label={`${c.remove}: ${t.start}`} onClick={()=>eraseTrip(t.id)}><Trash2 size={15} aria-hidden="true"/>{c.remove}</button></article>)}</aside>
     <div className="travel-detail">
@@ -68,13 +70,12 @@ export default function TravelDemo(){
    </div>
   </>}
   {tab==='updates'&&<>
-   <section className="travel-intro"><span className="travel-kicker" dir="ltr"><MediceaBrand/> GO</span><h1>{c.updates}</h1></section>
    <section className="travel-panel"><div className="travel-segments" aria-label={c.updates}>{[['home',c.home],['destination',c.destination],['here',c.here]].map(([id,label])=><button key={id} aria-pressed={feedView===id} onClick={()=>setFeedView(id)}>{label}</button>)}</div><div className="travel-section-head"><h2>{feedCountry?countryName(feedCountry,lang):c.here}</h2><label>{c.manualCountry}<select aria-label={c.manualCountry} value={feedCountry==='GB'||feedCountry==='IT'?feedCountry:''} onChange={e=>{const code=e.target.value as DemoCountry;if(!code)return;if(feedView==='home')commit({...state,home:code});else if(feedView==='here'){stopLocation();commit({...stateRef.current,here:code,autoCountry:false});}else setManualDestination(code);}}><option value="">—</option>{countryOptions()}</select></label></div><div className="travel-location"><p>{c.locationNotice}</p><button className="travel-secondary" disabled={locating} onClick={()=>void detectCountry()}><MapPin size={18} aria-hidden="true"/>{locating?'…':c.useLocation}</button><label className="travel-check"><input type="checkbox" checked={state.autoCountry} onChange={e=>{if(!e.target.checked){stopLocation();return;}commit({...state,autoCountry:true});initialAuto.current=true;void detectCountry();}}/><span>{c.autoCountry}</span></label>{state.autoCountry&&<button className="travel-text" onClick={stopLocation}>{c.stopLocation}</button>}<p role="status">{locationStatus?c[locationStatus as keyof typeof c]:''}</p></div></section>
    <div className="travel-feed-tools"><button className="travel-secondary" onClick={()=>setRefreshAt(String(Date.now()))}>{c.refresh}</button></div>
    <HealthFeed country={feedCountry} lang={lang} topic={topic} refresh={refreshAt}/>
    <section className="travel-panel"><h2>{c.officialSources}</h2><div className="travel-sources">{[...sourceLinks,{name:'WHO',url:'https://www.who.int/emergencies/disease-outbreak-news/'},{name:'ECDC',url:'https://www.ecdc.europa.eu/en/rss-feeds'}].map(source=><a key={source.url} href={source.url} target="_blank" rel="noopener noreferrer">{source.name} · {c.readOriginal} ↗</a>)}</div></section>
   </>}
-  {tab==='account'&&<section className="travel-panel travel-account"><span className="travel-kicker" dir="ltr"><MediceaBrand/> GO</span><h1>{c.account}</h1><p className="travel-access"><Check size={20} aria-hidden="true"/>{c.demoAccess}</p><p>{c.localOnly}</p><dl><div><dt>{c.trips}</dt><dd>{state.trips.length}</dd></div><div><dt>{c.home}</dt><dd>{countryName(state.home,lang)}</dd></div><div><dt>{c.language}</dt><dd>{languageName(lang)}</dd></div></dl><button className="travel-secondary" onClick={()=>{locationVersion.current++;setLocating(false);try{localStorage.removeItem(TRAVEL_DEMO_KEY);}catch{}const cleared=readTravelDemo(null);setState(cleared);stateRef.current=cleared;setActiveId('');setCreating(false);setDestination('IT');setStart(day(7));setEnd(day(14));setMedicines(['A']);setManualDestination('');setFeedView('destination');setTopic('all');setStatus('');setLocationStatus('');}}><Trash2 size={18} aria-hidden="true"/>{c.reset}</button></section>}
+  {tab==='account'&&<section className="travel-panel travel-account"><p className="travel-access"><Check size={20} aria-hidden="true"/>{c.demoAccess}</p><p>{c.localOnly}</p><dl><div><dt>{c.trips}</dt><dd>{state.trips.length}</dd></div><div><dt>{c.home}</dt><dd>{countryName(state.home,lang)}</dd></div><div><dt>{c.language}</dt><dd>{languageName(lang)}</dd></div></dl><button className="travel-secondary" onClick={()=>{locationVersion.current++;setLocating(false);try{localStorage.removeItem(TRAVEL_DEMO_KEY);}catch{}const cleared=readTravelDemo(null);setState(cleared);stateRef.current=cleared;setActiveId('');setCreating(false);setDestination('IT');setStart(day(7));setEnd(day(14));setMedicines(['A']);setManualDestination('');setFeedView('destination');setTopic('all');setStatus('');setLocationStatus('');}}><Trash2 size={18} aria-hidden="true"/>{c.reset}</button></section>}
   <p className="travel-status" role="status">{status?c[status as keyof typeof c]:''}</p><footer className="travel-footer"><MediceaBrand/> · {tab==='updates'?c.localOnly:c.demoNotice}</footer>
  </main>;
 }

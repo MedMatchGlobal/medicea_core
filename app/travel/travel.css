@@ -117,3 +117,7 @@
 .travel-feed time { color:#587786; font-size:13px; }
 
 .travel-feed h2 { overflow-wrap:anywhere; }
+
+.travel-trip-actions { display:flex; justify-content:flex-end; margin:0 0 18px; }
+.travel-account { max-width:none; margin:0 0 20px; }
+@media print { .travel-trip-actions { display:none!important; } }
