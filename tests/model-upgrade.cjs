@@ -1,7 +1,17 @@
 const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),ts=require('typescript');
-function client(env){const module={exports:{}};vm.runInNewContext(ts.transpileModule(fs.readFileSync(path.join(__dirname,'../app/lib/openaiClient.ts'),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2020}}).outputText,{module,exports:module.exports,process:{env}});return module.exports;}
+function client(env,runtime={}){const module={exports:{}};vm.runInNewContext(ts.transpileModule(fs.readFileSync(path.join(__dirname,'../app/lib/openaiClient.ts'),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2020}}).outputText,{module,exports:module.exports,process:{env},...runtime});return module.exports;}
 const load=env=>client(env).modelUpgradeRequest;
 const request=body=>({method:'POST',body:JSON.stringify(body)});
+test('only connected Travel research gets a longer attempt and ambiguous failures never retry another key',async()=>{
+ const env={VERCEL_ENV:'preview',VERCEL_GIT_COMMIT_REF:'feature/travel-pack-preview',MEDICEA_OPENAI_UPGRADE:'true',MEDICEA_TRAVEL_CONNECTED:'true',OPENAI_API_KEY_1:'fixture-one',OPENAI_API_KEY_2:'fixture-two'};
+ const original=request({model:'gpt-6.1-sol',messages:[{role:'user',content:'Public test'}]});
+ for(const settings of [env,{...env,VERCEL_ENV:'production'},{...env,MEDICEA_TRAVEL_CONNECTED:'false'},{...env,VERCEL_GIT_COMMIT_REF:'feature/openai-model-upgrade-preview'}]){
+  const timers=[],sent=[];const c=client(settings,{Headers,Response,AbortController,setTimeout:(fn,ms)=>{timers.push(ms);return 1;},clearTimeout:()=>{},fetch:async(url,init)=>{sent.push(init.body);return Response.json({ok:true});}});
+  await c.openaiFetch('https://api.openai.com/v1/chat/completions',original);assert.equal(timers[0],settings===env?55000:10000);assert.equal(sent[0],original.body);
+ }
+ let attempts=0;const c=client(env,{Headers,Response,AbortController,setTimeout:()=>1,clearTimeout:()=>{},fetch:async()=>{attempts++;throw Error('ambiguous disconnect');}});
+ await assert.rejects(c.openaiFetch('https://api.openai.com/v1/chat/completions',original),error=>error.status===504&&error.attempts===1);assert.equal(attempts,1);
+});
 test('only the authorised tester branch defaults on; explicit false and Production win',()=>{
  const branch={VERCEL_ENV:'preview',VERCEL_GIT_COMMIT_REF:'feature/openai-model-upgrade-preview'};
  assert.equal(client(branch).modelUpgradeEnabled(),true);

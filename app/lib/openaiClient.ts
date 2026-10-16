@@ -86,10 +86,14 @@ export async function openaiFetch(url: string, init: RequestInit): Promise<Respo
   const sourced = url === RESPONSES_ENDPOINT && modelUpgradeEnabled();
   if (url !== ENDPOINT && !sourced) throw new Error("Unsupported OpenAI endpoint.");
   if (!sourced) init = modelUpgradeRequest(init);
+  const travelResearch = !sourced && modelUpgradeEnabled() &&
+    process.env.VERCEL_ENV === 'preview' && process.env.VERCEL_GIT_COMMIT_REF === 'feature/travel-pack-preview' &&
+    process.env.MEDICEA_TRAVEL_CONNECTED === 'true' && typeof init.body === 'string' &&
+    JSON.parse(init.body).model === modelTestConfiguration().researchModel;
   const keys = configuredKeys();
   if (!keys.length) throw new Error("No OpenAI API keys configured.");
   if (init.signal?.aborted) throw new Error("OpenAI request cancelled.");
-  const deadline = Date.now() + (sourced ? 45_000 : REQUEST_TIMEOUT_MS);
+  const deadline = Date.now() + (sourced ? 45_000 : travelResearch ? 60_000 : REQUEST_TIMEOUT_MS);
   let attempts = 0;
   for (const key of keys) {
     const remaining = deadline - Date.now();
@@ -97,7 +101,7 @@ export async function openaiFetch(url: string, init: RequestInit): Promise<Respo
     const controller = new AbortController();
     const cancel = () => controller.abort();
     init.signal?.addEventListener("abort", cancel, { once: true });
-    const timer = setTimeout(cancel, Math.min(sourced ? 40_000 : ATTEMPT_TIMEOUT_MS, remaining));
+    const timer = setTimeout(cancel, Math.min(sourced ? 40_000 : travelResearch ? 55_000 : ATTEMPT_TIMEOUT_MS, remaining));
     attempts++;
     let response: Response;
     let body: string;
@@ -111,6 +115,9 @@ export async function openaiFetch(url: string, init: RequestInit): Promise<Respo
       body = await response.text();
     } catch {
       if (init.signal?.aborted) throw new Error("OpenAI request cancelled.");
+      // A slow research request may still complete upstream after disconnect.
+      // Do not multiply that ambiguous charge by retrying it with another key.
+      if (travelResearch) throw new OpenAIRequestError(504, attempts);
       if (attempts === keys.length) throw new OpenAIRequestError(504, attempts);
       console.warn("[OpenAI] Trying next key after connection failure", { attempt: attempts });
       continue;
