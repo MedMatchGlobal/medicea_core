@@ -2,9 +2,10 @@
 import {useEffect,useState} from 'react';
 import {travelNextCopy} from '../i18n/travel-next';
 import {travelCopy} from '../i18n/travel-demo';
+import {libraryCopy} from '../i18n/medicine-library';
 import type {HealthNotice} from '../lib/travel-news';
 export default function HealthFeed({country,lang,topic,refresh}:{country:string;lang:string;topic:string;refresh:string}){
- const [result,setResult]=useState<{status:string;items:HealthNotice[]}>({status:'loading',items:[]}),c=travelCopy(lang),n=travelNextCopy(lang);
+ const [result,setResult]=useState<{status:string;items:HealthNotice[]}>({status:'loading',items:[]}),c={...travelCopy(lang),updates:libraryCopy(lang).news},n=travelNextCopy(lang);
  useEffect(()=>{
   const controller=new AbortController();let running=false;
   async function load(){if(running||controller.signal.aborted)return;running=true;try{const response=await fetch('/api/travel-news?country='+encodeURIComponent(country),{signal:controller.signal,cache:'no-store'});if(!response.ok)throw Error('unavailable');const data=await response.json();if(!controller.signal.aborted)setResult(data);}catch{if(!controller.signal.aborted)setResult({status:'unavailable',items:[]});}finally{running=false;}}

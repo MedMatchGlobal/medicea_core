@@ -1,65 +1,50 @@
-# Travel demonstration — first review milestone
+# Medicine library, travel packs and health news — owner Preview
 
-Branch: `feature/travel-pack-preview`, based on `feature/openai-model-upgrade-preview` at d9a8389.
-Entry: `/travel`. Separate owner Preview; `/travel` is unavailable in Production and other Preview branches. An explicitly opted-in local development run can use `MEDICEA_TRAVEL_DEMO=true`. This does not activate the medicine-model experiment on a new branch or change its existing tester deployment.
+Branch: feature/travel-pack-preview. Separate owner Preview only; entry /travel now opens My medicines. Existing /travel?tab=trips links open Travel packs. The exact-branch runtime gate keeps this journey and its news API unavailable in Production and other Preview branches. The existing medicine-model tester and medical prompts are unchanged.
 
-## What to test
+## What to try
 
-1. Create a UK/Italy demonstration trip with departure/return dates and one or both fictional medicines. There is deliberately no free-text medicine, patient, record-upload or payment field.
-2. Save and reopen the trip in the same browser. Complete checklist items and confirm they persist after reloading. The local demo account provides access to the saved trips and clears only this demo's data.
-3. Open the pharmacist card, switch its language, and print it. Labels support all 25 existing app languages, including RTL. The existing device-language preference is reused.
-4. Download the standalone HTML pack, then open the downloaded file without network access. It contains the trip, fictional medicine comparison, checklist and pharmacist card in its selected language. The download has no external assets, scripts, analytics or network requests. It is a dated snapshot, not an app-wide offline mode.
-5. Open Health updates. Switch between Home, Destination and Where I am; changing the feed's destination country must not rewrite a saved trip. The UK has a live MHRA medicine/device headline feed, labelled as an original-language pilot, with source links and publication dates. Other countries explicitly show that live coverage is not connected. Real news is separate from fictional trip medicines.
-6. Optionally request location access. Coordinates are processed on the device against a bundled Natural Earth country map; only the suggested country and opt-in preference are retained. No GPS coordinates are sent to a geocoding service, included in URLs, or saved in the demo state. A denied/unavailable location offers manual selection. Auto-update occurs on opening the page with prior consent and permission, not continuous background tracking. Manual selection switches it off.
+1. Open My medicines and confirm Home country. A supported region in the device's browser locale may suggest UK/Italy; language alone never determines the country. Override the suggestion when necessary. This preference persists independently of interface language.
+2. Add fictional medicine A and/or B once. Each has its own origin country, fixed fictional ingredient, strength and form. There is no free-text medicine/patient field or upload. These two fixtures are for interaction testing, not real research.
+3. Select medicines and a comparison country. Compare without entering travel dates, then save individual comparisons. Results retain the origin, destination and demonstration checking date. The source label explicitly says fictional demonstration, not a verified medicine source. No medicine API request or translation charge is incurred.
+4. Reopen the list and its saved comparisons. Editing an origin invalidates that medicine's current library comparisons. Removing a library entry removes its current comparisons, without removing existing packs.
+5. Create an optional Travel pack from selected saved medicines. Choose departure country, destination and dates, then save. Dates apply to the trip/reminder, not basic comparison. Reuse the same saved list in another pack without adding the medicines again. Departure country does not overwrite the user's Home country.
+6. Reopen a pack, complete its checklist, select any of the 25 pharmacist-card languages, and print or download. Packs freeze per-medicine origins and saved comparison records. A new pack without a saved comparison says so; it does not invent a completed comparison. Existing legacy demo trips remain available and seed a deduplicated library once. An explicitly empty library is not repopulated from old packs.
+7. Download the self-contained HTML pack and open it offline. It includes fictional medicines, per-medicine origin countries, the selected card language, checklist, and saved comparison dates. It contains no scripts, external assets, analytics or network access.
+8. Optionally export a calendar reminder. Verify the editable departure time (default 09:00) in the device time zone, import the .ics file and permit calendar notifications. The absolute UTC event has an alarm 48 hours before departure; the calendar application controls delivery. No medicine detail, push notification, email or account automation is included.
+9. Open Health news. There are two country views: Home country and Another country. Home is editable; Another country is retained separately. Use my location is a shortcut to the second view and never overwrites Home. Manual selection of the other country disables automatic location updates.
 
-Country boundaries are approximate (1:110m), omit some small countries/islands, and cannot establish legal borders. Suggestions are labelled approximate and can be corrected manually. The map is public-domain Natural Earth data; attribution and source are in `public/travel-demo/ATTRIBUTION.txt`.
+## News and location boundaries
+
+The first live source is the fixed MHRA GOV.UK Atom feed for UK medicine/device safety notices. Up to 12 original-language headlines include source links, publication dates (or updated-date fallback) and Open Government Licence attribution. It is not comprehensive healthcare coverage or an emergency alert service. Italy, global sources, translated headlines, outbreaks and hospital coverage remain later work; unsupported coverage and source outages have distinct messages.
+
+The feed is cached for ten minutes and an open page polls every ten minutes. Server fetches are bounded by eight seconds and 500 kB, reject redirects and XML entities/DOCTYPE, validate source URLs and dates, sort and deduplicate. Client URLs cannot choose another source. No medicine data or precise coordinates are forwarded to this endpoint.
+
+Optional GPS lookup runs on the device against bundled public-domain Natural Earth country geometry. Coordinates are neither transmitted to geocoders nor saved. Only the country and explicit opt-in preference persist. Suggestions are approximate: some small countries/islands are omitted and boundaries/coasts are not authoritative. Denied permission permits manual selection. Automatic updating uses prior consent on page opening, not continuous background tracking. Map source details: public/travel-demo/ATTRIBUTION.txt.
+
+Source and reuse references:
+- https://www.gov.uk/drug-device-alerts.atom
+- https://www.gov.uk/help/reuse-govuk-content
+- https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/
+
+## Layout and navigation
+
+The shared header keeps the logo left, burger centred and language selector right. Core tools, My medicines, Travel packs, Health news and Account use one menu. The same compact coastal banner appears throughout (88 CSS pixels in the tested phone layouts, 104 on desktop; it can expand for long translations). All new controls support 25 languages, including RTL.
+
+Travel-tab changes update native browser history in the mounted workspace without a server-page round trip, retain state, and reset scroll instantly. Browser Back/Forward and normal modifier-clicks remain usable; core destinations prefetch from Account.
+
+## Storage, accounts and release gates
+
+This is a browser-only fictional-data demonstration with no real login, cloud profile, MyHealth records, uploads or payment activation. Up to ten demo packs and two fixed demo medicines persist under the existing versioned local-storage key. Storage validation strips unrelated records, credentials and precise locations. When browser storage is blocked, an explicit warning appears and in-memory use/offline export remain available. Clearing demo data clears this key only, not language or public saved-search preferences.
+
+For the finished product, My medicines and MyHealth are the private areas of one shared account. Saved travel packs belong to that same account rather than requiring another login. Purchase/entitlement management may also need account access. Health news and public lookup access need not require a personal health profile. Do not connect this demo to real health lists or cloud accounts yet.
+
+Before real health records or paid/public release: complete the GDPR evidence audit, privacy notice in all 25 languages, lawful-basis and health-data assessment, processor and transfer review, retention and inactivity policy, tested erasure and recovery, breach response, and qualified privacy/insurance review. Define profile access, export/deletion and offline-download handling, then test secure accounts and payment entitlements in test mode before a separate public-release decision.
 
 ## Validation
 
-94 offline tests and the optimized build pass, including protected-prompt preservation, Preview isolation, strictly fictional selections, date checks, safe bilingual export, geometry/holes and all 25 translation bundles. Desktop/mobile browser checks cover creation, saved reopening, checklists, translated cards, offline export/reopening, feed filters, local country identification, coordinate non-disclosure, auto-location opt-out, reset, denied-location fallback, and Italian/Arabic/Hebrew layouts. The Preview is checked with Production runtime flags to ensure `/travel` is 404 and discovery navigation has no demo links.
+100 offline automated tests and the optimized build pass, including protected-prompt preservation, Preview isolation, legacy migration, fictional-only storage, comparison keying/invalidation, device-region suggestions, immutable pack records, safe offline exports, feed safety and complete 25-language copy.
 
-## Deliberately not activated
+Phone/desktop browser checks cover adding the list once, comparisons without dates, saved reopening, reuse in two packs, retained original pack data after library edits/removal, offline export, two news views, home-country isolation from location, and no coordinate requests. An Italian-region suggestion can be overridden to the UK and survives reload and language changes. Library, news and pack views fit all 25 languages at 390 px. Existing packs/checklists migrate without loss; blocked storage still permits an offline download. Production retains its original public UI and returns 404 for travel and the news API.
 
-- Real accounts, cloud synchronisation, personal medicine profiles, uploads, vault records, app-delivered notifications and payment collection.
-- Automated article translation, Italy/global live ingestion, outbreak/hospital coverage, and background notification delivery. The UK MHRA pilot uses original-language headlines only; unsupported countries have official-source links and an explicit coverage message.
-- Medical recommendations, real equivalents or verified medicine carriage permissions. The checklist and sample comparisons are illustrations, not completed clinical/legal checks.
-- A new public paywall or changes to existing medicine prompts, research routing, billing rules, the photographic hero or medicéa branding.
-
-## Next implementation milestones after reviewing the demonstration
-
-1. Test the complete journey with fictional data and settle navigation, pack contents, language handling and the paid value proposition.
-2. Implement UK/Italy live-feed ingestion with a vetted source register (MHRA/UKHSA/AIFA/health ministry plus WHO/ECDC), source-reuse review, country/region tagging, published/updated/retrieved timestamps, deduplication, correction handling, cache expiry, source-outage states, and translated summaries with original links. An RSS link is not evidence that every item may be republished in full. The first UK source is now connected; translated summaries and other sources remain subsequent work. No news translation API calls or costs are incurred.
-3. Before real health data or paid launch: complete the GDPR evidence audit, 25-language privacy notice, lawful-basis and health-data assessment, processor/transfer review, retention and inactivity policy, tested erasure/recovery controls, breach-response procedure, and qualified privacy/insurance review. Define account access, export/deletion and offline-download handling before connecting real profiles or the vault.
-4. Implement secure shared accounts/trips and permissions, then test real payment/entitlement integration in test mode with end-to-end purchase, expiry, cancellation and retained-pack access. Obtain a separate public-release decision after those checks.
-
-No additional API keys, source accounts, billing setup or patient data are required to try this demonstration. Owner feedback on the complete fictional journey is the next useful input; source licensing and qualified privacy/insurance review are later launch dependencies.
-
-## Navigation, calendar and first official feed update
-
-- The four navigation links are now in a compact burger disclosure beside the travel logo and language control. Mouse hover, keyboard activation/Escape, outside-click dismissal and touch activation are supported.
-- The departure checklist still records preparation checks in the browser. An optional calendar export creates a departure event with a display alarm exactly 48 hours before its UTC start. Departure time is editable (default 09:00), explicitly interpreted in the device time zone. Check this if the device time zone differs from the departure country. The user must import the .ics file and enable calendar notifications; calendar applications control delivery and may handle alarms differently. No app push/email/background reminder or medicine detail is included. Existing saved trips require no migration.
-- Pharmacist cards still come from the selected fictional fixtures, not real pre-departure search records. Connecting real formulations, provenance and confirmation needs the real-data/account release gates.
-- `/api/travel-news` is gated to this branch and Preview, like `/travel`. UK medicine/device notices come only from the fixed MHRA GOV.UK Atom endpoint, cached for 10 minutes. The open page polls every 10 minutes. Only original headlines, publication/update fallback dates and source links are shown, with OGL attribution; no article body is republished. Titles are not translated yet.
-- Feed fetches have an 8-second timeout, a 500 kB body bound and no redirects. Parsing rejects entities/DOCTYPE, validates source URLs and dates, deduplicates and sorts up to 12 notices. Provider failure displays a separate unavailable state; unsupported countries are not described as having no alerts. News is never inferred from a personal medicine profile. No precise location or medicine data is forwarded.
-- Source/reuse references: https://www.gov.uk/drug-device-alerts.atom , https://www.gov.uk/help/reuse-govuk-content , https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/ . Do not imply endorsement or comprehensive/local emergency coverage.
-- Validated: 94 offline tests in total, optimized build, browser trip compatibility, calendar download, 25-language forms, touch/hover/keyboard navigation, source-failure/coverage states, and Production 404 checks for both travel and feed routes. A live local request retrieved 12 official notices; Italy returned unsupported, as intended.
-
-## Shared header and compact hero refinement
-
-The travel Preview now uses one shared `TravelHeader` on medicine, pet, trip, health-update and demo-account screens. The logo stays left, the burger is centred, and the language selector stays right on one row. The visible Language heading is removed while the selector keeps its accessible name. All core tools and travel sections live in the burger, with no duplicate button row. The menu is inside the sticky header stacking layer so landing-page navigation cannot obscure it; long menus scroll within the viewport. Existing in-page search/tool/care actions are reused.
-
-The coastal photograph now uses the same shared compact banner on every Preview screen, including Health updates and Account. These refinements are gated to the travel Preview and do not change medicine prompts or Production navigation.
-
-Validation: all 94 automated tests and optimized build pass. Browser checks cover all seven menu links being unobscured and pointer-reachable across seven routes at 320/390/1280 px, matching header geometry, Escape dismissal, core tools/care/search/pet navigation, 25-language phone forms and RTL menu bounds. Production still excludes the demo header/navigation and returns 404 for travel.
-
-## Uniform coastal banner on every screen
-
-The latest owner preference supersedes the earlier image-free Account/news layout. All seven core/travel screens now render the same `CoastalBanner` directly below `TravelHeader`, with identical photographic crop, gradient, corners, typography and spacing. Only the translated page title changes. The banner measures 88 CSS pixels high on the checked 320/390 px phone layouts and 104 pixels on desktop. It can expand for unusually long translated titles rather than clipping text. Introductory hero paragraphs and the trip CTA are no longer inside the image; the trip-creation action remains directly below the demo notice. No saved trip data changes.
-
-Validation: optimized build and 94 automated tests pass. Browser checks confirm one banner and one main title across seven routes at 320/390/1280 px, placement immediately below the header, no overflow across 25 phone-language selections, and all seven burger links remain unobscured and usable. Production keeps its existing hero; this visual change is gated to the travel Preview.
-
-## Account navigation responsiveness
-
-Travel-tab links now update native browser history within the mounted client workspace, avoiding an RSC server round trip when switching Account, My trips and Health updates. Switching tabs resets the scroll position instantly rather than inheriting document smooth scrolling; browser Back/Forward remains usable. Normal links, modifier-clicks and cross-route navigation retain their existing behavior. Core discovery destinations are prefetched while Account is open, and other menu routes may prefetch when visible.
-
-Validation: optimized build and protected-prompt test pass. Phone/desktop browser checks add 800 ms latency to server component requests and verify travel-tab changes require no such requests, retain saved trips/checklists, reset scroll consistently, support Back/Forward, and navigate between Account and each core tool in both directions without browser errors.
+No new credentials, login, payment setup or real health data are required to try this Preview.
