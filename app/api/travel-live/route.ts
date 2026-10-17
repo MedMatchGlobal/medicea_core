@@ -12,6 +12,8 @@ const headers={'Cache-Control':'no-store'};
 function missing(){return [...(!connectedTravelEnabled()?['MEDICEA_TRAVEL_CONNECTED']:[]),...(!travelTestConfigured()?['MEDICEA_TRAVEL_TEST_ACCESS_CODE (24+ characters)']:[]),...(!modelUpgradeEnabled()?['MEDICEA_OPENAI_UPGRADE']:[]),...(!getOpenAIKeyCount()?['OPENAI_API_KEY']:[])];}
 let loginWindow=0,loginAttempts=0,requestWindow=0,requestCount=0;
 const sessionCounts=new Map<string,number>();
+let evaluationWindow=0,evaluationCount=0;
+function evaluationLimit(){const window=Math.floor(Date.now()/3600000);if(window!==evaluationWindow){evaluationWindow=window;evaluationCount=0;}return ++evaluationCount<=18;}
 function limit(login:boolean,request:Request){const now=Math.floor(Date.now()/(login?600000:3600000));if(login){if(now!==loginWindow){loginWindow=now;loginAttempts=0;}return ++loginAttempts<=12;}if(now!==requestWindow){requestWindow=now;requestCount=0;sessionCounts.clear();}const key=request.headers.get('cookie')?.split(';').find(v=>v.trim().startsWith(TRAVEL_TEST_COOKIE+'='))||'';const count=(sessionCounts.get(key)||0)+1;sessionCounts.set(key,count);return ++requestCount<=80&&count<=40;}
 function cookie(value:string,maxAge:number){return `${TRAVEL_TEST_COOKIE}=${value}; HttpOnly; SameSite=Strict; Path=/api/travel-live; Max-Age=${maxAge}${process.env.VERCEL_ENV?'; Secure':''}`;}
 export async function GET(request:Request){
@@ -31,6 +33,11 @@ export async function POST(request:Request){
   return NextResponse.json({ok:true},{headers:{...headers,'Set-Cookie':cookie(issueTravelTestSession(),8*3600)}});
  }
  if(!travelTestSession(request))return NextResponse.json({error:'TEST_ACCESS_REQUIRED'},{status:401,headers});
+ if(body?.action==='evaluate'){
+  if(!['production','experimental'].includes(body.arm)||!['it30-gb','uk8-it'].includes(body.caseId)||Object.keys(body).some(k=>!['action','arm','caseId'].includes(k)))return NextResponse.json({error:'INVALID_INPUT'},{status:400,headers});
+  if(!limit(false,request)||!evaluationLimit())return NextResponse.json({error:'TEST_LIMIT'},{status:429,headers});
+  try{const {evaluateTravelCase}=await import('../../lib/travel-evaluation');return NextResponse.json(await evaluateTravelCase(body.caseId,body.arm),{headers});}catch{return NextResponse.json({error:'EVALUATION_UNAVAILABLE'},{status:503,headers});}
+ }
  const {action,query,origin,destination,lang,dosage='',token}=body||{};
  if(!['origin','compare','information'].includes(action)||Object.keys(body).some(k=>!['action','query','origin','destination','lang','dosage','token'].includes(k))||typeof query!=='string'||!query.trim()||query.length>250||!DEMO_COUNTRIES.includes(origin)||action==='compare'&&!DEMO_COUNTRIES.includes(destination)||typeof lang!=='string'||!/^[a-z]{2}$/.test(lang)||typeof dosage!=='string'||dosage.length>100||token!==undefined&&(typeof token!=='string'||token.length>24000))return NextResponse.json({error:'INVALID_INPUT'},{status:400,headers});
  if(!limit(false,request))return NextResponse.json({error:'TEST_LIMIT'},{status:429,headers});
