@@ -1,0 +1,246 @@
+.travel-app { max-width:1100px; margin:auto; padding:16px 24px 32px; color:#173849; font-family:Arial,Helvetica,sans-serif; font-size:16px; line-height:1.55; }
+.travel-app * { box-sizing:border-box; }
+.travel-app h1,.travel-app h2,.travel-app h3 { line-height:1.2; letter-spacing:-.025em; }
+.travel-app h1 { margin:12px 0; font-size:38px; max-width:580px; }
+.travel-app h2 { font-size:23px; margin:0 0 12px; }
+.travel-app h3 { font-size:18px; margin:12px 0; }
+.travel-app p { margin:8px 0 16px; }
+.travel-app button,.travel-app input,.travel-app select { font:inherit; }
+.travel-app button { cursor:pointer; min-height:44px; border-radius:12px; display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:10px 16px; line-height:1.4; }
+.travel-app button:disabled { opacity:.5; cursor:default; }
+.travel-app button:focus-visible,.travel-app a:focus-visible,.travel-app input:focus-visible,.travel-app select:focus-visible { outline:3px solid #518de9; outline-offset:3px; }
+.travel-app label { display:flex; flex-direction:column; gap:7px; font-size:14px; color:#365b6c; }
+.travel-app input:not([type=checkbox]),.travel-app select { width:100%; min-width:0; border:1px solid #b9ccd6; border-radius:10px; min-height:44px; padding:10px 12px; background:#fff; color:#173849; font-size:16px; }
+.travel-app a { color:#176a92; }
+.travel-app .travel-nav { padding:0; margin:0; }
+.travel-notice { display:flex; gap:12px; align-items:flex-start; background:#fff6e6; border:1px solid #e4cda0; border-radius:14px; padding:14px 18px; font-size:13px; color:#73561f; margin-bottom:24px; }
+.travel-notice svg { flex-shrink:0; margin-top:2px; }
+.travel-notice p { margin:5px 0 0; }
+.travel-hero { background:linear-gradient(90deg,#edf7ff 10%,#edf7fff0 36%,#edf7ff10 85%),url('/medicea-coast.png') center right/cover; border-radius:22px; padding:24px; margin-bottom:24px; min-height:190px; display:flex; align-items:center; }
+.travel-hero p { color:#48677b; }
+.travel-app[dir=rtl] .travel-hero { background-image:linear-gradient(270deg,#edf7ff 10%,#edf7fff0 36%,#edf7ff10 85%),url('/medicea-coast.png'); }
+.travel-kicker { display:block; text-transform:uppercase; font-size:12px; font-weight:700; letter-spacing:.13em; color:#187c86; }
+.travel-kicker bdi { text-transform:none; letter-spacing:-.05em; font-size:18px; }
+.travel-primary { background:#166e86; border:1px solid #166e86; color:#fff; font-weight:700!important; }
+.travel-secondary { background:#fff; border:1px solid #b7d0dc; color:#1e5976; font-weight:650!important; }
+.travel-text { background:transparent; border:0; color:#4c6d7d; padding-inline:0!important; font-size:13px!important; }
+.travel-workspace { display:grid; grid-template-columns:245px minmax(0,1fr); gap:24px; align-items:start; }
+.travel-list { background:#edf3f7; border-radius:18px; padding:18px; }
+.travel-list h2 { display:flex; justify-content:space-between; align-items:center; font-size:18px; }
+.travel-list small { font-size:12px; font-weight:400; color:#587385; }
+.travel-list article { padding:12px; margin-top:12px; border:1px solid #d4e0e7; border-radius:12px; background:#fff; }
+.travel-list article.selected { border-color:#5a9b9d; box-shadow:0 0 0 1px #5a9b9d; }
+.travel-app .travel-trip-link { border:0; background:none; padding:0; display:block; text-align:start; width:100%; color:inherit; }
+.travel-trip-link strong { display:flex; gap:5px; flex-wrap:wrap; align-items:center; font-size:15px; }
+.travel-trip-link span { display:block; font-size:12px; color:#5d7787; margin-top:6px; }
+.travel-panel { background:#fff; border:1px solid #d6e2e8; border-radius:18px; padding:24px; margin-bottom:20px; box-shadow:0 5px 20px #183d4e04; }
+.travel-fields { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:18px; }
+.travel-form fieldset { margin:24px 0; padding:14px 16px; border:1px solid #d4e2e7; border-radius:12px; }
+.travel-form legend { font-size:15px; font-weight:650; padding:0 5px; }
+.travel-app .travel-check { display:flex; flex-direction:row; align-items:flex-start; gap:12px; padding:11px 0; font-size:15px; cursor:pointer; }
+.travel-check input { width:21px; height:21px; flex-shrink:0; accent-color:#177c85; margin-top:2px; }
+.travel-check small { display:block; margin-top:5px; color:#65808d; font-size:12px; }
+.travel-section-head { display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap; }
+.travel-section-head h2 { margin-top:4px; }
+.travel-section-head p { color:#607b8a; font-size:14px; }
+.travel-section-head label { max-width:230px; flex:1; min-width:170px; }
+.travel-caption { color:#627f8f; font-size:12px; }
+.travel-medicine-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; margin-top:20px; }
+.travel-medicine-grid article { border:1px solid #d4e3e9; border-radius:14px; padding:18px; background:#f8fbfc; }
+.travel-medicine-grid p { font-size:14px; }
+.travel-symbol { display:inline-flex; align-items:center; justify-content:center; border-radius:10px; background:#e0f2f3; color:#1a7681; width:35px; height:35px; font-weight:700; }
+.travel-match { padding-top:12px; margin-top:15px; border-top:1px solid #d7e6e9; }
+.travel-match span { display:block; font-size:11px; color:#5f7c8c; margin-bottom:6px; }
+.travel-match strong { font-size:14px; color:#226e72; }
+.travel-progress { height:6px; background:#e5eef2; border-radius:8px; overflow:hidden; }
+.travel-progress span { display:block; height:100%; background:#4b9b99; transition:width .2s; }
+.travel-pharmacist { background:#f0f8f7; border:1px solid #b8d9d5; padding:22px; border-radius:15px; margin:20px 0; }
+.travel-pharmacist article { background:white; border-radius:10px; padding:14px; margin:14px 0; }
+.travel-pharmacist p { font-size:14px; }
+.travel-pharmacist dl,.travel-account dl { margin:12px 0; }
+.travel-pharmacist dl div,.travel-account dl div { display:grid; grid-template-columns:1fr 1fr; gap:12px; padding:8px 0; border-top:1px solid #d9e8e8; }
+.travel-pharmacist dt,.travel-account dt { color:#587786; font-size:13px; }
+.travel-pharmacist dd,.travel-account dd { margin:0; font-size:14px; font-weight:650; }
+.travel-next { display:flex!important; width:100%; justify-content:space-between!important; background:#eaf5f6; color:#1b6975; border:1px solid #b9d9dc; }
+.travel-intro { margin:30px 0; }
+.travel-intro p { color:#5c7b8b; }
+.travel-segments { display:flex; gap:6px; padding:6px; border-radius:13px; background:#edf3f7; margin-bottom:22px; flex-wrap:wrap; }
+.travel-segments button { background:transparent; color:#4c6c7f; border:0; flex:1; min-width:130px; }
+.travel-segments button[aria-pressed=true] { background:#fff; box-shadow:0 2px 8px #244e6310; color:#155f72; font-weight:700; }
+.travel-location { border-top:1px solid #e1ebef; padding-top:18px; margin-top:16px; }
+.travel-location>p { font-size:13px; color:#5a7888; }
+.travel-location [role=status] { margin-top:8px; color:#796020; }
+.travel-feed-tools { display:flex; align-items:end; gap:14px; flex-wrap:wrap; margin:22px 0; }
+.travel-feed-tools label { max-width:360px; flex:1; min-width:200px; }
+.travel-feed { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:16px; }
+.travel-feed .travel-panel { padding:20px; }
+.travel-feed h2 { font-size:19px; margin-top:16px; }
+.travel-feed p { font-size:14px; }
+.travel-badge { font-size:11px; color:#806023; background:#fff5df; display:inline-block; border-radius:7px; padding:6px 8px; }
+.travel-sources { display:flex; flex-wrap:wrap; gap:12px; }
+.travel-sources a { border:1px solid #cadde5; border-radius:10px; padding:10px 14px; text-decoration:none; font-size:14px; }
+.travel-account { max-width:720px; margin:30px auto; }
+.travel-access { display:flex; align-items:center; gap:10px; background:#e9f6ed; border-radius:10px; padding:12px; }
+.travel-status { color:#a34333; min-height:24px; }
+.travel-footer { border-top:1px solid #d9e4eb; margin-top:28px; padding:20px 0 0; font-size:12px; color:#69808e; }
+@media(max-width:700px){
+ .travel-app { padding:12px 12px 24px; }
+ .travel-app h1 { font-size:29px; }
+ .travel-app h2 { font-size:21px; }
+ .travel-notice { padding:12px; font-size:12px; }
+ .travel-hero { min-height:180px; padding:18px; background-position:65% center; }
+ .travel-hero h1 { max-width:100%; font-size:25px; margin:8px 0; }
+ .travel-hero p { margin:6px 0 12px; font-size:14px; }
+ .travel-workspace { grid-template-columns:minmax(0,1fr); gap:18px; }
+ .travel-panel { padding:18px; }
+ .travel-fields { gap:13px; }
+ .travel-medicine-grid,.travel-feed { grid-template-columns:minmax(0,1fr); }
+ .travel-section-head>button { width:100%; }
+ .travel-segments button { min-width:75px; font-size:13px; padding:10px 5px; }
+ .travel-pharmacist { padding:16px; }
+ .travel-sources a { width:100%; }
+}
+@media print {
+ .travel-header,.travel-nav,.travel-notice,.travel-hero,.travel-list,.travel-status,.travel-footer,.travel-next { display:none!important; }
+ .travel-workspace { display:block; }
+ .travel-detail>:not(.travel-card-section) { display:none!important; }
+ .travel-card-section>.travel-section-head,.travel-card-section>button { display:none!important; }
+ .travel-app,.travel-panel,.travel-pharmacist { max-width:none; margin:0; padding:8px; box-shadow:none; border:0; background:white; }
+ .travel-pharmacist article { break-inside:avoid; }
+}
+
+.travel-reminder { margin-top:24px; padding-top:18px; border-top:1px solid #d7e6e9; }
+.travel-reminder h3 { display:flex; gap:8px; align-items:center; }
+.travel-reminder p { font-size:14px; }
+.travel-reminder label { max-width:360px; margin-bottom:16px; }
+.travel-reminder label span { overflow-wrap:anywhere; }
+.travel-feed time { color:#587786; font-size:13px; }
+
+.travel-feed h2 { overflow-wrap:anywhere; }
+
+.travel-trip-actions { display:flex; justify-content:flex-end; margin:0 0 18px; }
+.travel-account { max-width:none; margin:0 0 20px; }
+@media print { .travel-trip-actions { display:none!important; } }
+
+.travel-library-add { display:flex; flex-wrap:wrap; align-items:end; gap:16px; margin-top:20px; }
+.travel-library-add label { flex:1; min-width:180px; }
+.travel-library-list article { display:flex; flex-wrap:wrap; align-items:center; gap:16px; border-bottom:1px solid #d7e6e9; padding:14px 0; }
+.travel-library-list article>label:first-child { flex:1; min-width:180px; }
+.travel-library-list article>label:not(:first-child) { min-width:180px; }
+.travel-comparison { background:#f0f8f7; border:1px solid #c4dedb; border-radius:12px; padding:18px; margin:18px 0; }
+.travel-comparison h3 { overflow-wrap:anywhere; }
+@media(max-width:700px) { .travel-library-add>button { width:100%; } .travel-library-list article>label { width:100%; min-width:0!important; } }
+
+.travel-trip-actions { justify-content:space-between; gap:12px; flex-wrap:wrap; }
+
+.travel-library-list .travel-library-entry { display:flex; align-items:flex-start; flex-wrap:nowrap; gap:12px; }
+.travel-library-list .travel-pack-select { flex:0 0 auto!important; width:auto!important; min-width:0!important; padding-top:10px; }
+.travel-pack-select input { width:22px; height:22px; accent-color:#147b83; }
+.travel-medicine-details { flex:1; min-width:0; }
+.travel-medicine-details>summary { cursor:pointer; padding:10px 0; overflow-wrap:anywhere; }
+.travel-medicine-details>summary strong { font-size:18px; }
+.travel-medicine-details>summary small,.travel-medicine-details>summary span { display:block; margin:6px 0; }
+.travel-medicine-details>label { display:block; max-width:360px; margin-top:16px; }
+.travel-medicine-details h4 { margin:0 0 10px; font-size:17px; overflow-wrap:anywhere; }
+.travel-medicine-compare { border-top:1px solid #d7e6e9; padding-top:10px; margin-top:20px; }
+.travel-medicine-compare label { display:block; max-width:360px; margin-bottom:12px; }
+.travel-comparison-history { margin:12px 0; overflow-wrap:anywhere; }
+.travel-comparison-history summary { cursor:pointer; }
+.travel-comparison-history ul { padding-inline-start:20px; }
+.travel-review-due { background:#fff4df; color:#725422; padding:8px 10px; border-radius:8px; font-size:14px; }
+.travel-medicine-details button { max-width:100%; white-space:normal; overflow-wrap:anywhere; }
+
+.travel-pending-comparison { position:relative; }
+.travel-pending-comparison h4 { padding-inline-end:38px; }
+.travel-dismiss-comparison { position:absolute; top:6px; inset-inline-end:6px; display:inline-flex; align-items:center; justify-content:center; width:44px; height:44px; border:0; border-radius:8px; background:transparent; color:#335f6c; cursor:pointer; }
+.travel-dismiss-comparison:hover { background:#dcefed; }
+.travel-dismiss-comparison:focus-visible { outline:2px solid #147b83; outline-offset:1px; }
+
+.travel-saved-equivalents>summary { cursor:pointer; padding:10px 0; font-weight:600; color:#176a7b; }
+.travel-saved-equivalents>summary .travel-hide-equivalents { display:none; }
+.travel-saved-equivalents[open]>summary .travel-show-equivalents { display:none; }
+.travel-saved-equivalents[open]>summary .travel-hide-equivalents { display:inline; }
+.travel-equivalent-content { border-top:1px solid #c4dedb; padding:14px 0; }
+.travel-delete-comparison { margin-top:8px; min-height:44px; text-align:start; }
+
+.travel-pack-tools,.travel-care-links { display:flex; gap:12px; flex-wrap:wrap; align-items:center; }
+.travel-care-links a { display:inline-flex; align-items:center; min-height:44px; padding:10px 14px; border:1px solid #b7d0dc; border-radius:12px; text-decoration:none; font-weight:600; }
+.travel-stay-address { margin-top:18px; }
+.travel-medicine-details { scroll-margin-top:110px; }
+.travel-nearby-care p { overflow-wrap:anywhere; }
+@media print { .travel-pack-tools { display:none!important; } }
+.travel-emergency-number { display:inline-flex; gap:10px; align-items:center; min-height:48px; font-size:28px; font-weight:700; padding:8px 14px; background:#fff4df; border-radius:12px; text-decoration:none; }
+.travel-emergency>label { max-width:360px; margin:14px 0; }
+.travel-emergency p,.travel-consular-saved { overflow-wrap:anywhere; }
+.travel-consular-saved { padding:16px; margin:16px 0; border:1px solid #c4dedb; border-radius:12px; background:#f0f8f7; }
+.travel-contact-form>summary { cursor:pointer; padding:12px 0; font-weight:600; }
+.travel-contact-form label { margin-bottom:14px; }
+
+.travel-stays-editor { display:grid; gap:16px; margin-top:18px; }
+.travel-stay { min-width:0; margin:0; }
+.travel-stay .travel-stay-address { margin-top:0; }
+.travel-stay .travel-fields { margin-block:14px; }
+.travel-nearby-care select { max-width:100%; min-width:0; }
+.travel-selected-stay { overflow-wrap:anywhere; }
+
+.travel-address-input { min-width:0; }
+.travel-address-input input { margin-top:7px; }
+.travel-address-input ul { list-style:none; padding:0; margin:6px 0; border:1px solid #b7d0dc; border-radius:10px; background:#fff; max-height:240px; overflow:auto; }
+.travel-address-input li { cursor:pointer; padding:12px; overflow-wrap:anywhere; border-bottom:1px solid #e1ebef; }
+.travel-address-input li:last-child { border-bottom:0; }
+.travel-address-input li:hover,.travel-address-input li[aria-selected=true] { background:#e5f3f4; }
+.travel-address-input .travel-caption:empty { display:none; }
+.travel-address-attribution { font-size:11px; }
+
+/* Compact defaults preserve 44px tap targets and existing input font sizes. */
+.travel-panel { padding:20px; margin-bottom:16px; }
+.travel-notice { padding:10px 14px; margin-bottom:16px; line-height:1.45; }
+.travel-app p { margin-block:8px 12px; }
+.travel-form fieldset { margin-block:14px; }
+.travel-disclosure>summary { display:flex; align-items:center; gap:10px; min-height:44px; cursor:pointer; list-style:none; color:#1e5976; font-weight:600; overflow-wrap:anywhere; }
+.travel-disclosure>summary::-webkit-details-marker { display:none; }
+.travel-disclosure>summary::after { content:''; flex:0 0 7px; width:7px; height:7px; border-inline-end:2px solid currentColor; border-bottom:2px solid currentColor; transform:rotate(45deg); margin-inline-start:auto; margin-inline-end:4px; align-self:center; }
+.travel-disclosure[open]>summary::after { transform:rotate(225deg); }
+.travel-disclosure>summary:focus-visible { outline:3px solid #518de9; outline-offset:3px; border-radius:6px; }
+.travel-disclosure>summary>strong { min-width:0; font-size:15px; }
+.travel-disclosure>summary>span { font-size:13px; font-weight:400; flex-shrink:0; }
+.travel-disclosure>summary small { display:block; font-size:12px; font-weight:400; color:#607b8a; }
+.travel-panel.travel-disclosure { padding:4px 14px; }
+.travel-panel.travel-disclosure[open] { padding-bottom:14px; }
+.travel-disclosure[open]>summary { margin-bottom:8px; }
+.travel-home-controls { display:flex; gap:12px; flex-wrap:wrap; align-items:end; margin-bottom:4px; }
+.travel-home-controls label { flex:1; min-width:160px; }
+.travel-news-toolbar { display:flex; gap:8px; align-items:flex-start; margin-bottom:12px; }
+.travel-news-settings { flex:1; min-width:0; margin-bottom:0; }
+.travel-feed-refresh { flex:0 0 44px; width:44px; height:44px; padding:0!important; margin-top:5px; }
+.travel-news-settings .travel-section-head h2 { display:none; }
+.travel-news-settings .travel-section-head label { max-width:none; }
+.travel-news-settings .travel-segments { margin-block:8px 12px; }
+.travel-news-settings .travel-location { margin-top:12px; padding-top:12px; }
+.travel-news-settings .travel-location p { font-size:13px; }
+.travel-feed-source { margin-bottom:10px; }
+.travel-feed .travel-panel h2 { font-size:19px; margin-block:8px; }
+.travel-stays-editor { gap:10px; margin-top:12px; }
+.travel-stay-disclosure { border:1px solid #d4e2e7; border-radius:12px; padding:4px 12px; min-width:0; }
+.travel-stay-disclosure>summary { align-items:center; padding-block:4px; }
+.travel-stay-disclosure .travel-stay { border:0; padding:0; margin:8px 0; }
+.travel-stay .travel-fields { margin-block:10px; }
+.travel-sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+@media(max-width:700px) {
+ .travel-panel { padding:14px; }
+ .travel-workspace { gap:14px; }
+ .travel-form fieldset { padding:10px 12px; margin-block:12px; }
+ .travel-stay-disclosure .travel-stay { padding:0; margin-block:8px; }
+ .travel-list { padding:14px; }
+ .travel-medicine-grid article,.travel-pharmacist { padding:14px; }
+ .travel-form h2 { font-size:21px; }
+ .travel-home-controls>button { width:100%; }
+}
+@media print { .travel-home-settings,.travel-news-toolbar { display:none!important; } }
+@media print { .travel-panel,.travel-pharmacist { padding:8px; margin:0; } }
+
+.travel-unlock { display:grid; gap:14px; max-width:480px; }
+.travel-generated-information { white-space:pre-wrap; overflow-wrap:anywhere; font-size:14px; margin-block:12px; }
+.travel-connected-link { text-align:end; font-size:13px; }
+.travel-account>button { margin-inline-end:10px; margin-block:6px; }
+.travel-comparison article { padding-block:10px; }

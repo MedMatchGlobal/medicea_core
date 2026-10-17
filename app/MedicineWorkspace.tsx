@@ -27,6 +27,8 @@ import { ArrowRight, Search, FileText, Pill, Stethoscope, Hospital, HeartPulse, 
 import countriesByRegion from '../data/countries';
 import { useLanguage } from './LanguageProvider';
 import LanguageButton from './components/LanguageButton';
+import TravelHeader from './components/TravelHeader';
+import CoastalBanner from './components/CoastalBanner';
 import CountryPicker from './components/CountryPicker';
 import ConditionPicker from './components/ConditionPicker';
 import VeterinaryCare from './components/VeterinaryCare';
@@ -66,8 +68,8 @@ const LIMITS_ON = !BETA_TESTING && process.env.NEXT_PUBLIC_ENABLE_USAGE_LIMITS =
 
 /* -------------------------- WRAPPER -------------------------- */
 
-export function MedicineWorkspace({ petMode = false,sourceOriginMode=false }: { petMode?: boolean;sourceOriginMode?:boolean }) {
-  return <Home petMode={petMode} sourceOriginMode={sourceOriginMode} />;
+export function MedicineWorkspace({ petMode = false,sourceOriginMode=false,travelDemo=false }: { petMode?: boolean;sourceOriginMode?:boolean;travelDemo?:boolean }) {
+  return <Home petMode={petMode} sourceOriginMode={sourceOriginMode} travelDemo={travelDemo}/>;
 }
 
 /* -------------------------- HELPERS -------------------------- */
@@ -379,7 +381,7 @@ function boldConditionHeadings(raw: string) {
 
 /* -------------------------- MAIN -------------------------- */
 
-function Home({ petMode = false,sourceOriginMode=false }: { petMode?: boolean;sourceOriginMode?:boolean }) {
+function Home({ petMode = false,sourceOriginMode=false,travelDemo=false }: { petMode?: boolean;sourceOriginMode?:boolean;travelDemo?:boolean }) {
   const membershipEnabled=useMembershipPreview();
   const {copy:membershipCopy}=useMembershipCopy();
   // localized group labels for condition groups
@@ -1125,8 +1127,8 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
   /* -------------------------- RENDER -------------------------- */
 
   return (
-    <main key={lang} className={`medicea-shell flow-${screen}${membershipEnabled ? " membership-preview" : ""}${petMode ? " pet-theme" : ""}${pharmacyOpen ? " pharmacy-trip-active" : ""}`} dir={isRTL(lang) ? 'rtl' : 'ltr'}>
-      <header className="site-header">
+    <main key={lang} className={`medicea-shell flow-${screen}${travelDemo ? " travel-discovery-preview" : ""}${membershipEnabled ? " membership-preview" : ""}${petMode ? " pet-theme" : ""}${pharmacyOpen ? " pharmacy-trip-active" : ""}`} dir={isRTL(lang) ? 'rtl' : 'ltr'}>
+      {travelDemo?<TravelHeader active={petMode?'pets':activeSection} onSection={petMode?undefined:section=>{if(section==='search'){setActiveSection('search');resetFieldsForMode('international');}else showScreen(section);}}/>:<header className="site-header">
         <Link className="brand-link" href="/" aria-label="medicea home"><img src="/logo.png" alt="medicéa" /></Link>
         {membershipEnabled&&<Link className="header-account" href="/membership" onClick={()=>rememberSearchReturn()}>{membershipCopy.account}</Link>}
         <nav className="header-nav" aria-label="Main navigation">
@@ -1136,14 +1138,14 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
           <Link href="/pets" aria-current={petMode && !pharmacyOpen ? 'page' : undefined}>{F(ui, 'btnPets', 'Meds 4 Pets')}</Link>
         </nav>
         <div className="language-control"><LanguageButton /></div>
-      </header>
-      <section className="welcome-hero">
+      </header>}
+      {travelDemo?<CoastalBanner title={petMode?F(ui,'btnPets','Meds 4 Pets'):activeSection==='tools'?F(ui,'medicineTools','Health tools'):activeSection==='care'?F(ui,'findCare','Find care'):F(ui,'modernHeadline','Your medicine, wherever you are.')}/>:<section className="welcome-hero">
         <div className="hero-copy">
           <span className="hero-eyebrow">{F(ui, 'travelCompanion', 'Your medicine companion')}</span>
           <h1>{petMode ? F(ui, 'btnPets', 'Meds 4 Pets') : F(ui, 'modernHeadline', 'Your medicine, wherever you are.')}</h1>
           <p>{petMode ? searchFeedback(lang).petNotice : F(ui, 'modernSubtitle', 'Explore medicine information and equivalents across countries.')}</p>
         </div>
-      </section>
+      </section>}
       <SavedSearches lang={lang} entries={savedSearches} modeLabel={saved=>saved.mode==='pets'?F(ui,'petEquivHeader','Equivalent pet medicines'):saved.mode==='pet-generic'?petGenericsLabel(lang):saved.mode==='generic'?F(ui,'genHeader','Generics'):saved.mode==='leaflet'?F(ui,'btnLeaflet','Medicine leaflet'):F(ui,'equivHeader','Equivalent medicines')} onOpen={openSavedSearch} onRemove={removeSavedSearch} />
       {saveMessage && <p className="saved-search-status" role="status">{saveMessage}</p>}
       <div id="workspace-start" />
