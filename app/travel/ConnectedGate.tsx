@@ -10,7 +10,15 @@ import TravelDemo from './preview';
 import {connectedRequest} from './ConnectedMedicineLibrary';
 export default function ConnectedGate(){
  const {lang,dir}=useLanguage(),c=connectedCopy(lang),[status,setStatus]=useState<{ready:boolean;missing:string[];authenticated:boolean}|null>(null),[code,setCode]=useState(''),[error,setError]=useState(''),[busy,setBusy]=useState(false);
- useEffect(()=>{const controller=new AbortController();fetch('/api/travel-live',{cache:'no-store',signal:controller.signal}).then(r=>r.ok?r.json():null).then(v=>setStatus(v||{ready:false,missing:[],authenticated:false})).catch(()=>{if(!controller.signal.aborted)setError(matchingFeedback(lang).failed);});const expired=()=>setStatus(v=>v?{...v,authenticated:false}:v);window.addEventListener('travel-test-expired',expired);return()=>{controller.abort();window.removeEventListener('travel-test-expired',expired);};},[]);
+ useEffect(()=>{
+  let controller:AbortController|undefined;
+  const check=()=>{controller?.abort();const current=new AbortController();controller=current;fetch('/api/travel-live',{cache:'no-store',signal:current.signal}).then(r=>r.ok?r.json():null).then(v=>{if(!current.signal.aborted)setStatus(v||{ready:false,missing:[],authenticated:false});}).catch(()=>{if(!current.signal.aborted)setError(matchingFeedback(lang).failed);});};
+  const visible=()=>{if(document.visibilityState==='visible')check();};
+  const expired=()=>setStatus(v=>v?{...v,authenticated:false}:v);
+  check();const timer=setInterval(visible,60000);
+  window.addEventListener('focus',check);document.addEventListener('visibilitychange',visible);window.addEventListener('travel-test-expired',expired);
+  return()=>{controller?.abort();clearInterval(timer);window.removeEventListener('focus',check);document.removeEventListener('visibilitychange',visible);window.removeEventListener('travel-test-expired',expired);};
+ },[]);
  async function unlock(e:React.FormEvent){e.preventDefault();setBusy(true);setError('');try{const {response}=await connectedRequest({action:'unlock',code});setCode('');if(!response.ok){setError(matchingFeedback(lang).failed);return;}setStatus(v=>v?{...v,authenticated:true}:v);}catch{setError(matchingFeedback(lang).failed);}finally{setBusy(false);}}
  async function end(){setBusy(true);try{const {response}=await connectedRequest({action:'signout'});if(!response.ok)throw Error('signout');try{sessionStorage.removeItem(CONNECTED_TRAVEL_KEY);}catch{}setStatus(v=>v?{...v,authenticated:false}:v);}catch{setError(matchingFeedback(lang).failed);}finally{setBusy(false);}}
  if(status?.authenticated)return <TravelDemo connected onEndSession={()=>void end()}/>;

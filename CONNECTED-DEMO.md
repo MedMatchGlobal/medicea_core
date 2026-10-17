@@ -13,6 +13,8 @@ Keep Vercel deployment protection enabled. Scope these server-only variables spe
 
 Redeploy Preview after configuration. `/travel` opens the connected gate when opted in; `/travel/connected` also shows setup status. `/travel/pilot` retains the separate fictional pilot. No merge to Production is part of this change.
 
+Test access is rechecked when the window regains focus, becomes visible and once per visible minute. An expired session returns to the unlock screen without clearing this tab's saved public-example data. These status checks make no medicine/provider requests. `/travel/evaluation` provides the authenticated fixed-public-case comparison described in [SEARCH-EVALUATION.md](SEARCH-EVALUATION.md).
+
 Address suggestions additionally need `GEOAPIFY_API_KEY` and `MEDICEA_TRAVEL_ADDRESS_LOOKUP=true`; OpenAI credits do not fund this provider. Without them, manual address entry remains available. Nearby-care and embassy Maps links remain explicit-click searches. News currently connects only UK MHRA headlines; other countries expose official links. Expanded country news and automatic translation are not implemented by this migration.
 
 ## Test boundaries and costs
