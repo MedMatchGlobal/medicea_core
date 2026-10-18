@@ -15,7 +15,7 @@ Find the full composition (active ingredient names AND exact label strengths) of
 sold in ${originCountry}${drugDosage ? ` (user-entered dosage hint: "${drugDosage}")` : ""}.
 Return strictly JSON with keys: medicine_name, origin_country, active_ingredients[{name, strength}]. No extra text.
 `.trim();
-  const response=await openaiFetch('https://api.openai.com/v1/chat/completions',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'gpt-4o',temperature:0,response_format:{type:'json_object'},messages:[{role:'system',content:system1},{role:'user',content:user1}]})});
+  const response=await openaiFetch('https://api.openai.com/v1/chat/completions',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'gpt-6.1-sol',reasoning_effort:'low',response_format:{type:'json_object'},messages:[{role:'system',content:system1},{role:'user',content:user1}]})});
   const payload=await response.json();if(payload.choices?.[0]?.finish_reason!=='stop')throw Error('INCOMPLETE_ORIGINAL_LOOKUP');
   const p=JSON.parse(payload.choices[0].message.content);
   if(p.error||!isMedicineName(p.medicine_name)||p.medicine_name.length>250||typeof p.origin_country!=='string'||p.origin_country.trim().toLowerCase()!==originCountry.trim().toLowerCase()||!Array.isArray(p.active_ingredients)||!p.active_ingredients.length||p.active_ingredients.length>20)return [];

@@ -4,7 +4,7 @@ const load=env=>client(env).modelUpgradeRequest;
 const request=body=>({method:'POST',body:JSON.stringify(body)});
 test('only connected Travel research gets a longer attempt and ambiguous failures never retry another key',async()=>{
  const env={VERCEL_ENV:'preview',VERCEL_GIT_COMMIT_REF:'feature/travel-pack-preview',MEDICEA_OPENAI_UPGRADE:'true',MEDICEA_TRAVEL_CONNECTED:'true',OPENAI_API_KEY_1:'fixture-one',OPENAI_API_KEY_2:'fixture-two'};
- const original=request({model:'gpt-6.1-sol',messages:[{role:'user',content:'Public test'}]});
+ const original=request({model:'gpt-6.1-sol',messages:[{role:'user',content:'Public test'}],reasoning_effort:'low'});
  for(const settings of [env,{...env,VERCEL_ENV:'production'},{...env,MEDICEA_TRAVEL_CONNECTED:'false'},{...env,VERCEL_GIT_COMMIT_REF:'feature/openai-model-upgrade-preview'}]){
   const timers=[],sent=[];const c=client(settings,{Headers,Response,AbortController,setTimeout:(fn,ms)=>{timers.push(ms);return 1;},clearTimeout:()=>{},fetch:async(url,init)=>{sent.push(init.body);return Response.json({ok:true});}});
   await c.openaiFetch('https://api.openai.com/v1/chat/completions',original);assert.equal(timers[0],settings===env?55000:10000);assert.equal(sent[0],original.body);
@@ -50,4 +50,14 @@ test('pinned/unknown models stay unchanged and unsupported tool migrations fail 
  const upgrade=load({VERCEL_ENV:'preview',MEDICEA_OPENAI_UPGRADE:'true'});
  for(const model of ['gpt-4o-2024-08-06','gpt-6.1-sol','other-provider']){const init=request({model,messages:[]});assert.equal(upgrade(init),init);}
  assert.throws(()=>upgrade(request({model:'gpt-4o',tools:[]})),/separate streaming\/tool migration/);
+});
+
+test('Travel deployment migrates all legacy GPT-4 family workloads to Sol without changing any prompt bytes',()=>{
+ const env={VERCEL_ENV:'preview',VERCEL_GIT_COMMIT_REF:'feature/travel-pack-preview',MEDICEA_TRAVEL_CONNECTED:'true',MEDICEA_OPENAI_UPGRADE:'true',MEDICEA_OPENAI_MEDICAL_MODEL:'gpt-6-luna',MEDICEA_OPENAI_SOURCE_MODEL:'gpt-6-luna'};
+ const c=client(env);assert.equal(c.modelTestConfiguration().informationModel,'gpt-6.1-sol');assert.equal(c.modelTestConfiguration().researchModel,'gpt-6.1-sol');
+ for(const model of ['gpt-4o','gpt-4o-mini','gpt-4o-2024-08-06','gpt-4','gpt-4-0613','gpt-6.1-sol']){
+  const original={model,messages:[{role:'system',content:'Exact prompt\n\nKeep 40 mg + 30 mg.'},{role:'user',content:'Unchanged user input'}],temperature:0.2,seed:12345,top_p:1,logprobs:true,max_tokens:900,response_format:{type:'json_object'}};
+  const migrated=JSON.parse(c.modelUpgradeRequest(request(original)).body);assert.equal(migrated.model,'gpt-6.1-sol');assert.equal(migrated.reasoning_effort,'low');assert.deepEqual(migrated.messages,original.messages);assert.deepEqual(migrated.response_format,original.response_format);assert.equal(migrated.max_completion_tokens,900);for(const field of ['temperature','seed','top_p','logprobs','max_tokens'])assert.equal(migrated[field],undefined);assert.equal(original.seed,12345);
+ }
+ const production=client({...env,VERCEL_ENV:'production'}),original=request({model:'gpt-4o',temperature:0,messages:[]});assert.equal(production.modelUpgradeRequest(original),original);
 });

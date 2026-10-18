@@ -8,6 +8,9 @@ const REQUEST_TIMEOUT_MS = 25_000;
 type EvaluationCall={model:string;status:number;ms:number;finish:string;usage:{input:number|null;output:number|null;cached:number|null;reasoning:number|null};webSearchCalls:number;text:string};
 type EvaluationContext={legacy:boolean;calls:EvaluationCall[]};
 let evaluationContext:import('node:async_hooks').AsyncLocalStorage<EvaluationContext>|undefined;
+// Owner-requested model-only migration across the Travel test deployment.
+// Original prompt routing and actual provider model selection are independent.
+export function travelSolEnabled(){return process.env.VERCEL_ENV==='preview'&&process.env.VERCEL_GIT_COMMIT_REF==='feature/travel-pack-preview'&&process.env.MEDICEA_TRAVEL_CONNECTED==='true'&&process.env.MEDICEA_OPENAI_UPGRADE==='true';}
 /** Fixed-public-fixture owner tests only. Request-local; never changes env/global routing. */
 export async function withOpenAIEvaluation<T>(legacy:boolean,run:()=>Promise<T>){
  if(process.env.VERCEL_ENV!=='preview'||process.env.VERCEL_GIT_COMMIT_REF!=='feature/travel-pack-preview'||process.env.MEDICEA_TRAVEL_CONNECTED!=='true'||process.env.MEDICEA_OPENAI_UPGRADE!=='true')throw Error('EVALUATION_DISABLED');
@@ -43,24 +46,26 @@ export function modelUpgradeEnabled() {
 export function modelTestConfiguration() {
   return {enabled:modelUpgradeEnabled(),revision:'exact-match-v3.1',
     matchingMode:(process.env.VERCEL_GIT_COMMIT_REF==='feature/openai-model-upgrade-preview'||process.env.VERCEL_ENV==='preview'&&process.env.VERCEL_GIT_COMMIT_REF==='feature/travel-pack-preview'&&process.env.MEDICEA_TRAVEL_CONNECTED==='true')&&process.env.MEDICEA_OPENAI_MATCHING_MODE!=='sources'?'prompt-test':'sources',
-    researchModel:process.env.MEDICEA_OPENAI_SOURCE_MODEL||'gpt-6.1-sol',
-    informationModel:process.env.MEDICEA_OPENAI_MEDICAL_MODEL||'gpt-6-luna'};
+    researchModel:travelSolEnabled()?'gpt-6.1-sol':process.env.MEDICEA_OPENAI_SOURCE_MODEL||'gpt-6.1-sol',
+    informationModel:travelSolEnabled()?'gpt-6.1-sol':process.env.MEDICEA_OPENAI_MEDICAL_MODEL||'gpt-6-luna'};
 }
 export function modelUpgradeRequest(init: RequestInit): RequestInit {
-  if (!modelUpgradeEnabled()) return init;
+  const travelSol=travelSolEnabled();
+  if (!modelUpgradeEnabled()&&!travelSol) return init;
   if (typeof init.body !== "string") throw new Error("Model upgrade requires a JSON request.");
   const body = JSON.parse(init.body);
   const legacy = body.model;
   const fast = legacy === "gpt-4o-mini";
-  if (!fast && legacy !== "gpt-4o" && legacy !== "gpt-4") return init;
+  const travelLegacy=travelSol&&typeof legacy==='string'&&/^gpt-4(?:o(?:-|$)|(?:-|$))/.test(legacy);
+  if (!fast && legacy !== "gpt-4o" && legacy !== "gpt-4" && !travelLegacy && !(travelSol&&legacy==='gpt-6.1-sol')) return init;
   if (body.stream || body.tools || body.functions || body.function_call) {
     throw new Error("Model upgrade requires a separate streaming/tool migration.");
   }
-  const medicalModel = process.env.MEDICEA_OPENAI_MEDICAL_MODEL || "gpt-6-luna";
+  const medicalModel = travelSol?'gpt-6.1-sol':process.env.MEDICEA_OPENAI_MEDICAL_MODEL || "gpt-6-luna";
   if (!["gpt-6-luna", "gpt-6.1-sol", "gpt-6-astra"].includes(medicalModel)) {
     throw new Error("Unsupported Preview medical model.");
   }
-  body.model = fast ? "gpt-6-luna" : medicalModel;
+  body.model = travelSol?'gpt-6.1-sol':fast ? "gpt-6-luna" : medicalModel;
   body.reasoning_effort = body.model === "gpt-6-luna" ? "none" : "low";
   // Astra reasoning does not accept sampling parameters. Seed is a legacy
   // reproducibility hint; the migration does not promise deterministic outputs.
@@ -109,7 +114,7 @@ export async function openaiFetch(url: string, init: RequestInit): Promise<Respo
   const sourced = url === RESPONSES_ENDPOINT && modelUpgradeEnabled();
   if (url !== ENDPOINT && !sourced) throw new Error("Unsupported OpenAI endpoint.");
   if (!sourced) init = modelUpgradeRequest(init);
-  const travelResearch = !sourced && modelUpgradeEnabled() &&
+  const travelResearch = !sourced && (modelUpgradeEnabled()||travelSolEnabled()) &&
     process.env.VERCEL_ENV === 'preview' && process.env.VERCEL_GIT_COMMIT_REF === 'feature/travel-pack-preview' &&
     process.env.MEDICEA_TRAVEL_CONNECTED === 'true' && typeof init.body === 'string' &&
     JSON.parse(init.body).model === modelTestConfiguration().researchModel;

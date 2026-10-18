@@ -1,3 +1,27 @@
+# GPT-6.1 Sol with original prompts — current configuration
+
+The owner clarified on 18 October 2026 that the original **prompt wording**
+must be retained while using GPT-6.1 Sol everywhere in the test app. This
+supersedes the GPT-4o model portion of the rollback described below.
+
+The Travel Preview transport migrates GPT-4, GPT-4o and GPT-4o-mini (including
+dated GPT-4/GPT-4o snapshots) to `gpt-6.1-sol`. Lookup, comparisons, summaries,
+translations and other shared-transport calls keep their existing messages and
+output contracts. Sol uses low reasoning; incompatible sampling/seed parameters
+are removed and legacy max_tokens is mapped to max_completion_tokens. Legacy
+model literals remain in protected original route sources and historical
+fixtures; they are not the model sent by this Preview. No fallback sends a call
+to GPT-4o. Production and other deployments retain their prior behavior.
+
+Original-prompt evaluation routing no longer disables Sol transport migration.
+Both evaluation arms now use Sol and the console explicitly describes this;
+its storage key is separate from older model-baseline runs. Longer bounded
+Travel research attempts apply to original-prompt Sol calls too; ambiguous
+failures do not retry another key.
+
+Validation: all 143 automated tests pass, including protected prompt fixture
+preservation and outbound model/parameter checks across the workload families.
+
 # Connected owner demo
 
 The exact `feature/travel-pack-preview` Vercel Preview can run the shared Travel interface with public medicine examples through the existing source-origin, full-composition matching and medicine-information APIs. Production and other branches remain excluded. Original prompts and clinical acceptance gates are unchanged.

@@ -52,8 +52,8 @@ export default function RootLayout({
       </head>
       <body>
         {modelTest.enabled && <aside className="model-test-banner" aria-label="Model test version">
-          <strong>{originalTravel?'Travel demo · Original search restored':'Model test · '+modelTest.revision}</strong>
-          <span>Research: {originalTravel?'gpt-4o (original prompts)':modelTest.researchModel} · Medicine summaries: {modelTest.informationModel}</span>
+          <strong>{originalTravel?'Travel demo · Original prompts on GPT-6.1 Sol':'Model test · '+modelTest.revision}</strong>
+          <span>Research: {originalTravel?'gpt-6.1-sol (original prompts)':modelTest.researchModel} · Medicine summaries: {modelTest.informationModel}</span>
           <span>{originalTravel?'Travel lookup and comparison use the original prompts. Source links and formulation are not supplied by the original lookup. Suggestions remain unverified.':modelTest.matchingMode==='prompt-test'?'Source-assisted origin lookup · 10-country pilot · Equivalent suggestions remain unverified.':'Official-source pilot · 10-country coverage.'} An empty result is valid.</span>
           <a href="https://medicea.global" target="_blank" rel="noopener noreferrer">Open current version for comparison ↗</a>
         </aside>}

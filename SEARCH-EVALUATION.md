@@ -1,3 +1,15 @@
+# Current model: GPT-6.1 Sol for both arms
+
+On 18 October 2026 the owner requested the original prompts with GPT-6.1 Sol
+everywhere in the Travel test app. The `production` arm identifier is retained
+for the original handler, but it now measures **original prompts on Sol**, not
+Production's GPT-4o latency or results. Prompt messages and original filtering
+are retained; unsupported temperature/seed settings are removed and low
+reasoning is selected. Both arms use Sol. Production itself is unchanged.
+New console results use a separate session-storage key so earlier model runs
+are not pooled with this configuration. The historical method below describes
+the earlier baseline; its GPT-4o settings are no longer used for new trials.
+
 # Owner search evaluation
 
 The Travel Preview includes `/travel/evaluation`, an English-only owner console. Unlock `/travel` first. It uses the same signed session, exact-branch and configuration gates; Production returns 404. Merely opening or reloading the console performs no medicine research. Results are public fixed fixtures stored only in this tab session and downloadable as JSON. This does not modify My medicines or saved comparisons.
