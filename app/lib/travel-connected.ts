@@ -10,8 +10,9 @@ export function cleanTravelProduct(value:unknown):TravelProduct|null{
  if(!value||typeof value!=='object')return null;const v=value as TravelProduct;
  const ingredients=Array.isArray(v.ingredients)?v.ingredients.slice(0,20).map(i=>({name:text(i?.name,250),strength:text(i?.strength,250)})):[];
  const sources=medicineSources(v.sources);
- if(!isMedicineName(v.name)||!text(v.query,250)||!text(v.form,100)||!text(v.route,100)||/unknown|unspecified/i.test(v.form+' '+v.route)||!ingredients.length||ingredients.some(i=>!i.name||!i.strength||!/[0-9]/.test(i.strength))||!sources.length)return null;
- return {name:text(v.name,250),query:text(v.query,250),dosage:text(v.dosage,100),form:text(v.form,100),route:text(v.route,100),ingredients,sources};
+ const original=v.lookup==='original'&&v.form==='Not provided by original lookup'&&v.route==='Not provided by original lookup'&&!sources.length;
+ if(!isMedicineName(v.name)||!text(v.query,250)||!text(v.form,100)||!text(v.route,100)||/unknown|unspecified/i.test(v.form+' '+v.route)||!ingredients.length||ingredients.some(i=>!i.name||!i.strength||!/[0-9]/.test(i.strength))||!sources.length&&!original)return null;
+ return {name:text(v.name,250),query:text(v.query,250),dosage:text(v.dosage,100),form:text(v.form,100),route:text(v.route,100),ingredients,sources,...(original?{lookup:'original' as const}:{})};
 }
 export function sameTravelProduct(a:TravelProduct,b:TravelProduct){
  const actives=(p:TravelProduct)=>p.ingredients.map(i=>(i.name+'|'+i.strength).toLowerCase().replace(/\s+/g,'')).sort().join(';');
@@ -19,7 +20,7 @@ export function sameTravelProduct(a:TravelProduct,b:TravelProduct){
 }
 export function cleanLiveComparison(value:unknown,allowed:Record<string,TravelProduct>,origins:Record<string,string>,destination?:string):DemoComparison|null{
  if(!value||typeof value!=='object')return null;const v=value as DemoComparison;
- if(!allowed[v.medicine]||v.origin!==origins[v.medicine]||!country(v.destination)||destination&&v.destination!==destination||!Number.isFinite(Date.parse(v.checkedAt))||!Array.isArray(v.matches)||!['model_generated_full_composition','source_cited_full_composition'].includes(v.verification||''))return null;
+ if(!allowed[v.medicine]||v.origin!==origins[v.medicine]||!country(v.destination)||destination&&v.destination!==destination||!Number.isFinite(Date.parse(v.checkedAt))||!Array.isArray(v.matches)||!['model_generated_full_composition','source_cited_full_composition','original_prompt_unverified'].includes(v.verification||''))return null;
  const matches=v.matches.slice(0,10).map(m=>({medicine_name:text(m?.medicine_name,1000),sources:medicineSources(m?.sources)})).filter(m=>isMedicineName(m.medicine_name));
  if(v.matches.length&&!matches.length)return null;
  return {medicine:v.medicine,origin:v.origin,destination:v.destination,checkedAt:new Date(v.checkedAt).toISOString(),matches,verification:v.verification,...(Array.isArray(v.previousChecks)?{previousChecks:v.previousChecks.filter(d=>typeof d==='string'&&Number.isFinite(Date.parse(d))&&Date.parse(d)<Date.parse(v.checkedAt)).slice(0,24)}:{})};

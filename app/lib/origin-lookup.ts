@@ -3,7 +3,7 @@ import {openaiFetch,modelTestConfiguration} from './openaiClient';
 import {exactComposition,selectedCombinationAgrees} from './source-matches';
 import {isMedicineName} from './match-display';
 
-export type OriginProduct={name:string;country:string;form:string;route:string;species:string[];complete:true;generic:boolean;ingredients:{name:string;strength:string}[];sources:string[]};
+export type OriginProduct={name:string;country:string;form:string;route:string;species:string[];complete:true;generic:boolean;ingredients:{name:string;strength:string}[];sources:string[];lookup?:'original'};
 const sites:Record<string,string[]>={
  'united kingdom':['medicines.org.uk','products.mhra.gov.uk','mhra.gov.uk','solpadeine.co.uk'],
  ireland:['hpra.ie','medicines.ie'],france:['medicaments.gouv.fr','ansm.sante.fr'],italy:['aifa.gov.it','aifa.it'],spain:['aemps.gob.es','aemps.es'],germany:['bfarm.de','pharmnet.bund.de'],

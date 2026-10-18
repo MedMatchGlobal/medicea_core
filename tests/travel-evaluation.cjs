@@ -19,3 +19,22 @@ test('evaluation context cannot run in Production, other branches or flag-off mo
  for(const patch of [{VERCEL_ENV:'production'},{VERCEL_GIT_COMMIT_REF:'main'},{MEDICEA_TRAVEL_CONNECTED:'false'}]){const load=loader({...env,...patch});await assert.rejects(load('app/lib/openaiClient.ts').withOpenAIEvaluation(true,async()=>1),/DISABLED/);}
  await assert.rejects(loader()('app/lib/travel-evaluation.ts').evaluateTravelCase('patient-supplied','production'),/INVALID_FIXTURE/);
 });
+
+test('restored Travel origin uses the original extraction wording and GPT-4o without source/formulation claims',async()=>{
+ const sent=[],load=loader(env,async(url,init)=>{const body=JSON.parse(init.body);sent.push(body);assert.ok(url.endsWith('/chat/completions'));return Response.json({choices:[{finish_reason:'stop',message:{content:JSON.stringify({medicine_name:'Okitask',origin_country:'Italy',active_ingredients:[{name:'Ketoprofen lysine salt',strength:'40 mg'}]})}}]});});
+ const products=await load('app/lib/travel-original-search.ts').originalTravelOrigin('Okitask','Italy','');
+ assert.equal(sent.length,1);assert.equal(sent[0].model,'gpt-4o');assert.equal(sent[0].temperature,0);
+ assert.equal(sent[0].messages[0].content,'You are a structured medical data extractor. Return JSON only with medicine_name, origin_country, and active_ingredients[{name, strength}].');
+ assert.equal(sent[0].messages[1].content,'Find the full composition (active ingredient names AND exact label strengths) of the medicine called "Okitask"\nsold in Italy.\nReturn strictly JSON with keys: medicine_name, origin_country, active_ingredients[{name, strength}]. No extra text.');
+ assert.equal(products[0].lookup,'original');assert.equal(products[0].sources.length,0);assert.equal(products[0].form,'Not provided by original lookup');
+ const connected=load('app/lib/travel-connected.ts'),product={...products[0],query:'Okitask',dosage:''};assert.equal(connected.cleanTravelProduct(product).lookup,'original');assert.equal(connected.cleanTravelProduct({...product,lookup:undefined}),null);
+ assert.equal(load('app/lib/openaiClient.ts').modelUpgradeEnabled(),true);
+ for(const patch of [{VERCEL_ENV:'production'},{VERCEL_GIT_COMMIT_REF:'main'}])await assert.rejects(loader({...env,...patch})('app/lib/travel-original-search.ts').originalTravelOrigin('Okitask','Italy',''),/DISABLED/);
+});
+
+test('restored comparison invokes the unchanged original handler and retains its original model/seed',async()=>{
+ const sent=[],load=loader(env,async(url,init)=>{const body=JSON.parse(init.body);sent.push(body);return Response.json({choices:[{finish_reason:'stop',message:{content:sent.length===1?JSON.stringify({medicine_name:'Spididol',origin_country:'Italy',active_ingredients:[{name:'Ibuprofen',strength:'400 mg'}]}):'1. Example one: Ibuprofen 400 mg\n2. Example two: Ibuprofen 400 mg'}}]});});
+ const origin=load('app/lib/origin-lookup.ts'),selected={...profile,name:'Spididol',ingredients:[{name:'Ibuprofen',strength:'400 mg'}]};
+ const response=await load('app/lib/travel-original-search.ts').originalTravelCompare('Spididol','Italy','United Kingdom','',origin.issueOriginSelection(selected,'Spididol'));
+ const data=await response.json();assert.equal(response.status,200);assert.equal(data.matches.length,2);assert.equal(data.verification,'original_prompt_unverified');assert.equal(sent.length,2);assert.ok(sent.every(b=>b.model==='gpt-4o'));assert.equal(sent[1].seed,12345);assert.equal(sent[1].messages[1].content,'Return preferably 10 products available in United Kingdom that contain 400 mg of Ibuprofen.');assert.equal(response.headers.get('cache-control'),'no-store');
+});

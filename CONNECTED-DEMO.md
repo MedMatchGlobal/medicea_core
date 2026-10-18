@@ -34,3 +34,23 @@ Connected Travel research completions have a 55-second attempt within a 60-secon
 134 automated tests and optimized build pass, including protected-prompt preservation, exact Preview gating, signed session tamper/expiry/rotation, product/schema isolation, snapshots/HTML escaping and 25-language copy. Mocked browser flows at 320/390/1280 cover unlock, exact formulation selection, public product save, empty and saved comparisons, failed-refresh retention, successful refresh history, explicit information generation, packs, dated trips, offline HTML, reminders, reload with no paid calls, medicine return links and logout/pilot separation. These do not establish live vendor availability, funded-project identity or clinical accuracy. Complete live public-example checks after owner access-code configuration.
 
 Personal login, MyHealth, real health records, identity/document uploads, family sharing, billing and Production release remain separate work. Before accepting real health records or public/paid vault release, complete the GDPR evidence audit, privacy notice in all 25 languages, lawful-basis and health-data assessment, processor/transfer review, retention/inactivity policy, tested erasure/recovery, breach-response procedure and qualified privacy/insurance review. Include itinerary addresses, manual contacts, passport preferences and exports in that assessment.
+# Original search rollback — 18 October 2026
+
+At the owner's explicit request, the signed Travel demo now uses the original
+Production composition-extraction prompt with GPT-4o, temperature 0, and the
+actual original equivalent-search handler (including its original candidate
+prompt, seed and filtering). Production and the separate model tester are
+unchanged. The experimental paths remain available only in the controlled
+evaluation console; no live evaluation was run as part of this rollback.
+
+The original lookup supplies composition, not source citations, route or
+formulation. Its adapter marks those fields as not provided, retains a distinct
+`lookup: original` provenance, and stores comparisons as
+`original_prompt_unverified`. It must not be described as source confirmation or
+formulation-validated equivalence. No source/formulation validation in the
+experimental helpers was weakened. Existing saved records remain intact.
+
+Regression checks: 142 tests pass, including original prompt preservation,
+request-local model isolation, unchanged original comparison invocation,
+explicit provenance and Production/other-branch rejection. Live product results
+must be reported separately from these mocked provider checks.

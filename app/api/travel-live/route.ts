@@ -3,9 +3,9 @@ import {travelPreviewEnabled,DEMO_COUNTRIES,countryName} from '../../lib/travel-
 import {connectedTravelEnabled} from '../../lib/travel-connected';
 import {travelTestConfigured,travelTestSession,correctTravelTestCode,issueTravelTestSession,TRAVEL_TEST_COOKIE} from '../../lib/travel-test-session';
 import {getOpenAIKeyCount,modelUpgradeEnabled} from '../../lib/openaiClient';
-import {lookupOrigin,issueOriginSelection,readOriginSelection,type OriginProduct} from '../../lib/origin-lookup';
-import {promptMatchedSearch} from '../../lib/prompt-matches';
+import {issueOriginSelection,readOriginSelection,type OriginProduct} from '../../lib/origin-lookup';
 import {medicineSummary} from '../../lib/medicine-summary';
+import {originalTravelOrigin,originalTravelCompare} from '../../lib/travel-original-search';
 export const dynamic='force-dynamic';
 export const maxDuration=120;
 const headers={'Cache-Control':'no-store'};
@@ -20,7 +20,7 @@ export async function GET(request:Request){
  if(!travelPreviewEnabled())return new NextResponse(null,{status:404});
  const setup=missing();return NextResponse.json({ready:!setup.length,missing:setup,authenticated:!setup.length&&travelTestSession(request),mode:'public-medicine-test'},{headers});
 }
-function product(p:OriginProduct,query:string,dosage:string){return {name:p.name,query,dosage,form:p.form,route:p.route,ingredients:p.ingredients,sources:p.sources,token:issueOriginSelection(p,query)};}
+function product(p:OriginProduct,query:string,dosage:string){return {name:p.name,query,dosage,form:p.form,route:p.route,ingredients:p.ingredients,sources:p.sources,...(p.lookup?{lookup:p.lookup}:{}),token:issueOriginSelection(p,query)};}
 export async function POST(request:Request){
  if(!travelPreviewEnabled())return new NextResponse(null,{status:404});
  if(request.headers.get('origin')!==new URL(request.url).origin)return NextResponse.json({error:'INVALID_ORIGIN'},{status:403,headers});
@@ -44,7 +44,7 @@ export async function POST(request:Request){
  const originCountry=countryName(origin,'en');
  try{
   if(action==='origin'){
-   const products=await lookupOrigin({drugName:query,originCountry,drugDosage:dosage});
+   const products=await originalTravelOrigin(query,originCountry,dosage);
    return NextResponse.json({products:products.map(p=>product(p,query,dosage))},{headers});
   }
   if(action==='information'){
@@ -53,14 +53,7 @@ export async function POST(request:Request){
    if(!response.ok)return NextResponse.json({error:'INFORMATION_UNAVAILABLE'},{status:response.status,headers});
    const data=await response.json();return NextResponse.json({information:data.leaflet?.leaflet_text||data.leaflet_text||''},{headers});
   }
-  const response=await promptMatchedSearch({drugName:query,originCountry,targetCountry:countryName(destination,'en'),drugDosage:dosage,...(token?{originSelection:token}:{})},'international');
-  const result=await response.json();
-  if(response.status===409&&result.error==='CHOOSE_ORIGIN_VARIANT'){
-   const products=(result.variants||[]).flatMap((v:any)=>{const p=readOriginSelection(v.token,query,originCountry,dosage);return p?[product(p,query,dosage)]:[];});return NextResponse.json({error:result.error,products},{status:409,headers});
-  }
-  if(!response.ok)return NextResponse.json({error:['NOT_FOUND_ORIGIN','ORIGIN_STRENGTH_MISMATCH','ORIGIN_SELECTION_EXPIRED'].includes(result.error)?result.error:'SEARCH_UNAVAILABLE'},{status:response.status,headers});
-  const selected=readOriginSelection(result.originProfile?.selection_token,query,originCountry,dosage);
-  if(!selected)return NextResponse.json({error:'SEARCH_UNAVAILABLE'},{status:503,headers});
-  return NextResponse.json({product:product(selected,query,dosage),matches:result.matches,verification:result.equivalentResults.verification,checkedAt:new Date().toISOString()},{headers});
+  return await originalTravelCompare(query,originCountry,countryName(destination,'en'),dosage,token);
+
  }catch{return NextResponse.json({error:'SEARCH_UNAVAILABLE'},{status:503,headers});}
 }
