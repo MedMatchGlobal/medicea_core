@@ -215,3 +215,28 @@ Verification: all 169 automated tests pass, including schema/version/heading
 checks, Italian formulation labels, exclusion instructions, and safe presentation
 of old human/veterinary structured snapshots. Protected original prompt fixtures
 remain unchanged. Live model adherence still requires owner-browser testing.
+
+## Manufacturer ambiguity and cost constraint — 19 October 2026
+
+For generic/multi-supplier families, the existing generation prompt now requests
+known manufacturer examples tied to exact named strength/formulation and explicit
+company roles. It must not assign one manufacturer to the whole family, guess a
+supplier or imply that an example identifies the user's pack. When a particular
+supplier is unidentified, it explains that the applicable company depends on the
+product and can be checked on the pack/official leaflet instead of returning only
+a bare unknown placeholder. There is no manufacturer research call or hardcoded
+Co-codamol supplier list.
+
+The owner prioritised cost over speculative speed gains. No parallel provider
+calls, model changes, additional retries, cache, or shortened clinical output were
+introduced. Existing optional missing-price research remains unchanged. Direct
+structured-leaflet responses now expose aggregate Server-Timing values for
+leaflet generation, price enrichment and total processing, without prompts,
+medicine names, identifiers or additional provider tokens. This diagnoses future
+owner-browser requests; it is not a measured speedup or a live content guarantee.
+
+All 170 automated tests and the optimized build pass. The added regression check
+asserts family-specific manufacturer instructions, retained manufacturer output,
+one existing generation call when price is present, unchanged Sol/low reasoning,
+and timing headers. Independent live content still requires authenticated owner
+testing. Production is unchanged.

@@ -77,3 +77,8 @@ test('old structured snapshots keep other facts and price links while hiding old
  const Component=h.load('app/components/StructuredLeafletSections.tsx').default,html=renderToStaticMarkup(React.createElement(Component,{sections}));assert.match(html,/Formulations:/);assert.match(html,/Not specified/);assert.doesNotMatch(html,/Fictional old dosing schedule|Dosage:/);
  const Vet=h.load('app/components/VeterinaryLeafletSections.tsx').default,vet=renderToStaticMarkup(React.createElement(Vet,{sections:oldTopics.map(key=>({key,bullets:['Saved '+key]})),lang:'en',headings:{}}));assert.match(vet,/Formulations:/);assert.doesNotMatch(vet,/Dosage:/);
 });
+test('multi-supplier manufacturer guidance stays in the existing generation without extra research or model changes',async()=>{
+ const v=values();v.information_sections.Manufacturer=['Manufacturer varies by the selected fictional product; check its pack.'];v.information_sections['Average Selling Price']=['Existing fixture price'];
+ const h=loader(completed(v),env,priceResult()),response=await h.load('app/lib/structured-leaflet.ts').structuredLeaflet(input),data=await response.json();assert.equal(response.status,200);assert.equal(h.calls.length,1);assert.equal(h.calls[0].model,'gpt-6.1-sol');assert.equal(h.calls[0].reasoning_effort,'low');assert.equal(data.sections[10].bullets[0],v.information_sections.Manufacturer[0]);
+ const prompt=h.calls[0].messages[0].content;assert.match(prompt,/do not assign one manufacturer to the whole family/);assert.match(prompt,/Never guess a supplier/);assert.match(prompt,/manufacturers vary by product/);assert.match(response.headers.get('Server-Timing'),/^leaflet;dur=\d+, price;dur=\d+, total;dur=\d+$/);
+});
