@@ -31,3 +31,18 @@ test('shared renderer creates exactly twelve ordered headings and real bullet li
  const html=renderToStaticMarkup(React.createElement(Component,{sections,lang:'en',notice:'AI-generated; not independently verified.'}));assert.equal((html.match(/<section /g)||[]).length,12);assert.equal((html.match(/<ul /g)||[]).length,12);assert.equal((html.match(/<li /g)||[]).length,12);assert.match(html,/<strong>Strengths:<\/strong>/);let last=-1;for(const key of topics){const index=html.indexOf((key==='Strength'?'Strengths':key)+':');assert.ok(index>last);last=index;}
  assert.equal(c.readStructuredLeaflet('Uses:\nOne unstructured paragraph.'),null);
 });
+
+
+test('brand-only requests request labelled variants instead of blanket omissions, and retain all five metadata sections',async()=>{
+ const value=values();value.information_sections.Strength=['Tablet variant: fictional ingredient 10 mg per tablet','Liquid variant: fictional ingredient 5 mg per mL'];value.information_sections.Dosage=['Not established for this fixture'];value.information_sections['Legal Classification']=['Fictional country category'];value.information_sections.Manufacturer=['Fictional manufacturer'];value.information_sections['Average Selling Price']=['Fictional indicative pack price, not a live quote'];
+ const h=loader(completed(value)),response=await h.load('app/lib/structured-leaflet.ts').structuredLeaflet(input),data=await response.json();assert.equal(response.status,200);const prompt=h.calls[0].messages[0].content;
+ assert.match(prompt,/product-family overview/);assert.match(prompt,/each names its exact strength, formulation/);assert.match(prompt,/unselected formulation must not automatically blank/);assert.match(prompt,/currency, country and pack size/);assert.doesNotMatch(prompt,/leave variant-specific Strength and Dosage empty/);
+ assert.equal(data.sections[1].bullets.length,2);for(const key of ['Dosage','Legal Classification','Manufacturer','Average Selling Price'])assert.deepEqual(data.sections.find(s=>s.key===key).bullets,value.information_sections[key]);
+});
+
+test('a valid previously selected profile retains its strength when the model omits it, without inventing dosage or price',async()=>{
+ const value=values();value.information_sections.Strength=[];const h=loader(completed(value));
+ const profile={name:input.drugName,country:'Italy',form:'Tablet',route:'Oral',species:[],complete:true,generic:false,ingredients:[{name:'Fictional ingredient',strength:'10 mg per tablet'}],sources:[]};
+ const token=h.load('app/lib/origin-lookup.ts').issueOriginSelection(profile,input.drugName);
+ const response=await h.load('app/lib/structured-leaflet.ts').structuredLeaflet({...input,originSelection:token}),data=await response.json();assert.equal(response.status,200);assert.deepEqual(data.sections[1].bullets,['Fictional ingredient: 10 mg per tablet']);assert.equal(data.sections[2].bullets[0],'Not specified');assert.equal(data.sections[11].bullets[0],'Not specified');assert.equal(data.verification,'ai_generated_unverified');assert.equal(h.calls.length,1);
+});

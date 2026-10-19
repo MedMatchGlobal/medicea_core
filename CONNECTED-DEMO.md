@@ -141,3 +141,20 @@ layout/schema verification, not live-provider or clinical-content verification.
 Independent live HTTP checks remain blocked by Vercel deployment protection;
 the owner must generate a fresh leaflet in the authenticated Dev browser.
 Existing saved leaflet snapshots are not silently regenerated.
+
+## Follow-up: avoid blanket omissions for brand-only queries
+
+The initial structure prompt over-constrained ambiguous brands: it explicitly
+blanked Strength and Dosage and tied manufacturer to pack identification.
+The Dev-only instructions now request separately labelled known variant strengths
+and population/formulation-specific labelled dosage when reliably known. Each
+metadata section is assessed independently. Known manufacturer is distinguished
+from the authorisation holder/distributor; indicative price requires a currency,
+country and pack basis, with no claim of a current quote. Unknowns remain unknown.
+A signed previously selected composition supplies an omitted Strength section;
+it never supplies an inferred dose or price and remains unverified.
+
+All 163 automated tests pass, including brand overview/metadata retention and
+selected-strength continuity without inventing dosage or price. These provider
+mocks verify application behaviour, not live coverage for the reported brands.
+The owner must generate fresh authenticated Dev results to confirm coverage.
