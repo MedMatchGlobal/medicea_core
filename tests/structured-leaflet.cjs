@@ -120,7 +120,7 @@ test('Storage is neither requested nor rendered, and older stored leaflets remai
  const h=loader(completed(values())),c=h.load('app/lib/leaflet-contract.ts');
  const response=await h.load('app/lib/structured-leaflet.ts').structuredLeaflet(input),data=await response.json();
  assert.equal(h.calls[0].response_format.json_schema.schema.properties.information_sections.required.includes('Storage'),false);
- assert.match(h.calls[0].messages[0].content,/Do not request or include a Storage section/);
+
  const savedTopics=[...topics.slice(0,9),'Storage',...topics.slice(9)];
  for(const legacy of [false,true]){
   const text=savedTopics.map(k=>(legacy&&k==='Formulation'?'Dosage':k)+'\n- Saved '+k).join('\n\n');
@@ -155,4 +155,14 @@ test('leaflet bullets stay readable while citation URLs move to a closed source 
  assert.doesNotMatch(body,/https?:|\[spididol|<a /);assert.match(body,/400 mg per tablet/);assert.match(body,/product leaflet/);assert.match(body,/8.29 EUR/);assert.doesNotMatch(body,/\(\s*\)/);
  assert.match(html,/<summary[^>]*>Sources \(2\)<\/summary>/);assert.doesNotMatch(html,/<details[^>]* open/);assert.equal((html.match(/href=/g)||[]).length,2);assert.equal(JSON.stringify(sections),original);
  const unsafe=renderToStaticMarkup(React.createElement(Component,{sections:[{key:'Precautions',bullets:['Check pack https://user:secret@example.com/pack']}],lang:'it'}));assert.doesNotMatch(unsafe,/href=|user:secret/);
+});
+
+
+test('restored leaflet sends the exact 12:09 BST historical prompt and exposes its baseline',async()=>{
+ const old=require('node:child_process').execFileSync('git',['show','5af3e82:app/lib/structured-leaflet.ts'],{cwd:root,encoding:'utf8'});
+ const expression=old.match(/ const instructions=(.*);\r?\n/)[1];
+ for(const audience of ['human','veterinary']){
+  const h=loader(completed(values())),response=await h.load('app/lib/structured-leaflet.ts').structuredLeaflet(input,audience),data=await response.json();
+  assert.equal(h.calls[0].messages[0].content,vm.runInNewContext(expression,{audience}));assert.equal(data.promptBaseline,'5af3e82');assert.equal(response.headers.get('X-Medicea-Leaflet-Baseline'),'5af3e82');assert.equal(data.sections.length,11);assert.equal(data.sections.some(s=>s.key==='Storage'),false);
+ }
 });
