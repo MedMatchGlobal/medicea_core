@@ -8,8 +8,14 @@ export function readableBullet(text:string,sources:Set<string>){
   .replace(/https?:\/\/[^\s<>]+/g,url=>{collect(url.replace(/[),.;]+$/,''));return '';})
   .replace(/\(\s*\)|\[\s*\]/g,'').replace(/\*\*|__/g,'').replace(/\s+([,.;:])/g,'$1').replace(/\s+/g,' ').replace(/(?:\s*[·|]\s*)+$/,'').trim();
 }
-export default function StructuredLeafletSections({sections,headings={},lang='en',notice}:{sections:LeafletSection[];headings?:Record<string,string>;lang?:string;notice?:string}){
+export function withoutCountryPrefix(text:string,country:string){
+ const name=country.trim(),value=text.trim();
+ if(!name||value.slice(0,name.length).toLowerCase()!==name.toLowerCase())return text;
+ const rest=value.slice(name.length),delimiter=rest.match(/^\s*[—–:-]\s+/);
+ return delimiter&&rest.slice(delimiter[0].length).trim()?rest.slice(delimiter[0].length).trim():text;
+}
+export default function StructuredLeafletSections({sections,headings={},lang='en',notice,country=''}:{sections:LeafletSection[];headings?:Record<string,string>;lang?:string;notice?:string;country?:string}){
  const sources=new Set<string>(),unknown=veterinarySectionLabels(lang).unknown;
- const rendered=sections.map(section=>({...section,bullets:(section.bullets.length?section.bullets:[unknown]).map(bullet=>readableBullet(bullet,sources)||unknown)}));
+ const rendered=sections.map(section=>({...section,bullets:(section.bullets.length?section.bullets:[unknown]).map(bullet=>withoutCountryPrefix(readableBullet(bullet,sources),country)||unknown)}));
  return <div className="structured-medicine-leaflet">{notice&&<p className="search-note">{notice}</p>}{rendered.map(section=><section key={section.key} style={{marginBottom:12}}><strong>{lang==='en'&&section.key==='Strength'?'Strengths':section.key==='Formulation'?(lang==='en'?'Formulations':veterinarySectionLabels(lang).formulation):headings[section.key]||section.key}:</strong><ul style={{listStyleType:'disc',paddingInlineStart:22,margin:'6px 0'}}>{section.bullets.map((bullet,i)=><li key={i} style={{marginBottom:4}}>{bullet}</li>)}</ul></section>)}{!!sources.size&&<details className="leaflet-sources" style={{marginTop:16,fontSize:'0.875rem'}}><summary style={{cursor:'pointer'}}>{sourceLabels[lang]||sourceLabels.en} ({sources.size})</summary><ul>{[...sources].map(url=><li key={url}><a href={url} target="_blank" rel="noopener noreferrer" referrerPolicy="no-referrer" style={{overflowWrap:'anywhere'}}>{new URL(url).hostname} ↗</a></li>)}</ul></details>}</div>;
 }

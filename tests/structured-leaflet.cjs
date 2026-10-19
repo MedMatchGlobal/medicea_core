@@ -166,3 +166,13 @@ test('restored leaflet sends the exact 12:09 BST historical prompt and exposes i
   assert.equal(h.calls[0].messages[0].content,vm.runInNewContext(expression,{audience}));assert.equal(data.promptBaseline,'5af3e82');assert.equal(response.headers.get('X-Medicea-Leaflet-Baseline'),'5af3e82');assert.equal(data.sections.length,11);assert.equal(data.sections.some(s=>s.key==='Storage'),false);
  }
 });
+
+
+test('display removes only the current country prefix and preserves product variants, other countries and stored facts',()=>{
+ const h=loader(),{withoutCountryPrefix,default:Component}=h.load('app/components/StructuredLeafletSections.tsx');
+ for(const dash of [' — ',' – ',' - ',': '])assert.equal(withoutCountryPrefix('Italy'+dash+'Example tablet: 400 mg','Italy'),'Example tablet: 400 mg');
+ assert.equal(withoutCountryPrefix('United Kingdom — Example tablet','United Kingdom'),'Example tablet');
+ for(const text of ['France — Example tablet','Manufactured in Italy — example','Italy-specific warning','Italy — '])assert.equal(withoutCountryPrefix(text,'Italy'),text);
+ const sections=[{key:'Strength',bullets:['Italy — Example tablet: 400 mg','France — Different variant: 200 mg']}],before=JSON.stringify(sections);
+ const html=renderToStaticMarkup(React.createElement(Component,{sections,country:'Italy'}));assert.doesNotMatch(html,/Italy —/);assert.match(html,/Example tablet: 400 mg/);assert.match(html,/France — Different variant: 200 mg/);assert.equal(JSON.stringify(sections),before);
+});
