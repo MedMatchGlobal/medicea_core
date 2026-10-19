@@ -1,5 +1,5 @@
 const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),ts=require('typescript'),React=require('react'),{renderToStaticMarkup}=require('react-dom/server');
-const root=path.join(__dirname,'..'),env={VERCEL_ENV:'preview',VERCEL_GIT_COMMIT_REF:'feature/travel-pack-preview',MEDICEA_TRAVEL_CONNECTED:'true',MEDICEA_OPENAI_UPGRADE:'true',MEDICEA_SIMPLE_LEAFLET:'false',OPENAI_API_KEY:'fictional-test-key'};
+const root=path.join(__dirname,'..'),env={VERCEL_ENV:'preview',VERCEL_GIT_COMMIT_REF:'feature/travel-pack-preview',MEDICEA_TRAVEL_CONNECTED:'true',MEDICEA_OPENAI_UPGRADE:'true',MEDICEA_SIMPLE_LEAFLET:'false',MEDICEA_ORGANISED_LEAFLET:'false',OPENAI_API_KEY:'fictional-test-key'};
 function loader(payload,settings=env,pricePayload){const cache={},calls=[];function load(file){file=file.replace(/\\/g,'/');if(file==='app/lib/leaflet-price.ts'&&pricePayload===undefined)return {lookupLeafletPrice:async()=>[]};if(cache[file])return cache[file];const absolute=path.join(root,file),module={exports:{}};cache[file]=module.exports;vm.runInNewContext(ts.transpileModule(fs.readFileSync(absolute,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2020,jsx:ts.JsxEmit.ReactJSX,esModuleInterop:true}}).outputText,{module,exports:module.exports,process:{env:settings},Request,Response,Headers,URL,Buffer,AbortController,ReadableStream,TextEncoder,TextDecoder,setTimeout,clearTimeout,console:{info(){},warn(){},error(){}},fetch:async(url,init)=>{calls.push(JSON.parse(init.body));return Response.json(String(url).endsWith('/responses')?(typeof pricePayload==='function'?await pricePayload():pricePayload):payload);},require(name){if(name.startsWith('.')){let f=path.relative(root,path.resolve(path.dirname(absolute),name));if(!path.extname(f))f+=fs.existsSync(path.join(root,f+'.tsx'))?'.tsx':'.ts';return load(f);}return require(name);}});cache[file]=module.exports;return module.exports;}return {load,calls};}
 const topics=['Active Ingredients','Strength','Formulation','Indications','Contraindications','Precautions','Side Effects','Interactions','Legal Classification','Manufacturer','Average Selling Price'];
 const values=()=>({information_sections:Object.fromEntries(topics.map(key=>[key,key==='Active Ingredients'?['Example ingredient']:key==='Strength'?['Example ingredient: 10 mg per tablet']:[]]))});
@@ -175,4 +175,21 @@ test('display removes only the current country prefix and preserves product vari
  for(const text of ['France — Example tablet','Manufactured in Italy — example','Italy-specific warning','Italy — '])assert.equal(withoutCountryPrefix(text,'Italy'),text);
  const sections=[{key:'Strength',bullets:['Italy — Example tablet: 400 mg','France — Different variant: 200 mg']}],before=JSON.stringify(sections);
  const html=renderToStaticMarkup(React.createElement(Component,{sections,country:'Italy'}));assert.doesNotMatch(html,/Italy —/);assert.match(html,/Example tablet: 400 mg/);assert.match(html,/France — Different variant: 200 mg/);assert.equal(JSON.stringify(sections),before);
+});
+
+
+test('organised human prompt is active by default with resolved language and otherwise identical generation settings',async()=>{
+ const v=values();v.information_sections['Average Selling Price']=['Existing fixture price'];
+ const original=loader(completed(v)),candidate=loader(completed(v),{...env,MEDICEA_ORGANISED_LEAFLET:undefined});
+ await original.load('app/lib/structured-leaflet.ts').structuredLeaflet({...input,lang:'it'});
+ const response=await candidate.load('app/lib/structured-leaflet.ts').structuredLeaflet({...input,lang:'it'}),data=await response.json();
+ const before=original.calls[0],after=candidate.calls[0];assert.equal(data.promptBaseline,'organised-human-v1');assert.equal(candidate.calls.length,1);assert.match(after.messages[0].content,/^ROLE\n/);assert.match(after.messages[0].content,/bullet text in Italian/);assert.doesNotMatch(after.messages[0].content,/\{language\}/);assert.match(after.messages[0].content,/Repeat the country only when distinguishing another country/);assert.match(after.messages[0].content,/give examples only when reliably known/);assert.match(after.messages[0].content,/No dosing, in any section/);
+ assert.deepEqual({...after,messages:undefined},{...before,messages:undefined});assert.deepEqual(after.messages[1],before.messages[1]);
+ const vet=loader(completed(v),{...env,MEDICEA_ORGANISED_LEAFLET:undefined}),vetResponse=await vet.load('app/lib/structured-leaflet.ts').structuredLeaflet(input,'veterinary');assert.equal((await vetResponse.json()).promptBaseline,'5af3e82');assert.match(vet.calls[0].messages[0].content,/Only animal medicines/);
+});
+
+test('organised prompt retains the separate price lookup and early validated leaflet display',async()=>{
+ let finish;const wait=new Promise(resolve=>finish=resolve),h=loader(completed(values()),{...env,MEDICEA_ORGANISED_LEAFLET:undefined},()=>wait);let ready;
+ const result=h.load('app/lib/structured-leaflet.ts').structuredLeaflet(input,'human',value=>ready=value);
+ while(!ready)await new Promise(r=>setTimeout(r,1));assert.equal(ready.promptBaseline,'organised-human-v1');assert.equal(ready.pricePending,true);assert.equal(h.calls.length,2);assert.equal(h.calls[1].tools[0].type,'web_search');finish(priceResult());assert.match((await (await result).json()).sections.at(-1).bullets[0],/8.50 EUR/);assert.equal(h.calls.length,2);
 });

@@ -1,5 +1,5 @@
 const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),ts=require('typescript'),{execFileSync}=require('node:child_process');
-const root=path.join(__dirname,'..'),productionRef='f4ab1bd',dev={VERCEL_ENV:'preview',VERCEL_GIT_COMMIT_REF:'feature/travel-pack-preview',MEDICEA_TRAVEL_CONNECTED:'true',MEDICEA_OPENAI_UPGRADE:'true',MEDICEA_SIMPLE_LEAFLET:'false',OPENAI_API_KEY:'public-fixture-not-real'};
+const root=path.join(__dirname,'..'),productionRef='f4ab1bd',dev={VERCEL_ENV:'preview',VERCEL_GIT_COMMIT_REF:'feature/travel-pack-preview',MEDICEA_TRAVEL_CONNECTED:'true',MEDICEA_OPENAI_UPGRADE:'true',MEDICEA_SIMPLE_LEAFLET:'false',MEDICEA_ORGANISED_LEAFLET:'false',OPENAI_API_KEY:'public-fixture-not-real'};
 // Read the immutable Production source, not the current branch's preserved but
 // potentially bypassed declarations. No baseline is regenerated and no network
 // or real provider request is permitted by this harness.
@@ -56,5 +56,14 @@ test('Dev leaflet routes restore detailed generation by default even if the reti
   const h=harness({...dev,MEDICEA_SIMPLE_LEAFLET:flag},[structuredReply],false);
   const response=await h.load(file).POST(new Request('https://owner-demo.invalid/test',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}));
   assert.equal(response.status,200);const data=await response.json();assert.equal(data.experiment,undefined);assert.equal(data.sections.length,11);assert.equal(h.calls.length,1);assert.equal(h.calls[0].model,'gpt-6.1-sol');assert.match(h.calls[0].messages[0].content,/Build an educational/);
+ }
+});
+
+
+test('active human Dev routes use the organised prompt by default while veterinary retains its baseline',async()=>{
+ for(const file of ['app/api/openai/leaflet/route.ts','app/api/openai/route.ts','app/api/openai/veterinary-information/route.ts']){
+  const h=harness({...dev,MEDICEA_ORGANISED_LEAFLET:undefined},[structuredReply],false),response=await h.load(file).POST(new Request('https://owner-demo.invalid/test',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({...body,lang:'it'})}));
+  assert.equal(response.status,200);const data=await response.json();assert.equal(h.calls.length,1);assert.equal(h.calls[0].model,'gpt-6.1-sol');
+  if(file.includes('veterinary')){assert.equal(data.promptBaseline,'5af3e82');assert.match(h.calls[0].messages[0].content,/Only animal medicines/);}else{assert.equal(data.promptBaseline,'organised-human-v1');assert.match(h.calls[0].messages[0].content,/^ROLE\n/);assert.match(h.calls[0].messages[0].content,/bullet text in Italian/);}
  }
 });
