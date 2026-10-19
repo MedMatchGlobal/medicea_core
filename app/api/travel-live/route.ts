@@ -4,8 +4,7 @@ import {connectedTravelEnabled} from '../../lib/travel-connected';
 import {travelTestConfigured,travelTestSession,correctTravelTestCode,issueTravelTestSession,TRAVEL_TEST_COOKIE} from '../../lib/travel-test-session';
 import {getOpenAIKeyCount,modelUpgradeEnabled} from '../../lib/openaiClient';
 import {issueOriginSelection,readOriginSelection,type OriginProduct} from '../../lib/origin-lookup';
-import {medicineSummary} from '../../lib/medicine-summary';
-import {originalTravelOrigin,originalTravelCompare} from '../../lib/travel-original-search';
+import {originalTravelOrigin,originalTravelCompare,originalTravelInformation} from '../../lib/travel-original-search';
 export const dynamic='force-dynamic';
 export const maxDuration=120;
 const headers={'Cache-Control':'no-store'};
@@ -49,7 +48,7 @@ export async function POST(request:Request){
   }
   if(action==='information'){
    const selected=readOriginSelection(token,query,originCountry,dosage);if(!selected)return NextResponse.json({error:'ORIGIN_SELECTION_EXPIRED'},{status:422,headers});
-   const response=await medicineSummary({drugName:selected.name,originCountry,drugDosage:dosage,lang,originSelection:token,originQueryName:query});
+   const response=await originalTravelInformation(query,originCountry,dosage,lang);
    if(!response.ok)return NextResponse.json({error:'INFORMATION_UNAVAILABLE'},{status:response.status,headers});
    const data=await response.json();return NextResponse.json({information:data.leaflet?.leaflet_text||data.leaflet_text||''},{headers});
   }

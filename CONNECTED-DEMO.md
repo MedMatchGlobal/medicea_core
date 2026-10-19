@@ -1,4 +1,26 @@
-# GPT-6.1 Sol with original prompts — current configuration
+# Production prompt routing on Sol — 19 October 2026
+
+Ordinary features in the Travel Dev deployment now select the original
+Production handlers, independently of model migration. This covers human and
+veterinary international/generic searches, English and translated leaflets,
+general medicine information, condition information, triage and standalone
+text/JSON translation. The Travel information action also calls the original
+leaflet handler. Search-result layout and retained user inputs are unchanged.
+
+`experimentalPromptsEnabled` is separate from `modelUpgradeEnabled`: the former
+is false for normal Travel Dev traffic, while Sol transport remains enabled.
+The separate model tester and explicitly selected experimental evaluation arm
+retain their experiment. Discovery no longer requests source-origin variants
+for the original-handler Dev flow. Production itself is unchanged.
+
+Active-route parity tests capture outbound messages from the actual Dev
+handlers and compare them byte-for-byte against immutable Production source
+`f4ab1bd` (verified as current remote main on 19 October). They cover twelve
+route cases, including the leaflet translation pass, plus the Travel leaflet
+adapter. Protected prompt fixtures remain unchanged. Matching prompt messages
+does not guarantee identical outputs across models or establish clinical quality.
+
+# GPT-6.1 Sol with original prompts — model configuration
 
 The owner clarified on 18 October 2026 that the original **prompt wording**
 must be retained while using GPT-6.1 Sol everywhere in the test app. This

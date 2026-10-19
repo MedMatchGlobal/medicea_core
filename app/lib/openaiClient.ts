@@ -11,6 +11,9 @@ let evaluationContext:import('node:async_hooks').AsyncLocalStorage<EvaluationCon
 // Owner-requested model-only migration across the Travel test deployment.
 // Original prompt routing and actual provider model selection are independent.
 export function travelSolEnabled(){return process.env.VERCEL_ENV==='preview'&&process.env.VERCEL_GIT_COMMIT_REF==='feature/travel-pack-preview'&&process.env.MEDICEA_TRAVEL_CONNECTED==='true'&&process.env.MEDICEA_OPENAI_UPGRADE==='true';}
+// Model migration must not silently opt ordinary Dev features into new prompts.
+// Only the explicitly selected evaluation arm retains experimental routing.
+export function experimentalPromptsEnabled(){return modelUpgradeEnabled()&&(!travelSolEnabled()||evaluationContext?.getStore()?.legacy===false);}
 /** Fixed-public-fixture owner tests only. Request-local; never changes env/global routing. */
 export async function withOpenAIEvaluation<T>(legacy:boolean,run:()=>Promise<T>){
  if(process.env.VERCEL_ENV!=='preview'||process.env.VERCEL_GIT_COMMIT_REF!=='feature/travel-pack-preview'||process.env.MEDICEA_TRAVEL_CONNECTED!=='true'||process.env.MEDICEA_OPENAI_UPGRADE!=='true')throw Error('EVALUATION_DISABLED');
@@ -45,7 +48,7 @@ export function modelUpgradeEnabled() {
 
 export function modelTestConfiguration() {
   return {enabled:modelUpgradeEnabled(),revision:'exact-match-v3.1',
-    matchingMode:(process.env.VERCEL_GIT_COMMIT_REF==='feature/openai-model-upgrade-preview'||process.env.VERCEL_ENV==='preview'&&process.env.VERCEL_GIT_COMMIT_REF==='feature/travel-pack-preview'&&process.env.MEDICEA_TRAVEL_CONNECTED==='true')&&process.env.MEDICEA_OPENAI_MATCHING_MODE!=='sources'?'prompt-test':'sources',
+    matchingMode:travelSolEnabled()&&!experimentalPromptsEnabled()?'original-prompts':(process.env.VERCEL_GIT_COMMIT_REF==='feature/openai-model-upgrade-preview'||process.env.VERCEL_ENV==='preview'&&process.env.VERCEL_GIT_COMMIT_REF==='feature/travel-pack-preview'&&process.env.MEDICEA_TRAVEL_CONNECTED==='true')&&process.env.MEDICEA_OPENAI_MATCHING_MODE!=='sources'?'prompt-test':'sources',
     researchModel:travelSolEnabled()?'gpt-6.1-sol':process.env.MEDICEA_OPENAI_SOURCE_MODEL||'gpt-6.1-sol',
     informationModel:travelSolEnabled()?'gpt-6.1-sol':process.env.MEDICEA_OPENAI_MEDICAL_MODEL||'gpt-6-luna'};
 }

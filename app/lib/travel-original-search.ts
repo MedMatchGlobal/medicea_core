@@ -2,6 +2,12 @@ import {openaiFetch,withOpenAIEvaluation} from './openaiClient';
 import {issueOriginSelection,readOriginSelection,type OriginProduct} from './origin-lookup';
 import {isMedicineName} from './match-display';
 import {POST as originalSearch} from '../api/openai/equivalent-search/route';
+import {POST as originalLeaflet} from '../api/openai/leaflet/route';
+
+export async function originalTravelInformation(drugName:string,originCountry:string,drugDosage:string,lang:string){
+ const result=await withOpenAIEvaluation(true,()=>originalLeaflet(new Request('https://owner-demo.invalid/api/openai/leaflet',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({drugName,originCountry,drugDosage,lang})})));
+ return result.value;
+}
 
 // Owner-requested rollback, confined by withOpenAIEvaluation to the signed
 // Travel Preview. Do not infer formulation, route or source verification from

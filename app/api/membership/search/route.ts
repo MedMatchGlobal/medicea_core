@@ -11,7 +11,7 @@ export async function POST(req: Request) {
    ((mode==='international'||mode==='pets')&&(typeof body.targetCountry!=='string'||!body.targetCountry.trim())))return Response.json({error:'INVALID_INPUT'},{status:400});
   const providerRequest=()=>new Request(request.url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
   if(mode==='international'||mode==='generic'){
-   const {modelUpgradeEnabled,modelTestConfiguration}=await import('@/app/lib/openaiClient');
+   const {experimentalPromptsEnabled:modelUpgradeEnabled,modelTestConfiguration}=await import('@/app/lib/openaiClient');
    if(modelUpgradeEnabled?.()&&modelTestConfiguration?.().matchingMode==='prompt-test'){
     const handler=mode==='international'?await import('@/app/api/openai/equivalent-search/route'):await import('@/app/api/openai/generics/route');
     const result=await handler.POST(providerRequest());if(!result.ok)return result;
@@ -28,7 +28,7 @@ export async function POST(req: Request) {
   let originLeaflet;
   let summaryName=body.drugName;
   if(body.originSelection&&(mode==='international'||mode==='generic')){
-   const {modelUpgradeEnabled}=await import('@/app/lib/openaiClient');
+   const {experimentalPromptsEnabled:modelUpgradeEnabled}=await import('@/app/lib/openaiClient');
    if(modelUpgradeEnabled()){
     const {readOriginSelection}=await import('@/app/lib/origin-lookup');
     const selected=readOriginSelection(body.originSelection,body.drugName,body.originCountry,body.drugDosage);

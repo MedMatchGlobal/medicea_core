@@ -1,5 +1,5 @@
 import DiscoveryShell from '../components/DiscoveryShell';
-import {modelUpgradeEnabled,modelTestConfiguration} from '../lib/openaiClient';
+import {experimentalPromptsEnabled as modelUpgradeEnabled,modelTestConfiguration} from '../lib/openaiClient';
 import {travelPreviewEnabled} from '../lib/travel-demo';
 // Preview-only navigation must follow runtime deployment flags, not a cached build.
 export const dynamic='force-dynamic';
