@@ -1,10 +1,12 @@
 import {openaiFetch,travelSolEnabled} from './openaiClient';
+import {lookupLeafletPrice} from './leaflet-price';
 import {readOriginSelection} from './origin-lookup';
 import {LEAFLET_RESPONSE_FORMAT,validateLeaflet,leafletText} from './leaflet-contract';
 import {veterinarySectionLabels} from '../i18n/veterinary-sections';
 
 export async function structuredLeaflet(input:{drugName:unknown;originCountry:unknown;drugDosage?:unknown;lang?:unknown;originSelection?:unknown;originQueryName?:unknown},audience:'human'|'veterinary'='human'):Promise<Response>{
  if(!travelSolEnabled())return Response.json({error:'NOT_FOUND'},{status:404});
+ const started=Date.now();
  const {drugName,originCountry,drugDosage}=input;
  if(typeof drugName!=='string'||!drugName.trim()||drugName.length>250||typeof originCountry!=='string'||!originCountry.trim()||originCountry.length>200||drugDosage!=null&&(typeof drugDosage!=='string'||drugDosage.length>100))return Response.json({error:'INVALID_INPUT'},{status:400});
  const lang=typeof input.lang==='string'&&/^[a-z]{2}$/.test(input.lang)?input.lang:'en';
@@ -22,6 +24,8 @@ export async function structuredLeaflet(input:{drugName:unknown;originCountry:un
    strength.bullets=selected.ingredients.map(i=>`${i.name}: ${i.strength}`);
    validateLeaflet({information_sections:Object.fromEntries(sections.map(s=>[s.key,s.bullets]))});
   }
+  const price=sections.find(s=>s.key==='Average Selling Price')!;
+  if(!price.bullets.length)price.bullets=await lookupLeafletPrice({drugName,originCountry,drugDosage:typeof drugDosage==='string'?drugDosage:undefined,lang,audience,selectedProfile:selected},55_000-(Date.now()-started));
   const rendered=sections.map(s=>({...s,bullets:s.bullets.length?s.bullets:[unknown]}));
   return Response.json({kind:'structured_leaflet_v1',sections:rendered,leaflet:{medicine_name:drugName,country:originCountry,dosage_hint:drugDosage||null,lang,kind:'structured_leaflet_v1',leaflet_text:leafletText(sections,unknown)},verification:'ai_generated_unverified',generatedAt:new Date().toISOString()},{headers:{'Cache-Control':'no-store'}});
  }catch{return Response.json({error:'MEDICINE_INFORMATION_UNAVAILABLE'},{status:503,headers:{'Cache-Control':'no-store'}});}

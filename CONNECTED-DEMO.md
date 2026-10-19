@@ -158,3 +158,29 @@ All 163 automated tests pass, including brand overview/metadata retention and
 selected-strength continuity without inventing dosage or price. These provider
 mocks verify application behaviour, not live coverage for the reported brands.
 The owner must generate fresh authenticated Dev results to confirm coverage.
+
+## Optional researched pack prices — 19 October 2026
+
+When a successful structured Dev leaflet has no Average Selling Price bullets,
+Sol performs an optional Responses web-search request for up to three matching
+pack quotes. The search is limited to one tool call and at most 20 seconds,
+within the remaining 55-second total leaflet budget. Existing indicative prices
+skip this extra lookup. Saving/reopening snapshots does not initiate research.
+
+Quotes must include product/variant, pack size, positive price, ISO currency,
+matching country, a retrieved HTTPS source and a note distinguishing a listed
+pack price from a market average or guaranteed checkout price. Quotes with unsafe
+or unsearched source URLs are rejected. Checked dates and source links remain in
+the saved canonical leaflet text and shared renderer. Price evidence is confined
+to the price section; it does not verify or rewrite clinical information.
+
+Failed, incomplete, malformed or timed-out research leaves Not specified and
+never discards the rest of the leaflet. This adds a provider/web-search cost only
+when the initial price section is empty and sufficient request time remains.
+The feature is isolated to the exact authorised Dev Preview branch on Sol.
+
+Verification: 166 automated tests pass, including price integration, retrieved
+source/country/pack/amount checks, safe rendering, no-price fallbacks, existing-price
+skip, request-budget exclusion and Production exclusion. Provider results are
+mocked; availability of a live matching price remains unverified behind Vercel
+protection and needs an owner-browser fresh search.
