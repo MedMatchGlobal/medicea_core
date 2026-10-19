@@ -6,7 +6,8 @@ export default function VeterinaryLeafletSections({sections, lang, headings}: {
   sections:VeterinarySection[]; lang:string; headings:Record<string,string>;
 }) {
   const labels = veterinarySectionLabels(lang);
-  if(sections.length===LEAFLET_TOPICS.length&&sections.every((s,i)=>s.key===LEAFLET_TOPICS[i]||(i===2&&s.key==='Dosage')))return <StructuredLeafletSections sections={sections.map(s=>s.key==='Dosage'?{key:'Formulation',bullets:[]}:s) as LeafletSection[]} lang={lang} headings={headings}/>;
+  const currentSections=sections.filter(s=>s.key!=='Storage');
+  if(currentSections.length===LEAFLET_TOPICS.length&&currentSections.every((s,i)=>s.key===LEAFLET_TOPICS[i]||(i===2&&s.key==='Dosage')))return <StructuredLeafletSections sections={currentSections.map(s=>s.key==='Dosage'?{key:'Formulation',bullets:[]}:s) as LeafletSection[]} lang={lang} headings={headings}/>;
   return <div className="structured-veterinary-leaflet">
     {sections.map(section => <section key={section.key}>
       <strong>{section.key === 'Formulation' ? labels.formulation : section.key === 'Animal Species' ? labels.species : headings[section.key] || section.key}:</strong>

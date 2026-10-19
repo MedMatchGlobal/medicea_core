@@ -23,22 +23,22 @@ const cases=[
  ['JSON translation','app/api/translate-json/route.ts',{data:{label:'Public example 50 mg'},lang:'it'},[JSON.stringify({label:'Esempio pubblico 50 mg'})]],
 ];
 const structuredCases=new Set(['English leaflet','translated leaflet','general medicine information','veterinary information']);
-const structuredReply=JSON.stringify({information_sections:Object.fromEntries(['Active Ingredients','Strength','Formulation','Indications','Contraindications','Precautions','Side Effects','Interactions','Legal Classification','Storage','Manufacturer','Average Selling Price'].map(key=>[key,key==='Active Ingredients'?['Example ingredient']:key==='Strength'?['Example ingredient 50 mg per capsule']:[]]))});
+const structuredReply=JSON.stringify({information_sections:Object.fromEntries(['Active Ingredients','Strength','Formulation','Indications','Contraindications','Precautions','Side Effects','Interactions','Legal Classification','Manufacturer','Average Selling Price'].map(key=>[key,key==='Active Ingredients'?['Example ingredient']:key==='Strength'?['Example ingredient 50 mg per capsule']:[]]))});
 for(const [label,file,input,replies] of cases)test('active '+label+(structuredCases.has(label)?' uses the authorised structured Dev contract':' sends identical Production prompt messages on Sol'),async()=>{
  const formatted=structuredCases.has(label),baseline=harness({...dev,VERCEL_ENV:'production'},replies,true),current=harness(dev,formatted?[structuredReply]:replies,false);
  const request=()=>new Request('https://owner-demo.invalid/'+file,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(input)});
  const before=await baseline.load(file).POST(request()),after=await current.load(file).POST(request());
  assert.equal(before.status,200,'Production fixture must succeed');assert.equal(after.status,200,'Dev fixture must succeed');
- if(formatted){const result=await after.json();assert.equal(current.calls.length,1);assert.equal(current.calls[0].model,'gpt-6.1-sol');assert.equal(current.calls[0].response_format.json_schema.strict,true);assert.equal(result.sections.length,12);assert.equal(result.verification,'ai_generated_unverified');return;}
+ if(formatted){const result=await after.json();assert.equal(current.calls.length,1);assert.equal(current.calls[0].model,'gpt-6.1-sol');assert.equal(current.calls[0].response_format.json_schema.strict,true);assert.equal(result.sections.length,11);assert.equal(result.verification,'ai_generated_unverified');return;}
  assert.equal(current.calls.length,replies.length);assert.equal(current.calls.length,baseline.calls.length);
  for(let i=0;i<current.calls.length;i++){assert.deepEqual(current.calls[i].messages,baseline.calls[i].messages);assert.deepEqual(current.calls[i].response_format,baseline.calls[i].response_format);assert.equal(current.calls[i].model,'gpt-6.1-sol');assert.equal(current.calls[i].reasoning_effort,'low');assert.equal(current.calls[i].temperature,undefined);assert.equal(current.calls[i].seed,undefined);}
  assert.deepEqual(await after.json().catch(()=>null),await before.json().catch(()=>null));
 });
 
-test('Travel medicine information uses the same twelve-section schema in the requested language',async()=>{
+test('Travel medicine information uses the same eleven-section schema in the requested language',async()=>{
  const current=harness(dev,[structuredReply],false);
  const response=await current.load('app/lib/travel-original-search.ts').originalTravelInformation(body.drugName,body.originCountry,body.drugDosage,'it');
- const result=await response.json();assert.equal(response.status,200);assert.equal(result.sections.length,12);assert.equal(current.calls.length,1);assert.equal(current.calls[0].response_format.json_schema.strict,true);assert.equal(JSON.parse(current.calls[0].messages[1].content).language,'it');
+ const result=await response.json();assert.equal(response.status,200);assert.equal(result.sections.length,11);assert.equal(current.calls.length,1);assert.equal(current.calls[0].response_format.json_schema.strict,true);assert.equal(JSON.parse(current.calls[0].messages[1].content).language,'it');
 });
 
 
@@ -46,6 +46,6 @@ test('progressive leaflet output is opt-in for Dev and preserves JSON when membe
  for(const membership of [false,true]){
   const h=harness({...dev,MEDICEA_MEMBERSHIP_PREVIEW:String(membership)},[structuredReply],false),response=await h.load('app/api/openai/leaflet/route.ts').POST(new Request('https://owner-demo.invalid/api/openai/leaflet',{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/x-ndjson'},body:JSON.stringify(body)}));
   assert.equal(response.status,200);assert.equal(h.calls.length,1);
-  if(membership){assert.match(response.headers.get('Content-Type'),/application\/json/);assert.equal((await response.json()).sections.length,12);}else{assert.match(response.headers.get('Content-Type'),/application\/x-ndjson/);const events=(await response.text()).trim().split('\n').map(JSON.parse);assert.deepEqual(events.map(e=>e.type),['ready','complete']);assert.equal(events[0].payload.sections.length,12);assert.equal(events[1].payload.sections.length,12);}
+  if(membership){assert.match(response.headers.get('Content-Type'),/application\/json/);assert.equal((await response.json()).sections.length,11);}else{assert.match(response.headers.get('Content-Type'),/application\/x-ndjson/);const events=(await response.text()).trim().split('\n').map(JSON.parse);assert.deepEqual(events.map(e=>e.type),['ready','complete']);assert.equal(events[0].payload.sections.length,11);assert.equal(events[1].payload.sections.length,11);}
  }
 });
