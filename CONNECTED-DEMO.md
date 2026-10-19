@@ -9,7 +9,7 @@ Dev human leaflets (origin, equivalent and generic), general medicine informatio
 veterinary information and Travel information use `structured-leaflet.ts` with
 the shared strict `medicea_leaflet_v1` JSON schema. It requires twelve ordered
 section arrays: Active Ingredients; Strength (displayed as Strengths in English);
-Dosage; Indications; Contraindications; Precautions; Side Effects; Interactions;
+Formulations; Indications; Contraindications; Precautions; Side Effects; Interactions;
 Legal Classification; Storage; Manufacturer; Average Selling Price. Every item
 is plain bullet text. Empty arrays become translated Not specified bullets.
 
@@ -187,3 +187,31 @@ protection and needs an owner-browser fresh search.
 
 The price transport also works inside Travel's original-prompt request context;
 its Responses permission remains restricted to authorised Preview flags.
+
+
+## Formulations replaces dosing schedules — 19 October 2026
+
+The owner requested replacing the generated Dosage section with Formulations.
+The shared schema is now medicea_leaflet_v2 (structured_leaflet_v2 responses):
+Active Ingredients, Strengths, Formulations, Indications, Contraindications,
+Precautions, Side Effects, Interactions, Legal Classification, Storage,
+Manufacturer, Average Selling Price. Formulation is the internal localisation key;
+the English display heading is plural. Existing labels cover all 25 languages.
+
+The generation prompt excludes dosing schedules, tablet counts to take, frequency,
+maximum daily doses and treatment-duration recommendations across all sections.
+It explicitly forbids moving removed dosage content into another section.
+General overdose/dependence warnings remain. Matching prompts and strength hints
+are unchanged. The Dev search hint and retained-input summary now say Strength
+(optional) in English rather than Dosage (optional); Production labels are unchanged.
+
+Old twelve-section saved snapshots remain stored intact. Their dosing section is
+hidden by the shared presentation adapter, and Formulations shows the translated
+unknown placeholder until a fresh leaflet is generated. Old dosing text is never
+relabeled as formulation. Price data and other stored sections remain readable.
+New human, equivalent/generic, veterinary and Travel information share this format.
+
+Verification: all 169 automated tests pass, including schema/version/heading
+checks, Italian formulation labels, exclusion instructions, and safe presentation
+of old human/veterinary structured snapshots. Protected original prompt fixtures
+remain unchanged. Live model adherence still requires owner-browser testing.

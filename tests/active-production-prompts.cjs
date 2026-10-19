@@ -23,7 +23,7 @@ const cases=[
  ['JSON translation','app/api/translate-json/route.ts',{data:{label:'Public example 50 mg'},lang:'it'},[JSON.stringify({label:'Esempio pubblico 50 mg'})]],
 ];
 const structuredCases=new Set(['English leaflet','translated leaflet','general medicine information','veterinary information']);
-const structuredReply=JSON.stringify({information_sections:Object.fromEntries(['Active Ingredients','Strength','Dosage','Indications','Contraindications','Precautions','Side Effects','Interactions','Legal Classification','Storage','Manufacturer','Average Selling Price'].map(key=>[key,key==='Active Ingredients'?['Example ingredient']:key==='Strength'?['Example ingredient 50 mg per capsule']:[]]))});
+const structuredReply=JSON.stringify({information_sections:Object.fromEntries(['Active Ingredients','Strength','Formulation','Indications','Contraindications','Precautions','Side Effects','Interactions','Legal Classification','Storage','Manufacturer','Average Selling Price'].map(key=>[key,key==='Active Ingredients'?['Example ingredient']:key==='Strength'?['Example ingredient 50 mg per capsule']:[]]))});
 for(const [label,file,input,replies] of cases)test('active '+label+(structuredCases.has(label)?' uses the authorised structured Dev contract':' sends identical Production prompt messages on Sol'),async()=>{
  const formatted=structuredCases.has(label),baseline=harness({...dev,VERCEL_ENV:'production'},replies,true),current=harness(dev,formatted?[structuredReply]:replies,false);
  const request=()=>new Request('https://owner-demo.invalid/'+file,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(input)});
