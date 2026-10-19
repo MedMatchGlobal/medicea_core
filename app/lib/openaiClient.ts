@@ -115,7 +115,7 @@ function canFailOver(status: number, code: unknown): boolean {
 export async function openaiFetch(url: string, init: RequestInit): Promise<Response> {
   const evaluation=evaluationContext?.getStore();
   if(evaluation&&evaluation.calls.length>=3)throw Error('EVALUATION_CALL_LIMIT');
-  const sourced = url === RESPONSES_ENDPOINT && modelUpgradeEnabled();
+  const sourced = url === RESPONSES_ENDPOINT && (modelUpgradeEnabled()||travelSolEnabled());
   if (url !== ENDPOINT && !sourced) throw new Error("Unsupported OpenAI endpoint.");
   if (!sourced) init = modelUpgradeRequest(init);
   const travelResearch = !sourced && (modelUpgradeEnabled()||travelSolEnabled()) &&

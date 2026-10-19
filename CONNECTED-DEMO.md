@@ -179,8 +179,11 @@ never discards the rest of the leaflet. This adds a provider/web-search cost onl
 when the initial price section is empty and sufficient request time remains.
 The feature is isolated to the exact authorised Dev Preview branch on Sol.
 
-Verification: 166 automated tests pass, including price integration, retrieved
+Verification: 167 automated tests pass, including price integration, retrieved
 source/country/pack/amount checks, safe rendering, no-price fallbacks, existing-price
 skip, request-budget exclusion and Production exclusion. Provider results are
 mocked; availability of a live matching price remains unverified behind Vercel
 protection and needs an owner-browser fresh search.
+
+The price transport also works inside Travel's original-prompt request context;
+its Responses permission remains restricted to authorised Preview flags.

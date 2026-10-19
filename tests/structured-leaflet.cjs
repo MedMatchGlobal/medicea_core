@@ -63,3 +63,6 @@ test('price failures keep a usable leaflet; existing prices, exhausted budgets a
  const empty=loader(null,env,priceResult());assert.equal((await empty.load('app/lib/leaflet-price.ts').lookupLeafletPrice({...input,audience:'human',selectedProfile:null},1000)).length,0);assert.equal(empty.calls.length,0);
  const off=loader(null,{...env,VERCEL_ENV:'production'},priceResult());assert.equal((await off.load('app/lib/leaflet-price.ts').lookupLeafletPrice({...input,audience:'human',selectedProfile:null},10000)).length,0);assert.equal(off.calls.length,0);
 });
+test('Travel original-prompt context also permits the isolated price research transport on Sol',async()=>{
+ const h=loader(null,env,priceResult());const result=await h.load('app/lib/openaiClient.ts').withOpenAIEvaluation(true,()=>h.load('app/lib/leaflet-price.ts').lookupLeafletPrice({...input,audience:'human',selectedProfile:null},10000));assert.equal(result.value.length,1);assert.equal(h.calls.length,1);assert.equal(h.calls[0].model,'gpt-6.1-sol');
+});
