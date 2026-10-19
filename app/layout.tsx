@@ -52,9 +52,9 @@ export default function RootLayout({
       </head>
       <body>
         {modelTest.enabled && <aside className="model-test-banner" aria-label="Model test version">
-          <strong>{originalTravel?'Travel demo · Original prompts on GPT-6.1 Sol':'Model test · '+modelTest.revision}</strong>
+          <strong>{originalTravel?'Travel demo · GPT-6.1 Sol leaflet test':'Model test · '+modelTest.revision}</strong>
           <span>Research: {originalTravel?'gpt-6.1-sol (original matching prompts)':modelTest.researchModel} · Medicine summaries: {modelTest.informationModel}</span>
-          <span>{originalTravel?'Medicine matching retains Production prompts. Dev leaflets use the shared 12-section bullet format. AI outputs remain unverified.':modelTest.matchingMode==='prompt-test'?'Source-assisted origin lookup · 10-country pilot · Equivalent suggestions remain unverified.':'Official-source pilot · 10-country coverage.'} An empty result is valid.</span>
+          <span>{originalTravel?'Medicine matching retains Production prompts. Dev leaflets use 11 sections without Storage. Leaflet test: '+(process.env.MEDICEA_SIMPLE_LEAFLET==='false'?'previous two-step workflow':'simplified research with prices in one response')+'. AI outputs remain unverified.':modelTest.matchingMode==='prompt-test'?'Source-assisted origin lookup · 10-country pilot · Equivalent suggestions remain unverified.':'Official-source pilot · 10-country coverage.'} An empty result is valid.</span>
           <a href="https://medicea.global" target="_blank" rel="noopener noreferrer">Open current version for comparison ↗</a>
         </aside>}
         <Suspense fallback={null}>

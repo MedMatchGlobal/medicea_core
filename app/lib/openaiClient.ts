@@ -112,7 +112,7 @@ function canFailOver(status: number, code: unknown): boolean {
 /** Non-streaming requests. Attempt each distinct key once, in configured order.
  * A timeout can have an ambiguous outcome and failover may incur another charge.
  */
-export async function openaiFetch(url: string, init: RequestInit): Promise<Response> {
+export async function openaiFetch(url: string, init: RequestInit, options:{singleAttempt?:boolean}={}): Promise<Response> {
   const evaluation=evaluationContext?.getStore();
   if(evaluation&&evaluation.calls.length>=3)throw Error('EVALUATION_CALL_LIMIT');
   const sourced = url === RESPONSES_ENDPOINT && (modelUpgradeEnabled()||travelSolEnabled());
@@ -153,7 +153,7 @@ export async function openaiFetch(url: string, init: RequestInit): Promise<Respo
       if (init.signal?.aborted) throw new Error("OpenAI request cancelled.");
       // A slow research request may still complete upstream after disconnect.
       // Do not multiply that ambiguous charge by retrying it with another key.
-      if (travelResearch||evaluation) throw new OpenAIRequestError(504, attempts);
+      if (options.singleAttempt||travelResearch||evaluation) throw new OpenAIRequestError(504, attempts);
       if (attempts === keys.length) throw new OpenAIRequestError(504, attempts);
       console.warn("[OpenAI] Trying next key after connection failure", { attempt: attempts });
       continue;
@@ -164,7 +164,7 @@ export async function openaiFetch(url: string, init: RequestInit): Promise<Respo
     if (response.ok) {
       return new Response(body, { status: response.status, headers: response.headers });
     }
-    if(evaluation)throw new OpenAIRequestError(response.status,attempts);
+    if(options.singleAttempt||evaluation)throw new OpenAIRequestError(response.status,attempts);
     let code: unknown;
     try { code = JSON.parse(body)?.error?.code; } catch { /* non-JSON upstream error */ }
     if (!canFailOver(response.status, code) || attempts === keys.length) {

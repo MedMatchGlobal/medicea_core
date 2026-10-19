@@ -1,5 +1,5 @@
 const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),ts=require('typescript'),React=require('react'),{renderToStaticMarkup}=require('react-dom/server');
-const root=path.join(__dirname,'..'),env={VERCEL_ENV:'preview',VERCEL_GIT_COMMIT_REF:'feature/travel-pack-preview',MEDICEA_TRAVEL_CONNECTED:'true',MEDICEA_OPENAI_UPGRADE:'true',OPENAI_API_KEY:'fictional-test-key'};
+const root=path.join(__dirname,'..'),env={VERCEL_ENV:'preview',VERCEL_GIT_COMMIT_REF:'feature/travel-pack-preview',MEDICEA_TRAVEL_CONNECTED:'true',MEDICEA_OPENAI_UPGRADE:'true',MEDICEA_SIMPLE_LEAFLET:'false',OPENAI_API_KEY:'fictional-test-key'};
 function loader(payload,settings=env,pricePayload){const cache={},calls=[];function load(file){file=file.replace(/\\/g,'/');if(file==='app/lib/leaflet-price.ts'&&pricePayload===undefined)return {lookupLeafletPrice:async()=>[]};if(cache[file])return cache[file];const absolute=path.join(root,file),module={exports:{}};cache[file]=module.exports;vm.runInNewContext(ts.transpileModule(fs.readFileSync(absolute,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2020,jsx:ts.JsxEmit.ReactJSX,esModuleInterop:true}}).outputText,{module,exports:module.exports,process:{env:settings},Request,Response,Headers,URL,Buffer,AbortController,ReadableStream,TextEncoder,TextDecoder,setTimeout,clearTimeout,console:{info(){},warn(){},error(){}},fetch:async(url,init)=>{calls.push(JSON.parse(init.body));return Response.json(String(url).endsWith('/responses')?(typeof pricePayload==='function'?await pricePayload():pricePayload):payload);},require(name){if(name.startsWith('.')){let f=path.relative(root,path.resolve(path.dirname(absolute),name));if(!path.extname(f))f+=fs.existsSync(path.join(root,f+'.tsx'))?'.tsx':'.ts';return load(f);}return require(name);}});cache[file]=module.exports;return module.exports;}return {load,calls};}
 const topics=['Active Ingredients','Strength','Formulation','Indications','Contraindications','Precautions','Side Effects','Interactions','Legal Classification','Manufacturer','Average Selling Price'];
 const values=()=>({information_sections:Object.fromEntries(topics.map(key=>[key,key==='Active Ingredients'?['Example ingredient']:key==='Strength'?['Example ingredient: 10 mg per tablet']:[]]))});
@@ -127,4 +127,22 @@ test('Storage is neither requested nor rendered, and older stored leaflets remai
   const parsed=c.readStructuredLeaflet(text);assert.equal(parsed.length,11);assert.equal(parsed.some(s=>s.key==='Storage'),false);assert.equal(parsed.at(-1).bullets[0],'Saved Average Selling Price');
  }
  assert.equal(data.sections.some(s=>s.key==='Storage'),false);
+});
+
+
+test('simplified experiment uses one researched Sol response for leaflet and prices with local formatting and exact reuse',async()=>{
+ const info=values();info.information_sections.Manufacturer=['Example maker for the fictional 10 mg tablet'];info.information_sections.Contraindications=['Fictional contraindication'];
+ const reply=priceResult();reply.output[1].content[0].text=JSON.stringify({...info,quotes:[priceQuote]});
+ const h=loader(null,{...env,MEDICEA_SIMPLE_LEAFLET:'true'},reply),generate=h.load('app/lib/structured-leaflet.ts').structuredLeaflet;let ready;
+ const response=await generate(input,'human',p=>ready=p),data=await response.json();
+ assert.equal(response.status,200);assert.equal(data.experiment,'simple-research-v1');assert.equal(data.sections.length,11);assert.match(data.sections.at(-1).bullets[0],/8.50 EUR/);assert.equal(ready.pricePending,false);assert.equal(h.calls.length,1);
+ const call=h.calls[0];assert.equal(call.model,'gpt-6.1-sol');assert.equal(call.max_tool_calls,1);assert.equal(call.tool_choice,'required');assert.equal(call.text.format.strict,true);assert.match(call.input,/Tell me everything you know about Public fixture medicine sold in Italy including prices and manufacturers/);assert.match(call.instructions,/Clearly separate contraindications/);assert.match(call.instructions,/No Storage section or dosing schedules/);assert.equal(call.text.format.schema.properties.information_sections.required.includes('Storage'),false);
+ assert.match(data.leaflet.leaflet_text,/Manufacturer\n- Example maker/);await generate(input);assert.equal(h.calls.length,1);
+});
+
+test('simplified experiment has no price fallback, rejects incomplete output and does not retry provider errors',async()=>{
+ const reply=priceResult([{...priceQuote,country:'France'}]);reply.output[1].content[0].text=JSON.stringify({...values(),quotes:[{...priceQuote,country:'France'}]});
+ const h=loader(null,{...env,MEDICEA_SIMPLE_LEAFLET:'true'},reply),result=await h.load('app/lib/structured-leaflet.ts').structuredLeaflet(input);assert.equal(result.status,200);assert.equal((await result.json()).sections.at(-1).bullets[0],'Not specified');assert.equal(h.calls.length,1);
+ const incomplete=loader(null,{...env,MEDICEA_SIMPLE_LEAFLET:'true'},{status:'incomplete',output:[]});assert.equal((await incomplete.load('app/lib/structured-leaflet.ts').structuredLeaflet(input)).status,503);assert.equal(incomplete.calls.length,1);
+ const failure=loader(null,{...env,MEDICEA_SIMPLE_LEAFLET:'true',OPENAI_API_KEY_1:'second-fictional-key'},()=>{throw Error('Fictional network failure');});assert.equal((await failure.load('app/lib/structured-leaflet.ts').structuredLeaflet(input)).status,503);assert.equal(failure.calls.length,1);
 });
