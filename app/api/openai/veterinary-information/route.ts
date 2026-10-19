@@ -1,6 +1,6 @@
 import {withMembership} from '@/lib/membership/meter';
 import {NextResponse} from 'next/server';
-import {openaiFetch} from '@/app/lib/openaiClient';
+import {openaiFetch,travelSolEnabled} from '@/app/lib/openaiClient';
 import {VETERINARY_TOPICS, veterinarySections} from '@/app/lib/veterinary-sections';
 export const maxDuration = 60;
 
@@ -11,6 +11,7 @@ async function generate(req: Request) {
         typeof originCountry !== 'string' || !originCountry.trim() || originCountry.length > 200) {
       return NextResponse.json({error:'INVALID_INPUT'}, {status:400});
     }
+    if(travelSolEnabled?.())return (await import('@/app/lib/structured-leaflet')).structuredLeaflet({drugName,originCountry,lang},'veterinary');
     const language = typeof lang === 'string' && /^[a-z]{2}$/.test(lang) ? lang : 'en';
     const system = 'You are a cautious veterinary medicine information assistant. Provide a concise educational summary for an animal medicine, not human medicine. This is AI-generated information, not an official package leaflet. Do not claim to have fetched or verified a leaflet, availability or approval. Use only known product-specific facts; use an empty array for uncertain details. Do not infer species, animal size, formulation, route, strength, price or legal status from a similar brand or human product. Do not give dosing instructions or individualized treatment advice. Return JSON with exactly one key: information_sections, an object whose required topic keys each contain an array of concise single-sentence bullet strings. Do not write narrative paragraphs. Preserve the required English topic keys and write bullet text strictly in the requested language.';
     const user = `Requested language: ${language}

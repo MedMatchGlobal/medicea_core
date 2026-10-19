@@ -4,8 +4,8 @@ import {isMedicineName} from './match-display';
 import {POST as originalSearch} from '../api/openai/equivalent-search/route';
 import {POST as originalLeaflet} from '../api/openai/leaflet/route';
 
-export async function originalTravelInformation(drugName:string,originCountry:string,drugDosage:string,lang:string){
- const result=await withOpenAIEvaluation(true,()=>originalLeaflet(new Request('https://owner-demo.invalid/api/openai/leaflet',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({drugName,originCountry,drugDosage,lang})})));
+export async function originalTravelInformation(drugName:string,originCountry:string,drugDosage:string,lang:string,originSelection?:unknown){
+ const result=await withOpenAIEvaluation(true,()=>originalLeaflet(new Request('https://owner-demo.invalid/api/openai/leaflet',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({drugName,originCountry,drugDosage,lang,...(originSelection?{originSelection,originQueryName:drugName}:{})})})));
  return result.value;
 }
 

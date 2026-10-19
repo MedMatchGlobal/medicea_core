@@ -1,4 +1,35 @@
-# Production prompt routing on Sol — 19 October 2026
+# Shared structured Dev leaflet — 19 October 2026
+
+The owner explicitly authorised a new common leaflet format, superseding exact
+Production prompt parity for medicine information only. Normal matching,
+generics, health-tool and standalone translation prompts remain unchanged.
+Production and other deployment branches keep their existing leaflet behaviour.
+
+Dev human leaflets (origin, equivalent and generic), general medicine information,
+veterinary information and Travel information use `structured-leaflet.ts` with
+the shared strict `medicea_leaflet_v1` JSON schema. It requires twelve ordered
+section arrays: Active Ingredients; Strength (displayed as Strengths in English);
+Dosage; Indications; Contraindications; Precautions; Side Effects; Interactions;
+Legal Classification; Storage; Manufacturer; Average Selling Price. Every item
+is plain bullet text. Empty arrays become translated Not specified bullets.
+
+The server validates structure, bounded bullets, refusal and truncation. Invalid
+output is a failure, never a partial success. No formatting-repair retry is added.
+The model is still GPT-6.1 Sol, with one generation in the requested language.
+No ingredient-strength or treatment-equivalence matching rules are changed.
+
+The shared React renderer owns headings, order and real ul/li bullets, instead
+of relying on model Markdown. Human origin/candidate, Travel and veterinary
+views use it; old saved text remains readable through the legacy fallback.
+The wire response retains leaflet_text with deterministic heading/bullet lines,
+alongside typed sections and unverified/generated metadata. Original search
+inputs and result layout remain intact. Unknown facts/prices are not fabricated.
+Strength, salt basis and dosage are distinct; veterinary instructions retain
+species safeguards. Generated text does not claim official-source retrieval.
+
+This is a format contract, not clinical validation or a Production release.
+
+# Production prompt routing on Sol — prior configuration
 
 Ordinary features in the Travel Dev deployment now select the original
 Production handlers, independently of model migration. This covers human and
@@ -100,3 +131,13 @@ Regression checks: 142 tests pass, including original prompt preservation,
 request-local model isolation, unchanged original comparison invocation,
 explicit provenance and Production/other-branch rejection. Live product results
 must be reported separately from these mocked provider checks.
+
+Verification for the shared format: 161 automated tests pass and the optimized
+build passes. Mocked provider tests cover strict-schema requests, all twelve
+sections, translated missing-value bullets, refusals/truncation and Production
+exclusion. A local rendered fixture was checked at 390px and 1280px: twelve
+ordered headings, twelve real bullet lists and no horizontal overflow. This is
+layout/schema verification, not live-provider or clinical-content verification.
+Independent live HTTP checks remain blocked by Vercel deployment protection;
+the owner must generate a fresh leaflet in the authenticated Dev browser.
+Existing saved leaflet snapshots are not silently regenerated.

@@ -48,7 +48,7 @@ export async function POST(request:Request){
   }
   if(action==='information'){
    const selected=readOriginSelection(token,query,originCountry,dosage);if(!selected)return NextResponse.json({error:'ORIGIN_SELECTION_EXPIRED'},{status:422,headers});
-   const response=await originalTravelInformation(query,originCountry,dosage,lang);
+   const response=await originalTravelInformation(query,originCountry,dosage,lang,token);
    if(!response.ok)return NextResponse.json({error:'INFORMATION_UNAVAILABLE'},{status:response.status,headers});
    const data=await response.json();return NextResponse.json({information:data.leaflet?.leaflet_text||data.leaflet_text||''},{headers});
   }

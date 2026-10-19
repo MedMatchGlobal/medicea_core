@@ -43,6 +43,9 @@ import MedicineSources from './components/MedicineSources';
 import {matchingFeedback} from './i18n/matching-feedback';
 import {MatchingSearchError,matchingFailure} from './lib/matching-failure';
 import {leafletSections} from './lib/leaflet-sections';
+import {readStructuredLeaflet} from './lib/leaflet-contract';
+import StructuredLeafletSections from './components/StructuredLeafletSections';
+import {connectedCopy} from './i18n/travel-connected';
 import {isMedicineName,isEmptyMatchText} from './lib/match-display';
 import {emptyMatchCopy} from './i18n/empty-match';
 import {originChoiceCopy} from './i18n/origin-choice';
@@ -300,8 +303,10 @@ function bulletifyBlock(text: string) {
   return <p style={styles.p}>{capitalized}</p>;
 }
 
-function renderLeafletPretty(leafletText: string, t: UIStrings,omitComposition=false) {
+function renderLeafletPretty(leafletText: string, t: UIStrings,omitComposition=false,lang='en') {
   if (!leafletText) return null;
+  const structured=readStructuredLeaflet(leafletText);
+  if(structured)return <div style={styles.leafletCard}><StructuredLeafletSections sections={structured} lang={lang} headings={t.leafletHeadings} notice={connectedCopy(lang).unverified}/></div>;
 
   const cleaned = leafletText;
 
@@ -1407,12 +1412,12 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
           {(mode === 'leaflet' || mode === 'international' || mode === 'generic') && (leafletRaw||originIngredients.length>0) && (
             <div className="leaflet-block">
               <h2 className="medicine-section-title">{F(ui, 'medicineDetails', 'Medicine details')} — {originProductName||selectedDrug}</h2>
-              {originIngredients.length>0&&<div className="origin-composition"><strong>{(t.leafletHeadings as any)?.['Active Ingredients']||'Active ingredients'}</strong><ul>{originIngredients.map((ingredient,index)=><li key={index}>{ingredient.name}: <b>{ingredient.strength}</b></li>)}</ul></div>}
+              {originIngredients.length>0&&(!originLeafletVisible||!readStructuredLeaflet(extractLeafletText(leafletRaw)))&&<div className="origin-composition"><strong>{(t.leafletHeadings as any)?.['Active Ingredients']||'Active ingredients'}</strong><ul>{originIngredients.map((ingredient,index)=><li key={index}>{ingredient.name}: <b>{ingredient.strength}</b></li>)}</ul></div>}
               {leafletRaw&&<div className="leaflet-actions">
                 <button type="button" className="pill pill--blue pill-sm" aria-expanded={originLeafletVisible} onClick={() => setOriginLeafletVisible(!originLeafletVisible)}>{originLeafletVisible ? leafletActions(lang).hide : leafletActions(lang).view}</button>
                 <a className="official-leaflet-link" href={officialMedicineLeafletSearch(selectedDrug, originCode)} target="_blank" rel="noopener noreferrer">{leafletActions(lang).official}</a>
               </div>}
-              {leafletRaw&&originLeafletVisible && renderLeafletPretty(extractLeafletText(leafletRaw), t,originIngredients.length>0)}
+              {leafletRaw&&originLeafletVisible && renderLeafletPretty(extractLeafletText(leafletRaw), t,originIngredients.length>0,lang)}
             </div>
           )}
 
@@ -1563,7 +1568,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
                           overflowWrap: 'anywhere',
                         }}
                       >
-                        {renderLeafletPretty(extractLeafletText(leafletText), t)}
+                        {renderLeafletPretty(extractLeafletText(leafletText), t,false,lang)}
                       </div>
                     )}
                   </div>

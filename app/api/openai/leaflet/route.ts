@@ -1,6 +1,6 @@
 import {withMembership} from '@/lib/membership/meter';
 export const maxDuration = 60;
-import { openaiFetch, experimentalPromptsEnabled as modelUpgradeEnabled } from "@/app/lib/openaiClient";
+import { openaiFetch, travelSolEnabled, experimentalPromptsEnabled as modelUpgradeEnabled } from "@/app/lib/openaiClient";
 import { NextResponse } from "next/server";
 
 const OPENAI_URL = "https://api.openai.com/v1/chat/completions";
@@ -11,6 +11,7 @@ async function generate(req: Request) {
     const { originCountry, drugName, drugDosage, lang, originSelection, originQueryName } = await req.json();
     if(modelUpgradeEnabled?.()) return (await import("@/app/lib/medicine-summary")).medicineSummary({drugName,originCountry,drugDosage,lang,originSelection,originQueryName});
     const language = (lang || "en").trim().toLowerCase();
+    if(travelSolEnabled?.())return (await import('@/app/lib/structured-leaflet')).structuredLeaflet({drugName,originCountry,drugDosage,lang:language,originSelection,originQueryName});
 
     // ------------------ ORIGINAL PROMPTS (UNCHANGED) ------------------
     const system = `
