@@ -133,18 +133,18 @@ test('Storage is neither requested nor rendered, and older stored leaflets remai
 test('simplified experiment uses one researched Sol response for leaflet and prices with local formatting and exact reuse',async()=>{
  const info=values();info.information_sections.Manufacturer=['Example maker for the fictional 10 mg tablet'];info.information_sections.Contraindications=['Fictional contraindication'];
  const reply=priceResult();reply.output[1].content[0].text=JSON.stringify({...info,quotes:[priceQuote]});
- const h=loader(null,{...env,MEDICEA_SIMPLE_LEAFLET:'true'},reply),generate=h.load('app/lib/structured-leaflet.ts').structuredLeaflet;let ready;
- const response=await generate(input,'human',p=>ready=p),data=await response.json();
+ const h=loader(null,{...env,MEDICEA_SIMPLE_LEAFLET:'true'},reply),generate=h.load('app/lib/simple-research-leaflet.ts').simpleResearchLeaflet;let ready;
+ const response=await generate({...input,drugDosage:'',audience:'human',selected:null},p=>ready=p),data=await response.json();
  assert.equal(response.status,200);assert.equal(data.experiment,'simple-research-v1');assert.equal(data.sections.length,11);assert.match(data.sections.at(-1).bullets[0],/8.50 EUR/);assert.equal(ready.pricePending,false);assert.equal(h.calls.length,1);
  const call=h.calls[0];assert.equal(call.model,'gpt-6.1-sol');assert.equal(call.max_tool_calls,1);assert.equal(call.tool_choice,'required');assert.equal(call.text.format.strict,true);assert.match(call.input,/Tell me everything you know about Public fixture medicine sold in Italy including prices and manufacturers/);assert.match(call.instructions,/Clearly separate contraindications/);assert.match(call.instructions,/No Storage section or dosing schedules/);assert.equal(call.text.format.schema.properties.information_sections.required.includes('Storage'),false);
- assert.match(data.leaflet.leaflet_text,/Manufacturer\n- Example maker/);await generate(input);assert.equal(h.calls.length,1);
+ assert.match(data.leaflet.leaflet_text,/Manufacturer\n- Example maker/);await generate({...input,drugDosage:'',audience:'human',selected:null});assert.equal(h.calls.length,1);
 });
 
 test('simplified experiment has no price fallback, rejects incomplete output and does not retry provider errors',async()=>{
  const reply=priceResult([{...priceQuote,country:'France'}]);reply.output[1].content[0].text=JSON.stringify({...values(),quotes:[{...priceQuote,country:'France'}]});
- const h=loader(null,{...env,MEDICEA_SIMPLE_LEAFLET:'true'},reply),result=await h.load('app/lib/structured-leaflet.ts').structuredLeaflet(input);assert.equal(result.status,200);assert.equal((await result.json()).sections.at(-1).bullets[0],'Not specified');assert.equal(h.calls.length,1);
- const incomplete=loader(null,{...env,MEDICEA_SIMPLE_LEAFLET:'true'},{status:'incomplete',output:[]});assert.equal((await incomplete.load('app/lib/structured-leaflet.ts').structuredLeaflet(input)).status,503);assert.equal(incomplete.calls.length,1);
- const failure=loader(null,{...env,MEDICEA_SIMPLE_LEAFLET:'true',OPENAI_API_KEY_1:'second-fictional-key'},()=>{throw Error('Fictional network failure');});assert.equal((await failure.load('app/lib/structured-leaflet.ts').structuredLeaflet(input)).status,503);assert.equal(failure.calls.length,1);
+ const h=loader(null,{...env,MEDICEA_SIMPLE_LEAFLET:'true'},reply),result=await h.load('app/lib/simple-research-leaflet.ts').simpleResearchLeaflet({...input,drugDosage:'',audience:'human',selected:null});assert.equal(result.status,200);assert.equal((await result.json()).sections.at(-1).bullets[0],'Not specified');assert.equal(h.calls.length,1);
+ const incomplete=loader(null,{...env,MEDICEA_SIMPLE_LEAFLET:'true'},{status:'incomplete',output:[]});assert.equal((await incomplete.load('app/lib/simple-research-leaflet.ts').simpleResearchLeaflet({...input,drugDosage:'',audience:'human',selected:null})).status,503);assert.equal(incomplete.calls.length,1);
+ const failure=loader(null,{...env,MEDICEA_SIMPLE_LEAFLET:'true',OPENAI_API_KEY_1:'second-fictional-key'},()=>{throw Error('Fictional network failure');});assert.equal((await failure.load('app/lib/simple-research-leaflet.ts').simpleResearchLeaflet({...input,drugDosage:'',audience:'human',selected:null})).status,503);assert.equal(failure.calls.length,1);
 });
 
 
