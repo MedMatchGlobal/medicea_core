@@ -240,3 +240,46 @@ asserts family-specific manufacturer instructions, retained manufacturer output,
 one existing generation call when price is present, unchanged Sol/low reasoning,
 and timing headers. Independent live content still requires authenticated owner
 testing. Production is unchanged.
+
+## Cost-neutral leaflet responsiveness — 19 October 2026
+
+At the owner's request, Sol, reasoning level, maximum output budget, clinical
+prompt, twelve-section schema and validation are unchanged. There are no new
+paid provider calls, parallel speculative research, translation passes or retries.
+
+The main human original/equivalent leaflet UI opts into one NDJSON HTTP response.
+After core schema validation it displays the complete twelve-section leaflet,
+with a translated Searching placeholder in the price section while the existing
+optional price search finishes. Saving remains disabled until the final result.
+Final price evidence is retained. Request-version checks reject stale updates.
+Malformed/refused/truncated generation is never emitted as a successful core.
+
+The route defaults to the existing JSON contract. Progressive output is restricted
+to the exact Dev Preview and disabled when membership metering is enabled, so the
+JSON-based reservation/success-counting system is unchanged. Existing Travel,
+veterinary and ordinary JSON callers remain compatible.
+
+A bounded process-local cache reuses successful priced leaflets for ten minutes,
+and identical concurrent requests share the same generation/research work. Keys
+hash the exact product/country/strength/language/audience/selected-profile and
+prompt identity; no fuzzy matching merges different variants. Signed selections
+are validated before reuse. Failed generations and unavailable optional prices
+are not retained as complete cached results. Original generation/check dates are
+preserved. This cache contains public product responses only, has at most 64
+entries, persists nothing to disk/database, and is best-effort per warm Vercel
+instance. New instances and expired entries can require fresh generation.
+
+Verification: all 177 automated tests and the optimized build pass. Tests cover
+reuse/isolation/expiry/bounds, concurrent deduplication, failed-result retry,
+price-failure retry, validated-core-before-price ordering, exact provider-call
+counts, error/truncated streams, split Unicode chunks, JSON compatibility and
+membership-mode fallback. No protected prompt fixture was changed.
+
+A local headless mobile/desktop test used a fictional provider with an artificial
+3.5-second price delay: core visible at 373ms, completed at 4330ms, repeat at 33ms;
+the server recorded exactly one core and one price call across both searches.
+All twelve sections, retained inputs, final source links and disabled saving
+while pending were checked without browser errors. These are fixture timings,
+not live Sol benchmarks or promises about first-generation latency. Artifacts:
+leaflet-progress-local-qa.json and leaflet-progress-local-{mobile,desktop}.png.
+The owner must test the deployed authenticated browser to measure real timings.

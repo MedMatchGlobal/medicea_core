@@ -11,7 +11,14 @@ async function generate(req: Request) {
     const { originCountry, drugName, drugDosage, lang, originSelection, originQueryName } = await req.json();
     if(modelUpgradeEnabled?.()) return (await import("@/app/lib/medicine-summary")).medicineSummary({drugName,originCountry,drugDosage,lang,originSelection,originQueryName});
     const language = (lang || "en").trim().toLowerCase();
-    if(travelSolEnabled?.())return (await import('@/app/lib/structured-leaflet')).structuredLeaflet({drugName,originCountry,drugDosage,lang:language,originSelection,originQueryName});
+    if(travelSolEnabled?.()){
+      const {structuredLeaflet}=await import('@/app/lib/structured-leaflet');
+      const input={drugName,originCountry,drugDosage,lang:language,originSelection,originQueryName};
+      // Keep the existing JSON-based membership metering contract intact.
+      const {membershipPreviewEnabled}=await import('@/lib/membership/config');
+      if(req.headers.get('Accept')?.includes('application/x-ndjson')&&!membershipPreviewEnabled())return (await import('@/app/lib/leaflet-progress')).leafletProgress(ready=>structuredLeaflet(input,'human',ready));
+      return structuredLeaflet(input);
+    }
 
     // ------------------ ORIGINAL PROMPTS (UNCHANGED) ------------------
     const system = `

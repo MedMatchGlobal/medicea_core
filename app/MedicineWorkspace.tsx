@@ -43,6 +43,7 @@ import MedicineSources from './components/MedicineSources';
 import {matchingFeedback} from './i18n/matching-feedback';
 import {MatchingSearchError,matchingFailure} from './lib/matching-failure';
 import {leafletSections} from './lib/leaflet-sections';
+import {readLeafletResponse} from './lib/leaflet-progress';
 import {readStructuredLeaflet} from './lib/leaflet-contract';
 import StructuredLeafletSections from './components/StructuredLeafletSections';
 import {connectedCopy} from './i18n/travel-connected';
@@ -933,8 +934,8 @@ if (!membershipEnabled && !BETA_TESTING && isPremiumMode(mode)) {
     const drugDosage = selectedDosage || '';
     let originInformation:Promise<void>|undefined;
     const loadOriginInformation=(name:string,token?:string)=>(async()=>{
-      const response=await fetch('/api/openai/leaflet',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({originCountry,drugName:name,drugDosage,lang,...(token?{originSelection:token,originQueryName:drugName}:{})})});
-      if(!response.ok)return;const payload=await response.json();if(version!==searchVersion.current)return;setLeafletRaw(pickText(payload));
+      const response=await fetch('/api/openai/leaflet',{method:'POST',headers:{'Content-Type':'application/json',...(travelDemo?{Accept:'application/x-ndjson'}:{})},body:JSON.stringify({originCountry,drugName:name,drugDosage,lang,...(token?{originSelection:token,originQueryName:drugName}:{})})});
+      if(!response.ok)return;const payload=await readLeafletResponse(response,partial=>{if(version===searchVersion.current)setLeafletRaw(pickText(partial));},F(ui,'searching','Searching…'));if(version!==searchVersion.current)return;setLeafletRaw(pickText(payload));
     })().catch(()=>{});
 
     try {
@@ -950,11 +951,11 @@ if (!membershipEnabled && !BETA_TESTING && isPremiumMode(mode)) {
       if (mode === 'leaflet') {
         const res = await membershipFetch('/api/openai/leaflet', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', ...(travelDemo?{Accept:'application/x-ndjson'}:{}) },
           body: JSON.stringify({ originCountry, drugName, drugDosage, lang }),
         });
         if (!res.ok) throw new Error('Medicine service unavailable');
-        const payload = await res.json();
+        const payload = await readLeafletResponse(res,partial=>{if(version===searchVersion.current)setLeafletRaw(pickText(partial));},F(ui,'searching','Searching…'));
       if (version !== searchVersion.current) return;
         setLeafletRaw(pickText(payload));
         setResult('');
@@ -1098,7 +1099,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
 
       const res = await membershipFetch('/api/openai/leaflet', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...(travelDemo?{Accept:'application/x-ndjson'}:{}) },
         body: JSON.stringify({
           originCountry: country,
           targetCountry: country,
@@ -1110,7 +1111,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
           searchAccess,
         }),
       });
-      const data = await res.json();
+      const data = await readLeafletResponse(res,partial=>{if(version===searchVersion.current){setLeaflets(p=>({...p,[medicineName]:pickText(partial)}));setViewLeaflet(p=>({...p,[medicineName]:true}));}},F(ui,'searching','Searching…'));
       if (version !== searchVersion.current) return;
       setLeaflets((p) => ({ ...p, [medicineName]: pickText(data) }));
       setViewLeaflet((p) => ({ ...p, [medicineName]: true }));
