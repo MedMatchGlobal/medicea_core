@@ -146,3 +146,13 @@ test('simplified experiment has no price fallback, rejects incomplete output and
  const incomplete=loader(null,{...env,MEDICEA_SIMPLE_LEAFLET:'true'},{status:'incomplete',output:[]});assert.equal((await incomplete.load('app/lib/structured-leaflet.ts').structuredLeaflet(input)).status,503);assert.equal(incomplete.calls.length,1);
  const failure=loader(null,{...env,MEDICEA_SIMPLE_LEAFLET:'true',OPENAI_API_KEY_1:'second-fictional-key'},()=>{throw Error('Fictional network failure');});assert.equal((await failure.load('app/lib/structured-leaflet.ts').structuredLeaflet(input)).status,503);assert.equal(failure.calls.length,1);
 });
+
+
+test('leaflet bullets stay readable while citation URLs move to a closed source disclosure',()=>{
+ const h=loader(),Component=h.load('app/components/StructuredLeafletSections.tsx').default;
+ const sections=[{key:'Strength',bullets:['400 mg per tablet. ([spididol.it](https://www.spididol.it/leaflet.pdf))','See [product leaflet](https://www.spididol.it/leaflet.pdf).']},{key:'Average Selling Price',bullets:['12 tablets · 8.29 EUR · Italy · https://pharmacy.example/pack']}];
+ const original=JSON.stringify(sections),html=renderToStaticMarkup(React.createElement(Component,{sections})),body=html.split('<details')[0];
+ assert.doesNotMatch(body,/https?:|\[spididol|<a /);assert.match(body,/400 mg per tablet/);assert.match(body,/product leaflet/);assert.match(body,/8.29 EUR/);assert.doesNotMatch(body,/\(\s*\)/);
+ assert.match(html,/<summary[^>]*>Sources \(2\)<\/summary>/);assert.doesNotMatch(html,/<details[^>]* open/);assert.equal((html.match(/href=/g)||[]).length,2);assert.equal(JSON.stringify(sections),original);
+ const unsafe=renderToStaticMarkup(React.createElement(Component,{sections:[{key:'Precautions',bullets:['Check pack https://user:secret@example.com/pack']}],lang:'it'}));assert.doesNotMatch(unsafe,/href=|user:secret/);
+});
