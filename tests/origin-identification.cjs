@@ -141,3 +141,13 @@ test('equivalent leaflet route sends the retained supplier identity while search
   const payload={output:[{type:'web_search_call',status:'completed',action:{type:'open_page',url:page}},{type:'web_search_call',status:'completed',action:{type:'find_in_page',url:page}},{type:'web_search_call',status:'in_progress',action:{type:'open_page',url:'https://not-finished.example/'}},{type:'web_search_call',status:'completed',action:{type:'open_page',url:'javascript:alert(1)'}},{type:'message',status:'completed',action:{type:'open_page',url:'https://not-a-tool.example/'}},{type:'web_search_call',status:'completed',action:{type:'open_page',url:'https://user:secret@credentialed.example/'}}]};
   assert.equal(lib.retrievedResearchUrls(payload).size,0);assert.deepEqual(Array.from(lib.retrievedResearchUrls(payload,true)),[page]);
  });
+
+ test('Italy-to-UK equivalent pricing uses the UK while the Italian original uses Italy',async()=>{
+  for(const productCountry of ['United Kingdom','Italy']){
+   const original='Fictional exact product tablets — Fictional Supplier, '+productCountry+'. Fictional formulation details.';
+   const value=leafletFixture(),quote={product:'Fictional exact product tablets',pack:'20 tablets',price:'8.50',currency:productCountry==='Italy'?'EUR':'GBP',country:productCountry,source:'https://licensed-pharmacy.example/fictional-pack',note:'Listed pack price, not a guaranteed checkout price'};
+   const h=harness(env,async(url,init)=>{const body=JSON.parse(init.body);if(body.text.format.name==='medicea_grounded_leaflet_v1')return Response.json(researchedLeaflet(value));return Response.json({status:'completed',output:[{type:'web_search_call',status:'completed',action:{type:'search',sources:[{url:quote.source}]}},{type:'message',content:[{type:'output_text',text:JSON.stringify({quotes:[quote]})}]}]});});
+   const response=await h.load('app/api/openai/leaflet/route.ts').POST(request({drugName:original,equivalentResult:original,originCountry:productCountry,targetCountry:productCountry,lang:'en'})),data=await response.json();
+   assert.equal(response.status,200);assert.equal(h.calls.length,2);assert.equal(JSON.parse(h.calls[0].body.input[1].content).originCountry,productCountry);assert.equal(JSON.parse(h.calls[1].body.input).originCountry,productCountry);assert.equal(h.calls[0].body.max_tool_calls,3);assert.equal(h.calls[1].body.max_tool_calls,1);assert.equal(data.priceLookupDiagnostic,'PRICE_FOUND');assert.match(data.sections.at(-1).bullets[0],new RegExp(productCountry));
+  }
+ });

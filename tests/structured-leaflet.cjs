@@ -49,7 +49,7 @@ test('a valid previously selected profile retains its strength when the model om
 const priceQuote={product:'Fictional tablets 10 mg',pack:'20 tablets',price:'8.50',currency:'EUR',country:'Italy',source:'https://www.example.com/fictional-pack',note:'Listed price, not an average or guaranteed checkout price'};
 const priceResult=(quotes=[priceQuote],sources=[priceQuote.source])=>({status:'completed',output:[{type:'web_search_call',status:'completed',action:{sources:sources.map(url=>({url}))}},{type:'message',content:[{type:'output_text',text:JSON.stringify({quotes})}]}]});
 test('missing leaflet price receives one Sol web lookup with dated, source-linked pack quotes',async()=>{
- const h=loader(completed(values()),env,priceResult()),response=await h.load('app/lib/structured-leaflet.ts').structuredLeaflet(input),data=await response.json();assert.equal(response.status,200);assert.equal(h.calls.length,2);const call=h.calls[1];assert.equal(call.model,'gpt-6.1-sol');assert.equal(call.tools[0].type,'web_search');assert.equal(call.max_tool_calls,3);assert.equal(call.tool_choice,'required');assert.equal(call.text.format.strict,true);assert.equal(call.store,false);assert.match(data.sections[10].bullets[0],/8.50 EUR/);assert.match(data.sections[10].bullets[0],/20 tablets/);assert.match(data.sections[10].bullets[0],/\d{4}-\d{2}-\d{2}/);assert.match(data.sections[10].bullets[0],/https:\/\/www.example.com/);assert.equal(data.verification,'ai_generated_unverified');
+ const h=loader(completed(values()),env,priceResult()),response=await h.load('app/lib/structured-leaflet.ts').structuredLeaflet(input),data=await response.json();assert.equal(response.status,200);assert.equal(h.calls.length,2);const call=h.calls[1];assert.equal(call.model,'gpt-6.1-sol');assert.equal(call.tools[0].type,'web_search');assert.equal(call.max_tool_calls,1);assert.equal(call.tool_choice,'required');assert.equal(call.text.format.strict,true);assert.equal(call.store,false);assert.match(data.sections[10].bullets[0],/8.50 EUR/);assert.match(data.sections[10].bullets[0],/20 tablets/);assert.match(data.sections[10].bullets[0],/\d{4}-\d{2}-\d{2}/);assert.match(data.sections[10].bullets[0],/https:\/\/www.example.com/);assert.equal(data.verification,'ai_generated_unverified');
  const c=h.load('app/components/StructuredLeafletSections.tsx').default,html=renderToStaticMarkup(React.createElement(c,{sections:data.sections}));assert.match(html,/href="https:\/\/www.example.com\/fictional-pack"/);assert.match(html,/referrerPolicy="no-referrer"/i);
 });
 test('price evidence rejects unsearched URLs, unsafe links, wrong countries, missing packs and nonnumeric amounts',()=>{
@@ -214,14 +214,14 @@ test('leaflet diagnostic reasons survive JSON and streamed errors without includ
   }
  });
 
- test('price lookup can search and open a priced pack within three actions while preserving quote validation',async()=>{
-  const payload=priceResult([priceQuote],[]);payload.output.splice(1,0,{type:'web_search_call',status:'completed',action:{type:'open_page',url:priceQuote.source}},{type:'web_search_call',status:'completed',action:{type:'find_in_page',url:priceQuote.source,pattern:'Fictional pack'}});
+ test('price lookup restores the one-action cap and retains opened-source validation',async()=>{
+  const payload=priceResult([priceQuote],[]);payload.output[0]={type:'web_search_call',status:'completed',action:{type:'open_page',url:priceQuote.source}};
   const h=loader(null,env,payload);let diagnostic;const quotes=await h.load('app/lib/leaflet-price.ts').lookupLeafletPrice({...input,audience:'human',selectedProfile:null},10000,code=>diagnostic=code);
-  assert.equal(quotes.length,1);assert.equal(diagnostic,'PRICE_FOUND');assert.equal(h.calls.length,1);assert.equal(h.calls[0].max_tool_calls,3);assert.equal(h.calls[0].tools[0].filters,undefined);
+  assert.equal(quotes.length,1);assert.equal(diagnostic,'PRICE_FOUND');assert.equal(h.calls.length,1);assert.equal(h.calls[0].max_tool_calls,1);assert.equal(h.calls[0].tools[0].filters,undefined);
   for(const bad of [{...payload,output:payload.output.map(o=>o.type==='web_search_call'?{...o,status:'in_progress'}:o)},priceResult([{...priceQuote,country:'France'}]),priceResult([{...priceQuote,pack:''}])])assert.equal(h.load('app/lib/leaflet-price.ts').readPriceQuotes(bad,'Italy','2026-10-20').length,0);
  });
  test('price diagnostics distinguish no matching price, rejected quotes, malformed output and timeout without disclosing provider text',async()=>{
-  const cases=[['PRICE_NO_MATCH',priceResult([])],['PRICE_QUOTES_REJECTED',priceResult([{...priceQuote,source:'https://not-retrieved.example/'}])],['PRICE_INCOMPLETE_RESPONSE',{status:'incomplete'}],['PRICE_INVALID_RESPONSE',{status:'completed',output:[{type:'message',content:[{type:'output_text',text:'not JSON private fixture'}]}]}],['PRICE_TIMEOUT',()=>{throw Error('private provider fixture');}]];
+  const cases=[['PRICE_NO_MATCH',priceResult([])],['PRICE_QUOTES_REJECTED_SOURCE',priceResult([{...priceQuote,source:'https://not-retrieved.example/'}])],['PRICE_INCOMPLETE_RESPONSE',{status:'incomplete'}],['PRICE_INVALID_RESPONSE',{status:'completed',output:[{type:'message',content:[{type:'output_text',text:'not JSON private fixture'}]}]}],['PRICE_TIMEOUT',()=>{throw Error('private provider fixture');}]];
   for(const [expected,payload] of cases){const h=loader(null,env,payload);let diagnostic;const quotes=await h.load('app/lib/leaflet-price.ts').lookupLeafletPrice({...input,audience:'human',selectedProfile:null},10000,code=>diagnostic=code);assert.equal(quotes.length,0);assert.equal(diagnostic,expected);assert.equal(h.calls.length,1);}
   const h=loader(null,env,priceResult());let code;await h.load('app/lib/leaflet-price.ts').lookupLeafletPrice({...input,audience:'human',selectedProfile:null},1000,status=>code=status);assert.equal(code,'PRICE_BUDGET_EXHAUSTED');assert.equal(h.calls.length,0);
  });
@@ -237,4 +237,12 @@ test('leaflet diagnostic reasons survive JSON and streamed errors without includ
   const h=loader(),Component=h.load('app/components/StructuredLeafletSections.tsx').default,sections=h.load('app/lib/leaflet-contract.ts').validateLeaflet(values());
   const render=code=>renderToStaticMarkup(React.createElement(Component,{sections,priceLookupDiagnostic:code}));
   assert.match(render('PRICE_TIMEOUT'),/Price lookup diagnostic:.*PRICE_TIMEOUT/);assert.match(render('PRICE_TIMEOUT'),/Not specified/);assert.doesNotMatch(render('private <script>'),/private|script|diagnostic/);assert.doesNotMatch(render('PRICE_FOUND'),/Price lookup diagnostic/);assert.doesNotMatch(render(undefined),/Price lookup diagnostic/);
+ });
+
+ test('rejected price diagnostics identify country and field failures without changing acceptance',async()=>{
+  for(const [patch,expected] of [[{country:'United Kingdom'},'PRICE_QUOTES_REJECTED_COUNTRY'],[{pack:''},'PRICE_QUOTES_REJECTED_FIELDS'],[{price:'not a price'},'PRICE_QUOTES_REJECTED_AMOUNT'],[{currency:'eur'},'PRICE_QUOTES_REJECTED_CURRENCY'],[{source:'https://not-retrieved.example/pack'},'PRICE_QUOTES_REJECTED_SOURCE']]){
+   const h=loader(null,env,priceResult([{...priceQuote,...patch}]));let code;
+   const quotes=await h.load('app/lib/leaflet-price.ts').lookupLeafletPrice({...input,audience:'human',selectedProfile:null},10000,value=>code=value);
+   assert.equal(quotes.length,0);assert.equal(code,expected);assert.equal(h.calls[0].max_tool_calls,1);
+  }
  });
