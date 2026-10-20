@@ -1,16 +1,29 @@
 import {withMembership} from '@/lib/membership/meter';
-export const maxDuration = 60;
-import { openaiFetch, modelUpgradeEnabled } from "@/app/lib/openaiClient";
+export const maxDuration = 120;
+import { openaiFetch, travelSolEnabled, experimentalPromptsEnabled as modelUpgradeEnabled } from "@/app/lib/openaiClient";
 import { NextResponse } from "next/server";
+import {equivalentLeafletName,isMedicineName} from '@/app/lib/match-display';
 
 const OPENAI_URL = "https://api.openai.com/v1/chat/completions";
 
 async function generate(req: Request) {
   try {
     // Read request body (adds 'lang' support)
-    const { originCountry, drugName, drugDosage, lang, originSelection, originQueryName } = await req.json();
+    const { originCountry, drugName:requestedDrugName, drugDosage, lang, originSelection, originQueryName, equivalentResult } = await req.json();
+    const drugName=travelSolEnabled?.()?equivalentLeafletName(requestedDrugName,equivalentResult,originCountry):requestedDrugName;
     if(modelUpgradeEnabled?.()) return (await import("@/app/lib/medicine-summary")).medicineSummary({drugName,originCountry,drugDosage,lang,originSelection,originQueryName});
     const language = (lang || "en").trim().toLowerCase();
+    if(travelSolEnabled?.()){
+      const {structuredLeaflet}=await import('@/app/lib/structured-leaflet');
+      // Membership checks use the original entry before this route. Retain its
+      // product details and source links alongside the concise display identity.
+      const retainedEquivalent=equivalentResult===requestedDrugName&&isMedicineName(equivalentResult)?equivalentResult:undefined;
+      const input={drugName,originCountry,drugDosage,lang:language,originSelection,originQueryName,equivalentResult:retainedEquivalent};
+      // Keep the existing JSON-based membership metering contract intact.
+      const {membershipPreviewEnabled}=await import('@/lib/membership/config');
+      if(req.headers.get('Accept')?.includes('application/x-ndjson')&&!membershipPreviewEnabled())return (await import('@/app/lib/leaflet-progress')).leafletProgress(ready=>structuredLeaflet(input,'human',ready));
+      return structuredLeaflet(input);
+    }
 
     // ------------------ ORIGINAL PROMPTS (UNCHANGED) ------------------
     const system = `

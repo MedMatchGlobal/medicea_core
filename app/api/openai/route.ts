@@ -1,10 +1,15 @@
 import {withMembership} from '@/lib/membership/meter';
-export const maxDuration = 60;
+export const maxDuration = 120;
 import { NextResponse } from "next/server";
-import { createChatCompletion } from "@/app/lib/openaiClient";
+import { createChatCompletion,travelSolEnabled } from "@/app/lib/openaiClient";
 
 async function generate(req: Request) {
-  const { drugName, originCountry } = await req.json();
+  const input=await req.json();
+  const { drugName, originCountry } = input;
+  if(travelSolEnabled?.()){
+    const response=await (await import('@/app/lib/structured-leaflet')).structuredLeaflet(input);
+    const data=await response.json();return NextResponse.json({...data,...(response.ok?{result:data.leaflet.leaflet_text}:{})},{status:response.status});
+  }
 
   if (!drugName || !originCountry) {
     return NextResponse.json({ error: "Missing input" }, { status: 400 });

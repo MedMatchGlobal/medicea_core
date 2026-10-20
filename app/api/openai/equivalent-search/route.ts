@@ -1,6 +1,6 @@
 import {withMembership} from '@/lib/membership/meter';
-export const maxDuration = 60;
-import { openaiFetch, modelUpgradeEnabled, modelTestConfiguration } from "@/app/lib/openaiClient";
+export const maxDuration = 120;
+import { openaiFetch, originIdentificationEnabled, experimentalPromptsEnabled as modelUpgradeEnabled, modelTestConfiguration } from "@/app/lib/openaiClient";
 import { NextResponse } from "next/server";
 
 const OPENAI_URL = "https://api.openai.com/v1/chat/completions";
@@ -109,6 +109,13 @@ async function generate(req: Request) {
     if(modelUpgradeEnabled?.()&&modelTestConfiguration?.().matchingMode==='prompt-test')return (await import('@/app/lib/prompt-matches')).promptMatchedSearch({drugName,originCountry,drugDosage,targetCountry,originSelection},'international');
     if(modelUpgradeEnabled?.()) return (await import("@/app/lib/source-matches")).sourceMatchedSearch({drugName,originCountry,drugDosage,targetCountry:targetCountry},"international");
 
+    let identified:import('@/app/lib/origin-lookup').OriginProduct|undefined;
+    if(originIdentificationEnabled?.()){
+      if(typeof targetCountry!=='string'||!targetCountry.trim()||targetCountry.length>200)return NextResponse.json({error:'INVALID_INPUT'},{status:400});
+      const result=await (await import('@/app/lib/origin-identification')).resolveIdentifiedOrigin({drugName,originCountry,drugDosage,originSelection});
+      if(result instanceof Response)return result;
+      identified=result;
+    }
     // ---------- STEP 1: get origin profile ----------
     const system1 =
       "You are a structured medical data extractor. Return JSON only with medicine_name, origin_country, and active_ingredients[{name, strength}].";
@@ -119,6 +126,11 @@ sold in ${originCountry}${drugDosage ? ` (user-entered dosage hint: "${drugDosag
 Return strictly JSON with keys: medicine_name, origin_country, active_ingredients[{name, strength}]. No extra text.
 `.trim();
 
+    let originProfile:any;
+    if(identified){
+      const {issueOriginSelection}=await import('@/app/lib/origin-lookup');
+      originProfile={medicine_name:identified.name,origin_country:identified.country,active_ingredients:identified.ingredients,form:identified.form,route:identified.route,release:identified.release,excipients:identified.excipients,excipientStatus:identified.excipientStatus,sources:identified.sources,identification:identified.identification,selection_token:issueOriginSelection(identified,drugName)};
+    }else{
     const response1 = await openaiFetch(OPENAI_URL, {
       method: "POST",
       headers: {
@@ -138,7 +150,8 @@ Return strictly JSON with keys: medicine_name, origin_country, active_ingredient
 
     const data1 = await response1.json();
     console.log("OPENAI STEP 1 RESPONSE:", JSON.stringify(data1, null, 2));
-    const originProfile = JSON.parse(data1.choices?.[0]?.message?.content || "{}");
+    originProfile = JSON.parse(data1.choices?.[0]?.message?.content || "{}");
+    }
 
     if (!originProfile?.active_ingredients || originProfile.error) {
       return NextResponse.json({ error: "NOT_FOUND_ORIGIN", originProfile });
@@ -146,7 +159,7 @@ Return strictly JSON with keys: medicine_name, origin_country, active_ingredient
 
     // Use the model-extracted actives, optionally override strengths from user dosage
     const baseActives: ActiveIng[] = originProfile.active_ingredients;
-    const activesForSearch = applyUserDosageOverride(baseActives, drugDosage);
+    const activesForSearch = identified ? baseActives : applyUserDosageOverride(baseActives, drugDosage);
 
     // Named slots (AI1..AI5 / Strength1..Strength5) for your UI/debug
     const named = mapActivesToNamedSlots(activesForSearch);
@@ -159,6 +172,11 @@ Return strictly JSON with keys: medicine_name, origin_country, active_ingredient
     const system2 = "You are a strict data retriever for licensed medicines. Output only the requested list; do not explain.";
 const user2 = "Return preferably 10 products available in " + targetCountry + " that contain " + explicitList + ".";
 
+let rawText:string;let destinationSources:string[]=[];
+if(identified){
+ const researched=await (await import('@/app/lib/equivalent-research')).researchEquivalentList(system2,user2,identified,targetCountry);
+ rawText=researched.rawText;destinationSources=researched.sources;
+}else{
 const response2 = await openaiFetch(OPENAI_URL, {
       method: "POST",
       headers: {
@@ -177,7 +195,8 @@ const response2 = await openaiFetch(OPENAI_URL, {
     });
 
     const data2 = await response2.json();
-    const rawText = (data2.choices?.[0]?.message?.content || "").trim() || "No response.";
+    rawText = (data2.choices?.[0]?.message?.content || "").trim() || "No response.";
+}
 
     // ---------- STEP 3: post-filter to exact pairwise matches ----------
     const { filtered, kept, dropped } = filterRawToExactPairs(rawText, explicitList);
@@ -192,6 +211,7 @@ const response2 = await openaiFetch(OPENAI_URL, {
         target_country: targetCountry,
         search_composition: explicitList,
         raw_text: filtered || "No matches.",
+        ...(identified?{sources:destinationSources,origin_sources:identified.sources,source_policy:'worldwide-country-authority-v1'}:{}),
         // Optional debug fields if you want to see what got removed:
         // dropped_lines: dropped,
       },

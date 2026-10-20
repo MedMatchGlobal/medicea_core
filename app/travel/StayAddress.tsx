@@ -1,0 +1,19 @@
+'use client';
+import {useEffect,useId,useRef,useState} from 'react';
+import {addressCopy} from '../i18n/travel-address';
+export default function StayAddress({value,onChange,country,lang,label,required}:{value:string;onChange:(value:string)=>void;country:string;lang:string;label:string;required:boolean}){
+ const c=addressCopy(lang),id=useId(),[available,setAvailable]=useState<boolean|null>(null),[focused,setFocused]=useState(false),[dirty,setDirty]=useState(false),[items,setItems]=useState<string[]>([]),[status,setStatus]=useState(''),[active,setActive]=useState(-1),selected=useRef(value),generation=useRef(0);
+ useEffect(()=>{const controller=new AbortController();fetch('/api/travel-address',{cache:'no-store',signal:controller.signal}).then(r=>r.ok?r.json():null).then(v=>setAvailable(v?.available===true)).catch(()=>{if(!controller.signal.aborted)setAvailable(false);});return()=>controller.abort();},[]);
+ useEffect(()=>{
+  const version=++generation.current,controller=new AbortController();setItems([]);setActive(-1);setStatus('');
+  if(!available||!focused||!dirty||value.trim().length<4||value===selected.current)return()=>controller.abort();
+  const timer=setTimeout(async()=>{setStatus('loading');try{const response=await fetch('/api/travel-address',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:value,country,lang}),cache:'no-store',signal:controller.signal});if(!response.ok)throw Error('lookup');const data=await response.json();if(version!==generation.current||controller.signal.aborted)return;const next=Array.isArray(data.items)?data.items.filter((v:unknown)=>typeof v==='string'&&v.length<=240).slice(0,5):[];setItems(next);setStatus(next.length?'':'empty');}catch{if(version===generation.current&&!controller.signal.aborted)setStatus('unavailable');}},500);
+  return()=>{clearTimeout(timer);controller.abort();};
+ },[available,focused,dirty,value,country,lang]);
+ function choose(address:string){generation.current++;selected.current=address;setDirty(false);setItems([]);setStatus('');setActive(-1);onChange(address);}
+ return <div className="travel-address-input"><label htmlFor={id}>{label}</label><input id={id} type="text" maxLength={240} autoComplete="off" required={required} value={value} role="combobox" aria-autocomplete="list" aria-expanded={items.length>0} aria-controls={id+'-list'} aria-describedby={id+'-note'} aria-activedescendant={active>=0?id+'-option-'+active:undefined} onFocus={()=>setFocused(true)} onBlur={()=>setFocused(false)} onChange={e=>{setDirty(true);setItems([]);setStatus('');onChange(e.target.value);}} onKeyDown={e=>{if(e.key==='Escape'){e.preventDefault();generation.current++;setItems([]);setDirty(false);setStatus('');setActive(-1);}else if(items.length&&['ArrowDown','ArrowUp'].includes(e.key)){e.preventDefault();setActive(e.key==='ArrowDown'?(active+1)%items.length:(active<=0?items.length:active)-1);}else if(e.key==='Enter'&&active>=0&&items[active]){e.preventDefault();choose(items[active]);}}}/>
+ {items.length>0&&<ul id={id+'-list'} role="listbox" aria-label={c.suggestions}>{items.map((item,index)=><li role="option" aria-selected={active===index} id={id+'-option-'+index} key={item} onPointerDown={e=>e.preventDefault()} onClick={()=>choose(item)}>{item}</li>)}</ul>}
+ <p id={id+'-note'} className="travel-caption">{available?c.notice:available===false?c.disconnected:''}</p><p className="travel-caption" role="status">{status?c[status as 'loading'|'empty'|'unavailable']:''}</p>
+ {available&&<p className="travel-caption travel-address-attribution"><a href="https://www.geoapify.com/" target="_blank" rel="noopener noreferrer" referrerPolicy="no-referrer">© Geoapify</a> · <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer" referrerPolicy="no-referrer">© OpenStreetMap contributors</a></p>}
+ </div>;
+}

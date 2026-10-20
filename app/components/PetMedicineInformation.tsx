@@ -55,7 +55,7 @@ export default function PetMedicineInformation({medicineName, country, lang, ing
     </div>}
     {open && <div id={id}>
       <p className="search-note">{copy.notice}</p>
-      {error ? <p role="alert">{errorLabel}</p> : loading ? <p role="status">{loadingLabel}</p> : <div className="medicine-leaflet-content">{information && <VeterinaryLeafletSections sections={information} lang={lang} headings={headings} />}</div>}
+      {error ? <p role="alert">{errorLabel}</p> : loading ? <p role="status">{loadingLabel}</p> : <div className="medicine-leaflet-content">{information && <VeterinaryLeafletSections country={country} sections={information} lang={lang} headings={headings} />}</div>}
     </div>}
   </article>;
 }

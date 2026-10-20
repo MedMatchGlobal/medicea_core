@@ -1,5 +1,7 @@
 # Prompt preservation
 
+The owner decides all core medicéa behaviour. Consult the owner before changing search scope, source restrictions, prompts, models, matching rules or workflows beyond the specifically approved task. On 20 October 2026 the owner explicitly approved removing fixed country/domain restrictions from the active human origin, destination-equivalent and leaflet research steps, and replacing them with web-wide research that prioritises authoritative, reliable evidence for the relevant product country. Do not reintroduce fixed source/country allowlists or generalise this approval to other core changes.
+
 The owner requires the refined medicine, equivalent, generic, veterinary, leaflet, condition and supporting translation prompts to remain unchanged during UI work. Do not change their wording, model settings, composition matching or request routing without explicit authorization for that specific change. Run tests/prompt-preservation.cjs after relevant edits. Do not regenerate its baseline to accept an unintended change. UI labels and navigation are independent of search prompts.
 
 # Brand preservation

@@ -14,7 +14,7 @@ test('choosing an origin variant releases the reservation without charging a com
 test('compound search uses the signed selected formulation for its summary and preserves matching context',async()=>{
  const queries=[];const route=load('app/api/membership/search/route.ts',{
   '@/lib/membership/meter':{meteredSearch:async(req,run)=>run(req)},
-  '@/app/lib/openaiClient':{modelUpgradeEnabled:()=>true},
+  '@/app/lib/openaiClient':{experimentalPromptsEnabled:()=>true},
   '@/app/lib/origin-lookup':{readOriginSelection:token=>token==='valid'?{name:'Fixture soluble tablet'}:null},
   '@/app/api/openai/leaflet/route':{POST:async req=>{queries.push(await req.json());return Response.json({leaflet:{leaflet_text:'Fixture summary'}});}},
   '@/app/api/openai/equivalent-search/route':{POST:async req=>{queries.push(await req.json());return Response.json(matches);}},
@@ -46,7 +46,7 @@ test('source-origin Preview compound search establishes the product before its s
  const order=[];let choose=false;
  const route=load('app/api/membership/search/route.ts',{
   '@/lib/membership/meter':{meteredSearch:async(req,run)=>run(req)},
-  '@/app/lib/openaiClient':{modelUpgradeEnabled:()=>true,modelTestConfiguration:()=>({matchingMode:'prompt-test'})},
+  '@/app/lib/openaiClient':{experimentalPromptsEnabled:()=>true,modelTestConfiguration:()=>({matchingMode:'prompt-test'})},
   '@/app/api/openai/equivalent-search/route':{POST:async()=>{order.push('matching');return choose?Response.json({error:'CHOOSE_ORIGIN_VARIANT'},{status:409}):Response.json({...matches,originProfile:{medicine_name:'Selected tablet',selection_token:'source-token'}});}},
   '@/app/api/openai/leaflet/route':{POST:async req=>{order.push('summary');const body=await req.json();assert.equal(body.drugName,'Selected tablet');assert.equal(body.originQueryName,input.drugName);assert.equal(body.originSelection,'source-token');return Response.json({leaflet:{leaflet_text:'Fixture summary'}});}},
  });

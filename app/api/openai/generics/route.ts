@@ -1,6 +1,6 @@
 import {withMembership} from '@/lib/membership/meter';
 export const maxDuration = 60;
-import { openaiFetch, modelUpgradeEnabled, modelTestConfiguration } from "@/app/lib/openaiClient";
+import { openaiFetch, experimentalPromptsEnabled as modelUpgradeEnabled, modelTestConfiguration } from "@/app/lib/openaiClient";
 import { NextResponse } from "next/server";
 
 const OPENAI_URL = "https://api.openai.com/v1/chat/completions";
