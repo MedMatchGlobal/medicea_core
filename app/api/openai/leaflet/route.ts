@@ -1,5 +1,5 @@
 import {withMembership} from '@/lib/membership/meter';
-export const maxDuration = 60;
+export const maxDuration = 120;
 import { openaiFetch, travelSolEnabled, experimentalPromptsEnabled as modelUpgradeEnabled } from "@/app/lib/openaiClient";
 import { NextResponse } from "next/server";
 

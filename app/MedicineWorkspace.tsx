@@ -306,8 +306,10 @@ function bulletifyBlock(text: string) {
 
 function renderLeafletPretty(leafletText: string, t: UIStrings,omitComposition=false,lang='en',country='') {
   if (!leafletText) return null;
+  let sourceUrls:string[]=[];try{const payload=JSON.parse(leafletText);if(Array.isArray(payload.sources))sourceUrls=payload.sources.filter((s:unknown)=>typeof s==='string');}catch{}
+  leafletText=extractLeafletText(leafletText);
   const structured=readStructuredLeaflet(leafletText);
-  if(structured)return <div style={styles.leafletCard}><StructuredLeafletSections sections={structured} country={country} lang={lang} headings={t.leafletHeadings} notice={connectedCopy(lang).unverified}/></div>;
+  if(structured)return <div style={styles.leafletCard}><StructuredLeafletSections sections={structured} country={country} lang={lang} headings={t.leafletHeadings} notice={connectedCopy(lang).unverified} sourceUrls={sourceUrls}/></div>;
 
   const cleaned = leafletText;
 
@@ -1418,7 +1420,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
                 <button type="button" className="pill pill--blue pill-sm" aria-expanded={originLeafletVisible} onClick={() => setOriginLeafletVisible(!originLeafletVisible)}>{originLeafletVisible ? leafletActions(lang).hide : leafletActions(lang).view}</button>
                 <a className="official-leaflet-link" href={officialMedicineLeafletSearch(selectedDrug, originCode)} target="_blank" rel="noopener noreferrer">{leafletActions(lang).official}</a>
               </div>}
-              {leafletRaw&&originLeafletVisible && renderLeafletPretty(extractLeafletText(leafletRaw), t,originIngredients.length>0,lang,originCode)}
+              {leafletRaw&&originLeafletVisible && renderLeafletPretty(leafletRaw, t,originIngredients.length>0,lang,originCode)}
             </div>
           )}
 
@@ -1569,7 +1571,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
                           overflowWrap: 'anywhere',
                         }}
                       >
-                        {renderLeafletPretty(extractLeafletText(leafletText), t,false,lang,mode === 'international' ? targetCode || originCode : originCode)}
+                        {renderLeafletPretty(leafletText, t,false,lang,mode === 'international' ? targetCode || originCode : originCode)}
                       </div>
                     )}
                   </div>

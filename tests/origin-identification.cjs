@@ -57,3 +57,29 @@ test('origin details survive Travel saving and unknown excipients are not record
   const origin=lib.readIdentifiedOrigins(researched([{...profile,...patch}]),'United Kingdom','500 + 8')[0],saved=clean({...origin,query:input.drugName,dosage:input.drugDosage});assert.equal(saved.identification,'origin-v1');assert.equal(saved.release,origin.release);assert.equal(saved.excipientStatus,patch.excipientStatus);assert.deepEqual(Array.from(saved.excipients),patch.excipients);
  }
 });
+
+test('Belgium identification searches official sources without altering legacy country coverage',async()=>{
+ const source='https://app.fagg-afmps.be/pharma-status/api/files/fictional-fixture',belgian={...profile,country:'Belgium',sources:[source]};
+ const h=harness(env,async()=>Response.json(researched([belgian],[source]))),lib=h.load('app/lib/origin-identification.ts');
+ const products=await lib.identifyOrigin({...input,originCountry:'Belgium'});assert.equal(products.length,1);assert.equal(h.calls.length,1);assert.ok(h.calls[0].body.tools[0].filters.allowed_domains.includes('fagg-afmps.be'));assert.equal(h.load('app/lib/origin-lookup.ts').originSourceDomains('Belgium').length,0);
+});
+const leafletTopics=['Active Ingredients','Strength','Formulation','Indications','Contraindications','Precautions','Side Effects','Interactions','Legal Classification','Manufacturer','Average Selling Price'];
+const leafletFixture=()=>({information_sections:Object.fromEntries(leafletTopics.map(k=>[k,k==='Average Selling Price'?[]:['Fictional '+k+' information']])),sources:['https://app.fagg-afmps.be/pharma-status/api/files/fictional-fixture']});
+function researchedLeaflet(value){return {status:'completed',output:[{type:'web_search_call',status:'completed',action:{sources:[{url:'https://app.fagg-afmps.be/pharma-status/api/files/fictional-fixture'}]}},{type:'message',content:[{type:'output_text',text:JSON.stringify(value)}]}]};}
+test('Belgian standalone leaflet researches its existing generation once, publishes before price, and preserves the approved prompt',async()=>{
+ const h=harness(env,async(url,init)=>{const body=JSON.parse(init.body);if(body.text.format.name==='medicea_grounded_leaflet_v1')return Response.json(researchedLeaflet(leafletFixture()));return Response.json({status:'completed',output:[{type:'message',content:[{type:'output_text',text:'{"quotes":[]}'}]}]});});
+ let ready;const response=await h.load('app/lib/structured-leaflet.ts').structuredLeaflet({drugName:'Fictional Belgian medicine',originCountry:'Belgium',lang:'en'},'human',r=>ready=r),result=await response.json();
+ assert.equal(response.status,200);assert.equal(result.sections.length,11);assert.equal(result.sources.length,1);assert.equal(ready.pricePending,true);assert.equal(h.calls.length,2);assert.match(h.calls[0].url,/responses$/);assert.equal(h.calls[0].body.max_tool_calls,1);assert.equal(h.calls[0].body.store,false);assert.equal(h.calls[0].body.text.format.strict,true);assert.equal(h.calls[0].body.instructions,h.load('app/lib/leaflet-prompts.ts').organisedHumanLeafletPrompt('English'));assert.equal(h.calls[1].body.text.format.name,'medicea_price_quotes_v1');assert.equal(result.verification,'ai_generated_unverified');
+});
+test('leaflet source failures and missing identity or contraindications never publish a priced shell or silently retry',async()=>{
+ const invalid=[{...leafletFixture(),sources:[]},{...leafletFixture(),sources:['https://app.fagg-afmps.be/not-retrieved']},{...leafletFixture(),sources:['https://pharmacy.example/retail-price']}];
+ for(const key of ['Active Ingredients','Strength','Formulation','Indications','Contraindications']){const p=leafletFixture();p.information_sections[key]=[];invalid.push(p);}
+ for(const value of invalid){const h=harness(env,async()=>Response.json(researchedLeaflet(value)));let published=false;const response=await h.load('app/lib/structured-leaflet.ts').structuredLeaflet({drugName:'Fictional Belgian medicine',originCountry:'Belgium'},'human',()=>published=true);assert.equal(response.status,503);assert.equal(h.calls.length,1);assert.equal(published,false);}
+ const failure=harness({...env,OPENAI_API_KEY_1:'fictional-other'},async()=>{throw Error('Mock unavailable');});assert.equal((await failure.load('app/lib/structured-leaflet.ts').structuredLeaflet({drugName:'Fictional Belgian medicine',originCountry:'Belgium'})).status,503);assert.equal(failure.calls.length,1);
+});
+test('source research keeps the selected original product and can be disabled independently',async()=>{
+ const source='https://app.fagg-afmps.be/pharma-status/api/files/fictional-fixture',belgian={...profile,country:'Belgium',sources:[source]};
+ const h=harness(env,async()=>Response.json(researchedLeaflet(leafletFixture()))),signer=h.load('app/lib/origin-lookup.ts'),token=signer.issueOriginSelection(belgian,input.drugName);
+ const response=await h.load('app/lib/structured-leaflet.ts').structuredLeaflet({drugName:input.drugName,originCountry:'Belgium',originSelection:token});assert.equal(response.status,200);const task=JSON.parse(h.calls[0].body.input[1].content);assert.equal(task.selectedProfile.ingredients.length,3);assert.equal(task.selectedProfile.sources[0],source);
+ const old=harness({...env,MEDICEA_GROUNDED_LEAFLET:'false'},async()=>Response.json(completion(JSON.stringify({information_sections:leafletFixture().information_sections}))));assert.equal((await old.load('app/lib/structured-leaflet.ts').structuredLeaflet({drugName:'Fictional Belgian medicine',originCountry:'Belgium'})).status,200);assert.match(old.calls[0].url,/chat\/completions$/);
+});

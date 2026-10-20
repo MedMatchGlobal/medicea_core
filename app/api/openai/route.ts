@@ -1,5 +1,5 @@
 import {withMembership} from '@/lib/membership/meter';
-export const maxDuration = 60;
+export const maxDuration = 120;
 import { NextResponse } from "next/server";
 import { createChatCompletion,travelSolEnabled } from "@/app/lib/openaiClient";
 

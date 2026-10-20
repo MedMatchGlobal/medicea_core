@@ -22,7 +22,11 @@ export function identificationHintAgrees(hint:unknown,ingredients:OriginProduct[
  const remaining=labels.map(p=>({amount:Number(p![1]),unit:p![2].toLowerCase()}));
  return parts.every(p=>{const unit=(p![2]||'mg').toLowerCase(),index=remaining.findIndex(v=>v.amount===Number(p![1])&&v.unit===unit);if(index<0)return false;remaining.splice(index,1);return true;});
 }
-function identificationDomains(country:string){const base=originSourceDomains(country);return !base.length?[]:[...base,...(country.trim().toLowerCase()==='italy'?['dompe.com','okiinfiammazioneedolore.it','spididol.it','zambonpharma.com']:[])];}
+export function identificationDomains(country:string){
+ // New country coverage belongs to this experiment, not the protected legacy lookup.
+ if(country.trim().toLowerCase()==='belgium')return ['fagg-afmps.be'];
+ const base=originSourceDomains(country);return !base.length?[]:[...base,...(country.trim().toLowerCase()==='italy'?['dompe.com','okiinfiammazioneedolore.it','spididol.it','zambonpharma.com']:[])];
+}
 export function readIdentifiedOrigins(payload:any,country:string,hint:unknown):OriginProduct[]{
  const accepted=readOriginProducts(payload,country,undefined,identificationDomains(country));
  const products=accepted.filter(p=>plain(p.name,250)&&plain(p.form,100)&&plain(p.route,100)&&plain(p.release,100)&&typeof p.generic==='boolean'&&Array.isArray(p.excipients)&&p.excipients.length<=80&&p.excipients.every(v=>plain(v,200))&&['complete','partial','unknown'].includes(p.excipientStatus||'')&&(p.excipientStatus!=='unknown'||!p.excipients.length)&&identificationHintAgrees(hint,p.ingredients)!==false);
