@@ -28,18 +28,18 @@ zh:['选择您的确切产品','这些产品的剂型或含量不同。请选择
 export function originChoiceCopy(lang:string){const[title,body,choose]=copy[lang]||copy.en;return{title,body,choose};}
 
 const equivalentsListLabels:Record<string,string>={
-  "en": "Back to search list",
-  "af": "Terug na soeklys",
+  "en": "Back to search results",
+  "af": "Terug na soekresultate",
   "ar": "العودة إلى قائمة نتائج البحث",
   "cs": "Zpět na seznam výsledků",
   "da": "Tilbage til søgeresultaterne",
   "de": "Zurück zur Suchergebnisliste",
   "el": "Επιστροφή στη λίστα αποτελεσμάτων",
-  "es": "Volver a la lista de búsqueda",
+  "es": "Volver a los resultados de búsqueda",
   "fi": "Takaisin hakutulosluetteloon",
   "fr": "Retour à la liste des résultats",
   "he": "חזרה לרשימת תוצאות החיפוש",
-  "hi": "खोज सूची पर वापस जाएँ",
+  "hi": "खोज परिणामों पर वापस जाएँ",
   "hu": "Vissza a találati listához",
   "it": "Torna alla lista dei risultati",
   "ja": "検索結果一覧に戻る",
