@@ -2,6 +2,7 @@ import {createHmac,timingSafeEqual} from 'node:crypto';
 import {openaiFetch,modelTestConfiguration} from './openaiClient';
 import {exactComposition,selectedCombinationAgrees} from './source-matches';
 import {isMedicineName} from './match-display';
+import {researchUrl} from './research-sources';
 
 export type OriginProduct={name:string;country:string;form:string;route:string;species:string[];complete:true;generic:boolean;ingredients:{name:string;strength:string}[];sources:string[];lookup?:'original';identification?:'origin-v1';release?:string;excipients?:string[];excipientStatus?:'complete'|'partial'|'unknown'};
 const sites:Record<string,string[]>={
@@ -30,10 +31,10 @@ export function sourceHintAgrees(hint:unknown,ingredients:OriginProduct['ingredi
  const remaining=values.map(v=>Number(v![1]));
  return parts.every(p=>{const index=remaining.indexOf(Number.parseFloat(p));if(index<0)return false;remaining.splice(index,1);return true;});
 }
-function sourceUrl(value:unknown,domains:string[]){try{if(typeof value!=='string'||value.length>2048)return null;const url=new URL(value);return url.protocol==='https:'&&!url.username&&!url.password&&!url.port&&domains.some(d=>url.hostname===d||url.hostname.endsWith('.'+d))?url.href:null;}catch{return null;}}
-export function readOriginProducts(result:any,country:string,dosage:unknown,allowedDomains?:string[]):OriginProduct[]{
+function sourceUrl(value:unknown,domains:string[]|null){if(domains===null)return researchUrl(value);try{if(typeof value!=='string'||value.length>2048)return null;const url=new URL(value);return url.protocol==='https:'&&!url.username&&!url.password&&!url.port&&domains.some(d=>url.hostname===d||url.hostname.endsWith('.'+d))?url.href:null;}catch{return null;}}
+export function readOriginProducts(result:any,country:string,dosage:unknown,allowedDomains?:string[]|null):OriginProduct[]{
  if(result?.status!=='completed')throw Error('ORIGIN_LOOKUP_INCOMPLETE');
- const domains=allowedDomains||sites[norm(country)];if(!domains)throw Error('ORIGIN_COVERAGE_UNAVAILABLE');
+ const domains=allowedDomains===null?null:allowedDomains||sites[norm(country)];if(domains===undefined)throw Error('ORIGIN_COVERAGE_UNAVAILABLE');
  const retrieved=new Set<string>();for(const o of result.output||[])if(o.type==='web_search_call'&&o.status==='completed')for(const s of o.action?.sources||[]){const url=sourceUrl(s.url,domains);if(url)retrieved.add(url);}
  const text=(result.output||[]).filter((o:any)=>o.type==='message').flatMap((o:any)=>o.content||[]).filter((c:any)=>c.type==='output_text').map((c:any)=>c.text).join('');
  const parsed=JSON.parse(text);if(!Array.isArray(parsed.products))throw Error('INVALID_ORIGIN_RESPONSE');

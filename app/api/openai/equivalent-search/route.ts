@@ -172,6 +172,11 @@ Return strictly JSON with keys: medicine_name, origin_country, active_ingredient
     const system2 = "You are a strict data retriever for licensed medicines. Output only the requested list; do not explain.";
 const user2 = "Return preferably 10 products available in " + targetCountry + " that contain " + explicitList + ".";
 
+let rawText:string;let destinationSources:string[]=[];
+if(identified){
+ const researched=await (await import('@/app/lib/equivalent-research')).researchEquivalentList(system2,user2,identified,targetCountry);
+ rawText=researched.rawText;destinationSources=researched.sources;
+}else{
 const response2 = await openaiFetch(OPENAI_URL, {
       method: "POST",
       headers: {
@@ -190,7 +195,8 @@ const response2 = await openaiFetch(OPENAI_URL, {
     });
 
     const data2 = await response2.json();
-    const rawText = (data2.choices?.[0]?.message?.content || "").trim() || "No response.";
+    rawText = (data2.choices?.[0]?.message?.content || "").trim() || "No response.";
+}
 
     // ---------- STEP 3: post-filter to exact pairwise matches ----------
     const { filtered, kept, dropped } = filterRawToExactPairs(rawText, explicitList);
@@ -205,6 +211,7 @@ const response2 = await openaiFetch(OPENAI_URL, {
         target_country: targetCountry,
         search_composition: explicitList,
         raw_text: filtered || "No matches.",
+        ...(identified?{sources:destinationSources,origin_sources:identified.sources,source_policy:'worldwide-country-authority-v1'}:{}),
         // Optional debug fields if you want to see what got removed:
         // dropped_lines: dropped,
       },

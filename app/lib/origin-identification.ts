@@ -1,8 +1,9 @@
 import {openaiFetch,originIdentificationEnabled} from './openaiClient';
-import {originSourceDomains,readOriginProducts,readOriginSelection,issueOriginSelection,type OriginProduct} from './origin-lookup';
+import {readOriginProducts,readOriginSelection,issueOriginSelection,type OriginProduct} from './origin-lookup';
+import {COUNTRY_SOURCE_GUIDANCE} from './research-sources';
 
 export const ORIGIN_IDENTIFICATION_PROMPT=`Identify the original HUMAN medicine from its name, origin country and optional remembered strength. These inputs are identification clues, not a complete composition.
-Find product information on the permitted regulator or manufacturer sites. Return up to six distinct source-supported product variants. Retrieve ALL active ingredients and their exact labelled strengths and unit basis, even when the user remembers only one or two ingredients or amounts. Never overwrite a label strength, omit an active or choose a stronger variant to make a match. Keep salt and active-moiety amounts distinct.
+${COUNTRY_SOURCE_GUIDANCE} The requested product country is originCountry. Return up to six distinct source-supported product variants. Retrieve ALL active ingredients and their exact labelled strengths and unit basis, even when the user remembers only one or two ingredients or amounts. Never overwrite a label strength, omit an active or choose a stronger variant to make a match. Keep salt and active-moiety amounts distinct.
 Keep different strengths, pharmaceutical forms, routes and release types separate. A shared remembered amount does not identify a unique variant. Include the form and strength in each product name so the user can choose their pack. If a hint conflicts with the label, do not alter the product to fit it. Omit unconfirmed profiles; an empty products array means not established from the checked sources, not proof that a product does not exist.
 For each product include the full active composition, physical form, route, release type (or unknown), and exact supporting URLs returned by web search. complete refers ONLY to the active composition. Use canonical English ingredient names and label amounts per tablet, capsule, sachet or actual concentration basis.
 List excipients only when supported by the exact variant's official information. excipientStatus is complete only for an explicitly complete excipient list, partial for a known subset and unknown when not established. Unknown must have an empty excipients array. Do not confuse unknown with no excipients, infer absence of an allergen or assert interchangeability. Excipients can differ between otherwise matching medicines.
@@ -22,22 +23,15 @@ export function identificationHintAgrees(hint:unknown,ingredients:OriginProduct[
  const remaining=labels.map(p=>({amount:Number(p![1]),unit:p![2].toLowerCase()}));
  return parts.every(p=>{const unit=(p![2]||'mg').toLowerCase(),index=remaining.findIndex(v=>v.amount===Number(p![1])&&v.unit===unit);if(index<0)return false;remaining.splice(index,1);return true;});
 }
-export function identificationDomains(country:string){
- // New country coverage belongs to this experiment, not the protected legacy lookup.
- if(country.trim().toLowerCase()==='belgium')return ['fagg-afmps.be'];
- const base=originSourceDomains(country);return !base.length?[]:[...base,...(country.trim().toLowerCase()==='italy'?['dompe.com','okiinfiammazioneedolore.it','spididol.it','zambonpharma.com']:[])];
-}
 export function readIdentifiedOrigins(payload:any,country:string,hint:unknown):OriginProduct[]{
- const accepted=readOriginProducts(payload,country,undefined,identificationDomains(country));
+ const accepted=readOriginProducts(payload,country,undefined,null);
  const products=accepted.filter(p=>plain(p.name,250)&&plain(p.form,100)&&plain(p.route,100)&&plain(p.release,100)&&typeof p.generic==='boolean'&&Array.isArray(p.excipients)&&p.excipients.length<=80&&p.excipients.every(v=>plain(v,200))&&['complete','partial','unknown'].includes(p.excipientStatus||'')&&(p.excipientStatus!=='unknown'||!p.excipients.length)&&identificationHintAgrees(hint,p.ingredients)!==false);
  return products.map((p):OriginProduct=>({name:p.name,country:p.country,form:p.form,route:p.route,release:p.release,species:[],complete:true,generic:p.generic,ingredients:p.ingredients.map(i=>({name:i.name,strength:i.strength})),sources:p.sources.slice(),excipients:p.excipients!.slice(),excipientStatus:p.excipientStatus,identification:'origin-v1'})).filter(p=>Buffer.byteLength(JSON.stringify(p),'utf8')<=16000);
 }
 export function requiresOriginChoice(products:OriginProduct[],hint:unknown){return products.length>1||products.length===1&&typeof hint==='string'&&!!hint.trim()&&identificationHintAgrees(hint,products[0].ingredients)===null;}
 export async function identifyOrigin(input:{drugName:string;originCountry:string;drugDosage?:unknown}):Promise<OriginProduct[]>{
  if(!originIdentificationEnabled())throw Error('ORIGIN_IDENTIFICATION_DISABLED');
- // Manufacturer product sites are intentionally added only for this experiment.
- const domains=identificationDomains(input.originCountry);if(!domains.length)throw Error('ORIGIN_COVERAGE_UNAVAILABLE');
- const response=await openaiFetch('https://api.openai.com/v1/responses',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'gpt-6.1-sol',store:false,reasoning:{effort:'low'},max_output_tokens:5000,max_tool_calls:1,tools:[{type:'web_search',search_context_size:'medium',filters:{allowed_domains:domains}}],tool_choice:'required',include:['web_search_call.action.sources'],instructions:ORIGIN_IDENTIFICATION_PROMPT,input:JSON.stringify(input),text:{format:{type:'json_schema',name:'medicea_origin_identification_v1',strict:true,schema}}})},{singleAttempt:true});
+ const response=await openaiFetch('https://api.openai.com/v1/responses',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'gpt-6.1-sol',store:false,reasoning:{effort:'low'},max_output_tokens:5000,max_tool_calls:1,tools:[{type:'web_search',search_context_size:'medium'}],tool_choice:'required',include:['web_search_call.action.sources'],instructions:ORIGIN_IDENTIFICATION_PROMPT,input:JSON.stringify(input),text:{format:{type:'json_schema',name:'medicea_origin_identification_v1',strict:true,schema}}})},{singleAttempt:true});
  const payload=await response.json();
  return readIdentifiedOrigins(payload,input.originCountry,input.drugDosage);
 }
