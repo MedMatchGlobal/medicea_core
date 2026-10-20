@@ -5,6 +5,16 @@ export const COUNTRY_SOURCE_GUIDANCE='Search the web without restricting countri
 export function researchUrl(value:unknown):string|null{
  try{if(typeof value!=='string'||value.length>2048)return null;const u=new URL(value);return u.protocol==='https:'&&!u.username&&!u.password&&!u.port?u.href:null;}catch{return null;}
 }
-export function retrievedResearchUrls(payload:any){
- const urls=new Set<string>();for(const o of payload.output||[])if(o.type==='web_search_call'&&o.status==='completed')for(const s of o.action?.sources||[]){const url=researchUrl(s.url);if(url)urls.add(url);}return urls;
+export function retrievedResearchUrls(payload:any,includeOpenedPages=false){
+ const urls=new Set<string>();
+ for(const o of payload.output||[]){
+  if(o.type!=='web_search_call'||o.status!=='completed')continue;
+  for(const s of o.action?.sources||[]){const url=researchUrl(s.url);if(url)urls.add(url);}
+  // Page-opening actions expose their retrieved URL directly, rather than in
+  // search-result sources. Opt in only for the approved leaflet experiment.
+  if(includeOpenedPages&&['open_page','find_in_page'].includes(o.action?.type)){
+   const url=researchUrl(o.action.url);if(url)urls.add(url);
+  }
+ }
+ return urls;
 }
