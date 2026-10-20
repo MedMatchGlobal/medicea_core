@@ -5,31 +5,6 @@ export const COUNTRY_SOURCE_GUIDANCE='Search the web without restricting countri
 export function researchUrl(value:unknown):string|null{
  try{if(typeof value!=='string'||value.length>2048)return null;const u=new URL(value);return u.protocol==='https:'&&!u.username&&!u.password&&!u.port?u.href:null;}catch{return null;}
 }
-// Only tracking and in-page anchors are irrelevant to document identity.
-// Product IDs, other query parameters, paths and hosts must still agree.
-export function researchDocumentKey(value:unknown):string|null{
- const safe=researchUrl(value);if(!safe)return null;
- const url=new URL(safe);url.hash='';
- for(const key of ['utm_source','utm_medium','utm_campaign','utm_term','utm_content','utm_id'])url.searchParams.delete(key);
- return url.href;
-}
-export function matchRetrievedLeafletSources(claimed:unknown,retrieved:Set<string>):string[]{
- if(!Array.isArray(claimed)||!claimed.length||claimed.length>5)throw new LeafletSourceError(!Array.isArray(claimed)||!claimed.length?'missing_sources':'too_many_sources',claimed,retrieved);
- const documents=new Map<string,string>();
- for(const source of retrieved){const key=researchDocumentKey(source);if(key&&!documents.has(key))documents.set(key,source);}
- const matched=claimed.map(source=>{const key=researchDocumentKey(source),actual=key?documents.get(key):undefined;if(!actual)throw new LeafletSourceError(!key?'invalid_url':!retrieved.size?'no_recorded_sources':'unmatched_url',claimed,retrieved);return actual;});
- return [...new Set(matched)];
-}
-export class LeafletSourceError extends Error{
- public sourceAudit:{reason:string;claimed:string[];retrieved:string[]};
- constructor(reason:string,claimed:unknown,retrieved:Set<string>){
-  super('UNSUPPORTED_LEAFLET_SOURCES');
-  // Dev diagnosis exposes public document locations only, never query strings,
-  // provider text, user input, credentials or request headers.
-  const locations=(values:unknown[])=>values.slice(0,20).map(value=>{const safe=researchUrl(value);if(!safe)return '[invalid URL]';const url=new URL(safe);return url.origin+url.pathname;});
-  this.sourceAudit={reason,claimed:locations(Array.isArray(claimed)?claimed:[]),retrieved:locations([...retrieved])};
- }
-}
 export function retrievedResearchUrls(payload:any,includeOpenedPages=false){
  const urls=new Set<string>();
  for(const o of payload.output||[]){

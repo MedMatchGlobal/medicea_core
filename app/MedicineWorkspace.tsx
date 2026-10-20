@@ -305,12 +305,12 @@ function bulletifyBlock(text: string) {
   return <p style={styles.p}>{capitalized}</p>;
 }
 
-function renderLeafletPretty(leafletText: string, t: UIStrings,omitComposition=false,lang='en',country='',showDiagnostics=false) {
+function renderLeafletPretty(leafletText: string, t: UIStrings,omitComposition=false,lang='en',country='') {
   if (!leafletText) return null;
-  let priceLookupDiagnostic:unknown;let sourceUrls:string[]=[];try{const payload=JSON.parse(leafletText);if(showDiagnostics)priceLookupDiagnostic=payload.priceLookupDiagnostic;if(Array.isArray(payload.sources))sourceUrls=payload.sources.filter((s:unknown)=>typeof s==='string');}catch{}
+  let sourceUrls:string[]=[];try{const payload=JSON.parse(leafletText);if(Array.isArray(payload.sources))sourceUrls=payload.sources.filter((s:unknown)=>typeof s==='string');}catch{}
   leafletText=extractLeafletText(leafletText);
   const structured=readStructuredLeaflet(leafletText);
-  if(structured)return <div style={styles.leafletCard}><StructuredLeafletSections sections={structured} country={country} lang={lang} headings={t.leafletHeadings} notice={connectedCopy(lang).unverified} sourceUrls={sourceUrls} priceLookupDiagnostic={priceLookupDiagnostic}/></div>;
+  if(structured)return <div style={styles.leafletCard}><StructuredLeafletSections sections={structured} country={country} lang={lang} headings={t.leafletHeadings} notice={connectedCopy(lang).unverified} sourceUrls={sourceUrls}/></div>;
 
   const cleaned = leafletText;
 
@@ -1002,6 +1002,7 @@ if (!membershipEnabled && !BETA_TESTING && isPremiumMode(mode)) {
           headers: { 'Content-Type': 'application/json', ...(travelDemo?{Accept:'application/x-ndjson'}:{}) },
           body: JSON.stringify({ originCountry, drugName, drugDosage, lang }),
         });
+        if (!res.ok) throw new Error('Medicine service unavailable');
         const payload = await readLeafletResponse(res,partial=>{if(version===searchVersion.current)setLeafletRaw(pickText(partial));},F(ui,'searching','Searching…'));
       if (version !== searchVersion.current) return;
         setLeafletRaw(pickText(payload));
@@ -1132,8 +1133,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
       if(error instanceof MembershipAccessError){setSearched(false);setScreen('search');setLoading(false);return;}
       setSearchFailed(true);
     setOriginLeafletVisible(true);
-      const feedback=error instanceof MatchingSearchError ? matchingFeedback(lang)[error.kind] : F(ui, 'medicineServiceError', 'Medicine information is temporarily unavailable. Please try again shortly.');
-      setResult(feedback+(travelDemo&&mode==='leaflet'&&error instanceof LeafletReadError?' ['+error.diagnosticCode+(error.sourceDetails?': '+error.sourceDetails:'')+(error.missingSections.length?': '+error.missingSections.join(', '):'')+']':''));
+      setResult(error instanceof MatchingSearchError ? matchingFeedback(lang)[error.kind] : F(ui, 'medicineServiceError', 'Medicine information is temporarily unavailable. Please try again shortly.'));
       setLoading(false);
     }
   };
@@ -1168,7 +1168,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
       setViewLeaflet((p) => ({ ...p, [medicineName]: true }));
     } catch (error) {
       if(error instanceof MembershipAccessError)return;
-      setLeaflets((p) => ({ ...p, [medicineName]: F(ui, 'leafletFail', 'Failed to fetch leaflet.')+(travelDemo&&error instanceof LeafletReadError?' ['+error.diagnosticCode+(error.sourceDetails?': '+error.sourceDetails:'')+(error.missingSections.length?': '+error.missingSections.join(', '):'')+']':'') }));
+      setLeaflets((p) => ({ ...p, [medicineName]: F(ui, 'leafletFail', 'Failed to fetch leaflet.')+(travelDemo&&error instanceof LeafletReadError?' ['+error.diagnosticCode+(error.missingSections.length?': '+error.missingSections.join(', '):'')+']':'') }));
       setViewLeaflet((p) => ({ ...p, [medicineName]: true }));
     } finally {
       setLeafletLoading((p) => ({ ...p, [medicineName]: false }));
@@ -1470,7 +1470,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
                 <button type="button" className="pill pill--blue pill-sm" aria-expanded={originLeafletVisible} onClick={() => setOriginLeafletVisible(!originLeafletVisible)}>{originLeafletVisible ? leafletActions(lang).hide : leafletActions(lang).view}</button>
                 <a className="official-leaflet-link" href={officialMedicineLeafletSearch(selectedDrug, originCode)} target="_blank" rel="noopener noreferrer">{leafletActions(lang).official}</a>
               </div>}
-              {leafletRaw&&originLeafletVisible && renderLeafletPretty(leafletRaw, t,originIngredients.length>0,lang,originCode,travelDemo)}
+              {leafletRaw&&originLeafletVisible && renderLeafletPretty(leafletRaw, t,originIngredients.length>0,lang,originCode)}
             </div>
           )}
 
@@ -1628,7 +1628,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
                         }}
                       >
                         <button type="button" className="pill pill--outline pill-sm" onClick={returnToResultList}>{mode==='international'?equivalentsListLabel(lang):F(ui,'viewResults','View results')}</button>
-                        {renderLeafletPretty(leafletText, t,false,lang,mode === 'international' ? targetCode || originCode : originCode,travelDemo)}
+                        {renderLeafletPretty(leafletText, t,false,lang,mode === 'international' ? targetCode || originCode : originCode)}
                       </div>
                     )}
                   </div>

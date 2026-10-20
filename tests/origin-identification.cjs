@@ -68,47 +68,10 @@ test('Belgium identification searches web-wide without altering rollback country
 const leafletTopics=['Active Ingredients','Strength','Formulation','Indications','Contraindications','Precautions','Side Effects','Interactions','Legal Classification','Manufacturer','Average Selling Price'];
 const leafletFixture=()=>({information_sections:Object.fromEntries(leafletTopics.map(k=>[k,k==='Average Selling Price'?[]:['Fictional '+k+' information']])),sources:['https://app.fagg-afmps.be/pharma-status/api/files/fictional-fixture']});
 function researchedLeaflet(value){return {status:'completed',output:[{type:'web_search_call',status:'completed',action:{sources:[{url:'https://app.fagg-afmps.be/pharma-status/api/files/fictional-fixture'}]}},{type:'message',content:[{type:'output_text',text:JSON.stringify(value)}]}]};}
-
-test('leaflet provenance tolerates tracking and anchors but preserves exact product identity',()=>{
- const lib=harness().load('app/lib/research-sources.ts'),actual='https://reference.example/product?id=42&utm_source=openai';
- assert.deepEqual(Array.from(lib.matchRetrievedLeafletSources(['https://reference.example/product?id=42#contraindications'],new Set([actual]))),[actual]);
- for(const claim of ['https://reference.example/product?id=43','https://other.example/product?id=42','https://reference.example/other?id=42','http://reference.example/product?id=42','https://user:secret@reference.example/product?id=42','https://reference.example/product/?id=42'])assert.throws(()=>lib.matchRetrievedLeafletSources([claim],new Set([actual])),/UNSUPPORTED_LEAFLET_SOURCES/);
- for(const claims of [[],null,Array(6).fill(actual),[actual,'https://unretrieved.example/product']])assert.throws(()=>lib.matchRetrievedLeafletSources(claims,new Set([actual])),/UNSUPPORTED_LEAFLET_SOURCES/);
- assert.throws(()=>lib.matchRetrievedLeafletSources([actual],new Set()),/UNSUPPORTED_LEAFLET_SOURCES/);
-});
-
-test('grounded leaflet returns recorded source URLs and constrains the schema to five sources',async()=>{
- const value=leafletFixture(),actual=value.sources[0];value.sources=[actual+'?utm_source=openai#product'];
- const h=harness(env,async()=>Response.json(researchedLeaflet(value)));
- const result=await h.load('app/lib/grounded-leaflet.ts').groundedLeaflet('Fictional unchanged instructions',{});
- assert.deepEqual(Array.from(result.sources),[actual]);
- assert.equal(h.calls[0].body.text.format.schema.properties.sources.maxItems,5);
- assert.equal(h.calls[0].body.max_tool_calls,3);
- assert.equal(h.calls[0].body.instructions,'Fictional unchanged instructions\n\nSOURCE PROVENANCE (required)\n'+h.load('app/lib/grounded-leaflet.ts').LEAFLET_SOURCE_OUTPUT_RULE);
- assert.match(h.calls[0].body.input[0].content,/copy only exact, complete URLs returned by the web search tool/);
- assert.match(h.calls[0].body.input[0].content,/Never invent, reconstruct, correct, shorten or infer a URL/);
- assert.match(h.calls[0].body.input[0].content,/no commentary/);
-});
-
-test('10:00 BST leaflet backup preserves the complete committed prompt context byte for byte',()=>{
- const crypto=require('node:crypto'),folder=path.join(root,'backups/leaflet-2026-10-20-1000-bst'),manifest=JSON.parse(fs.readFileSync(path.join(folder,'manifest.json'),'utf8'));
- assert.equal(manifest.commit,'ed508be80e07934498163d161f07bd938b79a571');
- for(const [file,hash] of Object.entries(manifest.files_sha256))assert.equal(crypto.createHash('sha256').update(fs.readFileSync(path.join(folder,file+'.txt'))).digest('hex'),hash,file);
- assert.equal(fs.readFileSync(path.join(folder,'app/lib/leaflet-prompts.ts.txt'),'utf8').replace(/\r\n/g,'\n'),fs.readFileSync(path.join(root,'app/lib/leaflet-prompts.ts'),'utf8').replace(/\r\n/g,'\n'));
- assert.doesNotMatch(fs.readFileSync(path.join(folder,'app/lib/grounded-leaflet.ts.txt'),'utf8'),/LEAFLET_SOURCE_OUTPUT_RULE/);
-});
-
-test('failed leaflet provenance reports bounded document locations without query secrets',async()=>{
- const value=leafletFixture();value.sources=['https://reference.example/unmatched?token=fictional-secret#fragment'];
- const h=harness(env,async()=>Response.json(researchedLeaflet(value)));
- const response=await h.load('app/lib/structured-leaflet.ts').structuredLeaflet({drugName:'Fictional source audit',originCountry:'Belgium'}),body=await response.json();
- assert.equal(response.status,503);assert.equal(body.diagnosticCode,'UNSUPPORTED_LEAFLET_SOURCES');assert.equal(body.sourceAudit.reason,'unmatched_url');
- assert.deepEqual(body.sourceAudit.claimed,['https://reference.example/unmatched']);assert.doesNotMatch(JSON.stringify(body),/fictional-secret|fragment/);assert.equal(h.calls.length,1);
-});
 test('Belgian standalone leaflet researches its existing generation once, publishes before price, and preserves the approved prompt',async()=>{
  const h=harness(env,async(url,init)=>{const body=JSON.parse(init.body);if(body.text.format.name==='medicea_grounded_leaflet_v1')return Response.json(researchedLeaflet(leafletFixture()));return Response.json({status:'completed',output:[{type:'message',content:[{type:'output_text',text:'{"quotes":[]}'}]}]});});
  let ready;const response=await h.load('app/lib/structured-leaflet.ts').structuredLeaflet({drugName:'Fictional Belgian medicine',originCountry:'Belgium',lang:'en'},'human',r=>ready=r),result=await response.json();
- assert.equal(response.status,200);assert.equal(result.sections.length,11);assert.equal(result.sources.length,1);assert.equal(ready.pricePending,true);assert.equal(h.calls.length,2);assert.match(h.calls[0].url,/responses$/);assert.equal(h.calls[0].body.max_tool_calls,3);assert.equal(h.calls[0].body.store,false);assert.equal(h.calls[0].body.text.format.strict,true);assert.equal(h.calls[0].body.instructions,h.load('app/lib/leaflet-prompts.ts').organisedHumanLeafletPrompt('English')+'\n\nSOURCE PROVENANCE (required)\n'+h.load('app/lib/grounded-leaflet.ts').LEAFLET_SOURCE_OUTPUT_RULE);assert.equal(h.calls[1].body.text.format.name,'medicea_price_quotes_v1');assert.equal(result.verification,'ai_generated_unverified');
+ assert.equal(response.status,200);assert.equal(result.sections.length,11);assert.equal(result.sources.length,1);assert.equal(ready.pricePending,true);assert.equal(h.calls.length,2);assert.match(h.calls[0].url,/responses$/);assert.equal(h.calls[0].body.max_tool_calls,3);assert.equal(h.calls[0].body.store,false);assert.equal(h.calls[0].body.text.format.strict,true);assert.equal(h.calls[0].body.instructions,h.load('app/lib/leaflet-prompts.ts').organisedHumanLeafletPrompt('English'));assert.equal(h.calls[1].body.text.format.name,'medicea_price_quotes_v1');assert.equal(result.verification,'ai_generated_unverified');
 });
 test('leaflet source failures and missing identity or contraindications never publish a priced shell or silently retry',async()=>{
  const invalid=[{...leafletFixture(),sources:[]},{...leafletFixture(),sources:['https://app.fagg-afmps.be/not-retrieved']},{...leafletFixture(),sources:['https://pharmacy.example/retail-price']}];
@@ -150,7 +113,7 @@ test('equivalent leaflet route sends the retained supplier identity while search
  const body={drugName:original,equivalentResult:original,originCountry:'United Kingdom',lang:'en',searchAccess:grant};
  assert.equal(grants.allowsSearchFollowup(grant,'fixture-owner','leaflet',body),true);
  assert.equal(grants.allowsSearchFollowup(grant,'fixture-owner','leaflet',{...body,drugName:'Unrelated medicine'}),false);
- const response=await h.load('app/api/openai/leaflet/route.ts').POST(request(body));assert.equal(response.status,200);const task=JSON.parse(h.calls[0].body.input[1].content);assert.equal(task.drugName,'Co-codamol 30/500 Effervescent Tablets — Zentiva');assert.equal(task.originCountry,'United Kingdom');assert.equal(task.equivalentResult,original);assert.equal(task.selectedProfile,null);assert.equal(h.calls[0].body.instructions,h.load('app/lib/leaflet-prompts.ts').organisedHumanLeafletPrompt('English')+'\n\nSOURCE PROVENANCE (required)\n'+h.load('app/lib/grounded-leaflet.ts').LEAFLET_SOURCE_OUTPUT_RULE);
+ const response=await h.load('app/api/openai/leaflet/route.ts').POST(request(body));assert.equal(response.status,200);const task=JSON.parse(h.calls[0].body.input[1].content);assert.equal(task.drugName,'Co-codamol 30/500 Effervescent Tablets — Zentiva');assert.equal(task.originCountry,'United Kingdom');assert.equal(task.equivalentResult,original);assert.equal(task.selectedProfile,null);assert.equal(h.calls[0].body.instructions,h.load('app/lib/leaflet-prompts.ts').organisedHumanLeafletPrompt('English'));
 });
 
  test('missing required leaflet sections are reported by name without publishing incomplete content',async()=>{
@@ -171,20 +134,10 @@ test('equivalent leaflet route sends the retained supplier identity while search
   const page='https://product-reference.example/country/fictional-product',value=leafletFixture();value.sources=[page];value.information_sections['Average Selling Price']=['Fictional indicative price'];
   const payload=researchedLeaflet(value);payload.output.splice(1,0,{type:'web_search_call',status:'completed',action:{type:'open_page',url:page}},{type:'web_search_call',status:'completed',action:{type:'find_in_page',url:page,pattern:'Fictional section'}});
   const h=harness(env,async()=>Response.json(payload)),response=await h.load('app/lib/structured-leaflet.ts').structuredLeaflet({drugName:'Fictional product',originCountry:'Belgium'}),data=await response.json();
-  assert.equal(response.status,200);assert.deepEqual(data.sources,[page]);assert.equal(data.sections.length,11);assert.equal(h.calls.length,1);assert.equal(h.calls[0].body.max_tool_calls,3);assert.equal(h.calls[0].body.model,'gpt-6.1-sol');assert.equal(h.calls[0].body.tools[0].filters,undefined);assert.equal(h.calls[0].body.instructions,h.load('app/lib/leaflet-prompts.ts').organisedHumanLeafletPrompt('English')+'\n\nSOURCE PROVENANCE (required)\n'+h.load('app/lib/grounded-leaflet.ts').LEAFLET_SOURCE_OUTPUT_RULE);
+  assert.equal(response.status,200);assert.deepEqual(data.sources,[page]);assert.equal(data.sections.length,11);assert.equal(h.calls.length,1);assert.equal(h.calls[0].body.max_tool_calls,3);assert.equal(h.calls[0].body.model,'gpt-6.1-sol');assert.equal(h.calls[0].body.tools[0].filters,undefined);assert.equal(h.calls[0].body.instructions,h.load('app/lib/leaflet-prompts.ts').organisedHumanLeafletPrompt('English'));
  });
  test('opened-page provenance rejects incomplete calls and unsafe links without changing other research consumers',()=>{
   const lib=harness().load('app/lib/research-sources.ts'),page='https://new-country-reference.example/product';
   const payload={output:[{type:'web_search_call',status:'completed',action:{type:'open_page',url:page}},{type:'web_search_call',status:'completed',action:{type:'find_in_page',url:page}},{type:'web_search_call',status:'in_progress',action:{type:'open_page',url:'https://not-finished.example/'}},{type:'web_search_call',status:'completed',action:{type:'open_page',url:'javascript:alert(1)'}},{type:'message',status:'completed',action:{type:'open_page',url:'https://not-a-tool.example/'}},{type:'web_search_call',status:'completed',action:{type:'open_page',url:'https://user:secret@credentialed.example/'}}]};
   assert.equal(lib.retrievedResearchUrls(payload).size,0);assert.deepEqual(Array.from(lib.retrievedResearchUrls(payload,true)),[page]);
- });
-
- test('Italy-to-UK equivalent pricing uses the UK while the Italian original uses Italy',async()=>{
-  for(const productCountry of ['United Kingdom','Italy']){
-   const original='Fictional exact product tablets — Fictional Supplier, '+productCountry+'. Fictional formulation details.';
-   const value=leafletFixture(),quote={product:'Fictional exact product tablets',pack:'20 tablets',price:'8.50',currency:productCountry==='Italy'?'EUR':'GBP',country:productCountry,source:'https://licensed-pharmacy.example/fictional-pack',note:'Listed pack price, not a guaranteed checkout price'};
-   const h=harness(env,async(url,init)=>{const body=JSON.parse(init.body);if(body.text.format.name==='medicea_grounded_leaflet_v1')return Response.json(researchedLeaflet(value));return Response.json({status:'completed',output:[{type:'web_search_call',status:'completed',action:{type:'search',sources:[{url:quote.source}]}},{type:'message',content:[{type:'output_text',text:JSON.stringify({quotes:[quote]})}]}]});});
-   const response=await h.load('app/api/openai/leaflet/route.ts').POST(request({drugName:original,equivalentResult:original,originCountry:productCountry,targetCountry:productCountry,lang:'en'})),data=await response.json();
-   assert.equal(response.status,200);assert.equal(h.calls.length,2);assert.equal(JSON.parse(h.calls[0].body.input[1].content).originCountry,productCountry);assert.equal(JSON.parse(h.calls[1].body.input).originCountry,productCountry);assert.equal(h.calls[0].body.max_tool_calls,3);assert.equal(h.calls[1].body.max_tool_calls,1);assert.equal(data.priceLookupDiagnostic,'PRICE_FOUND');assert.match(data.sections.at(-1).bullets[0],new RegExp(productCountry));
-  }
  });

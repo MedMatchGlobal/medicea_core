@@ -2,11 +2,9 @@ import {openaiFetch,travelSolEnabled,originIdentificationEnabled} from './openai
 import {baselineLeafletPrompt,organisedHumanLeafletPrompt} from './leaflet-prompts';
 import {reuseLeaflet} from './leaflet-reuse';
 import {lookupLeafletPrice} from './leaflet-price';
-import type {PriceDiagnostic} from './price-diagnostics';
 import {readOriginSelection} from './origin-lookup';
 import {LEAFLET_RESPONSE_FORMAT,validateLeaflet,leafletText,LeafletProductError} from './leaflet-contract';
 import {veterinarySectionLabels} from '../i18n/veterinary-sections';
-import {LeafletSourceError} from './research-sources';
 
 export async function structuredLeaflet(input:{drugName:unknown;originCountry:unknown;drugDosage?:unknown;lang?:unknown;originSelection?:unknown;originQueryName?:unknown;equivalentResult?:string},audience:'human'|'veterinary'='human',onReady?:(payload:unknown)=>void):Promise<Response>{
  if(!travelSolEnabled())return Response.json({error:'NOT_FOUND'},{status:404});
@@ -41,20 +39,19 @@ export async function structuredLeaflet(input:{drugName:unknown;originCountry:un
    strength.bullets=selected.ingredients.map(i=>`${i.name}: ${i.strength}`);
    validateLeaflet({information_sections:Object.fromEntries(sections.map(s=>[s.key,s.bullets]))});
   }
-  let priceLookupDiagnostic:PriceDiagnostic|undefined;
-  const result=()=>({kind:'structured_leaflet_v2',promptBaseline,...(sources.length?{sources}:{}),...(priceLookupDiagnostic?{priceLookupDiagnostic}:{}),sections:sections.map(s=>({...s,bullets:s.bullets.length?s.bullets:[unknown]})),leaflet:{medicine_name:drugName,country:originCountry,dosage_hint:drugDosage||null,lang,kind:'structured_leaflet_v2',leaflet_text:leafletText(sections,unknown)},verification:'ai_generated_unverified',generatedAt:new Date().toISOString()});
+  const result=()=>({kind:'structured_leaflet_v2',promptBaseline,...(sources.length?{sources}:{}),sections:sections.map(s=>({...s,bullets:s.bullets.length?s.bullets:[unknown]})),leaflet:{medicine_name:drugName,country:originCountry,dosage_hint:drugDosage||null,lang,kind:'structured_leaflet_v2',leaflet_text:leafletText(sections,unknown)},verification:'ai_generated_unverified',generatedAt:new Date().toISOString()});
   ready({...result(),pricePending:!sections.find(s=>s.key==='Average Selling Price')!.bullets.length});
   const generationMs=Date.now()-started;
   const priceStarted=Date.now();
   const price=sections.find(s=>s.key==='Average Selling Price')!;
-  if(!price.bullets.length)price.bullets=await lookupLeafletPrice({drugName,originCountry,drugDosage:typeof drugDosage==='string'?drugDosage:undefined,lang,audience,selectedProfile:selected},(research?110_000:55_000)-(Date.now()-started),code=>{priceLookupDiagnostic=code;});
+  if(!price.bullets.length)price.bullets=await lookupLeafletPrice({drugName,originCountry,drugDosage:typeof drugDosage==='string'?drugDosage:undefined,lang,audience,selectedProfile:selected},(research?110_000:55_000)-(Date.now()-started));
   return Response.json(result(),{headers:{'Cache-Control':'no-store','X-Medicea-Leaflet-Baseline':promptBaseline,'X-Medicea-Leaflet-Cacheable':price.bullets.length?'1':'0','Server-Timing':`leaflet;dur=${generationMs}, price;dur=${Date.now()-priceStarted}, total;dur=${Date.now()-started}`}});
  }catch(error){
   const known=['INCOMPLETE_LEAFLET','UNSUPPORTED_LEAFLET_SOURCES','UNCONFIRMED_LEAFLET_PRODUCT','INVALID_LEAFLET_STRUCTURE','INVALID_LEAFLET_BULLETS'];
-  const message=error instanceof LeafletSourceError?'UNSUPPORTED_LEAFLET_SOURCES':error instanceof LeafletProductError?'UNCONFIRMED_LEAFLET_PRODUCT':error instanceof Error?error.message:'';
+  const message=error instanceof LeafletProductError?'UNCONFIRMED_LEAFLET_PRODUCT':error instanceof Error?error.message:'';
   const status=(error as {status?:number})?.status;
   const diagnosticCode=known.includes(message)?message:status===504?'LEAFLET_TIMEOUT':status&&[400,401,403,429,500,502,503].includes(status)?'LEAFLET_PROVIDER_'+status:error instanceof SyntaxError?'LEAFLET_RESPONSE_PARSE':'LEAFLET_UNAVAILABLE';
-  return Response.json({error:'MEDICINE_INFORMATION_UNAVAILABLE',diagnosticCode,...(error instanceof LeafletSourceError?{sourceAudit:error.sourceAudit}:{}),...(error instanceof LeafletProductError?{missingSections:error.missingSections}:{})},{status:503,headers:{'Cache-Control':'no-store'}});
+  return Response.json({error:'MEDICINE_INFORMATION_UNAVAILABLE',diagnosticCode,...(error instanceof LeafletProductError?{missingSections:error.missingSections}:{})},{status:503,headers:{'Cache-Control':'no-store'}});
  }
  },onReady);
 }
