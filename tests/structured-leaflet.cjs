@@ -204,3 +204,12 @@ test('leaflet diagnostic reasons survive JSON and streamed errors without includ
  for(const stream of [false,true]){const error=Response.json({error:'MEDICINE_INFORMATION_UNAVAILABLE',diagnosticCode:'UNSUPPORTED_LEAFLET_SOURCES',providerText:'private fixture'},{status:503});const response=stream?lib.leafletProgress(async()=>error):error;await assert.rejects(()=>lib.readLeafletResponse(response,()=>{}),e=>e.diagnosticCode==='UNSUPPORTED_LEAFLET_SOURCES'&&!e.message.includes('private'));}
  const unsafe=Response.json({diagnosticCode:'secret <script>'},{status:503});await assert.rejects(()=>lib.readLeafletResponse(unsafe,()=>{}),e=>e.diagnosticCode==='LEAFLET_UNAVAILABLE');
 });
+
+ test('missing-section diagnostics survive both response formats and reject arbitrary text',async()=>{
+  const lib=loader().load('app/lib/leaflet-progress.ts');
+  for(const stream of [false,true]){
+   const error=Response.json({error:'MEDICINE_INFORMATION_UNAVAILABLE',diagnosticCode:'UNCONFIRMED_LEAFLET_PRODUCT',missingSections:['Strength','Contraindications','private fixture','<script>','Strength']},{status:503});
+   const response=stream?lib.leafletProgress(async()=>error):error;
+   await assert.rejects(()=>lib.readLeafletResponse(response,()=>{}),e=>{assert.equal(e.diagnosticCode,'UNCONFIRMED_LEAFLET_PRODUCT');assert.deepEqual(Array.from(e.missingSections),['Strength','Contraindications']);return true;});
+  }
+ });

@@ -3,10 +3,10 @@ import {baselineLeafletPrompt,organisedHumanLeafletPrompt} from './leaflet-promp
 import {reuseLeaflet} from './leaflet-reuse';
 import {lookupLeafletPrice} from './leaflet-price';
 import {readOriginSelection} from './origin-lookup';
-import {LEAFLET_RESPONSE_FORMAT,validateLeaflet,leafletText} from './leaflet-contract';
+import {LEAFLET_RESPONSE_FORMAT,validateLeaflet,leafletText,LeafletProductError} from './leaflet-contract';
 import {veterinarySectionLabels} from '../i18n/veterinary-sections';
 
-export async function structuredLeaflet(input:{drugName:unknown;originCountry:unknown;drugDosage?:unknown;lang?:unknown;originSelection?:unknown;originQueryName?:unknown},audience:'human'|'veterinary'='human',onReady?:(payload:unknown)=>void):Promise<Response>{
+export async function structuredLeaflet(input:{drugName:unknown;originCountry:unknown;drugDosage?:unknown;lang?:unknown;originSelection?:unknown;originQueryName?:unknown;equivalentResult?:string},audience:'human'|'veterinary'='human',onReady?:(payload:unknown)=>void):Promise<Response>{
  if(!travelSolEnabled())return Response.json({error:'NOT_FOUND'},{status:404});
  const started=Date.now();
  const {drugName,originCountry,drugDosage}=input;
@@ -16,11 +16,13 @@ export async function structuredLeaflet(input:{drugName:unknown;originCountry:un
  if(input.originSelection&&!selected)return Response.json({error:'ORIGIN_SELECTION_EXPIRED'},{status:422});
  const organised=audience==='human'&&process.env.MEDICEA_ORGANISED_LEAFLET!=='false';
  const research=audience==='human'&&originIdentificationEnabled()&&process.env.MEDICEA_GROUNDED_LEAFLET!=='false';
+ // Retained search text is context for research, never a verified product profile.
+ const equivalentResult=research&&typeof input.equivalentResult==='string'&&input.equivalentResult.length<=600?input.equivalentResult:undefined;
  const instructions=organised?organisedHumanLeafletPrompt(new Intl.DisplayNames(['en'],{type:'language'}).of(lang)||lang):baselineLeafletPrompt(audience);
  const promptBaseline=organised?'organised-human-v1':'5af3e82';
- return reuseLeaflet(JSON.stringify({instructions,drugName,originCountry,drugDosage:drugDosage||'',lang,audience,selected,sourcePolicy:research?'worldwide-v1':'baseline'}),async ready=>{
+ return reuseLeaflet(JSON.stringify({instructions,drugName,originCountry,drugDosage:drugDosage||'',lang,audience,selected,equivalentResult,sourcePolicy:research?'worldwide-v1':'baseline'}),async ready=>{
  try{
-  const task={drugName,originCountry,drugDosage:drugDosage||'',language:lang,audience,selectedProfile:selected};
+  const task={drugName,originCountry,drugDosage:drugDosage||'',language:lang,audience,selectedProfile:selected,...(equivalentResult?{equivalentResult}:{})};
   let sections:ReturnType<typeof validateLeaflet>,sources:string[]=[];
   if(research){
    const researched=await (await import('./grounded-leaflet')).groundedLeaflet(instructions,task);sections=researched.sections;sources=researched.sources;
@@ -46,10 +48,10 @@ export async function structuredLeaflet(input:{drugName:unknown;originCountry:un
   return Response.json(result(),{headers:{'Cache-Control':'no-store','X-Medicea-Leaflet-Baseline':promptBaseline,'X-Medicea-Leaflet-Cacheable':price.bullets.length?'1':'0','Server-Timing':`leaflet;dur=${generationMs}, price;dur=${Date.now()-priceStarted}, total;dur=${Date.now()-started}`}});
  }catch(error){
   const known=['INCOMPLETE_LEAFLET','UNSUPPORTED_LEAFLET_SOURCES','UNCONFIRMED_LEAFLET_PRODUCT','INVALID_LEAFLET_STRUCTURE','INVALID_LEAFLET_BULLETS'];
-  const message=error instanceof Error?error.message:'';
+  const message=error instanceof LeafletProductError?'UNCONFIRMED_LEAFLET_PRODUCT':error instanceof Error?error.message:'';
   const status=(error as {status?:number})?.status;
   const diagnosticCode=known.includes(message)?message:status===504?'LEAFLET_TIMEOUT':status&&[400,401,403,429,500,502,503].includes(status)?'LEAFLET_PROVIDER_'+status:error instanceof SyntaxError?'LEAFLET_RESPONSE_PARSE':'LEAFLET_UNAVAILABLE';
-  return Response.json({error:'MEDICINE_INFORMATION_UNAVAILABLE',diagnosticCode},{status:503,headers:{'Cache-Control':'no-store'}});
+  return Response.json({error:'MEDICINE_INFORMATION_UNAVAILABLE',diagnosticCode,...(error instanceof LeafletProductError?{missingSections:error.missingSections}:{})},{status:503,headers:{'Cache-Control':'no-store'}});
  }
  },onReady);
 }

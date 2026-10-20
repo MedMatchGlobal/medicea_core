@@ -3,6 +3,10 @@
 export const LEAFLET_TOPICS=['Active Ingredients','Strength','Formulation','Indications','Contraindications','Precautions','Side Effects','Interactions','Legal Classification','Manufacturer','Average Selling Price'] as const;
 export type LeafletTopic=typeof LEAFLET_TOPICS[number];
 export type LeafletSection={key:LeafletTopic;bullets:string[]};
+export const REQUIRED_LEAFLET_TOPICS=['Active Ingredients','Strength','Formulation','Indications','Contraindications'] as const;
+export class LeafletProductError extends Error {
+ constructor(public missingSections:string[]){super('UNCONFIRMED_LEAFLET_PRODUCT');}
+}
 export const LEAFLET_RESPONSE_FORMAT={type:'json_schema',json_schema:{name:'medicea_leaflet_v2',strict:true,schema:{type:'object',additionalProperties:false,required:['information_sections'],properties:{information_sections:{type:'object',additionalProperties:false,required:[...LEAFLET_TOPICS],properties:Object.fromEntries(LEAFLET_TOPICS.map(key=>[key,{type:'array',items:{type:'string'}}]))}}}}};
 export function validateLeaflet(value:unknown):LeafletSection[]{
  const obj=value as any,sections=obj?.information_sections;

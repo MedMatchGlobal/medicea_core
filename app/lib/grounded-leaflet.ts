@@ -1,5 +1,5 @@
 import {openaiFetch} from './openaiClient';
-import {LEAFLET_RESPONSE_FORMAT,validateLeaflet} from './leaflet-contract';
+import {LEAFLET_RESPONSE_FORMAT,validateLeaflet,REQUIRED_LEAFLET_TOPICS,LeafletProductError} from './leaflet-contract';
 import {COUNTRY_SOURCE_GUIDANCE,researchUrl,retrievedResearchUrls} from './research-sources';
 
 // One researched generation replaces the unsourced generation. There is no
@@ -13,6 +13,7 @@ export async function groundedLeaflet(instructions:string,input:unknown){
  const value=JSON.parse(text);if(!Array.isArray(value.sources)||!value.sources.length||value.sources.length>5||value.sources.some((s:unknown)=>{const url=researchUrl(s);return !url||!retrieved.has(url);}))throw Error('UNSUPPORTED_LEAFLET_SOURCES');
  const sections=validateLeaflet({information_sections:value.information_sections});
  // Do not publish a priced shell with no established identity or contraindications.
- if(['Active Ingredients','Strength','Formulation','Indications','Contraindications'].some(key=>!sections.find(s=>s.key===key)?.bullets.length))throw Error('UNCONFIRMED_LEAFLET_PRODUCT');
+ const missing=REQUIRED_LEAFLET_TOPICS.filter(key=>!sections.find(s=>s.key===key)?.bullets.length);
+ if(missing.length)throw new LeafletProductError(missing);
  return {sections,sources:[...new Set(value.sources as string[])]};
 }
