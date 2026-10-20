@@ -47,7 +47,7 @@ import {readLeafletResponse} from './lib/leaflet-progress';
 import {readStructuredLeaflet} from './lib/leaflet-contract';
 import StructuredLeafletSections from './components/StructuredLeafletSections';
 import {connectedCopy} from './i18n/travel-connected';
-import {isMedicineName,isEmptyMatchText} from './lib/match-display';
+import {isMedicineName,isEmptyMatchText,equivalentPresentation} from './lib/match-display';
 import {emptyMatchCopy} from './i18n/empty-match';
 import {originChoiceCopy} from './i18n/origin-choice';
 type OriginVariant={name:string;form:string;ingredients:VeterinaryIngredient[];sources:string[];token:string};
@@ -1093,6 +1093,8 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
   };
 
   async function handleFetchLeafletForMatch(medicineName: string) {
+    if(!isMedicineName(medicineName))return;
+    const queryName=equivalentPresentation(medicineName).title;
     const version = searchVersion.current;
     setLeafletLoading((p) => ({ ...p, [medicineName]: true }));
     try {
@@ -1106,8 +1108,8 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
           originCountry: country,
           targetCountry: country,
           country,
-          drugName: medicineName,
-          medicineName,
+          drugName: queryName,
+          medicineName: queryName,
           drugDosage: selectedDosage || '',
           lang,
           searchAccess,
@@ -1495,7 +1497,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
                       <Link className="official-leaflet-link" href={`/?section=care&service=pharmacy&location=${encodeURIComponent(countryCode)}`}
                         onClick={event => {if (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return; event.preventDefault(); openPharmacyTrip(countryCode);}}>{F(ui, 'btnPharmacy', 'Search pharmacy')}</Link>
                     </div>
-                    {!loading && !searchFailed && matches.length>0 && <div style={{ fontSize: '0.85rem', marginTop: 4 }}>
+                    {!loading && !searchFailed && matches.some((m:any)=>isMedicineName(m?.medicine_name??m?.Medicine_name)) && <div style={{ fontSize: '0.85rem', marginTop: 4 }}>
                       {F(ui, introKey, introDefault, {
                         drugName: baseName,
                         targetCountry: bannerCountry,
@@ -1512,6 +1514,8 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
             <div style={{ marginTop: 12 }}>
               {matches.map((m: any, idx: number) => {
                 const medname = m?.medicine_name ?? m?.Medicine_name ?? `Medicine ${idx + 1}`;
+                if(!isMedicineName(medname))return null;
+                const presentation=equivalentPresentation(medname);
                 if (mode === 'pets' || mode === 'pet-generic') return <div key={medname + lang + (restoredSearch?.id || "")}><PetMedicineInformation searchAccess={searchAccess}
                   initialInformation={petInformation[medname + (mode === 'pets' ? targetCode || originCode : originCode) + lang]}
                   onInformation={sections=>setPetInformation(previous=>({...previous,[medname + (mode === 'pets' ? targetCode || originCode : originCode) + lang]:sections}))}
@@ -1535,7 +1539,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
                     }}
                   >
                     <div className="medicine-result-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
-                      <div style={{ fontWeight: 700, color: '#0f172a' }}>{medname}</div>
+                      <div style={{ fontWeight: 700, color: '#0f172a' }}>{presentation.title}</div>
                       <div className="leaflet-actions">
                         <button
                           onClick={() => {
@@ -1554,10 +1558,12 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
                             ? leafletActions(lang).hide
                             : leafletActions(lang).view}
                         </button>
-                        <a className="official-leaflet-link" href={officialMedicineLeafletSearch(medname, mode === 'international' ? targetCode || originCode : originCode)} target="_blank" rel="noopener noreferrer">{leafletActions(lang).official}</a>
+                        <a className="official-leaflet-link" href={officialMedicineLeafletSearch(presentation.title, mode === 'international' ? targetCode || originCode : originCode)} target="_blank" rel="noopener noreferrer">{leafletActions(lang).official}</a>
                       </div>
                     </div>
 
+                    {presentation.uncertainty&&<p style={{fontSize:'0.875rem',margin:'8px 0',color:'#475569'}}>{presentation.uncertainty}</p>}
+                    {presentation.details&&<details style={{fontSize:'0.875rem',marginTop:8}}><summary style={{cursor:'pointer'}}>{F(ui,'medicineDetails','Medicine details')}</summary><p>{presentation.details}</p></details>}
                     <MedicineSources sources={m.sources}/>
                     {showLF && leafletText && (
                       <div
@@ -1581,7 +1587,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
           )}
 
           {/* Plain AI text (e.g., for condition mode) */}
-          {!loading&&!searchFailed&&noExactMatch&&<div className="empty-match" role="status"><Search size={26} aria-hidden="true"/><div><h3>{emptyMatchCopy(lang).title}</h3><p>{emptyMatchCopy(lang).body}</p></div></div>}
+          {!loading&&!searchFailed&&(noExactMatch||matches.length>0&&matches.every((m:any)=>isEmptyMatchText(m?.medicine_name??m?.Medicine_name??'')))&&<div className="empty-match" role="status"><Search size={26} aria-hidden="true"/><div><h3>{emptyMatchCopy(lang).title}</h3><p>{emptyMatchCopy(lang).body}</p></div></div>}
           {!noExactMatch && !!plainText && (!Array.isArray(matches) || matches.length === 0) && (
             <div className="ai-plain" dangerouslySetInnerHTML={{ __html: formattedHTML }} />
           )}

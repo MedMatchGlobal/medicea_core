@@ -18,3 +18,16 @@ test('matching feedback covers every supported language without falling back to 
 test('leaflet headings do not split Contraindications or manufacturer mentions inside prose',()=>{
  const {leafletSections}=load('app/lib/leaflet-sections.ts');const parts=leafletSections('Note\n- Check the manufacturer/regulator leaflet.\n\nContraindications\n- Fixture warning.\n\nActive Ingredients:\n- Fixture ingredient.');assert.equal(parts.length,3);assert.equal(parts[0].key,'Note');assert.match(parts[0].text,/manufacturer\/regulator/);assert.equal(parts[1].key,'Contraindications');assert.equal(parts[2].key,'Active Ingredients');assert.equal(leafletSections('Unstructured educational text.').length,0);assert.equal(leafletSections('**Uses:**\n- Fixture.')[0].key,'Uses');
 });
+
+test('explained and formatted no-match responses are messages rather than medicine identities',()=>{
+ const {isMedicineName,isEmptyMatchText}=load('app/lib/match-display.ts');
+ for(const text of ['No verified matches found. Availability in Italy of tablets containing codeine phosphate 8 mg plus paracetamol 500 mg per tablet could not be established from the retrieved evidence','**No verified matches found.**&#xA0;Availability could not be established.','No confirmed exact equivalents found: insufficient evidence.']){assert.equal(isMedicineName(text),false);assert.equal(isEmptyMatchText(text),true);}
+ for(const text of ['No-Spa 40 mg','Co-Codamol 30 mg/500 mg Effervescent Tablets (Cipla)','Novalgin 500 mg'])assert.equal(isMedicineName(text),true);
+});
+test('equivalent titles keep product identity and move pack and authorisation commentary to details without hiding uncertainty',()=>{
+ const {equivalentPresentation}=load('app/lib/match-display.ts');
+ const raw='**Co-Efferalgan 500 mg + 30 mg compresse effervescenti**&#xA0;— 16 effervescent tablets; AIC 027989019. Italian authorisation confirmed in September 2026. Contains paracetamol 500 mg and codeine phosphate 30 mg per tablet; hemihydrate form and current pharmacy stock not confirmed';
+ const p=equivalentPresentation(raw);assert.equal(p.title,'Co-Efferalgan 500 mg + 30 mg compresse effervescenti');assert.match(p.details,/AIC 027989019/);assert.equal(p.uncertainty,'hemihydrate form and current pharmacy stock not confirmed');assert.doesNotMatch(p.title,/AIC|authorisation|&#|\*\*/);assert.match(raw,/&#xA0;/);
+ const simple=equivalentPresentation('Co-Codamol 30/500 tablets');assert.equal(simple.title,'Co-Codamol 30/500 tablets');assert.equal(simple.details,'');assert.equal(simple.uncertainty,'');
+ const brand=equivalentPresentation('Co-Codamol 30/500 tablets (Accord-UK) – 32 tablets.');assert.equal(brand.title,'Co-Codamol 30/500 tablets (Accord-UK)');assert.equal(brand.details,'32 tablets.');
+});
