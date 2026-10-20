@@ -6,6 +6,9 @@ import {validateLeaflet,REQUIRED_LEAFLET_TOPICS} from './leaflet-contract';
 
 export const LEAFLET_COMPARISON_ARMS=['0940','current','0940-three-actions','current-one-action'] as const;
 export type LeafletComparisonArm=typeof LEAFLET_COMPARISON_ARMS[number];
+// Live comparison is off after the authorised run. Re-enabling requires an
+// explicit Dev environment flag; normal leaflet handling never uses this path.
+export function leafletComparisonEnabled(){return travelSolEnabled()&&process.env.MEDICEA_LEAFLET_COMPARISON==='true';}
 export function leafletComparisonRequest(arm:LeafletComparisonArm){
  const fixture=arm.startsWith('0940')?baseline:current;
  const request=JSON.parse(JSON.stringify(fixture));
@@ -28,7 +31,7 @@ export function assessLeafletComparison(payload:any){
 }
 // Fixed public fixture only; no custom prompt, query, URL, country or model.
 export async function runLeafletComparison(arm:LeafletComparisonArm){
- if(!travelSolEnabled())throw Error('COMPARISON_DISABLED');
+ if(!leafletComparisonEnabled())throw Error('COMPARISON_DISABLED');
  const request=leafletComparisonRequest(arm),started=Date.now();
  try{
   const response=await openaiFetch(request.url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(request.body)},{singleAttempt:true});
