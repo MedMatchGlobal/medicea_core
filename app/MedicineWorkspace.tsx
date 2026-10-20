@@ -1002,7 +1002,6 @@ if (!membershipEnabled && !BETA_TESTING && isPremiumMode(mode)) {
           headers: { 'Content-Type': 'application/json', ...(travelDemo?{Accept:'application/x-ndjson'}:{}) },
           body: JSON.stringify({ originCountry, drugName, drugDosage, lang }),
         });
-        if (!res.ok) throw new Error('Medicine service unavailable');
         const payload = await readLeafletResponse(res,partial=>{if(version===searchVersion.current)setLeafletRaw(pickText(partial));},F(ui,'searching','Searching…'));
       if (version !== searchVersion.current) return;
         setLeafletRaw(pickText(payload));
@@ -1133,7 +1132,8 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
       if(error instanceof MembershipAccessError){setSearched(false);setScreen('search');setLoading(false);return;}
       setSearchFailed(true);
     setOriginLeafletVisible(true);
-      setResult(error instanceof MatchingSearchError ? matchingFeedback(lang)[error.kind] : F(ui, 'medicineServiceError', 'Medicine information is temporarily unavailable. Please try again shortly.'));
+      const feedback=error instanceof MatchingSearchError ? matchingFeedback(lang)[error.kind] : F(ui, 'medicineServiceError', 'Medicine information is temporarily unavailable. Please try again shortly.');
+      setResult(feedback+(travelDemo&&mode==='leaflet'&&error instanceof LeafletReadError?' ['+error.diagnosticCode+(error.missingSections.length?': '+error.missingSections.join(', '):'')+']':''));
       setLoading(false);
     }
   };
