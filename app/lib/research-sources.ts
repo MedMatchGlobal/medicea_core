@@ -5,6 +5,21 @@ export const COUNTRY_SOURCE_GUIDANCE='Search the web without restricting countri
 export function researchUrl(value:unknown):string|null{
  try{if(typeof value!=='string'||value.length>2048)return null;const u=new URL(value);return u.protocol==='https:'&&!u.username&&!u.password&&!u.port?u.href:null;}catch{return null;}
 }
+// Only tracking and in-page anchors are irrelevant to document identity.
+// Product IDs, other query parameters, paths and hosts must still agree.
+export function researchDocumentKey(value:unknown):string|null{
+ const safe=researchUrl(value);if(!safe)return null;
+ const url=new URL(safe);url.hash='';
+ for(const key of ['utm_source','utm_medium','utm_campaign','utm_term','utm_content','utm_id'])url.searchParams.delete(key);
+ return url.href;
+}
+export function matchRetrievedLeafletSources(claimed:unknown,retrieved:Set<string>):string[]{
+ if(!Array.isArray(claimed)||!claimed.length||claimed.length>5)throw Error('UNSUPPORTED_LEAFLET_SOURCES');
+ const documents=new Map<string,string>();
+ for(const source of retrieved){const key=researchDocumentKey(source);if(key&&!documents.has(key))documents.set(key,source);}
+ const matched=claimed.map(source=>{const key=researchDocumentKey(source),actual=key?documents.get(key):undefined;if(!actual)throw Error('UNSUPPORTED_LEAFLET_SOURCES');return actual;});
+ return [...new Set(matched)];
+}
 export function retrievedResearchUrls(payload:any,includeOpenedPages=false){
  const urls=new Set<string>();
  for(const o of payload.output||[]){

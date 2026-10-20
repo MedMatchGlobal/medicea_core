@@ -68,6 +68,23 @@ test('Belgium identification searches web-wide without altering rollback country
 const leafletTopics=['Active Ingredients','Strength','Formulation','Indications','Contraindications','Precautions','Side Effects','Interactions','Legal Classification','Manufacturer','Average Selling Price'];
 const leafletFixture=()=>({information_sections:Object.fromEntries(leafletTopics.map(k=>[k,k==='Average Selling Price'?[]:['Fictional '+k+' information']])),sources:['https://app.fagg-afmps.be/pharma-status/api/files/fictional-fixture']});
 function researchedLeaflet(value){return {status:'completed',output:[{type:'web_search_call',status:'completed',action:{sources:[{url:'https://app.fagg-afmps.be/pharma-status/api/files/fictional-fixture'}]}},{type:'message',content:[{type:'output_text',text:JSON.stringify(value)}]}]};}
+
+test('leaflet provenance tolerates tracking and anchors but preserves exact product identity',()=>{
+ const lib=harness().load('app/lib/research-sources.ts'),actual='https://reference.example/product?id=42&utm_source=openai';
+ assert.deepEqual(Array.from(lib.matchRetrievedLeafletSources(['https://reference.example/product?id=42#contraindications'],new Set([actual]))),[actual]);
+ for(const claim of ['https://reference.example/product?id=43','https://other.example/product?id=42','https://reference.example/other?id=42','http://reference.example/product?id=42','https://user:secret@reference.example/product?id=42','https://reference.example/product/?id=42'])assert.throws(()=>lib.matchRetrievedLeafletSources([claim],new Set([actual])),/UNSUPPORTED_LEAFLET_SOURCES/);
+ for(const claims of [[],null,Array(6).fill(actual),[actual,'https://unretrieved.example/product']])assert.throws(()=>lib.matchRetrievedLeafletSources(claims,new Set([actual])),/UNSUPPORTED_LEAFLET_SOURCES/);
+ assert.throws(()=>lib.matchRetrievedLeafletSources([actual],new Set()),/UNSUPPORTED_LEAFLET_SOURCES/);
+});
+
+test('grounded leaflet returns recorded source URLs and constrains the schema to five sources',async()=>{
+ const value=leafletFixture(),actual=value.sources[0];value.sources=[actual+'?utm_source=openai#product'];
+ const h=harness(env,async()=>Response.json(researchedLeaflet(value)));
+ const result=await h.load('app/lib/grounded-leaflet.ts').groundedLeaflet('Fictional unchanged instructions',{});
+ assert.deepEqual(Array.from(result.sources),[actual]);
+ assert.equal(h.calls[0].body.text.format.schema.properties.sources.maxItems,5);
+ assert.equal(h.calls[0].body.max_tool_calls,3);
+});
 test('Belgian standalone leaflet researches its existing generation once, publishes before price, and preserves the approved prompt',async()=>{
  const h=harness(env,async(url,init)=>{const body=JSON.parse(init.body);if(body.text.format.name==='medicea_grounded_leaflet_v1')return Response.json(researchedLeaflet(leafletFixture()));return Response.json({status:'completed',output:[{type:'message',content:[{type:'output_text',text:'{"quotes":[]}'}]}]});});
  let ready;const response=await h.load('app/lib/structured-leaflet.ts').structuredLeaflet({drugName:'Fictional Belgian medicine',originCountry:'Belgium',lang:'en'},'human',r=>ready=r),result=await response.json();
