@@ -44,6 +44,12 @@ export async function structuredLeaflet(input:{drugName:unknown;originCountry:un
   const price=sections.find(s=>s.key==='Average Selling Price')!;
   if(!price.bullets.length)price.bullets=await lookupLeafletPrice({drugName,originCountry,drugDosage:typeof drugDosage==='string'?drugDosage:undefined,lang,audience,selectedProfile:selected},(research?110_000:55_000)-(Date.now()-started));
   return Response.json(result(),{headers:{'Cache-Control':'no-store','X-Medicea-Leaflet-Baseline':promptBaseline,'X-Medicea-Leaflet-Cacheable':price.bullets.length?'1':'0','Server-Timing':`leaflet;dur=${generationMs}, price;dur=${Date.now()-priceStarted}, total;dur=${Date.now()-started}`}});
- }catch{return Response.json({error:'MEDICINE_INFORMATION_UNAVAILABLE'},{status:503,headers:{'Cache-Control':'no-store'}});}
+ }catch(error){
+  const known=['INCOMPLETE_LEAFLET','UNSUPPORTED_LEAFLET_SOURCES','UNCONFIRMED_LEAFLET_PRODUCT','INVALID_LEAFLET_STRUCTURE','INVALID_LEAFLET_BULLETS'];
+  const message=error instanceof Error?error.message:'';
+  const status=(error as {status?:number})?.status;
+  const diagnosticCode=known.includes(message)?message:status===504?'LEAFLET_TIMEOUT':status&&[400,401,403,429,500,502,503].includes(status)?'LEAFLET_PROVIDER_'+status:error instanceof SyntaxError?'LEAFLET_RESPONSE_PARSE':'LEAFLET_UNAVAILABLE';
+  return Response.json({error:'MEDICINE_INFORMATION_UNAVAILABLE',diagnosticCode},{status:503,headers:{'Cache-Control':'no-store'}});
+ }
  },onReady);
 }

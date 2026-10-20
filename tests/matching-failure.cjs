@@ -42,3 +42,9 @@ test('equivalent headings preserve the two explicitly researched suppliers witho
  assert.equal(equivalentPresentation('Co-codamol 30/500 tablets — 32 tablets, United Kingdom. More information.','United Kingdom').title,'Co-codamol 30/500 tablets');
  assert.equal(equivalentLeafletName(first,'different original result','United Kingdom'),first);
 });
+
+test('search summaries are never medicine identities while real products remain intact',()=>{
+ const {isMedicineName,isSearchSummary}=load('app/lib/match-display.ts');
+ for(const text of ['Only two matching products were confirmed from the retrieved UK product information; pharmacy stock availability was not verified','**Only 2 matching medicines were confirmed.**','Note: These products require a prescription.','Both products are prescription-only.']){assert.equal(isSearchSummary(text),true);assert.equal(isMedicineName(text),false);}
+ for(const text of ['Co-codamol 30/500 Effervescent Tablets — Zentiva','Co-codamol 30 mg/500 mg effervescent tablets — Cipla EU Ltd','Allopurinol 100 mg tablets'])assert.equal(isMedicineName(text),true);
+});

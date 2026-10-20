@@ -21,6 +21,7 @@ import {useRouter} from 'next/navigation';
 import DOMPurify from 'dompurify';
 import SavedSearches from './components/SavedSearches';
 import {SAVED_SEARCH_KEY, readSavedSearches, addSavedSearch, isSavedMode, type SavedSearch} from './lib/saved-searches';
+import {sessionSearchKey,readSessionSearch,storeSessionSearch,resultHistoryState,formHistoryState,type SessionSearch} from './lib/session-search';
 import {savedSearchCopy} from './i18n/saved-searches';
 import type {VeterinarySection} from './lib/veterinary-sections';
 import { ArrowRight, Search, FileText, Pill, Stethoscope, Hospital, HeartPulse, UserRound, Cross, ShieldCheck } from 'lucide-react';
@@ -43,11 +44,11 @@ import MedicineSources from './components/MedicineSources';
 import {matchingFeedback} from './i18n/matching-feedback';
 import {MatchingSearchError,matchingFailure} from './lib/matching-failure';
 import {leafletSections} from './lib/leaflet-sections';
-import {readLeafletResponse} from './lib/leaflet-progress';
+import {readLeafletResponse,LeafletReadError} from './lib/leaflet-progress';
 import {readStructuredLeaflet} from './lib/leaflet-contract';
 import StructuredLeafletSections from './components/StructuredLeafletSections';
 import {connectedCopy} from './i18n/travel-connected';
-import {isMedicineName,isEmptyMatchText,equivalentPresentation} from './lib/match-display';
+import {isMedicineName,isEmptyMatchText,isSearchSummary,equivalentPresentation} from './lib/match-display';
 import {emptyMatchCopy} from './i18n/empty-match';
 import {originChoiceCopy} from './i18n/origin-choice';
 type OriginVariant={name:string;form:string;ingredients:VeterinaryIngredient[];sources:string[];token:string};
@@ -334,7 +335,7 @@ function renderLeafletPretty(leafletText: string, t: UIStrings,omitComposition=f
 function parseMatchesFromRawText(rawText: string): Array<{ medicine_name: string }> {
   if (!rawText) return [];
   const lines = rawText.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
-  if (lines.length && !isMedicineName(lines[0].replace(/^(?:\d+[.)]|[-•*])\s*/, ''))) return [];
+  if (lines.length) {const first=lines[0].replace(/^(?:\d+[.)]|[-•*])\s*/, '');if(!isMedicineName(first)&&!isSearchSummary(first))return [];}
   const items: string[] = [];
   for (const l of lines) {
     const m = l.match(/^(?:\d+[.)]|[-•*])\s*(.+)$/);
@@ -597,6 +598,12 @@ function Home({ petMode = false,sourceOriginMode=false,travelDemo=false,originId
       if ((saved.mode === 'pets' || saved.mode === 'pet-generic') === petMode) {pendingSavedSearch.current = null; applySavedSearch(saved);}
       return;
     }
+    try {
+      const current=readSessionSearch(sessionStorage.getItem(sessionSearchKey(petMode)),petMode);
+      setRetainedSearch(current);
+      const navigation=new URLSearchParams(window.location.search);
+      if(current&&(window.history.state?.mediceaMedicineResults||!navigation.has('section')&&!navigation.has('service'))){restoreSessionSearch(current,window.history.state?.mediceaMedicineLeaflet);return;}
+    }catch{}
     if (isPharmacyTripEntry(window.history.state, pharmacyTripRef.current)) return;
     resetFieldsForMode(petMode ? 'pets' : 'international');
     if (petMode) {setActiveSection('search'); return;}
@@ -668,6 +675,10 @@ function Home({ petMode = false,sourceOriginMode=false,travelDemo=false,originId
   function showScreen(next: 'search' | 'tools' | 'care' | 'results') {
     if (pharmacyOpenRef.current) abandonPharmacyTrip();
     const returningFromResults = screen === 'results' && next !== 'results';
+    if(next==='results'){
+      const state=resultHistoryState(window.history.state);
+      if(window.history.state?.mediceaMedicineResults)window.history.replaceState(state,'');else window.history.pushState(state,'');
+    }else if(returningFromResults&&window.history.state?.mediceaMedicineResults)window.history.pushState(formHistoryState(window.history.state),'');
     setScreen(next);
     if (next === 'tools' || next === 'care') setActiveSection(next);
     if (returningFromResults) {
@@ -675,6 +686,8 @@ function Home({ petMode = false,sourceOriginMode=false,travelDemo=false,originId
     } else revealWorkspace();
   }
   function clearSearch() {
+    try{sessionStorage.removeItem(sessionSearchKey(petMode));}catch{}
+    setRetainedSearch(null);
     resetFieldsForMode(mode);
     setOriginCode(''); setTargetCode(''); setSearched(false);
     showScreen('search');
@@ -696,8 +709,38 @@ function Home({ petMode = false,sourceOriginMode=false,travelDemo=false,originId
   const [savedSearches, setSavedSearches] = useState<SavedSearch[]>([]);
   const [saveMessage, setSaveMessage] = useState('');
   const [restoredSearch, setRestoredSearch] = useState<SavedSearch | null>(null);
+  const [retainedSearch,setRetainedSearch]=useState<SessionSearch|null>(null);
+  const sessionResultTime=useRef(new Date().toISOString());
   const completedSearchContext = useRef<{lang:string;mode:Mode;originCode:string;targetCode:string;selectedDrug:string;selectedDosage:string} | null>(null);
   const [petInformation, setPetInformation] = useState<Record<string,VeterinarySection[]>>({});
+  function restoreSessionSearch(current:SessionSearch,openLeaflet?:string){
+    applySavedSearch(current.search);
+    setRestoredSearch(null);setRetainedSearch(current);setOriginLeafletVisible(current.originLeafletVisible);
+    setViewLeaflet(openLeaflet?{[openLeaflet]:true}:{});
+    sessionResultTime.current=current.search.savedAt;
+    window.history.replaceState(resultHistoryState(window.history.state,openLeaflet),'');
+  }
+  function returnToResultList(){
+    setViewLeaflet({});window.history.replaceState(resultHistoryState(window.history.state),'');
+    requestAnimationFrame(()=>document.getElementById('search-results')?.scrollIntoView({block:'start',behavior:'instant'}));
+  }
+  useEffect(()=>{
+    if(!searched||loading||searchFailed||originVariants.length||!isSavedMode(mode)||!completedSearchContext.current)return;
+    const context=completedSearchContext.current;
+    const completedLeaflets=Object.fromEntries(Object.entries(leaflets).filter(([name])=>!leafletLoading[name]));
+    try{const current=storeSessionSearch(sessionStorage,{search:{...context,id:'current',savedAt:sessionResultTime.current,mode:context.mode as SavedSearch['mode'],result,leafletRaw,matches,originSources,originIngredients,noExactMatch,originProductName,petOriginIngredients,leaflets:completedLeaflets,petInformation,searchAccess},originLeafletVisible,viewLeaflet},petMode);
+    if(current)setRetainedSearch(current);}catch{}
+  },[searched,loading,searchFailed,originVariants.length,mode,result,leafletRaw,matches,originSources,originIngredients,noExactMatch,originProductName,petOriginIngredients,leaflets,leafletLoading,petInformation,searchAccess,originLeafletVisible,viewLeaflet,petMode]);
+  useEffect(()=>{
+    const restore=(event:PopStateEvent)=>{
+      if(pharmacyTripRef.current||pharmacyOpenRef.current||isPharmacyTripEntry(event.state,pharmacyTripRef.current))return;
+      if(event.state?.mediceaMedicineResults){
+        let current=retainedSearch;try{current=readSessionSearch(sessionStorage.getItem(sessionSearchKey(petMode)),petMode)||current;}catch{}
+        if(current)restoreSessionSearch(current,event.state.mediceaMedicineLeaflet);
+      }else if(screen==='results')setScreen('search');
+    };
+    window.addEventListener('popstate',restore);return()=>window.removeEventListener('popstate',restore);
+  },[retainedSearch,petMode,screen]);
   useEffect(() => {
     try {setSavedSearches(readSavedSearches(localStorage.getItem(SAVED_SEARCH_KEY)));} catch {}
     const sync=(event:StorageEvent)=>{if(event.key===SAVED_SEARCH_KEY || event.key===null) setSavedSearches(readSavedSearches(event.newValue));};
@@ -721,7 +764,8 @@ function Home({ petMode = false,sourceOriginMode=false,travelDemo=false,originId
     } catch {setSaveMessage(savedSearchCopy(lang).error);}
   }
   function applySavedSearch(saved:SavedSearch) {
-    resetFieldsForMode(saved.mode);
+    resetFieldsForMode(saved.mode,false);
+    window.history.replaceState(resultHistoryState(window.history.state),'');
     completedSearchContext.current=saved;
     setOriginCode(saved.originCode);setTargetCode(saved.targetCode);setSelectedDrug(saved.selectedDrug);setSelectedDosage(saved.selectedDosage);
     setResult(DOMPurify.sanitize(saved.result));setLeafletRaw(saved.leafletRaw);setMatches(saved.matches);
@@ -785,7 +829,8 @@ function Home({ petMode = false,sourceOriginMode=false,travelDemo=false,originId
     );
   }, [useGeo]);
 
-  function resetFieldsForMode(m: Mode) {
+  function resetFieldsForMode(m: Mode,manageHistory=true) {
+    if(manageHistory&&screen==='results'&&window.history.state?.mediceaMedicineResults)window.history.pushState(formHistoryState(window.history.state),'');
     setSearchAccess(undefined);
     abandonPharmacyTrip();
     searchVersion.current += 1;
@@ -914,6 +959,7 @@ if (!membershipEnabled && !BETA_TESTING && isPremiumMode(mode)) {
 
     if (version !== searchVersion.current) return;
     setSearchFailed(false);
+    sessionResultTime.current=new Date().toISOString();
     setOriginVariants([]);setOriginProductName(selection?.name||'');
     setRestoredSearch(null);setSaveMessage('');setPetInformation({});
     completedSearchContext.current={lang,mode,originCode,targetCode,selectedDrug,selectedDosage};
@@ -1122,7 +1168,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
       setViewLeaflet((p) => ({ ...p, [medicineName]: true }));
     } catch (error) {
       if(error instanceof MembershipAccessError)return;
-      setLeaflets((p) => ({ ...p, [medicineName]: F(ui, 'leafletFail', 'Failed to fetch leaflet.') }));
+      setLeaflets((p) => ({ ...p, [medicineName]: F(ui, 'leafletFail', 'Failed to fetch leaflet.')+(travelDemo&&error instanceof LeafletReadError?' ['+error.diagnosticCode+']':'') }));
       setViewLeaflet((p) => ({ ...p, [medicineName]: true }));
     } finally {
       setLeafletLoading((p) => ({ ...p, [medicineName]: false }));
@@ -1158,6 +1204,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
         </div>
       </section>}
       <SavedSearches lang={lang} entries={savedSearches} modeLabel={saved=>saved.mode==='pets'?F(ui,'petEquivHeader','Equivalent pet medicines'):saved.mode==='pet-generic'?petGenericsLabel(lang):saved.mode==='generic'?F(ui,'genHeader','Generics'):saved.mode==='leaflet'?F(ui,'btnLeaflet','Medicine leaflet'):F(ui,'equivHeader','Equivalent medicines')} onOpen={openSavedSearch} onRemove={removeSavedSearch} />
+      {retainedSearch&&(screen!=='results'||searchFailed)&&<button type="button" className="return-results" onClick={()=>{window.history.pushState(resultHistoryState(window.history.state),'');restoreSessionSearch(retainedSearch);}}>{F(ui,'viewResults','View results')} <ArrowRight size={16}/></button>}
       {saveMessage && <p className="saved-search-status" role="status">{saveMessage}</p>}
       <div id="workspace-start" />
       {petMode && <nav className="workspace-nav" aria-label={F(ui, 'btnPets', 'Meds 4 Pets')}>
@@ -1544,7 +1591,9 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
                       <div className="leaflet-actions">
                         <button
                           onClick={() => {
-                            if (!leafletText) {
+                            if(!showLF)window.history.pushState(resultHistoryState(window.history.state,medname),'');
+                            else window.history.replaceState(resultHistoryState(window.history.state),'');
+                            if (!leafletText||!showLF&&leafletText.startsWith(F(ui,'leafletFail','Failed to fetch leaflet.'))) {
                               handleFetchLeafletForMatch(medname);
                             } else {
                               setViewLeaflet((p) => ({ ...p, [medname]: !p[medname] }));
@@ -1578,6 +1627,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
                           overflowWrap: 'anywhere',
                         }}
                       >
+                        <button type="button" className="pill pill--outline pill-sm" onClick={returnToResultList}>{F(ui,'viewResults','View results')}</button>
                         {renderLeafletPretty(leafletText, t,false,lang,mode === 'international' ? targetCode || originCode : originCode)}
                       </div>
                     )}

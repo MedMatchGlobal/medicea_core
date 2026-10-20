@@ -20,13 +20,13 @@ export function isSavedMode(mode:string): mode is SavedMode {
 }
 const text=(value:unknown,max=200000)=>typeof value==='string' ? value.slice(0,max) : '';
 // Persist only explicit medicine-search fields; never capture account, location or condition data.
-export function normalizeSavedSearch(value:unknown): SavedSearch | null {
+export function normalizeSavedSearch(value:unknown,identityLimit=300): SavedSearch | null {
   if (!value || typeof value!=='object') return null;
   const v=value as Record<string,any>;
   if (!isSavedMode(v.mode) || !text(v.id,100) || !text(v.selectedDrug,300) || !Number.isFinite(Date.parse(v.savedAt))) return null;
   const leaflets:Record<string,string>={};
   if (v.leaflets && typeof v.leaflets==='object') for (const [key,item] of Object.entries(v.leaflets).slice(0,30)) {
-    if (typeof item==='string') Object.defineProperty(leaflets,key.slice(0,300),{value:text(item),enumerable:true});
+    if (typeof item==='string') Object.defineProperty(leaflets,key.slice(0,identityLimit),{value:text(item),enumerable:true});
   }
   const petInformation:Record<string,VeterinarySection[]>={};
   if (v.petInformation && typeof v.petInformation==='object') for (const [key,item] of Object.entries(v.petInformation).slice(0,30)) {
@@ -38,11 +38,11 @@ export function normalizeSavedSearch(value:unknown): SavedSearch | null {
     ...(v.noExactMatch===true?{noExactMatch:true}:{}),
     ...(typeof v.originProductName==='string'?{originProductName:text(v.originProductName,250)}:{}),
     ...(Array.isArray(v.originIngredients)?{originIngredients:v.originIngredients.slice(0,20).map((i:any)=>({name:text(i?.name,300),strength:text(i?.strength,300)})).filter((i:any)=>i.name&&i.strength)}:{}),
-    matches:Array.isArray(v.matches)?v.matches.slice(0,30).map((m:any)=>({medicine_name:text(m?.medicine_name ?? m?.Medicine_name,300),...(Array.isArray(m?.sources)?{sources:medicineSources(m.sources)}:{})})).filter((m:any)=>isMedicineName(m.medicine_name)):[],
+    matches:Array.isArray(v.matches)?v.matches.slice(0,30).map((m:any)=>({medicine_name:text(m?.medicine_name ?? m?.Medicine_name,identityLimit),...(Array.isArray(m?.sources)?{sources:medicineSources(m.sources)}:{})})).filter((m:any)=>isMedicineName(m.medicine_name)):[],
     petOriginIngredients:Array.isArray(v.petOriginIngredients)?v.petOriginIngredients.slice(0,30).map((i:any)=>({name:text(i?.name,300),strength:text(i?.strength,300)})).filter((i:any)=>i.name):[]};
 }
 export function readSavedSearches(raw:string|null):SavedSearch[] {
-  try {const values=JSON.parse(raw||'[]');return Array.isArray(values)?values.slice(0,MAX_SAVED_SEARCHES).map(normalizeSavedSearch).filter((v):v is SavedSearch=>!!v):[];} catch {return [];}
+  try {const values=JSON.parse(raw||'[]');return Array.isArray(values)?values.slice(0,MAX_SAVED_SEARCHES).map(value=>normalizeSavedSearch(value)).filter((v):v is SavedSearch=>!!v):[];} catch {return [];}
 }
 export function addSavedSearch(existing:SavedSearch[],entry:SavedSearch):SavedSearch[] {
   const normalized=normalizeSavedSearch(entry);

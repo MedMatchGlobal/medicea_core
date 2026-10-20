@@ -9,10 +9,12 @@ export function leafletProgress(run:(ready:(payload:unknown)=>void)=>Promise<Res
  },cancel(){cancelled=true;}});
  return new Response(body,{headers:{'Content-Type':'application/x-ndjson; charset=utf-8','Cache-Control':'no-store','X-Content-Type-Options':'nosniff','Vary':'Accept'}});
 }
+export class LeafletReadError extends Error {constructor(public diagnosticCode:string){super('Leaflet request failed');}}
+function failureCode(payload:any){return typeof payload?.diagnosticCode==='string'&&/^[A-Z0-9_]{1,60}$/.test(payload.diagnosticCode)?payload.diagnosticCode:'LEAFLET_UNAVAILABLE';}
 export async function readLeafletResponse(response:Response,onReady:(payload:any)=>void,pendingPriceLabel?:string):Promise<any>{
- if(!response.headers.get('Content-Type')?.startsWith('application/x-ndjson'))return response.json();
+ if(!response.headers.get('Content-Type')?.startsWith('application/x-ndjson')){const payload=await response.json();if(!response.ok)throw new LeafletReadError(failureCode(payload));return payload;}
  if(!response.body)throw Error('EMPTY_LEAFLET_STREAM');
  const reader=response.body.getReader(),decoder=new TextDecoder();let buffer='',final:any,complete=false;
- const consume=(line:string)=>{if(!line.trim())return;const event=JSON.parse(line);if(event.type==='ready'){const p=event.payload;if(p?.pricePending&&pendingPriceLabel&&typeof p.leaflet?.leaflet_text==='string')onReady({...p,leaflet:{...p.leaflet,leaflet_text:p.leaflet.leaflet_text.replace(/Average Selling Price\n[\s\S]*$/,'Average Selling Price\n- '+pendingPriceLabel)}});else onReady(p);}else if(event.type==='complete'){final=event.payload;complete=true;}else if(event.type==='error')throw Error('LEAFLET_STREAM_FAILED');};
+ const consume=(line:string)=>{if(!line.trim())return;const event=JSON.parse(line);if(event.type==='ready'){const p=event.payload;if(p?.pricePending&&pendingPriceLabel&&typeof p.leaflet?.leaflet_text==='string')onReady({...p,leaflet:{...p.leaflet,leaflet_text:p.leaflet.leaflet_text.replace(/Average Selling Price\n[\s\S]*$/,'Average Selling Price\n- '+pendingPriceLabel)}});else onReady(p);}else if(event.type==='complete'){final=event.payload;complete=true;}else if(event.type==='error')throw new LeafletReadError(failureCode(event.payload));};
  try{while(true){const chunk=await reader.read();if(chunk.done)break;buffer+=decoder.decode(chunk.value,{stream:true});let index;while((index=buffer.indexOf('\n'))>=0){consume(buffer.slice(0,index));buffer=buffer.slice(index+1);}if(buffer.length>500_000)throw Error('LEAFLET_STREAM_TOO_LARGE');}buffer+=decoder.decode();consume(buffer);if(!complete)throw Error('INCOMPLETE_LEAFLET_STREAM');return final;}finally{reader.releaseLock();}
 }

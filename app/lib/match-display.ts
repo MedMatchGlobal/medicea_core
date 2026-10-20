@@ -1,7 +1,10 @@
 export function isMedicineName(value:unknown):value is string {
  if(typeof value!=='string'||!value.trim()||value.length>600)return false;
  const name=value.trim();
- return !isEmptyMatchText(name)&&!/^(?:i(?:['’]m| am) sorry\b|sorry\b|i (?:cannot|can['’]t|am unable|do not have)\b|unable to\b|there (?:are|is) no\b|no (?:exact )?(?:matching )?(?:results?|match(?:es)?|equivalents?|products?)\b|not found\b)/i.test(name)&&!/[<>]/.test(name);
+ return !isEmptyMatchText(name)&&!isSearchSummary(name)&&!/^(?:i(?:['’]m| am) sorry\b|sorry\b|i (?:cannot|can['’]t|am unable|do not have)\b|unable to\b|there (?:are|is) no\b|no (?:exact )?(?:matching )?(?:results?|match(?:es)?|equivalents?|products?)\b|not found\b)/i.test(name)&&!/[<>]/.test(name);
+}
+export function isSearchSummary(value:string){
+ return /^(?:(?:only|a total of|in total)\s+(?:\d+|one|two|three|four|five|six|seven|eight|nine|ten)\s+(?:(?:matching|verified|confirmed)\s+)*(?:products?|medicines?|matches|results?)\b|(?:both|all|these|the above)\s+(?:(?:matching|listed|identified)\s+)?(?:products|medicines|results)\s+(?:are|were|have|require|contain)\b|(?:note|summary|sources?)\s*[:—])/i.test(cleanMatchText(value));
 }
 export function isEmptyMatchText(value:string){
  const text=cleanMatchText(value);

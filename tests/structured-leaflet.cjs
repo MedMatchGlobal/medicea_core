@@ -198,3 +198,9 @@ test('researched leaflet sources render in a closed disclosure with unsafe links
  const Component=loader().load('app/components/StructuredLeafletSections.tsx').default,sections=loader().load('app/lib/leaflet-contract.ts').validateLeaflet(values());
  const html=renderToStaticMarkup(React.createElement(Component,{sections,sourceUrls:['https://app.fagg-afmps.be/pharma-status/api/files/fixture','javascript:alert(1)','https://user:secret@example.com/'],lang:'en'}));assert.match(html,/<details[^>]*><summary/);assert.doesNotMatch(html,/<details[^>]*open/);assert.match(html,/Sources \(1\)/);assert.match(html,/href="https:\/\/app.fagg-afmps.be/);assert.doesNotMatch(html,/javascript:|secret/);
 });
+
+test('leaflet diagnostic reasons survive JSON and streamed errors without including provider text',async()=>{
+ const lib=loader().load('app/lib/leaflet-progress.ts');
+ for(const stream of [false,true]){const error=Response.json({error:'MEDICINE_INFORMATION_UNAVAILABLE',diagnosticCode:'UNSUPPORTED_LEAFLET_SOURCES',providerText:'private fixture'},{status:503});const response=stream?lib.leafletProgress(async()=>error):error;await assert.rejects(()=>lib.readLeafletResponse(response,()=>{}),e=>e.diagnosticCode==='UNSUPPORTED_LEAFLET_SOURCES'&&!e.message.includes('private'));}
+ const unsafe=Response.json({diagnosticCode:'secret <script>'},{status:503});await assert.rejects(()=>lib.readLeafletResponse(unsafe,()=>{}),e=>e.diagnosticCode==='LEAFLET_UNAVAILABLE');
+});
