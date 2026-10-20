@@ -1094,12 +1094,12 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
 
   async function handleFetchLeafletForMatch(medicineName: string) {
     if(!isMedicineName(medicineName))return;
-    const queryName=equivalentPresentation(medicineName).title;
     const version = searchVersion.current;
     setLeafletLoading((p) => ({ ...p, [medicineName]: true }));
     try {
       const country =
         mode === 'international' || mode === 'pets' ? targetCode || originCode || '' : originCode || '';
+      const queryName=equivalentPresentation(medicineName,country).title;
 
       const res = await membershipFetch('/api/openai/leaflet', {
         method: 'POST',
@@ -1108,8 +1108,9 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
           originCountry: country,
           targetCountry: country,
           country,
-          drugName: queryName,
+          drugName: medicineName,
           medicineName: queryName,
+          equivalentResult: medicineName,
           drugDosage: selectedDosage || '',
           lang,
           searchAccess,
@@ -1515,7 +1516,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
               {matches.map((m: any, idx: number) => {
                 const medname = m?.medicine_name ?? m?.Medicine_name ?? `Medicine ${idx + 1}`;
                 if(!isMedicineName(medname))return null;
-                const presentation=equivalentPresentation(medname);
+                const presentation=equivalentPresentation(medname,mode==='international'?targetCode||originCode:originCode);
                 if (mode === 'pets' || mode === 'pet-generic') return <div key={medname + lang + (restoredSearch?.id || "")}><PetMedicineInformation searchAccess={searchAccess}
                   initialInformation={petInformation[medname + (mode === 'pets' ? targetCode || originCode : originCode) + lang]}
                   onInformation={sections=>setPetInformation(previous=>({...previous,[medname + (mode === 'pets' ? targetCode || originCode : originCode) + lang]:sections}))}

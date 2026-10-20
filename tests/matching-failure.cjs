@@ -31,3 +31,14 @@ test('equivalent titles keep product identity and move pack and authorisation co
  const simple=equivalentPresentation('Co-Codamol 30/500 tablets');assert.equal(simple.title,'Co-Codamol 30/500 tablets');assert.equal(simple.details,'');assert.equal(simple.uncertainty,'');
  const brand=equivalentPresentation('Co-Codamol 30/500 tablets (Accord-UK) – 32 tablets.');assert.equal(brand.title,'Co-Codamol 30/500 tablets (Accord-UK)');assert.equal(brand.details,'32 tablets.');
 });
+
+test('equivalent headings preserve the two explicitly researched suppliers without merging their identities',()=>{
+ const {equivalentPresentation,equivalentLeafletName}=load('app/lib/match-display.ts');
+ const first='Co-codamol 30/500 Effervescent Tablets — Zentiva, United Kingdom. Each effervescent tablet contains paracetamol 500 mg and codeine phosphate hemihydrate 30 mg. Prescription-only medicine';
+ const second='Co-codamol 30 mg/500 mg effervescent tablets — Cipla EU Ltd, United Kingdom. Each effervescent tablet contains paracetamol 500 mg and codeine phosphate hemihydrate 30 mg. Prescription-only medicine';
+ assert.equal(equivalentPresentation(first,'United Kingdom').title,'Co-codamol 30/500 Effervescent Tablets — Zentiva');assert.equal(equivalentPresentation(second,'United Kingdom').title,'Co-codamol 30 mg/500 mg effervescent tablets — Cipla EU Ltd');assert.notEqual(equivalentLeafletName(first,first,'United Kingdom'),equivalentLeafletName(second,second,'United Kingdom'));
+ assert.match(equivalentPresentation(first,'United Kingdom').details,/Prescription-only/);
+ assert.equal(equivalentPresentation('Co-codamol 30/500 tablets (Zentiva) — Zentiva, United Kingdom. More information.','United Kingdom').title,'Co-codamol 30/500 tablets (Zentiva)');
+ assert.equal(equivalentPresentation('Co-codamol 30/500 tablets — 32 tablets, United Kingdom. More information.','United Kingdom').title,'Co-codamol 30/500 tablets');
+ assert.equal(equivalentLeafletName(first,'different original result','United Kingdom'),first);
+});

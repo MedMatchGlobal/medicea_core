@@ -104,3 +104,14 @@ test('destination source URLs must have been retrieved; failures do not fall bac
  const invalid=destinationReply();invalid.output[1].content[0].text=JSON.stringify({raw_text:destinationText,sources:['https://invented.example/not-retrieved']});
  const h=harness(env,async()=>Response.json(invalid));await assert.rejects(()=>h.load('app/lib/equivalent-research.ts').researchEquivalentList('Existing list instruction','Existing query',profile,'Chile'),/UNSUPPORTED_EQUIVALENT_SOURCES/);assert.equal(h.calls.length,1);
 });
+
+test('equivalent leaflet route sends the retained supplier identity while search access remains bound to the original result',async()=>{
+ const original='Co-codamol 30/500 Effervescent Tablets — Zentiva, United Kingdom. Each tablet contains fictional fixture information.';
+ const value=leafletFixture();
+ const h=harness({...env,STRIPE_WEBHOOK_SECRET:'whsec_fixture'},async(url,init)=>Response.json(JSON.parse(init.body).text.format.name==='medicea_grounded_leaflet_v1'?researchedLeaflet(value):{status:'completed',output:[]}));
+ const grants=h.load('lib/membership/search-grant.ts'),grant=grants.issueSearchGrant('fixture-owner',{mode:'international',originCountry:'Italy',targetCountry:'United Kingdom'},{matches:[{medicine_name:original}]});
+ const body={drugName:original,equivalentResult:original,originCountry:'United Kingdom',lang:'en',searchAccess:grant};
+ assert.equal(grants.allowsSearchFollowup(grant,'fixture-owner','leaflet',body),true);
+ assert.equal(grants.allowsSearchFollowup(grant,'fixture-owner','leaflet',{...body,drugName:'Unrelated medicine'}),false);
+ const response=await h.load('app/api/openai/leaflet/route.ts').POST(request(body));assert.equal(response.status,200);const task=JSON.parse(h.calls[0].body.input[1].content);assert.equal(task.drugName,'Co-codamol 30/500 Effervescent Tablets — Zentiva');assert.equal(task.originCountry,'United Kingdom');assert.equal(h.calls[0].body.instructions,h.load('app/lib/leaflet-prompts.ts').organisedHumanLeafletPrompt('English'));
+});

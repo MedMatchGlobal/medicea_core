@@ -13,10 +13,20 @@ export function cleanMatchText(value:string){
 }
 // Presentation only. Keep the original result for storage and matching; pass
 // the clean product identity, not the commentary, to leaflet lookup controls.
-export function equivalentPresentation(value:string){
+export function equivalentPresentation(value:string,country=''){
  const clean=cleanMatchText(value),split=clean.search(/\s+[—–]\s+/);
  if(split<0)return {title:clean,details:'',uncertainty:''};
- const title=clean.slice(0,split).trim(),details=clean.slice(split).replace(/^\s*[—–]\s*/,'').trim();
+ let title=clean.slice(0,split).trim();const details=clean.slice(split).replace(/^\s*[—–]\s*/,'').trim();
+ // Preserve a supplier explicitly present in the result. Do not infer one from
+ // pack counts, active ingredients or an authorisation note.
+ const countryPattern=country.trim().replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+ const company=countryPattern?details.match(new RegExp('^(.{2,120}?),\\s*'+countryPattern+'(?:[.;]|$)','i'))?.[1]?.trim():undefined;
+ if(company&&!/\d|\b(?:tablets?|capsules?|sachets?|contains?|pack|AIC|authorisation|authorization|licence|license)\b/i.test(company)&&!title.toLowerCase().includes(company.toLowerCase()))title+=' — '+company;
  const uncertainty=details.split(/(?<=[.;])\s+/).filter(s=>/\b(?:not confirmed|not established|not verified|unconfirmed|unverified|uncertain|unknown)\b/i.test(s)).join(' ');
  return {title,details,uncertainty};
+}
+// Membership checks bind to the original returned result. Only after those
+// checks may the leaflet route derive its concise manufacturer-specific query.
+export function equivalentLeafletName(drugName:unknown,resultEntry:unknown,country:unknown){
+ return typeof drugName==='string'&&resultEntry===drugName&&isMedicineName(drugName)&&typeof country==='string'?equivalentPresentation(drugName,country).title:drugName;
 }

@@ -2,13 +2,15 @@ import {withMembership} from '@/lib/membership/meter';
 export const maxDuration = 120;
 import { openaiFetch, travelSolEnabled, experimentalPromptsEnabled as modelUpgradeEnabled } from "@/app/lib/openaiClient";
 import { NextResponse } from "next/server";
+import {equivalentLeafletName} from '@/app/lib/match-display';
 
 const OPENAI_URL = "https://api.openai.com/v1/chat/completions";
 
 async function generate(req: Request) {
   try {
     // Read request body (adds 'lang' support)
-    const { originCountry, drugName, drugDosage, lang, originSelection, originQueryName } = await req.json();
+    const { originCountry, drugName:requestedDrugName, drugDosage, lang, originSelection, originQueryName, equivalentResult } = await req.json();
+    const drugName=travelSolEnabled?.()?equivalentLeafletName(requestedDrugName,equivalentResult,originCountry):requestedDrugName;
     if(modelUpgradeEnabled?.()) return (await import("@/app/lib/medicine-summary")).medicineSummary({drugName,originCountry,drugDosage,lang,originSelection,originQueryName});
     const language = (lang || "en").trim().toLowerCase();
     if(travelSolEnabled?.()){
