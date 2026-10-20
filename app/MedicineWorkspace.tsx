@@ -50,7 +50,7 @@ import StructuredLeafletSections from './components/StructuredLeafletSections';
 import {connectedCopy} from './i18n/travel-connected';
 import {isMedicineName,isEmptyMatchText,isSearchSummary,equivalentPresentation} from './lib/match-display';
 import {emptyMatchCopy} from './i18n/empty-match';
-import {originChoiceCopy} from './i18n/origin-choice';
+import {originChoiceCopy,equivalentsListLabel} from './i18n/origin-choice';
 type OriginVariant={name:string;form:string;ingredients:VeterinaryIngredient[];sources:string[];token:string};
 import { conditionAdditions } from '../data/condition-additions';
 import { searchFeedback } from './i18n/search-feedback';
@@ -1204,7 +1204,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
         </div>
       </section>}
       <SavedSearches lang={lang} entries={savedSearches} modeLabel={saved=>saved.mode==='pets'?F(ui,'petEquivHeader','Equivalent pet medicines'):saved.mode==='pet-generic'?petGenericsLabel(lang):saved.mode==='generic'?F(ui,'genHeader','Generics'):saved.mode==='leaflet'?F(ui,'btnLeaflet','Medicine leaflet'):F(ui,'equivHeader','Equivalent medicines')} onOpen={openSavedSearch} onRemove={removeSavedSearch} />
-      {retainedSearch&&(screen!=='results'||searchFailed)&&<button type="button" className="return-results" onClick={()=>{window.history.pushState(resultHistoryState(window.history.state),'');restoreSessionSearch(retainedSearch);}}>{F(ui,'viewResults','View results')} <ArrowRight size={16}/></button>}
+      {retainedSearch&&(screen!=='results'||searchFailed)&&<button type="button" className="return-results" onClick={()=>{window.history.pushState(resultHistoryState(window.history.state),'');restoreSessionSearch(retainedSearch);}}>{retainedSearch.search.mode==='international'?equivalentsListLabel(lang):F(ui,'viewResults','View results')} <ArrowRight size={16}/></button>}
       {saveMessage && <p className="saved-search-status" role="status">{saveMessage}</p>}
       <div id="workspace-start" />
       {petMode && <nav className="workspace-nav" aria-label={F(ui, 'btnPets', 'Meds 4 Pets')}>
@@ -1234,7 +1234,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
           mode === 'hospital' ? F(ui, 'btnHospital', 'Search Hospital') : F(ui, 'btnGP', 'Search GP')}</h2>
         <p>{F(ui, 'searchIntro', 'Choose your details to get started.')}</p>
       </div></div>
-      {searched && !loading && <button className="return-results" onClick={() => showScreen('results')}>{F(ui, 'viewResults', 'View results')} <ArrowRight size={16}/></button>}
+      {searched && !loading && <button className="return-results" onClick={() => showScreen('results')}>{mode==='international'?equivalentsListLabel(lang):F(ui, 'viewResults', 'View results')} <ArrowRight size={16}/></button>}
       {/* FORM */}
       {mode !== 'triage' && (
         <div className="medicine-form">
@@ -1627,7 +1627,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
                           overflowWrap: 'anywhere',
                         }}
                       >
-                        <button type="button" className="pill pill--outline pill-sm" onClick={returnToResultList}>{F(ui,'viewResults','View results')}</button>
+                        <button type="button" className="pill pill--outline pill-sm" onClick={returnToResultList}>{mode==='international'?equivalentsListLabel(lang):F(ui,'viewResults','View results')}</button>
                         {renderLeafletPretty(leafletText, t,false,lang,mode === 'international' ? targetCode || originCode : originCode)}
                       </div>
                     )}
