@@ -3,12 +3,13 @@ import {openaiFetch,modelTestConfiguration} from './openaiClient';
 import {exactComposition,selectedCombinationAgrees} from './source-matches';
 import {isMedicineName} from './match-display';
 
-export type OriginProduct={name:string;country:string;form:string;route:string;species:string[];complete:true;generic:boolean;ingredients:{name:string;strength:string}[];sources:string[];lookup?:'original'};
+export type OriginProduct={name:string;country:string;form:string;route:string;species:string[];complete:true;generic:boolean;ingredients:{name:string;strength:string}[];sources:string[];lookup?:'original';identification?:'origin-v1';release?:string;excipients?:string[];excipientStatus?:'complete'|'partial'|'unknown'};
 const sites:Record<string,string[]>={
  'united kingdom':['medicines.org.uk','products.mhra.gov.uk','mhra.gov.uk','solpadeine.co.uk'],
  ireland:['hpra.ie','medicines.ie'],france:['medicaments.gouv.fr','ansm.sante.fr'],italy:['aifa.gov.it','aifa.it'],spain:['aemps.gob.es','aemps.es'],germany:['bfarm.de','pharmnet.bund.de'],
  'united states':['dailymed.nlm.nih.gov','fda.gov'],canada:['health-products.canada.ca','dhpp.hpfb-dgpsa.ca'],australia:['tga.gov.au'],'new zealand':['medsafe.govt.nz'],
 };
+export function originSourceDomains(country:string){return sites[country.trim().toLowerCase()]?.slice()||[];}
 const norm=(s:string)=>s.trim().toLowerCase().replace(/\s+/g,' ');
 // Some source responses spell out the human species instead of the requested
 // empty array. Canonicalise only explicit, exclusively human labels. Missing,
@@ -30,9 +31,9 @@ export function sourceHintAgrees(hint:unknown,ingredients:OriginProduct['ingredi
  return parts.every(p=>{const index=remaining.indexOf(Number.parseFloat(p));if(index<0)return false;remaining.splice(index,1);return true;});
 }
 function sourceUrl(value:unknown,domains:string[]){try{if(typeof value!=='string'||value.length>2048)return null;const url=new URL(value);return url.protocol==='https:'&&!url.username&&!url.password&&!url.port&&domains.some(d=>url.hostname===d||url.hostname.endsWith('.'+d))?url.href:null;}catch{return null;}}
-export function readOriginProducts(result:any,country:string,dosage:unknown):OriginProduct[]{
+export function readOriginProducts(result:any,country:string,dosage:unknown,allowedDomains?:string[]):OriginProduct[]{
  if(result?.status!=='completed')throw Error('ORIGIN_LOOKUP_INCOMPLETE');
- const domains=sites[norm(country)];if(!domains)throw Error('ORIGIN_COVERAGE_UNAVAILABLE');
+ const domains=allowedDomains||sites[norm(country)];if(!domains)throw Error('ORIGIN_COVERAGE_UNAVAILABLE');
  const retrieved=new Set<string>();for(const o of result.output||[])if(o.type==='web_search_call'&&o.status==='completed')for(const s of o.action?.sources||[]){const url=sourceUrl(s.url,domains);if(url)retrieved.add(url);}
  const text=(result.output||[]).filter((o:any)=>o.type==='message').flatMap((o:any)=>o.content||[]).filter((c:any)=>c.type==='output_text').map((c:any)=>c.text).join('');
  const parsed=JSON.parse(text);if(!Array.isArray(parsed.products))throw Error('INVALID_ORIGIN_RESPONSE');
@@ -53,7 +54,7 @@ export function readOriginProducts(result:any,country:string,dosage:unknown):Ori
    matchingCountry:offered.filter((p:any)=>typeof p?.country==='string'&&norm(p.country)===norm(country)).length,
    matchingHint:offered.filter((p:any)=>Array.isArray(p?.ingredients)&&sourceHintAgrees(dosage,p.ingredients)!==false).length});}catch{}
  }
- const key=(p:OriginProduct)=>norm(p.form)+'|'+norm(p.route)+'|'+p.ingredients.map(i=>norm(i.name)+'|'+norm(i.strength)).sort().join(';');
+ const key=(p:OriginProduct)=>(p.release?norm(p.name):'')+'|'+norm(p.release||'')+'|'+JSON.stringify(p.excipients||[])+'|'+norm(p.form)+'|'+norm(p.route)+'|'+p.ingredients.map(i=>norm(i.name)+'|'+norm(i.strength)).sort().join(';');
  return products.filter((p,i)=>products.findIndex(q=>key(q)===key(p))===i).slice(0,6);
 }
 export async function lookupOrigin(input:{drugName:string;originCountry:string;drugDosage?:unknown}){

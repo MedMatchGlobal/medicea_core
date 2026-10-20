@@ -1,5 +1,5 @@
 const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),ts=require('typescript'),{execFileSync}=require('node:child_process');
-const root=path.join(__dirname,'..'),productionRef='f4ab1bd',dev={VERCEL_ENV:'preview',VERCEL_GIT_COMMIT_REF:'feature/travel-pack-preview',MEDICEA_TRAVEL_CONNECTED:'true',MEDICEA_OPENAI_UPGRADE:'true',MEDICEA_SIMPLE_LEAFLET:'false',MEDICEA_ORGANISED_LEAFLET:'false',OPENAI_API_KEY:'public-fixture-not-real'};
+const root=path.join(__dirname,'..'),productionRef='f4ab1bd',dev={VERCEL_ENV:'preview',VERCEL_GIT_COMMIT_REF:'feature/travel-pack-preview',MEDICEA_TRAVEL_CONNECTED:'true',MEDICEA_OPENAI_UPGRADE:'true',MEDICEA_SIMPLE_LEAFLET:'false',MEDICEA_ORGANISED_LEAFLET:'false',MEDICEA_ORIGIN_IDENTIFICATION:'false',OPENAI_API_KEY:'public-fixture-not-real'};
 // Read the immutable Production source, not the current branch's preserved but
 // potentially bypassed declarations. No baseline is regenerated and no network
 // or real provider request is permitted by this harness.

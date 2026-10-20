@@ -19,7 +19,7 @@ export async function GET(request:Request){
  if(!travelPreviewEnabled())return new NextResponse(null,{status:404});
  const setup=missing();return NextResponse.json({ready:!setup.length,missing:setup,authenticated:!setup.length&&travelTestSession(request),mode:'public-medicine-test'},{headers});
 }
-function product(p:OriginProduct,query:string,dosage:string){return {name:p.name,query,dosage,form:p.form,route:p.route,ingredients:p.ingredients,sources:p.sources,...(p.lookup?{lookup:p.lookup}:{}),token:issueOriginSelection(p,query)};}
+function product(p:OriginProduct,query:string,dosage:string){return {name:p.name,query,dosage,form:p.form,route:p.route,ingredients:p.ingredients,sources:p.sources,...(p.identification?{identification:p.identification,release:p.release,excipients:p.excipients,excipientStatus:p.excipientStatus}:{}),...(p.lookup?{lookup:p.lookup}:{}),token:issueOriginSelection(p,query)};}
 export async function POST(request:Request){
  if(!travelPreviewEnabled())return new NextResponse(null,{status:404});
  if(request.headers.get('origin')!==new URL(request.url).origin)return NextResponse.json({error:'INVALID_ORIGIN'},{status:403,headers});

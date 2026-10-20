@@ -1,0 +1,59 @@
+const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),ts=require('typescript');
+const root=path.join(__dirname,'..'),env={VERCEL_ENV:'preview',VERCEL_GIT_COMMIT_REF:'feature/travel-pack-preview',MEDICEA_TRAVEL_CONNECTED:'true',MEDICEA_OPENAI_UPGRADE:'true',OPENAI_API_KEY:'fictional-origin-test'};
+function harness(settings=env,fetcher=()=>{throw Error('Unexpected provider request');}){const cache={},calls=[];function load(file){file=file.replace(/\\/g,'/');if(cache[file])return cache[file];const absolute=path.join(root,file),module={exports:{}};cache[file]=module.exports;vm.runInNewContext(ts.transpileModule(fs.readFileSync(absolute,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2020,esModuleInterop:true}}).outputText,{module,exports:module.exports,process:{env:settings},Buffer,URL,Request,Response,Headers,AbortController,setTimeout,clearTimeout,console:{log(){},info(){},warn(){},error(){}},fetch:async(url,init)=>{calls.push({url,body:JSON.parse(init.body)});return fetcher(url,init);},require(name){if(name==='next/server')return {NextResponse:{json:Response.json}};if(name==='@/lib/membership/meter')return {withMembership:h=>h};if(name.startsWith('@/'))return load(name.slice(2)+'.ts');if(name.startsWith('.'))return load(path.relative(root,path.resolve(path.dirname(absolute),name))+'.ts');return require(name);}});return cache[file]=module.exports;}return {load,calls};}
+const source='https://www.medicines.org.uk/emc/fictional-origin',profile={name:'Fictional product tablets 500/8/30',country:'United Kingdom',form:'tablet',route:'oral',release:'immediate release',species:[],complete:true,generic:false,ingredients:[{name:'Fictional A',strength:'500 mg per tablet'},{name:'Fictional B',strength:'8 mg per tablet'},{name:'Fictional C',strength:'30 mg per tablet'}],excipients:[],excipientStatus:'unknown',sources:[source]};
+const researched=(products=[profile],urls=[source])=>({status:'completed',output:[{type:'web_search_call',status:'completed',action:{sources:urls.map(url=>({url}))}},{type:'message',content:[{type:'output_text',text:JSON.stringify({products})}]}]});
+const completion=text=>({choices:[{finish_reason:'stop',message:{content:text}}]});
+const input={drugName:'Fictional product',originCountry:'United Kingdom',targetCountry:'Italy',drugDosage:'500 + 8'};
+const request=body=>new Request('https://owner-demo.invalid/test',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+
+test('partial and single-number hints select a subset of label amounts without dropping forgotten actives',()=>{
+ const lib=harness().load('app/lib/origin-identification.ts');for(const hint of ['500','8 mg','500 + 8','8/500'])assert.equal(lib.identificationHintAgrees(hint,profile.ingredients),true);
+ for(const hint of ['80','500 + 15','500 + 500','8 mcg'])assert.equal(lib.identificationHintAgrees(hint,profile.ingredients),false);
+ assert.equal(lib.identificationHintAgrees('Fictional B 8 mg',profile.ingredients),null);
+ const selected=lib.readIdentifiedOrigins(researched(),'United Kingdom','500 + 8');assert.equal(selected[0].ingredients.length,3);assert.equal(selected[0].ingredients[2].strength,'30 mg per tablet');assert.equal(selected[0].excipientStatus,'unknown');
+ assert.equal(lib.requiresOriginChoice(selected,'Fictional B 8 mg'),true);
+});
+
+test('first-step research is source-supported Sol with a bounded single attempt and no target or leaflet request',async()=>{
+ const h=harness(env,async()=>Response.json(researched())),lib=h.load('app/lib/origin-identification.ts');const products=await lib.identifyOrigin(input);assert.equal(products.length,1);assert.equal(h.calls.length,1);const call=h.calls[0];assert.match(call.url,/responses$/);assert.equal(call.body.model,'gpt-6.1-sol');assert.equal(call.body.max_tool_calls,1);assert.equal(call.body.text.format.strict,true);assert.equal(call.body.store,false);assert.match(call.body.instructions,/Retrieve ALL active ingredients/);assert.match(call.body.instructions,/Never overwrite a label strength/);assert.match(call.body.instructions,/No destination products/);assert.deepEqual(call.body.include,['web_search_call.action.sources']);
+});
+
+test('ambiguous shared strength returns choices before destination search; choosing reuses the complete signed profile',async()=>{
+ const other={...profile,name:'Fictional product tablets 500/30',ingredients:profile.ingredients.slice(0,2).map((i,n)=>n?{...i,strength:'30 mg per tablet'}:i)};
+ const h=harness(env,async url=>Response.json(url.endsWith('/responses')?researched([profile,other]):completion('Fictional destination: Fictional A 500 mg per tablet together with Fictional B 8 mg per tablet together with Fictional C 30 mg per tablet'))),route=h.load('app/api/openai/equivalent-search/route.ts');
+ const first=await route.POST(request({...input,drugDosage:'500'}));assert.equal(first.status,409);const data=await first.json();assert.equal(data.variants.length,2);assert.equal(h.calls.length,1);assert.equal(data.variants[0].excipients.length,0);assert.equal(data.variants[0].release,'immediate release');
+ const chosen=await route.POST(request({...input,drugDosage:'500',originSelection:data.variants[0].token}));assert.equal(chosen.status,200);const result=await chosen.json();assert.equal(h.calls.length,2);assert.equal(result.originProfile.active_ingredients.length,3);assert.equal(result.originProfile.identification,'origin-v1');assert.match(h.calls[1].body.messages[1].content,/8 mg per tablet of Fictional B/);assert.match(h.calls[1].body.messages[1].content,/30 mg per tablet of Fictional C/);assert.equal(result.originProfile.excipientStatus,'unknown');
+});
+
+test('no matching source profile, unsupported country, invalid token and provider failures never reach destination search',async()=>{
+ for(const products of [[],[{...profile,country:'France'}],[{...profile,complete:false}],[{...profile,sources:['https://unretrieved.example/leaflet']}],[{...profile,species:['dog']}],[{...profile,excipientStatus:'unknown',excipients:['Invented absent-list claim']}]] ){
+  const h=harness(env,async()=>Response.json(researched(products))),r=await h.load('app/api/openai/equivalent-search/route.ts').POST(request(input));assert.equal(r.status,422);assert.equal(h.calls.length,1);
+ }
+ const no=harness(),route=no.load('app/api/openai/equivalent-search/route.ts');assert.equal((await route.POST(request({...input,originCountry:'Unsupported country'}))).status,503);assert.equal(no.calls.length,0);assert.equal((await route.POST(request({...input,originSelection:'tampered'}))).status,422);assert.equal(no.calls.length,0);
+ const failed=harness({...env,OPENAI_API_KEY_1:'other-fictional-key'},async()=>{throw Error('Fixture failure');});assert.equal((await failed.load('app/api/openai/equivalent-search/route.ts').POST(request(input))).status,503);assert.equal(failed.calls.length,1);
+});
+
+test('sourced excipients and distinct release types survive signing and source URLs cannot be invented',()=>{
+ const h=harness(),lib=h.load('app/lib/origin-identification.ts');const p={...profile,excipients:['Fictional excipient'],excipientStatus:'partial'},other={...p,release:'modified release'};
+ const products=lib.readIdentifiedOrigins(researched([p,other]),'United Kingdom','');assert.equal(products.length,2);const signer=h.load('app/lib/origin-lookup.ts'),token=signer.issueOriginSelection(products[0],input.drugName),restored=signer.readOriginSelection(token,input.drugName,'United Kingdom','500 + 8');assert.equal(restored.excipientStatus,'partial');assert.equal(restored.excipients[0],'Fictional excipient');
+ assert.equal(lib.readIdentifiedOrigins(researched([{...p,sources:['https://www.medicines.org.uk/not-retrieved']}]),'United Kingdom','').length,0);
+ const italy={...profile,country:'Italy',sources:['https://www.spididol.it/fictional-leaflet']};assert.equal(lib.readIdentifiedOrigins(researched([italy],italy.sources),'Italy','').length,1);
+});
+
+test('identification remains disabled outside the owner Dev deployment and in legacy evaluation arms',async()=>{
+ for(const patch of [{VERCEL_ENV:'production'},{VERCEL_GIT_COMMIT_REF:'other'},{MEDICEA_ORIGIN_IDENTIFICATION:'false'}]){const h=harness({...env,...patch});await assert.rejects(()=>h.load('app/lib/origin-identification.ts').identifyOrigin(input),/DISABLED/);assert.equal(h.calls.length,0);}
+ const h=harness(),client=h.load('app/lib/openaiClient.ts');assert.equal(client.originIdentificationEnabled(),true);const result=await client.withOpenAIEvaluation(true,async()=>client.originIdentificationEnabled());assert.equal(result.value,false);assert.equal(client.originIdentificationEnabled(),true);
+});
+
+test('Travel lookup and comparison use the new original profile without rediscovering it or overwriting strengths',async()=>{
+ const h=harness(env,async url=>Response.json(url.endsWith('/responses')?researched():completion('Fictional destination: Fictional A 500 mg per tablet together with Fictional B 8 mg per tablet together with Fictional C 30 mg per tablet'))),travel=h.load('app/lib/travel-original-search.ts');const products=await travel.originalTravelOrigin(input.drugName,input.originCountry,input.drugDosage);assert.equal(products[0].identification,'origin-v1');const token=h.load('app/lib/origin-lookup.ts').issueOriginSelection(products[0],input.drugName);const response=await travel.originalTravelCompare(input.drugName,input.originCountry,'Italy',input.drugDosage,token);assert.equal(response.status,200);assert.equal(h.calls.length,2);assert.equal((await response.json()).product.ingredients.length,3);
+});
+
+
+test('origin details survive Travel saving and unknown excipients are not recorded as a confirmed empty list',()=>{
+ const h=harness(),lib=h.load('app/lib/origin-identification.ts'),clean=h.load('app/lib/travel-connected.ts').cleanTravelProduct;
+ for(const patch of [{excipientStatus:'unknown',excipients:[]},{excipientStatus:'partial',excipients:['Fictional excipient']}]){
+  const origin=lib.readIdentifiedOrigins(researched([{...profile,...patch}]),'United Kingdom','500 + 8')[0],saved=clean({...origin,query:input.drugName,dosage:input.drugDosage});assert.equal(saved.identification,'origin-v1');assert.equal(saved.release,origin.release);assert.equal(saved.excipientStatus,patch.excipientStatus);assert.deepEqual(Array.from(saved.excipients),patch.excipients);
+ }
+});

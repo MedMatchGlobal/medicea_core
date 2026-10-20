@@ -1,4 +1,4 @@
-import {openaiFetch,withOpenAIEvaluation} from './openaiClient';
+import {openaiFetch,withOpenAIEvaluation,originIdentificationEnabled} from './openaiClient';
 import {issueOriginSelection,readOriginSelection,type OriginProduct} from './origin-lookup';
 import {isMedicineName} from './match-display';
 import {POST as originalSearch} from '../api/openai/equivalent-search/route';
@@ -13,6 +13,7 @@ export async function originalTravelInformation(drugName:string,originCountry:st
 // Travel Preview. Do not infer formulation, route or source verification from
 // the original prompt: it returns composition only.
 export async function originalTravelOrigin(drugName:string,originCountry:string,drugDosage:string){
+ if(originIdentificationEnabled?.())return (await import('./origin-identification')).identifyOrigin({drugName,originCountry,drugDosage});
  const result=await withOpenAIEvaluation(true,async()=>{
   const system1 =
       "You are a structured medical data extractor. Return JSON only with medicine_name, origin_country, and active_ingredients[{name, strength}].";
@@ -33,10 +34,13 @@ Return strictly JSON with keys: medicine_name, origin_country, active_ingredient
 export async function originalTravelCompare(query:string,originCountry:string,targetCountry:string,dosage:string,token:unknown){
  let selected=readOriginSelection(token,query,originCountry,dosage);
  if(token&&!selected)return Response.json({error:'ORIGIN_SELECTION_EXPIRED'},{status:422,headers:{'Cache-Control':'no-store'}});
- if(!selected){const products=await originalTravelOrigin(query,originCountry,dosage);selected=products[0]||null;}
+ if(!selected){const products=await originalTravelOrigin(query,originCountry,dosage);if(originIdentificationEnabled?.()){const {requiresOriginChoice,originChoiceResponse}=await import('./origin-identification');if(requiresOriginChoice(products,dosage))return originChoiceResponse(products,query);}selected=products[0]||null;}
+ if(originIdentificationEnabled?.()&&selected&&selected.identification!=='origin-v1')return Response.json({error:'ORIGIN_SELECTION_EXPIRED'},{status:422});
  if(!selected)return Response.json({error:'NOT_FOUND_ORIGIN'},{status:422});
- const result=await withOpenAIEvaluation(true,()=>originalSearch(new Request('https://owner-demo.invalid/api/openai/equivalent-search',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({drugName:query,originCountry,targetCountry,drugDosage:dosage})})));
- const response=result.value,data=await response.json();
+ const search=()=>originalSearch(new Request('https://owner-demo.invalid/api/openai/equivalent-search',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({drugName:query,originCountry,targetCountry,drugDosage:dosage,...(originIdentificationEnabled?.()?{originSelection:issueOriginSelection(selected!,query)}:{})})}));
+ const response=originIdentificationEnabled?.()?await search():(await withOpenAIEvaluation(true,search)).value;
+ if(response.status===409)return response;
+ const data=await response.json();
  if(!response.ok||data.error)return Response.json({error:'SEARCH_UNAVAILABLE'},{status:503});
  const raw=data.equivalentResults?.raw_text;
  if(typeof raw!=='string'||!raw.trim())return Response.json({error:'SEARCH_UNAVAILABLE'},{status:503});

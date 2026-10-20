@@ -72,8 +72,8 @@ const LIMITS_ON = !BETA_TESTING && process.env.NEXT_PUBLIC_ENABLE_USAGE_LIMITS =
 
 /* -------------------------- WRAPPER -------------------------- */
 
-export function MedicineWorkspace({ petMode = false,sourceOriginMode=false,travelDemo=false }: { petMode?: boolean;sourceOriginMode?:boolean;travelDemo?:boolean }) {
-  return <Home petMode={petMode} sourceOriginMode={sourceOriginMode} travelDemo={travelDemo}/>;
+export function MedicineWorkspace({ petMode = false,sourceOriginMode=false,travelDemo=false,originIdentificationMode=false }: { petMode?: boolean;sourceOriginMode?:boolean;travelDemo?:boolean;originIdentificationMode?:boolean }) {
+  return <Home originIdentificationMode={originIdentificationMode} petMode={petMode} sourceOriginMode={sourceOriginMode} travelDemo={travelDemo}/>;
 }
 
 /* -------------------------- HELPERS -------------------------- */
@@ -387,7 +387,7 @@ function boldConditionHeadings(raw: string) {
 
 /* -------------------------- MAIN -------------------------- */
 
-function Home({ petMode = false,sourceOriginMode=false,travelDemo=false }: { petMode?: boolean;sourceOriginMode?:boolean;travelDemo?:boolean }) {
+function Home({ petMode = false,sourceOriginMode=false,travelDemo=false,originIdentificationMode=false }: { petMode?: boolean;sourceOriginMode?:boolean;travelDemo?:boolean;originIdentificationMode?:boolean }) {
   const membershipEnabled=useMembershipPreview();
   const {copy:membershipCopy}=useMembershipCopy();
   // localized group labels for condition groups
@@ -1017,7 +1017,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
         return;
       }
 
-      if (!membershipEnabled && mode !== 'pets' && mode !== 'pet-generic' && (!sourceOriginMode||selection)) {
+      if (!membershipEnabled && mode !== 'pets' && mode !== 'pet-generic' && (!(sourceOriginMode||originIdentificationMode&&mode==='international')||selection)) {
         originInformation=loadOriginInformation(selection?.name||drugName,selection?.token);
       }
 

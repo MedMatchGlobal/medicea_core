@@ -12,7 +12,7 @@ export function cleanTravelProduct(value:unknown):TravelProduct|null{
  const sources=medicineSources(v.sources);
  const original=v.lookup==='original'&&v.form==='Not provided by original lookup'&&v.route==='Not provided by original lookup'&&!sources.length;
  if(!isMedicineName(v.name)||!text(v.query,250)||!text(v.form,100)||!text(v.route,100)||/unknown|unspecified/i.test(v.form+' '+v.route)||!ingredients.length||ingredients.some(i=>!i.name||!i.strength||!/[0-9]/.test(i.strength))||!sources.length&&!original)return null;
- return {name:text(v.name,250),query:text(v.query,250),dosage:text(v.dosage,100),form:text(v.form,100),route:text(v.route,100),ingredients,sources,...(original?{lookup:'original' as const}:{})};
+ return {name:text(v.name,250),query:text(v.query,250),dosage:text(v.dosage,100),form:text(v.form,100),route:text(v.route,100),ingredients,sources,...(v.identification==='origin-v1'&&typeof v.release==='string'&&Array.isArray(v.excipients)&&v.excipients.length<=80&&['complete','partial','unknown'].includes(v.excipientStatus||'')&&(v.excipientStatus!=='unknown'||!v.excipients.length)?{identification:'origin-v1' as const,release:text(v.release,100),excipients:v.excipients.map(e=>text(e,200)),excipientStatus:v.excipientStatus}:{}),...(original?{lookup:'original' as const}:{})};
 }
 export function sameTravelProduct(a:TravelProduct,b:TravelProduct){
  const actives=(p:TravelProduct)=>p.ingredients.map(i=>(i.name+'|'+i.strength).toLowerCase().replace(/\s+/g,'')).sort().join(';');

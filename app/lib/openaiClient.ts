@@ -11,6 +11,8 @@ let evaluationContext:import('node:async_hooks').AsyncLocalStorage<EvaluationCon
 // Owner-requested model-only migration across the Travel test deployment.
 // Original prompt routing and actual provider model selection are independent.
 export function travelSolEnabled(){return process.env.VERCEL_ENV==='preview'&&process.env.VERCEL_GIT_COMMIT_REF==='feature/travel-pack-preview'&&process.env.MEDICEA_TRAVEL_CONNECTED==='true'&&process.env.MEDICEA_OPENAI_UPGRADE==='true';}
+// Origin identification is a separate owner-approved Dev experiment.
+export function originIdentificationEnabled(){return travelSolEnabled()&&process.env.MEDICEA_ORIGIN_IDENTIFICATION!=='false'&&!evaluationContext?.getStore();}
 // Model migration must not silently opt ordinary Dev features into new prompts.
 // Only the explicitly selected evaluation arm retains experimental routing.
 export function experimentalPromptsEnabled(){return modelUpgradeEnabled()&&(!travelSolEnabled()||evaluationContext?.getStore()?.legacy===false);}
