@@ -305,12 +305,12 @@ function bulletifyBlock(text: string) {
   return <p style={styles.p}>{capitalized}</p>;
 }
 
-function renderLeafletPretty(leafletText: string, t: UIStrings,omitComposition=false,lang='en',country='') {
+function renderLeafletPretty(leafletText: string, t: UIStrings,omitComposition=false,lang='en',country='',showDiagnostics=false) {
   if (!leafletText) return null;
-  let sourceUrls:string[]=[];try{const payload=JSON.parse(leafletText);if(Array.isArray(payload.sources))sourceUrls=payload.sources.filter((s:unknown)=>typeof s==='string');}catch{}
+  let priceLookupDiagnostic:unknown;let sourceUrls:string[]=[];try{const payload=JSON.parse(leafletText);if(showDiagnostics)priceLookupDiagnostic=payload.priceLookupDiagnostic;if(Array.isArray(payload.sources))sourceUrls=payload.sources.filter((s:unknown)=>typeof s==='string');}catch{}
   leafletText=extractLeafletText(leafletText);
   const structured=readStructuredLeaflet(leafletText);
-  if(structured)return <div style={styles.leafletCard}><StructuredLeafletSections sections={structured} country={country} lang={lang} headings={t.leafletHeadings} notice={connectedCopy(lang).unverified} sourceUrls={sourceUrls}/></div>;
+  if(structured)return <div style={styles.leafletCard}><StructuredLeafletSections sections={structured} country={country} lang={lang} headings={t.leafletHeadings} notice={connectedCopy(lang).unverified} sourceUrls={sourceUrls} priceLookupDiagnostic={priceLookupDiagnostic}/></div>;
 
   const cleaned = leafletText;
 
@@ -1470,7 +1470,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
                 <button type="button" className="pill pill--blue pill-sm" aria-expanded={originLeafletVisible} onClick={() => setOriginLeafletVisible(!originLeafletVisible)}>{originLeafletVisible ? leafletActions(lang).hide : leafletActions(lang).view}</button>
                 <a className="official-leaflet-link" href={officialMedicineLeafletSearch(selectedDrug, originCode)} target="_blank" rel="noopener noreferrer">{leafletActions(lang).official}</a>
               </div>}
-              {leafletRaw&&originLeafletVisible && renderLeafletPretty(leafletRaw, t,originIngredients.length>0,lang,originCode)}
+              {leafletRaw&&originLeafletVisible && renderLeafletPretty(leafletRaw, t,originIngredients.length>0,lang,originCode,travelDemo)}
             </div>
           )}
 
@@ -1628,7 +1628,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
                         }}
                       >
                         <button type="button" className="pill pill--outline pill-sm" onClick={returnToResultList}>{mode==='international'?equivalentsListLabel(lang):F(ui,'viewResults','View results')}</button>
-                        {renderLeafletPretty(leafletText, t,false,lang,mode === 'international' ? targetCode || originCode : originCode)}
+                        {renderLeafletPretty(leafletText, t,false,lang,mode === 'international' ? targetCode || originCode : originCode,travelDemo)}
                       </div>
                     )}
                   </div>
