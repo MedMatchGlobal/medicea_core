@@ -84,6 +84,18 @@ test('grounded leaflet returns recorded source URLs and constrains the schema to
  assert.deepEqual(Array.from(result.sources),[actual]);
  assert.equal(h.calls[0].body.text.format.schema.properties.sources.maxItems,5);
  assert.equal(h.calls[0].body.max_tool_calls,3);
+ assert.equal(h.calls[0].body.instructions,'Fictional unchanged instructions');
+ assert.match(h.calls[0].body.input[0].content,/copy only exact, complete URLs returned by the web search tool/);
+ assert.match(h.calls[0].body.input[0].content,/Never invent, reconstruct, correct, shorten or infer a URL/);
+ assert.match(h.calls[0].body.input[0].content,/no commentary/);
+});
+
+test('10:00 BST leaflet backup preserves the complete committed prompt context byte for byte',()=>{
+ const crypto=require('node:crypto'),folder=path.join(root,'backups/leaflet-2026-10-20-1000-bst'),manifest=JSON.parse(fs.readFileSync(path.join(folder,'manifest.json'),'utf8'));
+ assert.equal(manifest.commit,'ed508be80e07934498163d161f07bd938b79a571');
+ for(const [file,hash] of Object.entries(manifest.files_sha256))assert.equal(crypto.createHash('sha256').update(fs.readFileSync(path.join(folder,file+'.txt'))).digest('hex'),hash,file);
+ assert.equal(fs.readFileSync(path.join(folder,'app/lib/leaflet-prompts.ts.txt'),'utf8').replace(/\r\n/g,'\n'),fs.readFileSync(path.join(root,'app/lib/leaflet-prompts.ts'),'utf8').replace(/\r\n/g,'\n'));
+ assert.doesNotMatch(fs.readFileSync(path.join(folder,'app/lib/grounded-leaflet.ts.txt'),'utf8'),/LEAFLET_SOURCE_OUTPUT_RULE/);
 });
 
 test('failed leaflet provenance reports bounded document locations without query secrets',async()=>{

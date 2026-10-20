@@ -1,0 +1,12 @@
+{
+  "timestamp": "2026-10-20 10:00 Europe/London (BST)",
+  "commit": "ed508be80e07934498163d161f07bd938b79a571",
+  "files_sha256": {
+    "app/lib/leaflet-prompts.ts": "f6509b3c948cb339faaf344503df8e486b2a923fd547c488aad8a65aa30ec22a",
+    "app/lib/grounded-leaflet.ts": "d00787b969d9be9637e8fb5dff97919f45d1aa32beaf78a2e45a532911cf02c1",
+    "app/lib/research-sources.ts": "a73bd20aa196e28b5df9f094f9afd49cdd61e2f4a0f65883e72b4530577e2f83",
+    "app/lib/leaflet-contract.ts": "7786eb49f8c4d3673170dd4b2ed9ce0007c4235477c4bc2ecf106eca4eb75b6e",
+    "app/lib/structured-leaflet.ts": "659f4334b92abcf3585e2bf666bd826fd33c4f60a013610ac9bda040ab6bca10",
+    "app/lib/leaflet-price.ts": "6b6df7b2140ba2f3bdd395ff25f36c7080d3a9f1240d2c48d89e186e109fecbe"
+  }
+}
