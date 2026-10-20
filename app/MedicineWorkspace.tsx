@@ -1133,7 +1133,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
       setSearchFailed(true);
     setOriginLeafletVisible(true);
       const feedback=error instanceof MatchingSearchError ? matchingFeedback(lang)[error.kind] : F(ui, 'medicineServiceError', 'Medicine information is temporarily unavailable. Please try again shortly.');
-      setResult(feedback+(travelDemo&&mode==='leaflet'&&error instanceof LeafletReadError?' ['+error.diagnosticCode+(error.missingSections.length?': '+error.missingSections.join(', '):'')+']':''));
+      setResult(feedback+(travelDemo&&mode==='leaflet'&&error instanceof LeafletReadError?' ['+error.diagnosticCode+(error.sourceDetails?': '+error.sourceDetails:'')+(error.missingSections.length?': '+error.missingSections.join(', '):'')+']':''));
       setLoading(false);
     }
   };
@@ -1168,7 +1168,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
       setViewLeaflet((p) => ({ ...p, [medicineName]: true }));
     } catch (error) {
       if(error instanceof MembershipAccessError)return;
-      setLeaflets((p) => ({ ...p, [medicineName]: F(ui, 'leafletFail', 'Failed to fetch leaflet.')+(travelDemo&&error instanceof LeafletReadError?' ['+error.diagnosticCode+(error.missingSections.length?': '+error.missingSections.join(', '):'')+']':'') }));
+      setLeaflets((p) => ({ ...p, [medicineName]: F(ui, 'leafletFail', 'Failed to fetch leaflet.')+(travelDemo&&error instanceof LeafletReadError?' ['+error.diagnosticCode+(error.sourceDetails?': '+error.sourceDetails:'')+(error.missingSections.length?': '+error.missingSections.join(', '):'')+']':'') }));
       setViewLeaflet((p) => ({ ...p, [medicineName]: true }));
     } finally {
       setLeafletLoading((p) => ({ ...p, [medicineName]: false }));

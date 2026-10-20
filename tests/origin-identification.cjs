@@ -85,6 +85,14 @@ test('grounded leaflet returns recorded source URLs and constrains the schema to
  assert.equal(h.calls[0].body.text.format.schema.properties.sources.maxItems,5);
  assert.equal(h.calls[0].body.max_tool_calls,3);
 });
+
+test('failed leaflet provenance reports bounded document locations without query secrets',async()=>{
+ const value=leafletFixture();value.sources=['https://reference.example/unmatched?token=fictional-secret#fragment'];
+ const h=harness(env,async()=>Response.json(researchedLeaflet(value)));
+ const response=await h.load('app/lib/structured-leaflet.ts').structuredLeaflet({drugName:'Fictional source audit',originCountry:'Belgium'}),body=await response.json();
+ assert.equal(response.status,503);assert.equal(body.diagnosticCode,'UNSUPPORTED_LEAFLET_SOURCES');assert.equal(body.sourceAudit.reason,'unmatched_url');
+ assert.deepEqual(body.sourceAudit.claimed,['https://reference.example/unmatched']);assert.doesNotMatch(JSON.stringify(body),/fictional-secret|fragment/);assert.equal(h.calls.length,1);
+});
 test('Belgian standalone leaflet researches its existing generation once, publishes before price, and preserves the approved prompt',async()=>{
  const h=harness(env,async(url,init)=>{const body=JSON.parse(init.body);if(body.text.format.name==='medicea_grounded_leaflet_v1')return Response.json(researchedLeaflet(leafletFixture()));return Response.json({status:'completed',output:[{type:'message',content:[{type:'output_text',text:'{"quotes":[]}'}]}]});});
  let ready;const response=await h.load('app/lib/structured-leaflet.ts').structuredLeaflet({drugName:'Fictional Belgian medicine',originCountry:'Belgium',lang:'en'},'human',r=>ready=r),result=await response.json();
