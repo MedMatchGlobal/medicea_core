@@ -8,6 +8,8 @@ const REQUEST_TIMEOUT_MS = 25_000;
 type EvaluationCall={model:string;status:number;ms:number;finish:string;usage:{input:number|null;output:number|null;cached:number|null;reasoning:number|null};webSearchCalls:number;text:string};
 type EvaluationContext={legacy:boolean;calls:EvaluationCall[]};
 let evaluationContext:import('node:async_hooks').AsyncLocalStorage<EvaluationContext>|undefined;
+// Owner's isolated legacy comparison: no experimental routing is enabled.
+export function legacySolModelOnlyEnabled(){return process.env.VERCEL_ENV==='preview'&&process.env.VERCEL_GIT_COMMIT_REF==='experiment/legacy-sol-model-only';}
 // Owner-requested model-only migration across the Travel test deployment.
 // Original prompt routing and actual provider model selection are independent.
 export function travelSolEnabled(){return process.env.VERCEL_ENV==='preview'&&process.env.VERCEL_GIT_COMMIT_REF==='feature/travel-pack-preview'&&process.env.MEDICEA_TRAVEL_CONNECTED==='true'&&process.env.MEDICEA_OPENAI_UPGRADE==='true';}
@@ -53,9 +55,19 @@ export function modelTestConfiguration() {
     leafletFormat:travelSolEnabled()?'structured-v1':'legacy',
     matchingMode:travelSolEnabled()&&!experimentalPromptsEnabled()?'original-prompts':(process.env.VERCEL_GIT_COMMIT_REF==='feature/openai-model-upgrade-preview'||process.env.VERCEL_ENV==='preview'&&process.env.VERCEL_GIT_COMMIT_REF==='feature/travel-pack-preview'&&process.env.MEDICEA_TRAVEL_CONNECTED==='true')&&process.env.MEDICEA_OPENAI_MATCHING_MODE!=='sources'?'prompt-test':'sources',
     researchModel:travelSolEnabled()?'gpt-6.1-sol':process.env.MEDICEA_OPENAI_SOURCE_MODEL||'gpt-6.1-sol',
-    informationModel:travelSolEnabled()?'gpt-6.1-sol':process.env.MEDICEA_OPENAI_MEDICAL_MODEL||'gpt-6-luna'};
+    informationModel:travelSolEnabled()||legacySolModelOnlyEnabled()?'gpt-6.1-sol':process.env.MEDICEA_OPENAI_MEDICAL_MODEL||'gpt-6-luna'};
 }
 export function modelUpgradeRequest(init: RequestInit): RequestInit {
+  if(legacySolModelOnlyEnabled()){
+    if(typeof init.body!=='string')throw Error('Model-only comparison requires a JSON request.');
+    const body=JSON.parse(init.body);
+    if(body.model!=='gpt-4o')return init;
+    body.model='gpt-6.1-sol';
+    // Sol rejects temperature; the live compatibility probe accepts the original seed.
+    delete body.temperature;
+    if(body.max_tokens!==undefined){body.max_completion_tokens=body.max_tokens;delete body.max_tokens;}
+    return {...init,body:JSON.stringify(body)};
+  }
   const travelSol=travelSolEnabled();
   if (!modelUpgradeEnabled()&&!travelSol) return init;
   if (typeof init.body !== "string") throw new Error("Model upgrade requires a JSON request.");
