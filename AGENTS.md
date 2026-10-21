@@ -1,3 +1,7 @@
+# Claude Sonnet Preview — 21 October 2026
+
+The owner authorised a separate Claude experiment, then explicitly selected Sonnet 5.5 for cost. On `experiment/claude-sonnet-preview` in Vercel Preview only, use Claude Sonnet 5.5 with unrestricted web search for human international origin identification and equivalent matching. Preserve composition/form/route/release checks, strength choice, original leaflet prompts and GPT-4o leaflets, and the current frontend apart from the requested slightly darker Back control and factual experiment banner. Production and the GPT-4o integration branch remain untouched. No claim of exhaustive product coverage. The protected prompt fixture remains unchanged.
+
 # Owner-locked working Dev — 20 October 2026
 
 On 21 October the owner additionally authorised strength/formulation choice before the human international equivalent search on `feature/production-prompts-new-ui`. Reuse the existing choice UI with GPT-4o, enumerate origin variants without a default strength, bind a user choice to the selected composition, and reject incompatible candidates without falling back to unfiltered text. This is a specifically authorised matching-prompt/workflow correction on this isolated Preview only. Production, other branches, models and leaflet prompts remain unchanged. Preserve the original protected prompt fixture; do not regenerate it.
