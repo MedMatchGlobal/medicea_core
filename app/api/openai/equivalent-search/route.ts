@@ -1,6 +1,6 @@
 import {withMembership} from '@/lib/membership/meter';
 export const maxDuration = 120;
-import { openaiFetch, originIdentificationEnabled, experimentalPromptsEnabled as modelUpgradeEnabled, modelTestConfiguration } from "@/app/lib/openaiClient";
+import { openaiFetch, productionFrontendEnabled, originIdentificationEnabled, experimentalPromptsEnabled as modelUpgradeEnabled, modelTestConfiguration } from "@/app/lib/openaiClient";
 import { NextResponse } from "next/server";
 
 const OPENAI_URL = "https://api.openai.com/v1/chat/completions";
@@ -106,6 +106,7 @@ function applyUserDosageOverride(
 async function generate(req: Request) {
   try {
     const { originCountry, drugName, drugDosage, targetCountry, originSelection } = await req.json();
+    if(productionFrontendEnabled?.())return (await import('@/app/lib/production-strength-matches')).productionStrengthSearch({originCountry,drugName,drugDosage,targetCountry,originSelection});
     if(modelUpgradeEnabled?.()&&modelTestConfiguration?.().matchingMode==='prompt-test')return (await import('@/app/lib/prompt-matches')).promptMatchedSearch({drugName,originCountry,drugDosage,targetCountry,originSelection},'international');
     if(modelUpgradeEnabled?.()) return (await import("@/app/lib/source-matches")).sourceMatchedSearch({drugName,originCountry,drugDosage,targetCountry:targetCountry},"international");
 

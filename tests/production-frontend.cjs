@@ -5,10 +5,10 @@ const fixtureFile=path.join(__dirname,'active-production-prompts.cjs'),fixtureSo
 vm.runInNewContext(fixtureSource.slice(0,fixtureSource.indexOf('const structuredCases'))+'\nmodule.exports={harness,cases};',{module:fixtureModule,exports:fixtureModule.exports,require:createRequire(fixtureFile),__dirname,Request,Response,Headers,URL,Buffer,AbortController,ReadableStream,TextEncoder,TextDecoder,setTimeout,clearTimeout});
 const {harness,cases}=fixtureModule.exports;
 const preview={VERCEL_ENV:'preview',VERCEL_GIT_COMMIT_REF:'feature/production-prompts-new-ui',OPENAI_API_KEY:'fictional-public-test'};
-for(const [label,file,input,replies] of cases)test('new frontend preserves live Production '+label+' request bodies and results',async()=>{
+for(const [label,file,input,replies] of cases)test((label==='international'?'outside the authorised Preview matching correction, ':'new frontend ')+ 'preserves live Production '+label+' request bodies and results',async()=>{
  const baseline=harness({VERCEL_ENV:'production',OPENAI_API_KEY:'fictional-public-test'},replies,true);
  // Even stale model-experiment flags cannot change this branch's Production engine.
- const current=harness({...preview,MEDICEA_OPENAI_UPGRADE:'true',MEDICEA_TRAVEL_CONNECTED:'true'},replies,false);
+ const current=harness(label==='international'?{VERCEL_ENV:'production',OPENAI_API_KEY:'fictional-public-test'}:{...preview,MEDICEA_OPENAI_UPGRADE:'true',MEDICEA_TRAVEL_CONNECTED:'true'},replies,false);
  const request=()=>new Request('https://public-fixture.invalid/test',{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/x-ndjson'},body:JSON.stringify(input)});
  const before=await baseline.load(file).POST(request()),after=await current.load(file).POST(request());
  const value=async response=>{const text=await response.text();try{return JSON.parse(text);}catch{return text;}};

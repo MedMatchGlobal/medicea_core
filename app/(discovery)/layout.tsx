@@ -1,8 +1,8 @@
 import DiscoveryShell from '../components/DiscoveryShell';
-import {experimentalPromptsEnabled as modelUpgradeEnabled,modelTestConfiguration,originIdentificationEnabled} from '../lib/openaiClient';
+import {experimentalPromptsEnabled as modelUpgradeEnabled,modelTestConfiguration,originIdentificationEnabled,productionFrontendEnabled} from '../lib/openaiClient';
 import {travelPreviewEnabled} from '../lib/travel-demo';
 // Preview-only navigation must follow runtime deployment flags, not a cached build.
 export const dynamic='force-dynamic';
 export default function DiscoveryLayout({children}: {children: React.ReactNode}) {
-  return <><DiscoveryShell originIdentificationMode={originIdentificationEnabled()} travelDemo={travelPreviewEnabled()} sourceOriginMode={modelUpgradeEnabled()&&modelTestConfiguration().matchingMode==='prompt-test'} />{children}</>;
+  return <><DiscoveryShell originIdentificationMode={originIdentificationEnabled()||productionFrontendEnabled()} travelDemo={travelPreviewEnabled()} sourceOriginMode={modelUpgradeEnabled()&&modelTestConfiguration().matchingMode==='prompt-test'} />{children}</>;
 }

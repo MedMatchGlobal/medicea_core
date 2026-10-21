@@ -53,7 +53,7 @@ export function modelUpgradeEnabled() {
 }
 
 export function modelTestConfiguration() {
-  if(productionFrontendEnabled())return {enabled:false,revision:'production-f4ab1bd-new-ui',leafletFormat:'legacy',matchingMode:'original-prompts',researchModel:'gpt-4o',informationModel:'gpt-4o',productionBaseline:'f4ab1bd9ed8ec3eaaab129a8a21c85e6dbe23f37',frontendBaseline:'48eff0c4967544f1dd9a5e3c17a163e6f403cd2c',models:{matching:'gpt-4o',leaflet:'gpt-4o',generalMedicine:'gpt-4',fast:'gpt-4o-mini'}};
+  if(productionFrontendEnabled())return {enabled:false,revision:'production-ui-strength-choice-v1',leafletFormat:'legacy',matchingMode:'strength-choice-gpt4o',researchModel:'gpt-4o',informationModel:'gpt-4o',productionBaseline:'f4ab1bd9ed8ec3eaaab129a8a21c85e6dbe23f37',frontendBaseline:'48eff0c4967544f1dd9a5e3c17a163e6f403cd2c',models:{matching:'gpt-4o',leaflet:'gpt-4o',generalMedicine:'gpt-4',fast:'gpt-4o-mini'}};
   return {enabled:modelUpgradeEnabled(),revision:'exact-match-v3.1',
     leafletFormat:travelSolEnabled()?'structured-v1':'legacy',
     matchingMode:travelSolEnabled()&&!experimentalPromptsEnabled()?'original-prompts':(process.env.VERCEL_GIT_COMMIT_REF==='feature/openai-model-upgrade-preview'||process.env.VERCEL_ENV==='preview'&&process.env.VERCEL_GIT_COMMIT_REF==='feature/travel-pack-preview'&&process.env.MEDICEA_TRAVEL_CONNECTED==='true')&&process.env.MEDICEA_OPENAI_MATCHING_MODE!=='sources'?'prompt-test':'sources',
