@@ -112,6 +112,7 @@ export async function productionStrengthSearch(input:{drugName:unknown;originCou
   // Fixed operational codes only: never upstream text, input or credentials.
   const code=error instanceof Error?error.message:'';
   const diagnostic=claude&&/^(?:CLAUDE_[A-Z_]+(?:\d{3})?|UNRESOLVED_VARIANTS|INVALID_CANDIDATES|INVALID_CANDIDATE_IDENTITY|INCOMPLETE_CATALOGUES|UNRESOLVED_CATALOGUE)$/.test(code)?code:undefined;
+  if(claude)console.warn('[Claude Preview validation]',{code:diagnostic||'INVALID_RESPONSE'});
   return Response.json({error:'MATCHING_UNAVAILABLE',...(diagnostic?{diagnostic}:{})},{status:503});
  }
 }
