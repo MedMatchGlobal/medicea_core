@@ -75,12 +75,15 @@ export async function productionStrengthSearch(input:{drugName:unknown;originCou
    // Enumerate before narrowing. A blank hint must never silently default to a
    // popular strength. A partial hint can leave several forms/strengths to choose.
    const reply=await ask('Identify the distinct labelled HUMAN product variants of the requested medicine in its origin country. Return JSON {"variants_complete":boolean,"products":[products]}. Enumerate every known strength and pharmaceutical form separately, including release differences. Do not pick a default strength or infer a single variant from an ambiguous name. variants_complete is false if you cannot establish the variant set with confidence; an empty array is valid when unknown. Do not search destination medicines.',{drugName,originCountry});
-   if(reply.variants_complete!==true||!Array.isArray(reply.products)||reply.products.length>24||reply.products.some((p:any)=>!valid(p,originCountry)))throw Error('UNRESOLVED_VARIANTS');
+   // Catalogue exhaustiveness and a complete individual product are different.
+   // A source-confirmed variant remains selectable when more variants may exist.
+   if((claude?typeof reply.variants_complete!=='boolean':reply.variants_complete!==true)||!Array.isArray(reply.products)||reply.products.length>24||reply.products.some((p:any)=>!valid(p,originCountry)))throw Error('UNRESOLVED_VARIANTS');
    const all:Product[]=reply.products.map((p:Product)=>({...p,sources:claude?p.sources:[],lookup:'original'}));
    const unique=all.filter((p,i)=>all.findIndex(q=>identity(q)===identity(p))===i);
    const products=unique.filter(p=>identificationHintAgrees(drugDosage,p.ingredients)!==false);
+   if(claude&&reply.variants_complete===false&&!products.length)throw Error('UNRESOLVED_VARIANTS');
    if(!products.length)return Response.json({error:unique.length?'ORIGIN_STRENGTH_MISMATCH':'NOT_FOUND_ORIGIN'},{status:422});
-   if(products.length>1||(typeof drugDosage==='string'&&!!drugDosage.trim()&&identificationHintAgrees(drugDosage,products[0].ingredients)===null))return Response.json({error:'CHOOSE_ORIGIN_VARIANT',variants:products.map(p=>({name:displayName(p),form:p.form,ingredients:p.ingredients,sources:p.sources,token:issueOriginSelection(p,drugName)}))},{status:409,headers:{'Cache-Control':'no-store'}});
+   if(products.length>1||claude&&reply.variants_complete===false||(typeof drugDosage==='string'&&!!drugDosage.trim()&&identificationHintAgrees(drugDosage,products[0].ingredients)===null))return Response.json({error:'CHOOSE_ORIGIN_VARIANT',variants:products.map(p=>({name:displayName(p),form:p.form,ingredients:p.ingredients,sources:p.sources,token:issueOriginSelection(p,drugName)}))},{status:409,headers:{'Cache-Control':'no-store'}});
    origin=products[0];
   }
   // Discover by composition and destination, not by the origin's brand, country,
@@ -100,7 +103,7 @@ export async function productionStrengthSearch(input:{drugName:unknown;originCou
    if(!Array.isArray(checked.catalogues)||checked.catalogues.length!==queries.length)throw Error('INCOMPLETE_CATALOGUES');
    for(const query of queries){
     const entries=checked.catalogues.filter((entry:any)=>entry&&typeof entry.query_name==='string'&&identityName(entry.query_name)===identityName(query));
-    if(entries.length!==1||entries[0].variants_complete!==true||!Array.isArray(entries[0].products)||entries[0].products.length>24||entries[0].products.some((p:any)=>!valid(p,targetCountry)||identityName(p.name)!==identityName(query)))throw Error('UNRESOLVED_CATALOGUE');
+    if(entries.length!==1||(claude?typeof entries[0].variants_complete!=='boolean':entries[0].variants_complete!==true)||!Array.isArray(entries[0].products)||claude&&entries[0].variants_complete===false&&!entries[0].products.length||entries[0].products.length>24||entries[0].products.some((p:any)=>!valid(p,targetCountry)||identityName(p.name)!==identityName(query)))throw Error('UNRESOLVED_CATALOGUE');
     catalogueProducts.push(...entries[0].products);
    }
   }

@@ -34,3 +34,10 @@ for(const [label,file,body,replies] of [
  if(label.includes('translation')&&label!=='leaflet translation')assert.ok(h.calls.every(c=>!c.body.tools),'Translation does not send the text to web search');
 });
 test('all-Claude transport reports configuration errors without falling back to OpenAI',async()=>{const h=harness([],{ANTHROPIC_API_KEY:''});await assert.rejects(()=>h.load('app/lib/openaiClient.ts').openaiFetch('https://api.openai.com/v1/chat/completions',{body:'{"messages":[{"role":"user","content":"Fixture"}]}'}),/CLAUDE_KEY_MISSING/);assert.equal(h.calls.length,0);});
+test('real response conventions: human species and a non-exhaustive catalogue still offer fully sourced choices',async()=>{
+ const eff={...product(30),name:'Fictional effervescent',form:'effervescent tablet',species:['human'],ingredients:product(30).ingredients.map(i=>({...i,strength:i.strength.replace('per tablet','per effervescent tablet')}))};
+ const h=harness([researched({variants_complete:false,products:[{...product(8),species:['human']},eff]})]);const response=await h.load('app/lib/production-strength-matches.ts').productionStrengthSearch(input),data=await response.json();assert.equal(response.status,409);assert.equal(data.variants.length,2);assert.equal(data.variants[1].form,'effervescent tablet');assert.equal(data.variants[1].ingredients[0].strength,'500 mg per tablet');
+});
+test('unknown completeness of an individual product and mixed human/animal species still fail',async()=>{
+ for(const changes of [{complete:false},{species:['human','dog']}]){const h=harness([researched({variants_complete:false,products:[{...product(30),...changes}]})]);assert.equal((await h.load('app/lib/production-strength-matches.ts').productionStrengthSearch(input)).status,503);}
+});
