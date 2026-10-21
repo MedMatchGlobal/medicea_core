@@ -1,3 +1,7 @@
+# Full Claude scope correction — 21 October 2026
+
+The owner explicitly clarified that the entire new test version must run on Claude Sonnet 5.5: all AI endpoints, including leaflets, price generation, medicine information, matching, human/veterinary tools, health tools, triage and translations. Preserve existing UI and prompts except provider compatibility and previously approved web research. Do not fall back to OpenAI in this branch. Production and other previews remain unchanged.
+
 # Claude Sonnet Preview — 21 October 2026
 
 The owner authorised a separate Claude experiment, then explicitly selected Sonnet 5.5 for cost. On `experiment/claude-sonnet-preview` in Vercel Preview only, use Claude Sonnet 5.5 with unrestricted web search for human international origin identification and equivalent matching. Preserve composition/form/route/release checks, strength choice, original leaflet prompts and GPT-4o leaflets, and the current frontend apart from the requested slightly darker Back control and factual experiment banner. Production and the GPT-4o integration branch remain untouched. No claim of exhaustive product coverage. The protected prompt fixture remains unchanged.

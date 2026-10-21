@@ -1,4 +1,4 @@
-import {claudePreviewEnabled} from './claude-preview';
+import {claudePreviewEnabled,claudeCompletion} from './claude-preview';
 import type OpenAI from "openai";
 
 // Owner-approved frontend integration with unchanged Production AI requests.
@@ -54,7 +54,7 @@ export function modelUpgradeEnabled() {
 }
 
 export function modelTestConfiguration() {
-  if(claudePreviewEnabled())return {enabled:true,revision:'claude-sonnet-web-v1',leafletFormat:'legacy',matchingMode:'claude-research',researchModel:'claude-sonnet-5-5',informationModel:'gpt-4o'};
+  if(claudePreviewEnabled())return {enabled:true,revision:'claude-sonnet-web-v1',leafletFormat:'legacy',matchingMode:'claude-research',researchModel:'claude-sonnet-5-5',informationModel:'claude-sonnet-5-5',models:{matching:'claude-sonnet-5-5',leaflet:'claude-sonnet-5-5',generalMedicine:'claude-sonnet-5-5',fast:'claude-sonnet-5-5'}};
   if(productionFrontendEnabled())return {enabled:false,revision:'production-ui-strength-choice-v1',leafletFormat:'legacy',matchingMode:'strength-choice-gpt4o',researchModel:'gpt-4o',informationModel:'gpt-4o',productionBaseline:'f4ab1bd9ed8ec3eaaab129a8a21c85e6dbe23f37',frontendBaseline:'48eff0c4967544f1dd9a5e3c17a163e6f403cd2c',models:{matching:'gpt-4o',leaflet:'gpt-4o',generalMedicine:'gpt-4',fast:'gpt-4o-mini'}};
   return {enabled:modelUpgradeEnabled(),revision:'exact-match-v3.1',
     leafletFormat:travelSolEnabled()?'structured-v1':'legacy',
@@ -122,6 +122,7 @@ function canFailOver(status: number, code: unknown): boolean {
  * A timeout can have an ambiguous outcome and failover may incur another charge.
  */
 export async function openaiFetch(url: string, init: RequestInit, options:{singleAttempt?:boolean}={}): Promise<Response> {
+  if(claudePreviewEnabled())return claudeCompletion(url,init);
   const evaluation=evaluationContext?.getStore();
   if(evaluation&&evaluation.calls.length>=3)throw Error('EVALUATION_CALL_LIMIT');
   const sourced = url === RESPONSES_ENDPOINT && (modelUpgradeEnabled()||travelSolEnabled());
