@@ -721,7 +721,7 @@ function Home({ petMode = false,sourceOriginMode=false,travelDemo=false,originId
     window.history.replaceState(resultHistoryState(window.history.state,openLeaflet),'');
   }
   function returnToResultList(){
-    setViewLeaflet({});window.history.replaceState(resultHistoryState(window.history.state),'');
+    setOriginLeafletVisible(false);setViewLeaflet({});window.history.replaceState(resultHistoryState(window.history.state),'');
     requestAnimationFrame(()=>document.getElementById('search-results')?.scrollIntoView({block:'start',behavior:'instant'}));
   }
   useEffect(()=>{
@@ -1470,7 +1470,11 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
                 <button type="button" className="pill pill--blue pill-sm" aria-expanded={originLeafletVisible} onClick={() => setOriginLeafletVisible(!originLeafletVisible)}>{originLeafletVisible ? leafletActions(lang).hide : leafletActions(lang).view}</button>
                 <a className="official-leaflet-link" href={officialMedicineLeafletSearch(selectedDrug, originCode)} target="_blank" rel="noopener noreferrer">{leafletActions(lang).official}</a>
               </div>}
-              {leafletRaw&&originLeafletVisible && renderLeafletPretty(leafletRaw, t,originIngredients.length>0,lang,originCode)}
+              {leafletRaw&&originLeafletVisible && <div className="leaflet-content">
+                <button type="button" className="pill pill--outline pill-sm" onClick={returnToResultList}>{equivalentsListLabel(lang)}</button>
+                {renderLeafletPretty(leafletRaw, t,originIngredients.length>0,lang,originCode)}
+                <button type="button" className="pill pill--outline pill-sm" onClick={returnToResultList}>{equivalentsListLabel(lang)}</button>
+              </div>}
             </div>
           )}
 
@@ -1629,6 +1633,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
                       >
                         <button type="button" className="pill pill--outline pill-sm" onClick={returnToResultList}>{mode==='international'?equivalentsListLabel(lang):F(ui,'viewResults','View results')}</button>
                         {renderLeafletPretty(leafletText, t,false,lang,mode === 'international' ? targetCode || originCode : originCode)}
+                        <button type="button" className="pill pill--outline pill-sm" onClick={returnToResultList}>{mode==='international'?equivalentsListLabel(lang):F(ui,'viewResults','View results')}</button>
                       </div>
                     )}
                   </div>

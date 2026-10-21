@@ -20,8 +20,13 @@ test('frontend gate enables burger/library frontend without opting into experime
  const request={body:JSON.stringify({model:'gpt-4o',temperature:0.2,seed:12345,messages:[]})};assert.equal(client.modelUpgradeRequest(request),request);
  for(const env of [{...preview,VERCEL_ENV:'production'},{...preview,VERCEL_GIT_COMMIT_REF:'other'}])assert.equal(harness(env,[],false).load('app/lib/openaiClient.ts').productionFrontendEnabled(),false);
 });
-test('completed navigation, results, saved searches and session retention remain byte-identical to the frontend checkpoint',()=>{
- for(const file of ['app/MedicineWorkspace.tsx','app/components/TravelNav.tsx','app/components/TravelHeader.tsx','app/components/SavedSearches.tsx','app/lib/session-search.ts','app/lib/saved-searches.ts']){
+test('completed navigation and persistence stay unchanged; restored return controls do not change search requests',()=>{
+ for(const file of ['app/components/TravelNav.tsx','app/components/TravelHeader.tsx','app/components/SavedSearches.tsx','app/lib/session-search.ts','app/lib/saved-searches.ts']){
   const before=execFileSync('git',['show','48eff0c:'+file],{cwd:root,encoding:'utf8'}).replace(/\r\n/g,'\n'),after=fs.readFileSync(path.join(root,file),'utf8').replace(/\r\n/g,'\n');assert.equal(after,before,file);
  }
+ // The owner requested return controls in MedicineWorkspace. Its search and
+ // equivalent-leaflet request handlers must still match the frontend checkpoint.
+ const file='app/MedicineWorkspace.tsx',before=execFileSync('git',['show','48eff0c:'+file],{cwd:root,encoding:'utf8'}).replace(/\r\n/g,'\n'),after=fs.readFileSync(path.join(root,file),'utf8').replace(/\r\n/g,'\n');
+ const requests=source=>source.slice(source.indexOf('  const handleSearch = async'),source.indexOf('  /* -------------------------- UI styles'));
+ assert.ok(requests(before).length>10000);assert.equal(requests(after),requests(before));
 });
