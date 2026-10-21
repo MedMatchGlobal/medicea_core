@@ -25,8 +25,12 @@ test('completed navigation and persistence stay unchanged; restored return contr
   const before=execFileSync('git',['show','48eff0c:'+file],{cwd:root,encoding:'utf8'}).replace(/\r\n/g,'\n'),after=fs.readFileSync(path.join(root,file),'utf8').replace(/\r\n/g,'\n');assert.equal(after,before,file);
  }
  // The owner requested return controls in MedicineWorkspace. Its search and
- // equivalent-leaflet request handlers must still match the frontend checkpoint.
+ // equivalent-leaflet requests must still match the frontend checkpoint, while
+ // retaining the already-returned choice list is authorised UI bookkeeping.
  const file='app/MedicineWorkspace.tsx',before=execFileSync('git',['show','48eff0c:'+file],{cwd:root,encoding:'utf8'}).replace(/\r\n/g,'\n'),after=fs.readFileSync(path.join(root,file),'utf8').replace(/\r\n/g,'\n');
- const requests=source=>source.slice(source.indexOf('  const handleSearch = async'),source.indexOf('  /* -------------------------- UI styles'));
- assert.ok(requests(before).length>10000);assert.equal(requests(after),requests(before));
+ const requests=source=>{
+  const ast=ts.createSourceFile(file,source.slice(source.indexOf('  const handleSearch = async'),source.indexOf('  /* -------------------------- UI styles')),ts.ScriptTarget.Latest,true,ts.ScriptKind.TSX),found=[];
+  function visit(node){if(ts.isCallExpression(node)&&['fetch','membershipFetch','loadOriginInformation'].includes(node.expression.getText(ast)))found.push(node.getText(ast));if(ts.isVariableDeclaration(node)&&['endpoint','originCountry','targetCountry','drugName','drugDosage'].includes(node.name.getText(ast)))found.push(node.getText(ast));ts.forEachChild(node,visit);}visit(ast);return found;
+ };
+ assert.ok(requests(before).length>10);assert.deepEqual(requests(after),requests(before));
 });

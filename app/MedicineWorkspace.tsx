@@ -700,6 +700,7 @@ function Home({ petMode = false,sourceOriginMode=false,travelDemo=false,originId
   const [originIngredients,setOriginIngredients]=useState<VeterinaryIngredient[]>([]);
   const [noExactMatch,setNoExactMatch]=useState(false);
   const [originVariants,setOriginVariants]=useState<OriginVariant[]>([]);
+  const originChoiceHistory=useRef<OriginVariant[]>([]);
   const [originProductName,setOriginProductName]=useState('');
   const [petOriginIngredients, setPetOriginIngredients] = useState<VeterinaryIngredient[]>([]);
   const [searchAccess,setSearchAccess]=useState<string|undefined>();
@@ -721,7 +722,13 @@ function Home({ petMode = false,sourceOriginMode=false,travelDemo=false,originId
     window.history.replaceState(resultHistoryState(window.history.state,openLeaflet),'');
   }
   function returnToResultList(){
-    setOriginLeafletVisible(false);setViewLeaflet({});window.history.replaceState(resultHistoryState(window.history.state),'');
+    const fromEquivalentLeaflet=Object.values(viewLeaflet).some(Boolean);
+    setOriginLeafletVisible(false);setViewLeaflet({});
+    if(!fromEquivalentLeaflet){
+      if(originChoiceHistory.current.length)setOriginVariants(originChoiceHistory.current);
+      else {showScreen('search');return;}
+    }
+    window.history.replaceState(resultHistoryState(window.history.state),'');
     requestAnimationFrame(()=>document.getElementById('search-results')?.scrollIntoView({block:'start',behavior:'instant'}));
   }
   useEffect(()=>{
@@ -830,6 +837,7 @@ function Home({ petMode = false,sourceOriginMode=false,travelDemo=false,originId
   }, [useGeo]);
 
   function resetFieldsForMode(m: Mode,manageHistory=true) {
+    originChoiceHistory.current=[];
     if(manageHistory&&screen==='results'&&window.history.state?.mediceaMedicineResults)window.history.pushState(formHistoryState(window.history.state),'');
     setSearchAccess(undefined);
     abandonPharmacyTrip();
@@ -959,6 +967,7 @@ if (!membershipEnabled && !BETA_TESTING && isPremiumMode(mode)) {
 
     if (version !== searchVersion.current) return;
     setSearchFailed(false);
+    if(!selection)originChoiceHistory.current=[];
     sessionResultTime.current=new Date().toISOString();
     setOriginVariants([]);setOriginProductName(selection?.name||'');
     setRestoredSearch(null);setSaveMessage('');setPetInformation({});
@@ -1094,6 +1103,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
         }
         if(res2.status===409&&failure.error==='CHOOSE_ORIGIN_VARIANT'&&Array.isArray(failure.variants)&&failure.variants.length){
           await originInformation;if(version!==searchVersion.current)return;
+          originChoiceHistory.current=failure.variants;
           setOriginVariants(failure.variants);setLeafletRaw('');setResult('');setLoading(false);return;
         }
         throw matchingFailure(res2.status,failure.error);
@@ -1434,7 +1444,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
       {mode !== 'triage' && searched && (
         <section id="search-results" className="results-view" tabIndex={-1} aria-label={F(ui, 'searchResults', 'Search results')}>
           <div className="results-heading">
-            <div><h2>{F(ui, 'searchResults', 'Search results')}</h2><p role="status" aria-live="polite">{loading ? F(ui, 'searching', 'Searching…') : originVariants.length ? originChoiceCopy(lang).title : searchFailed ? (['international','generic','pets','pet-generic'].includes(mode)?matchingFeedback(lang).incomplete:F(ui, 'medicineServiceError', 'Medicine information is temporarily unavailable. Please try again shortly.')) : F(ui, 'searchComplete', 'Search complete')}</p></div>
+            <div><div className="results-title-row"><h2>{F(ui, 'searchResults', 'Search results')}</h2>{!originVariants.length&&<button type="button" className="results-back" disabled={loading} onClick={returnToResultList}><span aria-hidden="true">←</span>{equivalentsListLabel(lang)}</button>}</div><p role="status" aria-live="polite">{loading ? F(ui, 'searching', 'Searching…') : originVariants.length ? originChoiceCopy(lang).title : searchFailed ? (['international','generic','pets','pet-generic'].includes(mode)?matchingFeedback(lang).incomplete:F(ui, 'medicineServiceError', 'Medicine information is temporarily unavailable. Please try again shortly.')) : F(ui, 'searchComplete', 'Search complete')}</p></div>
             <div className="results-actions">{isSavedMode(mode) && <button disabled={loading || searchFailed || !!originVariants.length} onClick={saveCurrentSearch}>{savedSearchCopy(lang).save}</button>}<button disabled={loading} onClick={() => showScreen('search')}>{F(ui, 'editSearch', 'Edit search')}</button><button disabled={loading} onClick={clearSearch}>{F(ui, 'newSearch', 'New search')}</button></div>
             {isSavedMode(mode) && <dl className="search-parameters">
               <div><dt>{F(ui,'phHome','Home country')}</dt><dd>{originCode || '—'}</dd></div>
@@ -1451,6 +1461,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
               <MedicineSources sources={variant.sources}/><button className="pill pill--blue" onClick={()=>handleSearch(variant)}>{originChoiceCopy(lang).choose} — {variant.name}</button>
             </article>)}
           </section>}
+          {!originVariants.length&&<>
           {!loading&&<MedicineSources sources={originSources}/>}
           {(mode === 'pets' || mode === 'pet-generic') && !loading && !searchFailed && <div className="leaflet-block">
             <h2 className="medicine-section-title">{F(ui, 'medicineDetails', 'Medicine details')} — {originProductName||selectedDrug}</h2>
@@ -1471,9 +1482,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
                 <a className="official-leaflet-link" href={officialMedicineLeafletSearch(selectedDrug, originCode)} target="_blank" rel="noopener noreferrer">{leafletActions(lang).official}</a>
               </div>}
               {leafletRaw&&originLeafletVisible && <div className="leaflet-content">
-                <button type="button" className="pill pill--outline pill-sm" onClick={returnToResultList}>{equivalentsListLabel(lang)}</button>
                 {renderLeafletPretty(leafletRaw, t,originIngredients.length>0,lang,originCode)}
-                <button type="button" className="pill pill--outline pill-sm" onClick={returnToResultList}>{equivalentsListLabel(lang)}</button>
               </div>}
             </div>
           )}
@@ -1631,9 +1640,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
                           overflowWrap: 'anywhere',
                         }}
                       >
-                        <button type="button" className="pill pill--outline pill-sm" onClick={returnToResultList}>{mode==='international'?equivalentsListLabel(lang):F(ui,'viewResults','View results')}</button>
                         {renderLeafletPretty(leafletText, t,false,lang,mode === 'international' ? targetCode || originCode : originCode)}
-                        <button type="button" className="pill pill--outline pill-sm" onClick={returnToResultList}>{mode==='international'?equivalentsListLabel(lang):F(ui,'viewResults','View results')}</button>
                       </div>
                     )}
                   </div>
@@ -1647,6 +1654,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
           {!noExactMatch && !!plainText && (!Array.isArray(matches) || matches.length === 0) && (
             <div className="ai-plain" dangerouslySetInnerHTML={{ __html: formattedHTML }} />
           )}
+          </>}
         </section>
       )}
 

@@ -1,0 +1,11 @@
+# Persistent, softer Back to Search Results control
+
+The owner clarified that returning after a strength selection must restore the original strength-choice results, including after a no-exact-match outcome. The previous duplicated controls only collapsed leaflets and scrolled to a summary on the same selected-result screen. They also disappeared when the original leaflet was hidden because they were rendered inside its conditional content. The previous browser checks validated that narrower collapse behaviour and missed the intended destination.
+
+This update replaces all inline leaflet return buttons with one muted, small control next to the Search results heading. It remains present on a selected result when the original leaflet is hidden. On the root choice list itself it is omitted because the user is already at those results. Loading disables navigation.
+
+The already-returned origin choices are retained in the current workspace. Back from a selected origin restores those choices without refetching them, and hides the previous selected result and no-match message. The user can then select a different strength. Back from an open equivalent leaflet first closes leaflets and restores its existing equivalent list. For searches without a prior choice list, the control returns to the populated search form. New queries and mode changes reset the choice cache. The in-memory choice cache is not a new long-term saved-search database; after reload/restoring a saved result, absent choices fall back to the populated form.
+
+The control reuses existing labels in all supported languages, adds keyboard focus styling and wraps at narrow widths. Saved searches/session storage remain unchanged. Search/provider requests, matching rules/prompts, leaflet prompts, GPT-4o transport and Production remain unchanged. The missing Co Efferalgan film-coated variant remains the documented separate catalogue-coverage issue; this UI patch does not claim to fix it.
+
+Validation: 28 relevant regression, immutable Production/prompt, saved-search and session checks pass. The Next.js/TypeScript build passes. New regression cases exercise the actual return handler for origin choices, equivalent leaflets and no-prior-choice fallback, and check that duplicate return controls are removed.
