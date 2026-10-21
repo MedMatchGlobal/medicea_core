@@ -1,5 +1,6 @@
 import {claudePreviewEnabled,withClaudeEvaluation} from '@/app/lib/claude-preview';
 import {NextRequest} from 'next/server';
+import {issueOriginSelection,type OriginProduct} from '@/app/lib/origin-lookup';
 export const maxDuration=120;
 export const dynamic='force-dynamic';
 // No arbitrary prompts, URLs, records, headers or selection tokens are accepted.
@@ -7,6 +8,8 @@ export const dynamic='force-dynamic';
 const medicine={drugName:'Co-codamol 30/500 tablets',originCountry:'United Kingdom',targetCountry:'Italy',lang:'en'};
 const fixtures:Record<string,{path:string;body:unknown}>={
  origin:{path:'equivalent-search',body:{...medicine,drugName:'Co-codamol'}},
+ equivalence8:{path:'equivalent-search',body:{...medicine,drugName:'Co-codamol'}},
+ equivalence30:{path:'equivalent-search',body:{...medicine,drugName:'Co-codamol'}},
  leaflet:{path:'leaflet',body:medicine},
  translatedLeaflet:{path:'leaflet',body:{...medicine,lang:'it'}},
  information:{path:'information',body:medicine},
@@ -35,7 +38,13 @@ export async function POST(req:Request){
  try{
   const {value,calls}=await withClaudeEvaluation(async()=>{
    const handler=await handlers[fixture.path as keyof typeof handlers]();
-   const result=await handler.POST(new NextRequest(new URL('/api/fixture',req.url),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(fixture.body)}));
+   let input=fixture.body;
+   if(['equivalence8','equivalence30'].includes(body.fixture)){
+    const strength=body.fixture==='equivalence8'?8:30;
+    const profile:OriginProduct={name:'Co-codamol '+strength+'/500 Tablets',country:'United Kingdom',form:'tablet',route:'oral',release:'immediate-release',species:[],complete:true,generic:true,lookup:'original',ingredients:[{name:'Paracetamol',strength:'500 mg per tablet'},{name:strength===30?'Codeine phosphate hemihydrate':'Codeine phosphate',strength:strength+' mg per tablet'}],sources:['https://www.medicines.org.uk/emc/product/'+(strength===30?'4457':'4459')+'/smpc']};
+    input={...medicine,drugName:'Co-codamol',originSelection:issueOriginSelection(profile,'Co-codamol')};
+   }
+   const result=await handler.POST(new NextRequest(new URL('/api/fixture',req.url),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(input)}));
    const text=await result.text();let data;try{data=JSON.parse(text);}catch{data=text;}
    return {status:result.status,data:redact(data)};
   });

@@ -41,3 +41,8 @@ test('real response conventions: human species and a non-exhaustive catalogue st
 test('unknown completeness of an individual product and mixed human/animal species still fail',async()=>{
  for(const changes of [{complete:false},{species:['human','dog']}]){const h=harness([researched({variants_complete:false,products:[{...product(30),...changes}]})]);assert.equal((await h.load('app/lib/production-strength-matches.ts').productionStrengthSearch(input)).status,503);}
 });
+test('an unresolved brand does not erase another fully sourced exact product',async()=>{
+ const good=product(30,'Italy','Fictional good'),unknown=product(30,'Italy','Fictional uncertain');
+ const h=harness([researched({variants_complete:true,products:[product(30)]}),researched({candidates:[good,unknown]}),researched({catalogues:[{query_name:good.name,variants_complete:false,products:[good]},{query_name:unknown.name,variants_complete:false,products:[{...unknown,complete:false}]}]})]);
+ const response=await h.load('app/lib/production-strength-matches.ts').productionStrengthSearch(input),data=await response.json();assert.equal(response.status,200);assert.equal(data.matches.length,1);assert.ok(data.matches[0].medicine_name.startsWith(good.name));
+});

@@ -103,10 +103,17 @@ export async function productionStrengthSearch(input:{drugName:unknown;originCou
    if(!Array.isArray(checked.catalogues)||checked.catalogues.length!==queries.length)throw Error('INCOMPLETE_CATALOGUES');
    for(const query of queries){
     const entries=checked.catalogues.filter((entry:any)=>entry&&typeof entry.query_name==='string'&&identityName(entry.query_name)===identityName(query));
+    if(claude){
+     // One unresolved brand must not erase independently sourced, fully valid
+     // products for other brands. Each accepted profile still passes all gates.
+     if(entries.length===1&&typeof entries[0].variants_complete==='boolean'&&Array.isArray(entries[0].products)&&entries[0].products.length<=24)catalogueProducts.push(...entries[0].products.filter((p:any)=>valid(p,targetCountry)&&identityName(p.name)===identityName(query)));
+     continue;
+    }
     if(entries.length!==1||(claude?typeof entries[0].variants_complete!=='boolean':entries[0].variants_complete!==true)||!Array.isArray(entries[0].products)||claude&&entries[0].variants_complete===false&&!entries[0].products.length||entries[0].products.length>24||entries[0].products.some((p:any)=>!valid(p,targetCountry)||identityName(p.name)!==identityName(query)))throw Error('UNRESOLVED_CATALOGUE');
     catalogueProducts.push(...entries[0].products);
    }
   }
+  if(claude&&queries.length&&!catalogueProducts.length)throw Error('UNRESOLVED_CATALOGUE');
   const accepted=catalogueProducts.filter(p=>sameProductComposition(origin,p));
   const unique=accepted.filter((p,i)=>accepted.findIndex(q=>norm(q.name)===norm(p.name)&&identity(q)===identity(p))===i);
   const matches=unique.map(p=>({medicine_name:displayName(p),ingredients:p.ingredients,form:p.form,route:p.route,release:p.release,...(claude?{sources:p.sources}:{})}));
