@@ -6,7 +6,15 @@ const route='app/api/openai/equivalent-search/route.ts',input={drugName:'Fiction
 const profile=(n,country='United Kingdom',extra={})=>({name:'Fictional combination '+n+'/500 tablets',country,form:'tablet',route:'oral',release:'immediate',species:[],complete:true,generic:true,ingredients:[{name:'Paracetamol',strength:'500 mg per tablet'},{name:'Codeine phosphate',strength:n+' mg per tablet'}],...extra});
 const originReply=(products)=>JSON.stringify({variants_complete:true,products});
 const candidates=(values)=>JSON.stringify({candidates:values});
-const harness=(replies)=>fixture.exports.harness(env,replies,false);
+const queryName=name=>name.replace(/\s+\d.*$/,'').replace(/\s+(?:film-coated |effervescent )?(?:tablets?|capsules?)$/i,'');
+const harness=(replies,catalogues)=>{
+ const expanded=[];
+ for(const reply of replies){expanded.push(reply);const parsed=JSON.parse(reply);if(parsed.candidates?.length){
+  const names=[...new Set(parsed.candidates.map(p=>queryName(p.name)))];
+  expanded.push(JSON.stringify({catalogues:catalogues||names.map(name=>({query_name:name,variants_complete:true,products:parsed.candidates.filter(p=>queryName(p.name)===name)}))}));
+ }}
+ return fixture.exports.harness(env,expanded,false);
+};
 const request=(body)=>new Request('https://public-fixture.invalid/test',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
 async function run(h,body=input){const response=await h.load(route).POST(request(body));return {status:response.status,data:await response.json()};}
 async function choose(hint){const h=harness([originReply([profile(8),profile(15),profile(30)])]),result=await run(h,{...input,...(hint?{drugDosage:hint}:{})});return {h,...result};}
@@ -27,7 +35,7 @@ test('signed choice reuses the selected origin and cannot return 500/30 for 500/
  const selection=await choose();
  const good=profile(8,'Italy',{name:'Fictional exact',ingredients:[{name:'Codeine phosphate',strength:'8 mg per tablet'},{name:'Paracetamol',strength:'500 mg per tablet'}]});
  const bad=[profile(30,'Italy'),profile(15,'Italy'),profile(8,'Italy',{form:'effervescent tablet'}),profile(8,'Italy',{release:'modified'}),profile(8,'Italy',{ingredients:[...good.ingredients,{name:'Caffeine',strength:'30 mg per tablet'}]}),profile(8,'Italy',{ingredients:[{name:'Paracetamol',strength:'500 mg per ml'},{name:'Codeine phosphate',strength:'8 mg per ml'}]})];
- const h=harness([candidates([...bad,good])]),{status,data}=await run(h,{...input,originSelection:selection.data.variants[0].token});assert.equal(status,200);assert.equal(h.calls.length,1);assert.equal(data.matches.length,1);assert.match(data.matches[0].medicine_name,/Fictional exact/);assert.equal(JSON.parse(h.calls[0].messages[1].content).origin.ingredients[1].strength,'8 mg per tablet');assert.equal(data.equivalentResults.verification,'model_generated_full_composition');
+ const h=harness([candidates([...bad,good])]),{status,data}=await run(h,{...input,originSelection:selection.data.variants[0].token});assert.equal(status,200);assert.equal(h.calls.length,2);assert.equal(data.matches.length,1);assert.match(data.matches[0].medicine_name,/Fictional exact/);assert.match(h.calls[0].messages[1].content,/8 mg per tablet of Codeine phosphate/);assert.doesNotMatch(h.calls[0].messages[1].content,/Fictional combination|United Kingdom|lookup|generic|sources/);assert.equal(data.equivalentResults.verification,'model_generated_full_composition');
 });
 test('all rejected candidates stay rejected, without unfiltered-text fallback',async()=>{
  const selection=await choose(),h=harness([candidates([profile(30,'Italy')])]),{status,data}=await run(h,{...input,originSelection:selection.data.variants[0].token});assert.equal(status,200);assert.deepEqual(data.matches,[]);assert.equal(data.equivalentResults.raw_text,'No matches.');
@@ -54,4 +62,38 @@ test('Preview matching cannot be activated in Production or another branch',asyn
 });
 test('existing translated choice UI is enabled for this Preview, with no speculative origin leaflet',()=>{
  const root=path.join(__dirname,'..'),layout=fs.readFileSync(path.join(root,'app/(discovery)/layout.tsx'),'utf8'),workspace=fs.readFileSync(path.join(root,'app/MedicineWorkspace.tsx'),'utf8');assert.match(layout,/originIdentificationMode=\{originIdentificationEnabled\(\)\|\|productionFrontendEnabled\(\)\}/);assert.match(workspace,/originIdentificationMode&&mode==='international'/);assert.match(workspace,/handleSearch\(variant\)/);assert.match(workspace,/disabled=\{loading \|\| searchFailed \|\| !!originVariants.length\}/);
+});
+test('30/500 conventional and film-coated oral immediate-release profiles survive harmless label differences',async()=>{
+ const origin=profile(30,'United Kingdom',{release:'Immediate-release',ingredients:[{name:'Paracetamol',strength:'500 mg'},{name:'Codeine phosphate',strength:'30 mg'}]});
+ const accepted=profile(30,'Italy',{name:'Co-Efferalgan 500 mg/30 mg film-coated tablets',form:'film-coated tablets',release:'immediate',ingredients:[{name:'Codeine phosphate',strength:'30 mg per tablet'},{name:'Paracetamol',strength:'500 mg per tablet'}]});
+ const h=harness([originReply([origin]),candidates([accepted])]),{status,data}=await run(h,{...input,drugDosage:'30/500'});assert.equal(status,200);assert.equal(data.matches.length,1);assert.match(data.matches[0].medicine_name,/Co-Efferalgan/);assert.equal(data.matches[0].form,'film-coated tablets');
+});
+test('coating normalisation never equates enteric, effervescent or modified-release forms',async()=>{
+ const wrong=['enteric-coated tablet','effervescent tablet','soluble tablet','sublingual tablet','capsule'].map(form=>profile(30,'Italy',{form}));
+ wrong.push(profile(30,'Italy',{form:'film-coated tablet',release:'modified release'}),profile(30,'Italy',{form:'film-coated tablet',route:'rectal'}));
+ const h=harness([originReply([profile(30)]),candidates(wrong)]),{status,data}=await run(h);assert.equal(status,200);assert.equal(data.matches.length,0);
+});
+test('unit context normalisation never converts concentrations, salts, unit amounts or tablet counts',async()=>{
+ const wrong=[
+  [{name:'Paracetamol',strength:'500 mg per ml'},{name:'Codeine phosphate',strength:'30 mg per ml'}],
+  [{name:'Paracetamol',strength:'500 mg'},{name:'Codeine phosphate hemihydrate',strength:'30 mg'}],
+  [{name:'Paracetamol',strength:'0.5 g'},{name:'Codeine phosphate',strength:'30 mg'}],
+  [{name:'Paracetamol',strength:'250 mg'},{name:'Codeine phosphate',strength:'15 mg'}],
+ ];
+ const h=harness([originReply([profile(30)]),candidates(wrong.map(ingredients=>profile(30,'Italy',{form:'film-coated tablet',ingredients})))]),{data}=await run(h);assert.equal(data.matches.length,0);
+});
+test('an invented 8 mg branded candidate cannot self-certify: a fresh catalogue reports only its real 30 mg variant',async()=>{
+ const selection=await choose(),proposal=profile(8,'Italy',{name:'Tachidol 500 mg/8 mg Tablets'}),actual=profile(30,'Italy',{name:'Tachidol 500 mg/30 mg Tablets'});
+ const h=harness([candidates([proposal])],[{query_name:'Tachidol',variants_complete:true,products:[actual]}]),{status,data}=await run(h,{...input,originSelection:selection.data.variants[0].token});assert.equal(status,200);assert.equal(data.matches.length,0);assert.equal(h.calls.length,2);
+ const check=JSON.parse(h.calls[1].messages[1].content);assert.equal(check.country,'Italy');assert.equal(Array.from(check.query_names).join(','),'Tachidol');assert.doesNotMatch(h.calls[1].messages[1].content,/8|500|30|Co-codamol|origin|ingredients/);
+});
+test('catalogue lookup recovers a known film-coated variant omitted from initial discovery',async()=>{
+ const origin=profile(30),proposal=profile(30,'Italy',{name:'Co-Efferalgan 500/30 Effervescent Tablets',form:'effervescent tablet'}),actual=profile(30,'Italy',{name:'Co-Efferalgan 500/30 film-coated tablets',form:'film-coated tablet'});
+ const h=harness([originReply([origin]),candidates([proposal])],[{query_name:'Co-Efferalgan',variants_complete:true,products:[actual,proposal]}]),{status,data}=await run(h);assert.equal(status,200);assert.equal(data.matches.length,1);assert.match(data.matches[0].medicine_name,/film-coated/);
+});
+test('unresolved, wrong-identity and contradictory catalogues are service failures, never false no-match results',async()=>{
+ const proposal=profile(30,'Italy',{name:'Fictional combination 30/500 Tablets'});
+ for(const catalogue of [{query_name:'Fictional combination',variants_complete:false,products:[]},{query_name:'Different brand',variants_complete:true,products:[proposal]},{query_name:'Fictional combination',variants_complete:true,products:[{...proposal,name:'Fictional combination 30/500 Effervescent Tablets',form:'tablet'}]}]){
+  const h=harness([originReply([profile(30)]),candidates([proposal])],[catalogue]),{status}=await run(h);assert.equal(status,503);
+ }
 });

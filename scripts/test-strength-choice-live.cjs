@@ -13,6 +13,7 @@ async function run(h,input){const start=Date.now(),response=await h.load(route).
   console.log(JSON.stringify({stage:'selected '+strength+' mg',status:result.status,ms:result.ms,error:result.data.error,origin:result.data.originProfile?.active_ingredients,matches:result.data.matches,calls:followup.calls}));assert.equal(result.status,200);
   assert.ok(result.data.originProfile.active_ingredients.some(i=>new RegExp('^'+strength+'\\s*mg\\b').test(i.strength)));
   for(const match of result.data.matches)assert.ok(match.ingredients.some(i=>new RegExp('^'+strength+'\\s*mg\\b').test(i.strength)));
-  if(strength===8)assert.ok(!result.data.matches.some(m=>/efferalgan/i.test(m.medicine_name)),'500/8 must not match Co Efferalgan');
+  if(strength===8)assert.ok(!result.data.matches.some(m=>/efferalgan|tachidol/i.test(m.medicine_name)),'500/8 must not be invented under a known 500/30 Italian brand');
+  if(strength===30)assert.ok(result.data.matches.some(m=>/efferalgan|tachidol/i.test(m.medicine_name)),'Known Italian 500/30 candidates must survive retrieval and comparison');
  }
 })().catch(error=>{console.error(error.name+': '+error.message);process.exitCode=1;});
