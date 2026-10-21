@@ -1,6 +1,6 @@
 import {veterinarySectionLabels} from '../i18n/veterinary-sections';
 import type {LeafletSection} from '../lib/leaflet-contract';
-const sourceLabels:Record<string,string>={en:'Sources',af:'Bronne',ar:'المصادر',cs:'Zdroje',da:'Kilder',de:'Quellen',el:'Πηγές',es:'Fuentes',fi:'Lähteet',fr:'Sources',he:'מקורות',hi:'स्रोत',hu:'Források',it:'Fonti',ja:'出典',ko:'출처',nl:'Bronnen',no:'Kilder',pl:'Źródła',pt:'Fontes',ro:'Surse',ru:'Источники',sv:'Källor',tr:'Kaynaklar',zh:'来源'};
+export const sourceLabels:Record<string,string>={en:'Sources',af:'Bronne',ar:'المصادر',cs:'Zdroje',da:'Kilder',de:'Quellen',el:'Πηγές',es:'Fuentes',fi:'Lähteet',fr:'Sources',he:'מקורות',hi:'स्रोत',hu:'Források',it:'Fonti',ja:'出典',ko:'출처',nl:'Bronnen',no:'Kilder',pl:'Źródła',pt:'Fontes',ro:'Surse',ru:'Источники',sv:'Källor',tr:'Kaynaklar',zh:'来源'};
 // Presentation only: preserve saved facts and links, with no model processing.
 export function readableBullet(text:string,sources:Set<string>){
  const collect=(raw:string)=>{try{const u=new URL(raw);if(u.protocol==='https:'&&!u.username&&!u.password&&!u.port)sources.add(u.href);}catch{}};

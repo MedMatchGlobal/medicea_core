@@ -43,7 +43,7 @@ import {leafletActions} from './i18n/leaflet-actions';
 import MedicineSources from './components/MedicineSources';
 import {matchingFeedback} from './i18n/matching-feedback';
 import {MatchingSearchError,matchingFailure} from './lib/matching-failure';
-import {leafletSections} from './lib/leaflet-sections';
+import ReadableLeaflet from './components/ReadableLeaflet';
 import {readLeafletResponse,LeafletReadError} from './lib/leaflet-progress';
 import {readStructuredLeaflet} from './lib/leaflet-contract';
 import StructuredLeafletSections from './components/StructuredLeafletSections';
@@ -312,24 +312,7 @@ function renderLeafletPretty(leafletText: string, t: UIStrings,omitComposition=f
   const structured=readStructuredLeaflet(leafletText);
   if(structured)return <div style={styles.leafletCard}><StructuredLeafletSections sections={structured} country={country} lang={lang} headings={t.leafletHeadings} notice={connectedCopy(lang).unverified} sourceUrls={sourceUrls}/></div>;
 
-  const cleaned = leafletText;
-
-  const blocks = leafletSections(cleaned);
-  if (!blocks.length) return <div style={styles.leafletCard}>{bulletifyBlock(cleaned)}</div>;
-
-  return (
-    <div style={styles.leafletCard}>
-      {blocks.filter(block=>!omitComposition||!['Active Ingredients','Strength','Formulation'].includes(block.key)).map(({ key, text }) => {
-        const label = (t.leafletHeadings && (t.leafletHeadings as any)[key]) || key;
-        return (
-          <div key={key} style={{ marginBottom: 10 }}>
-            <div style={styles.h4}>{label}:</div>
-            {bulletifyBlock(text)}
-          </div>
-        );
-      })}
-    </div>
-  );
+  return <ReadableLeaflet text={leafletText} headings={t.leafletHeadings} lang={lang} sourceUrls={sourceUrls} omitComposition={omitComposition}/>;
 }
 
 function parseMatchesFromRawText(rawText: string): Array<{ medicine_name: string }> {
@@ -1457,8 +1440,8 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
           {!loading&&originVariants.length>0&&<section className="origin-choice" aria-labelledby="origin-choice-title">
             <h3 id="origin-choice-title">{originChoiceCopy(lang).title}</h3><p>{originChoiceCopy(lang).body}</p>
             {originVariants.map((variant,index)=><article key={index}>
-              <h4>{variant.name}</h4><ul>{variant.ingredients.map((ingredient,i)=><li key={i}>{ingredient.name}: <b>{ingredient.strength}</b></li>)}</ul>
-              <MedicineSources sources={variant.sources}/><button className="pill pill--blue" onClick={()=>handleSearch(variant)}>{originChoiceCopy(lang).choose} — {variant.name}</button>
+              <h4>{variant.name.split(' — ')[0]}</h4><ul>{variant.ingredients.map((ingredient,i)=><li key={i}>{ingredient.name}: <b>{ingredient.strength}</b></li>)}</ul>
+              <MedicineSources sources={variant.sources}/><button className="pill pill--blue" onClick={()=>handleSearch(variant)} aria-label={`${originChoiceCopy(lang).choose} — ${variant.name}`}>{originChoiceCopy(lang).choose}</button>
             </article>)}
           </section>}
           {!originVariants.length&&<>

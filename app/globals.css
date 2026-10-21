@@ -755,3 +755,20 @@ html { scrollbar-gutter:stable; }
 [dir=rtl] .coastal-banner { background-image:linear-gradient(270deg,#edf7ff 0%,#edf7fff2 42%,#edf7ff12 100%),url('/medicea-coast.png'); }
 @media(max-width:700px) { .coastal-banner { min-height:88px; padding:16px 18px; margin-bottom:16px; border-radius:16px; } .coastal-banner h1,.travel-app .coastal-banner h1 { font-size:22px; max-width:78%; } }
 @media print { .coastal-banner { display:none!important; } }
+/* Leaflet presentation: facts stay in their original order and every section
+   remains visible. Compact references prevent long URLs overflowing on phones. */
+.readable-leaflet { display:grid; gap:14px; min-width:0; margin:14px 0; }
+.leaflet-section { min-width:0; padding:20px 22px; border:1px solid #e1e8ef; border-radius:16px; background:#fff; color:#25394f; line-height:1.65; overflow-wrap:anywhere; }
+.leaflet-section h4 { margin:0 0 10px; font-size:1rem; font-weight:650; color:#18324c; line-height:1.4; }
+.leaflet-section p { margin:8px 0; }
+.leaflet-section ul { padding-inline-start:22px; margin:8px 0; }
+.leaflet-section li { padding-inline-start:3px; margin:7px 0; }
+.leaflet-section--caution { border-inline-start:3px solid #c2ad88; background:#fffdfa; }
+.leaflet-section--price { background:#f3f9f9; border-color:#d5e6e5; }
+.leaflet-reference { display:inline; font-size:.78em; font-weight:600; color:#35678c; text-decoration:none; white-space:nowrap; }
+.leaflet-reference:hover { text-decoration:underline; }
+.leaflet-reference:focus-visible { outline:2px solid #35678c; outline-offset:3px; }
+.leaflet-references { padding:16px 22px; border:1px solid #e1e8ef; border-radius:14px; background:#f9fbfd; font-size:.875rem; overflow-wrap:anywhere; }
+.leaflet-references summary { cursor:pointer; font-weight:600; color:#405b76; }
+.leaflet-references li { margin:8px 0; }
+@media (max-width:600px) { .leaflet-section { padding:17px 16px; } .leaflet-references { padding:16px; } }

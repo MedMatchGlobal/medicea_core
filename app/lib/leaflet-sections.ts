@@ -1,4 +1,4 @@
-const headings=['Manufacturer','Description','Overview','What it is','Active Ingredient','Active Ingredients','Mechanism of Action','How it Works','Uses','Indications','Posology','Strength','Dosage','Interactions','Side Effects','Precautions','Contraindications','Warnings','Legal Classification','Storage','Average Selling Price','Note','Disclaimer'];
+const headings=['Manufacturer','Description','Overview','What it is','Active Ingredient','Active Ingredients','Mechanism of Action','How it Works','Uses','Indications','Posology','Strength','Formulation','Dosage','Interactions','Side Effects','Precautions','Contraindications','Warnings','Legal Classification','Storage','Average Selling Price','Note','Disclaimer'];
 export function leafletSections(text:string){
  // Section labels must start a line. A mention of manufacturer/regulator in
  // prose is not a heading, and Indications is not part of Contraindications.
