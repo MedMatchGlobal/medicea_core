@@ -10,7 +10,7 @@ export async function withClaudeEvaluation<T>(run:()=>Promise<T>){
 // Owner-authorised full Claude experiment only. Never opt in another
 // deployment because an API key happens to exist in its environment.
 export function claudePreviewEnabled(){
- return process.env.VERCEL_ENV==='preview'&&process.env.VERCEL_GIT_COMMIT_REF==='experiment/claude-sonnet-preview'&&process.env.MEDICEA_CLAUDE_PREVIEW!=='false';
+ return process.env.VERCEL_ENV==='preview'&&['experiment/claude-sonnet-preview','experiment/claude-simple-leaflet'].includes(process.env.VERCEL_GIT_COMMIT_REF||'')&&process.env.MEDICEA_CLAUDE_PREVIEW!=='false';
 }
 function sourceUrl(value:unknown){
  try{if(typeof value!=='string'||value.length>2048)return null;const u=new URL(value);return u.protocol==='https:'&&!u.username&&!u.password&&!u.port?u.href:null;}catch{return null;}

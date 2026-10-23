@@ -11,7 +11,7 @@ export type DemoTrip={id:string;home:DemoCountry;destination:DemoCountry;start:s
 export type DemoDestinationPack=Omit<DemoTrip,'start'|'end'|'checks'|'address'|'stays'|'packId'|'consular'|'passport'>;
 export type DemoState={version:1;kind?:'connected';trips:DemoTrip[];packs:DemoDestinationPack[];home:DemoCountry;here:string;autoCountry:boolean;homeConfirmed:boolean;library:LibraryMedicine[];comparisons:DemoComparison[];otherCountry:string};
 export const CHECKS=['supply','expiry','storage','documents','review'] as const;
-export function travelPreviewEnabled(){return process.env.VERCEL_ENV==='preview'&&['feature/travel-pack-preview','feature/production-prompts-new-ui','experiment/claude-sonnet-preview'].includes(process.env.VERCEL_GIT_COMMIT_REF||'')||!process.env.VERCEL_ENV&&process.env.NODE_ENV==='development'&&process.env.MEDICEA_TRAVEL_DEMO==='true';}
+export function travelPreviewEnabled(){return process.env.VERCEL_ENV==='preview'&&['feature/travel-pack-preview','feature/production-prompts-new-ui','experiment/claude-sonnet-preview','experiment/claude-simple-leaflet'].includes(process.env.VERCEL_GIT_COMMIT_REF||'')||!process.env.VERCEL_ENV&&process.env.NODE_ENV==='development'&&process.env.MEDICEA_TRAVEL_DEMO==='true';}
 const country=(value:unknown):value is DemoCountry=>typeof value==='string'&&(DEMO_COUNTRIES as readonly string[]).includes(value);
 const medicine=(value:unknown):value is DemoMedicine=>value==='A'||value==='B';
 const validComparison=(v:any):v is DemoComparison=>!!v&&medicine(v.medicine)&&country(v.origin)&&country(v.destination)&&typeof v.checkedAt==='string'&&Number.isFinite(Date.parse(v.checkedAt));

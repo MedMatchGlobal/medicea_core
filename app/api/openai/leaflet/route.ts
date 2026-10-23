@@ -10,6 +10,7 @@ async function generate(req: Request) {
   try {
     // Read request body (adds 'lang' support)
     const { originCountry, drugName:requestedDrugName, drugDosage, lang, originSelection, originQueryName, equivalentResult } = await req.json();
+    if(process.env.VERCEL_ENV==='preview'&&process.env.VERCEL_GIT_COMMIT_REF==='experiment/claude-simple-leaflet'&&process.env.MEDICEA_CLAUDE_PREVIEW!=='false')return (await import('@/app/lib/simple-leaflet')).simpleLeaflet({drugName:requestedDrugName,originCountry,drugDosage,lang});
     const drugName=travelSolEnabled?.()?equivalentLeafletName(requestedDrugName,equivalentResult,originCountry):requestedDrugName;
     if(modelUpgradeEnabled?.()) return (await import("@/app/lib/medicine-summary")).medicineSummary({drugName,originCountry,drugDosage,lang,originSelection,originQueryName});
     const language = (lang || "en").trim().toLowerCase();
