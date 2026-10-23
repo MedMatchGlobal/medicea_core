@@ -24,7 +24,7 @@ import {SAVED_SEARCH_KEY, readSavedSearches, addSavedSearch, isSavedMode, type S
 import {sessionSearchKey,readSessionSearch,storeSessionSearch,resultHistoryState,formHistoryState,type SessionSearch} from './lib/session-search';
 import {savedSearchCopy} from './i18n/saved-searches';
 import type {VeterinarySection} from './lib/veterinary-sections';
-import { ArrowRight, Search, FileText, Pill, Stethoscope, Hospital, HeartPulse, UserRound, Cross, ShieldCheck } from 'lucide-react';
+import { ArrowRight, Search, FileText, Pill, Stethoscope, Hospital, HeartPulse, UserRound, Cross, ShieldCheck, RefreshCw } from 'lucide-react';
 import countriesByRegion from '../data/countries';
 import { useLanguage } from './LanguageProvider';
 import LanguageButton from './components/LanguageButton';
@@ -44,6 +44,7 @@ import MedicineSources from './components/MedicineSources';
 import {matchingFeedback} from './i18n/matching-feedback';
 import {MatchingSearchError,matchingFailure} from './lib/matching-failure';
 import ReadableLeaflet from './components/ReadableLeaflet';
+import {leafletPresentationCopy} from './i18n/leaflet-presentation';
 import {readLeafletResponse,LeafletReadError} from './lib/leaflet-progress';
 import {readStructuredLeaflet} from './lib/leaflet-contract';
 import StructuredLeafletSections from './components/StructuredLeafletSections';
@@ -684,6 +685,16 @@ function Home({ petMode = false,sourceOriginMode=false,travelDemo=false,originId
   const [noExactMatch,setNoExactMatch]=useState(false);
   const [originVariants,setOriginVariants]=useState<OriginVariant[]>([]);
   const originChoiceHistory=useRef<OriginVariant[]>([]);
+  const refreshOrigin=useRef<{key:string;selection:OriginVariant;time:number}|null>(null);
+  const refreshKey=()=>JSON.stringify([mode,originCode,targetCode,selectedDrug,selectedDosage]);
+  function refreshEquivalentSearch(){
+    if(loading||checkingAccess)return;
+    const saved=refreshOrigin.current;
+    // Signed choices expire. A stale/restored search safely identifies the origin
+    // again and offers a choice, rather than reusing a different or expired one.
+    const selection=!originVariants.length&&saved&&saved.key===refreshKey()&&Date.now()-saved.time<14*60_000?saved.selection:undefined;
+    void handleSearch(selection);
+  }
   const [originProductName,setOriginProductName]=useState('');
   const [petOriginIngredients, setPetOriginIngredients] = useState<VeterinaryIngredient[]>([]);
   const [searchAccess,setSearchAccess]=useState<string|undefined>();
@@ -836,6 +847,7 @@ function Home({ petMode = false,sourceOriginMode=false,travelDemo=false,originId
     setSelectedCondition('');
     setConditionDetails('');
     setUserNotes('');
+    refreshOrigin.current=null;
     setMatches([]);setOriginSources([]);setOriginIngredients([]);setNoExactMatch(false);setOriginVariants([]);setOriginProductName('');
     setPetOriginIngredients([]);
     setLeafletRaw('');
@@ -951,6 +963,7 @@ if (!membershipEnabled && !BETA_TESTING && isPremiumMode(mode)) {
     if (version !== searchVersion.current) return;
     setSearchFailed(false);
     if(!selection)originChoiceHistory.current=[];
+    refreshOrigin.current=selection?{key:refreshKey(),selection,time:Date.now()}:null;
     sessionResultTime.current=new Date().toISOString();
     setOriginVariants([]);setOriginProductName(selection?.name||'');
     setRestoredSearch(null);setSaveMessage('');setPetInformation({});
@@ -1094,6 +1107,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
       const payload2 = await res2.json();
       if (version !== searchVersion.current) return;
       setSearchAccess(payload2.searchAccess);
+      if(mode==='international'&&payload2.originProfile?.selection_token)refreshOrigin.current={key:refreshKey(),time:Date.now(),selection:{name:payload2.originProfile.medicine_name,form:payload2.originProfile.form,ingredients:veterinaryIngredients(payload2.originProfile),sources:payload2.equivalentResults?.origin_sources||[],token:payload2.originProfile.selection_token}};
       setOriginSources(payload2.equivalentResults?.origin_sources||[]);
       setOriginProductName(payload2.originProfile?.medicine_name||selection?.name||'');
       if(!membershipEnabled&&!originInformation&&payload2.originProfile?.selection_token)originInformation=loadOriginInformation(payload2.originProfile.medicine_name,payload2.originProfile.selection_token);
@@ -1427,6 +1441,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
       {mode !== 'triage' && searched && (
         <section id="search-results" className="results-view" tabIndex={-1} aria-label={F(ui, 'searchResults', 'Search results')}>
           <div className="results-heading">
+            {mode==='international'&&<button type="button" className="results-refresh" onClick={refreshEquivalentSearch} disabled={loading||checkingAccess} aria-label={leafletPresentationCopy(lang).refresh} title={leafletPresentationCopy(lang).refresh}><RefreshCw size={18} aria-hidden="true" className={loading?'refresh-spinning':undefined}/></button>}
             <div><div className="results-title-row"><h2>{F(ui, 'searchResults', 'Search results')}</h2>{!originVariants.length&&<button type="button" className="results-back" disabled={loading} onClick={returnToResultList}><span aria-hidden="true">←</span>{equivalentsListLabel(lang)}</button>}</div><p role="status" aria-live="polite">{loading ? F(ui, 'searching', 'Searching…') : originVariants.length ? originChoiceCopy(lang).title : searchFailed ? (['international','generic','pets','pet-generic'].includes(mode)?matchingFeedback(lang).incomplete:F(ui, 'medicineServiceError', 'Medicine information is temporarily unavailable. Please try again shortly.')) : F(ui, 'searchComplete', 'Search complete')}</p></div>
             <div className="results-actions">{isSavedMode(mode) && <button disabled={loading || searchFailed || !!originVariants.length} onClick={saveCurrentSearch}>{savedSearchCopy(lang).save}</button>}<button disabled={loading} onClick={() => showScreen('search')}>{F(ui, 'editSearch', 'Edit search')}</button><button disabled={loading} onClick={clearSearch}>{F(ui, 'newSearch', 'New search')}</button></div>
             {isSavedMode(mode) && <dl className="search-parameters">
@@ -1447,7 +1462,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
           {!originVariants.length&&<>
           {!loading&&<MedicineSources sources={originSources}/>}
           {(mode === 'pets' || mode === 'pet-generic') && !loading && !searchFailed && <div className="leaflet-block">
-            <h2 className="medicine-section-title">{F(ui, 'medicineDetails', 'Medicine details')} — {originProductName||selectedDrug}</h2>
+            <h2 className="medicine-section-title">{F(ui, 'medicineDetails', 'Medicine details')} — {equivalentPresentation(originProductName||selectedDrug,originCode).title}</h2>
             <PetMedicineInformation searchAccess={searchAccess} key={selectedDrug + originCode + lang + (restoredSearch?.id || "")} medicineName={selectedDrug} country={originCode} lang={lang}
               initiallyExpanded initialInformation={petInformation[selectedDrug + originCode + lang]}
               onInformation={sections=>setPetInformation(previous=>({...previous,[selectedDrug + originCode + lang]:sections}))}
@@ -1458,7 +1473,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
           {/* Leaflet content */}
           {(mode === 'leaflet' || mode === 'international' || mode === 'generic') && (leafletRaw||originIngredients.length>0) && (
             <div className="leaflet-block">
-              <h2 className="medicine-section-title">{F(ui, 'medicineDetails', 'Medicine details')} — {originProductName||selectedDrug}</h2>
+              <h2 className="medicine-section-title">{F(ui, 'medicineDetails', 'Medicine details')} — {equivalentPresentation(originProductName||selectedDrug,originCode).title}</h2>
               {originIngredients.length>0&&(!originLeafletVisible||!readStructuredLeaflet(extractLeafletText(leafletRaw)))&&<div className="origin-composition"><strong>{(t.leafletHeadings as any)?.['Active Ingredients']||'Active ingredients'}</strong><ul>{originIngredients.map((ingredient,index)=><li key={index}>{ingredient.name}: <b>{ingredient.strength}</b></li>)}</ul></div>}
               {leafletRaw&&<div className="leaflet-actions">
                 <button type="button" className="pill pill--blue pill-sm" aria-expanded={originLeafletVisible} onClick={() => setOriginLeafletVisible(!originLeafletVisible)}>{originLeafletVisible ? leafletActions(lang).hide : leafletActions(lang).view}</button>

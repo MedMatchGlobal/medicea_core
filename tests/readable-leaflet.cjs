@@ -11,3 +11,13 @@ test('unrecognised text stays visible and source labels follow the interface lan
  const html=renderToStaticMarkup(React.createElement(Component,{text:'Entire original narrative.\n- Visible bullet.',lang:'it',sourceUrls:['https://example.org/pil','javascript:alert(1)']}));
  assert.match(html,/Entire original narrative/);assert.match(html,/Visible bullet/);assert.match(html,/Fonti \(1\)/);assert.ok(!html.includes('javascript:'));
 });
+
+test('summary leads with uses while source commentary remains in expandable details',()=>{
+ const html=renderToStaticMarkup(React.createElement(Component,{text:'Note:\nRetrieved from an older leaflet.\nSummary:\nUsed for the relief of fictional symptoms.\nIndications:\n- Used for the relief of fictional symptoms.\nContraindications:\n- Do not use with a fictional allergy.'}));
+ assert.match(html,/<h4>Summary<\/h4>/);assert.ok(html.indexOf('<h4>Summary')<html.indexOf('<h4>Indications'));
+ assert.ok(!html.includes('<h4>Note'));assert.match(html,/<summary>Leaflet details<\/summary>/);assert.match(html,/Retrieved from an older leaflet/);assert.match(html,/leaflet-section--caution/);
+});
+test('saved leaflet uses its existing indication for the summary without losing the full indication',()=>{
+ const html=renderToStaticMarkup(React.createElement(Component,{text:'Note:\nOriginal source qualification.\nIndications:\n- Relief of fictional symptoms. More detail stays below.',lang:'it'}));
+ assert.match(html,/<h4>Riepilogo<\/h4>/);assert.match(html,/More detail stays below/);assert.match(html,/Original source qualification/);
+});
