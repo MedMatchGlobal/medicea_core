@@ -1,3 +1,7 @@
+# Approved indicative retail prices — 23 October 2026
+
+Owner requested replacing Average Selling Price in the prompt and results UI. Use Indicative Retail Prices: listed prices or observed ranges by product/pack/source, without calculated averages. Retain all other prompt wording and model/streaming behaviour. Apply only to this test branch.
+
 # Approved research-opening comparison — 23 October 2026
 
 The owner approved replacing only the initial leaflet sentence with the proposed accurate and thorough research opening, including searching for missing sections before declaring data unavailable. Keep every subsequent Word prompt character, Sonnet Medium, streaming, tools and all other behaviour unchanged. Apply only to experiment/claude-simple-leaflet.

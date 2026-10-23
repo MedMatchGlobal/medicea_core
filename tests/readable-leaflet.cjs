@@ -29,3 +29,5 @@ test('Markdown price table renders headers, cells, links and surrounding notes w
 test('escaped pipes and incomplete streamed rows keep their content',()=>{
  const html=renderToStaticMarkup(React.createElement(Component,{text:'Average Selling Price:\n| Product | Price |\n| --- | --- |\n| A \\| B | £8.99 |\n| Still arriving |'}));assert.match(html,/A \| B/);assert.match(html,/£8.99/);assert.match(html,/Still arriving/);
 });
+
+test('new and saved price headings display indicative retail prices with preserved content',()=>{for(const heading of ['Indicative retail prices','Average Selling Price']){const html=renderToStaticMarkup(React.createElement(Component,{text:heading+':\n- Public fixture 24 pack: £7.99.',headings:{'Average Selling Price':'Average Selling Price'}}));assert.match(html,/<h4>Indicative Retail Prices<\/h4>/);assert.match(html,/leaflet-section--price/);assert.match(html,/24 pack: £7.99/);assert.ok(!html.includes('<h4>Average'));}});
