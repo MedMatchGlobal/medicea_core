@@ -5,7 +5,7 @@ export function leafletSections(text:string){
  const aliases:Record<string,string>={'Strength(s)':'Strength','Strengths':'Strength','Formulations(s)':'Formulation','Formulation(s)':'Formulation','Formulations':'Formulation','Dosage(s)':'Dosage','Dosages':'Dosage','Contraindications (including allergy warnings)':'Contraindications','Sources':'Sources'};
  const labels=[...headings,...Object.keys(aliases)];
  const alternatives=labels.sort((a,b)=>b.length-a.length).map(label=>label.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('|');
- const expression=new RegExp('^[ \\t]*(?:#{1,6}[ \\t]*)?(?:\\*{1,2})?('+alternatives+')[ \\t]*(?:\\*{1,2})?(?::[ \\t]*(?:\\*{1,2})?|[ \\t]*\\r?$)','gmi');
+ const expression=new RegExp('^[ \\t]*(?:#{1,6}[ \\t]*)?(?:\\*{1,2})?('+alternatives+')(?:[ \\t]*\\([^\\r\\n]*\\))?[ \\t]*(?:\\*{1,2})?(?::[ \\t]*(?:\\*{1,2})?|[ \\t]*\\r?$)','gmi');
  const marks=Array.from(text.matchAll(expression));
  return marks.map((mark,i)=>{const label=labels.find(key=>key.toLowerCase()===mark[1].toLowerCase())!;return {key:aliases[label]||label,text:text.slice(mark.index!+mark[0].length,marks[i+1]?.index??text.length).trim()};}).filter(section=>section.text);
 }

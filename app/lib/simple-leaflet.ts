@@ -25,7 +25,7 @@ export async function simpleLeaflet(input:{drugName?:unknown;originCountry?:unkn
   if(!response.ok)return Response.json({error:'CLAUDE_UNAVAILABLE'},{status:503});
   const payload=await response.json();
   if(payload.stop_reason!=='end_turn')return Response.json({error:'CLAUDE_INCOMPLETE'},{status:503});
-  const text=(payload.content||[]).filter((block:any)=>block.type==='text').map((block:any)=>block.text).join('\n\n');
+  const text=(payload.content||[]).filter((block:any)=>block.type==='text').map((block:any)=>block.text).join('');
   if(!text.trim())return Response.json({error:'CLAUDE_EMPTY_RESPONSE'},{status:503});
   // Presentation cleanup only; no clinical rewriting, source gate or JSON parsing.
   const leafletText=text.replace(/<\/?cite\b[^>]*>/g,'');
