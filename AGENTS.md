@@ -1,3 +1,7 @@
+# Approved research-opening comparison — 23 October 2026
+
+The owner approved replacing only the initial leaflet sentence with the proposed accurate and thorough research opening, including searching for missing sections before declaring data unavailable. Keep every subsequent Word prompt character, Sonnet Medium, streaming, tools and all other behaviour unchanged. Apply only to experiment/claude-simple-leaflet.
+
 # Authorised streaming and presentation correction
 
 On 23 October 2026 the owner approved setting the separate verbatim leaflet copy to Sonnet Medium effort, streaming the answer, rendering Markdown tables, and measuring first text and completion over repeated public examples. Preserve the exact Word prompt, model identity, search scope and medical content. Changes apply only to `experiment/claude-simple-leaflet`.
