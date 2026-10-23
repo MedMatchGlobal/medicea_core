@@ -1,3 +1,7 @@
+# Authorised streaming and presentation correction
+
+On 23 October 2026 the owner approved setting the separate verbatim leaflet copy to Sonnet Medium effort, streaming the answer, rendering Markdown tables, and measuring first text and completion over repeated public examples. Preserve the exact Word prompt, model identity, search scope and medical content. Changes apply only to `experiment/claude-simple-leaflet`.
+
 # Owner-authorised verbatim leaflet experiment
 
 On 23 October 2026 the owner requested an exact copy of the current Claude preview, using the leaflet prompt in “Claude Opus 5.5 - Prompt & Reply.docx” verbatim, without added leaflet conditions or restrictions. This applies only to `experiment/claude-simple-leaflet`. Replace the medicine and country slots for other searches. Do not append system, JSON, source-validation, heading, price, summary or translation instructions. Keep all other AI routes and matching behaviour unchanged. Retain membership/access controls and the current UI. The existing Claude preview and Production remain unchanged. The protected original prompt fixture stays intact.

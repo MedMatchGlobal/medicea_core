@@ -1,6 +1,6 @@
 'use client';
 import {useState} from 'react';
-const names=['origin','equivalence8','equivalence30','leaflet','translatedLeaflet','information','generics','pets','petGenerics','veterinary','condition','triage','translation','jsonTranslation'];
+const names=['origin','equivalence8','equivalence30','leaflet','solpadeine','coefferalgan','translatedLeaflet','information','generics','pets','petGenerics','veterinary','condition','triage','translation','jsonTranslation'];
 export default function ClaudeEvaluation(){
  const [busy,setBusy]=useState(''),[results,setResults]=useState<Record<string,unknown>>({});
  async function run(fixture:string){setBusy(fixture);try{const r=await fetch('/api/claude-evaluation',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({fixture})});const data=await r.json();setResults(previous=>({...previous,[fixture]:data}));}catch{setResults(previous=>({...previous,[fixture]:{error:'Request failed'}}));}finally{setBusy('');}}

@@ -11,6 +11,8 @@ const fixtures:Record<string,{path:string;body:unknown}>={
  equivalence8:{path:'equivalent-search',body:{...medicine,drugName:'Co-codamol'}},
  equivalence30:{path:'equivalent-search',body:{...medicine,drugName:'Co-codamol'}},
  leaflet:{path:'leaflet',body:medicine},
+ solpadeine:{path:'leaflet',body:{drugName:'Solpadeine',originCountry:'United Kingdom',lang:'en'}},
+ coefferalgan:{path:'leaflet',body:{drugName:'CoEfferalgan',originCountry:'Italy',lang:'en'}},
  translatedLeaflet:{path:'leaflet',body:{...medicine,lang:'it'}},
  information:{path:'information',body:medicine},
  generics:{path:'generics',body:{drugName:'Panadol',originCountry:'United Kingdom',drugDosage:'500 mg',lang:'en'}},

@@ -21,3 +21,11 @@ test('saved leaflet uses its existing indication for the summary without losing 
  const html=renderToStaticMarkup(React.createElement(Component,{text:'Note:\nOriginal source qualification.\nIndications:\n- Relief of fictional symptoms. More detail stays below.',lang:'it'}));
  assert.match(html,/<h4>Riepilogo<\/h4>/);assert.match(html,/More detail stays below/);assert.match(html,/Original source qualification/);
 });
+
+test('Markdown price table renders headers, cells, links and surrounding notes without flattening values',()=>{
+ const text='Average Selling Price:\nRetail quotes.\n\n| Product | Prices found | Approx. average |\n| --- | --- | ---: |\n| Max, 24 | £8.99 [Shop](https://example.org/price) | £8.75 |\n| Plus, 32 | £7.39; £7.99 | £7.70 |\n\nThese prices vary.';
+ const html=renderToStaticMarkup(React.createElement(Component,{text}));assert.match(html,/<table>/);assert.match(html,/<th[^>]*scope="col"[^>]*>Product/);assert.match(html,/<td[^>]*>Max, 24/);for(const value of ['£8.99','£8.75','£7.39; £7.99','£7.70','Retail quotes.','These prices vary.'])assert.ok(html.includes(value),value);assert.match(html,/href="https:\/\/example.org\/price"/);assert.ok(!html.includes('| ---'));
+});
+test('escaped pipes and incomplete streamed rows keep their content',()=>{
+ const html=renderToStaticMarkup(React.createElement(Component,{text:'Average Selling Price:\n| Product | Price |\n| --- | --- |\n| A \\| B | £8.99 |\n| Still arriving |'}));assert.match(html,/A \| B/);assert.match(html,/£8.99/);assert.match(html,/Still arriving/);
+});

@@ -781,3 +781,12 @@ html { scrollbar-gutter:stable; }
 .leaflet-references summary { cursor:pointer; font-weight:600; color:#405b76; }
 .leaflet-references li { margin:8px 0; }
 @media (max-width:600px) { .leaflet-section { padding:17px 16px; } .leaflet-references { padding:16px; } }
+.leaflet-table-scroll { max-width:100%; overflow-x:auto; margin:14px 0; border:1px solid #d6e3e7; border-radius:10px; overscroll-behavior-inline:contain; }
+.leaflet-table-scroll:focus-visible { outline:2px solid #8aaad1; outline-offset:3px; }
+.leaflet-table-scroll table { width:100%; min-width:480px; border-collapse:separate; border-spacing:0; font-size:.9rem; line-height:1.5; }
+.leaflet-table-scroll th,.leaflet-table-scroll td { padding:12px 14px; vertical-align:top; border-bottom:1px solid #dce6eb; border-inline-end:1px solid #dce6eb; min-width:110px; }
+.leaflet-table-scroll th { background:#eaf2f5; color:#203f54; font-weight:650; }
+.leaflet-table-scroll td { background:white; }
+.leaflet-table-scroll tr:nth-child(even) td { background:#f6fafb; }
+.leaflet-table-scroll tbody tr:last-child td { border-bottom:0; }
+.leaflet-table-scroll th:first-child,.leaflet-table-scroll td:first-child { position:sticky; inset-inline-start:0; min-width:140px; z-index:1; }
