@@ -1,3 +1,7 @@
+# Approved screenshot prompt — 23 October 2026
+
+Owner explicitly approved testing the supplied concise screenshot prompt, including product/age-group separation, official-leaflet verification and typical selling prices. Transcribe its wording without extra application instructions, substituting medicine/country and including a provided strength in the medicine value. Keep Sonnet Medium, streaming and other searches unchanged. Price-heading aliases may be added for display compatibility. Applies only to experiment/claude-simple-leaflet and supersedes prior prompt wording on this branch.
+
 # Approved indicative retail prices — 23 October 2026
 
 Owner requested replacing Average Selling Price in the prompt and results UI. Use Indicative Retail Prices: listed prices or observed ranges by product/pack/source, without calculated averages. Retain all other prompt wording and model/streaming behaviour. Apply only to this test branch.

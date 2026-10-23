@@ -28,7 +28,7 @@ export default function ReadableLeaflet({text,headings={},lang='en',sourceUrls=[
  const sections=leafletSections(text);
  // The heading parser starts at the first recognised heading. Keep any opening
  // explanation too, including ambiguity notices about product families.
- const first=text.search(/^[ \t]*(?:#{1,6}[ \t]*)?(?:\*{1,2})?(?:Summary|Manufacturer|Description|Overview|What it is|Active Ingredients?|Mechanism of Action|How it Works|Uses|Indications|Posology|Strength|Formulation|Dosage|Interactions|Side Effects|Precautions|Contraindications|Warnings|Legal Classification|Storage|Average Selling Price|Indicative Retail Prices|Indicative Retail Price|Note|Disclaimer)(?:[ \t:*]|$)/mi);
+ const first=text.search(/^[ \t]*(?:#{1,6}[ \t]*)?(?:\*{1,2})?(?:Summary|Manufacturer|Description|Overview|What it is|Active Ingredients?|Mechanism of Action|How it Works|Uses|Indications|Posology|Strength|Formulation|Dosage|Interactions|Side Effects|Precautions|Contraindications|Warnings|Legal Classification|Storage|Indicative Selling Price|Average Selling Price|Indicative Retail Prices|Indicative Retail Price|Note|Disclaimer)(?:[ \t:*]|$)/mi);
  const introduction=sections.length&&first>0?text.slice(0,first).trim():'';
  const copy=leafletPresentationCopy(lang);
  // Existing snapshots can use their own indication text as the overview. Never

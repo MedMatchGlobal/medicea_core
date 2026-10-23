@@ -6,10 +6,11 @@ export function simpleLeafletEnabled(){
  return process.env.VERCEL_ENV==='preview'&&process.env.VERCEL_GIT_COMMIT_REF==='experiment/claude-simple-leaflet'&&process.env.MEDICEA_CLAUDE_PREVIEW!=='false';
 }
 export const SIMPLE_LEAFLET_MODEL='claude-sonnet-5-5';
-// The owner's Word prompt, including its repeated Indications line and spelling.
+// The owner's approved screenshot prompt, with medicine/country slots.
 // These are the only substitutions. No application instructions are appended.
-export function simpleLeafletPrompt(medicine:string,country:string){
- return template.replaceAll('CoEfferalgan',medicine).replaceAll('Italy',country);
+export function simpleLeafletPrompt(medicine:string,country:string,strength?:string){
+ const product=strength?.trim()?`${medicine} ${strength.trim()}`:medicine;
+ return template.replace(/\{medicine\}|\{Country\}/g,slot=>slot==='{medicine}'?product:country);
 }
 export async function simpleLeaflet(input:{drugName?:unknown;originCountry?:unknown;drugDosage?:unknown;lang?:unknown},options:{stream?:boolean;signal?:AbortSignal}={}){
  if(!simpleLeafletEnabled())return Response.json({error:'NOT_FOUND'},{status:404});
@@ -25,7 +26,7 @@ export async function simpleLeaflet(input:{drugName?:unknown;originCountry?:unkn
   try{
    const response=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+key,'anthropic-version':'2023-06-01'},cache:'no-store',signal:controller.signal,body:JSON.stringify({
     model:SIMPLE_LEAFLET_MODEL,max_tokens:16000,output_config:{effort:'medium'},stream:true,
-    messages:[{role:'user',content:simpleLeafletPrompt(medicine,country)}],
+    messages:[{role:'user',content:simpleLeafletPrompt(medicine,country,typeof input.drugDosage==='string'?input.drugDosage:undefined)}],
     tools:[{type:'web_search_20250305',name:'web_search'}]
    })});
    if(!response.ok)throw Error('CLAUDE_UNAVAILABLE');
