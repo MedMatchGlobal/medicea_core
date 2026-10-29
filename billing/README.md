@@ -1,5 +1,7 @@
 # mediceaGO Personal — test preparation
 
+Google Play test implementation and current release gates: [GOOGLE-PLAY-IMPLEMENTATION.md](GOOGLE-PLAY-IMPLEMENTATION.md). Earlier dated validation below describes the original Stripe preparation.
+
 Approved launch prices: 7-day pass £1.49, 14-day pass £1.99, 30-day pass £2.99, monthly £2.49 and annual £19.99, all GBP. Passes end automatically; subscriptions renew with explicit disclosure. Annual saves £9.89 (33.1%) against twelve monthly payments. Paid monthly search allowance is uncapped; personal fair-use terms still need approval. Professional/team plans are not offered by this preparation. Concurrent new searches are capped at three as a technical safeguard, not a hidden monthly paid allowance.
 
 ## Scope and launch gates
@@ -32,7 +34,7 @@ Test free quota across two sessions/devices; third request denial; concurrent ov
 
 ## Android and shared entitlements
 
-Android Checkout is hidden on native Capacitor surfaces; Google Play purchasing is not implemented yet. No native app has been built/distributed. Implement Play Billing purchase/restore, server verification against the configured package/product/base-plan, account-bound obfuscated identifiers, acknowledgement, token uniqueness and linked-token handling, signed/authenticated RTDN processing and reconciliation before activating Android payments. Grant/revoke the same account entitlement used by web. Never accept a client Boolean, device marker or unverified purchase token as proof. This preparation deliberately does not use Stripe checkout as a replacement for native Play Billing.
+Android Stripe Checkout remains hidden on native Capacitor surfaces. This branch now includes test-only Google Play purchase/restore, server verification, acknowledgement/consumption, linked-token handling, authenticated notifications and reconciliation. See GOOGLE-PLAY-IMPLEMENTATION.md for configuration, exact product identifiers, verification leases and remaining device/provider acceptance. Production remains disabled. No signed native release has been built or distributed. Never accept client flags or an unverified purchase token as proof of access.
 
 Before Google review, testers need access that does not require real payment. Keep the released website and Android wrapper in their present beta configuration until all launch switches and native flows have passed acceptance and the owner authorises activation.
 

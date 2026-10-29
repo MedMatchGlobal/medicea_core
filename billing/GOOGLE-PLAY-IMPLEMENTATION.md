@@ -1,0 +1,152 @@
+# Google Play billing preparation — 29 October 2026
+
+This is isolated test implementation, not an activated payment release.
+
+## Validation completed
+
+* 56 automated tests pass, including PostgreSQL ledger/migration tests using PGlite,
+  provider response fixtures, account isolation, replay/linked-token/refund handling,
+  real RSA signature tests for notification identity, route authorization and unchanged
+  medicine prompts. These are not live Google or PlanetScale acceptance tests.
+* Optimized Next.js build and TypeScript checks pass.
+* Capacitor Android sync and :app:compileDebugJavaWithJavac pass with JDK 21,
+  SDK 35 and Google Billing 9.1.0. No release signing or AAB was attempted.
+* Local Production-mode HTTP smoke checks return 404 for membership and every new
+  Play endpoint, with both Preview/test switches deliberately set true.
+
+Remaining setup: configure the five Play test plans and restricted provider credentials;
+inspect the existing dedicated billing database and review/apply migration 003 there;
+configure authenticated notifications and reconciliation; run licence-tester device
+acceptance; review translations and upload signing before a release candidate.
+
+## Audit and isolation
+
+Repository: MedMatchGlobal/medicea_core. Local branch: feature/google-play-billing.
+Base: clean feature/monetisation-preview at 2c34b4badebaac61ee5c36d3762387917a4de41c,
+matching GitHub when inspected. Main was f4ab1bd9ed8ec3eaaab129a8a21c85e6dbe23f37.
+Open draft PRs 5 (membership), 6 (model testing), and 7 (travel/library) were inspected;
+none was merged or modified. No model, prompt, catalogue, vault or production files
+in the other checkout were changed. This checkout was cloned into this chat's
+writable workspace; it does not share a working tree with the original chat.
+
+The older chat now advances medicine catalogue work every four hours. Its records
+identify PlanetScale PostgreSQL medicea-catalogue/main, dmd_staging and leaflet_library.
+The existing billing code instead requires a dedicated MEDICEA_BILLING_DATABASE_URL
+and medicea_billing schema. Its SQL supports PostgreSQL, including PlanetScale
+PostgreSQL, not PlanetScale MySQL/Vitess. The owner confirmed on 29 October that billing should stay in its existing dedicated
+database. No live database connection or schema was changed by this task. A dedicated billing target, current schema and restricted role
+must be verified before applying migration 003; never apply billing to the catalogue
+or patient vault. No fallback to DATABASE_URL exists.
+
+## Catalogue to configure in Play test setup
+
+| Plan | Product ID | Base plan | GBP launch price |
+| --- | --- | --- | --- |
+| 7-day pass | medicea_pass_7 | one-time consumable | 1.49 |
+| 14-day pass | medicea_pass_14 | one-time consumable | 1.99 |
+| 30-day pass | medicea_pass_30 | one-time consumable | 2.99 |
+| Monthly | medicea_personal | monthly, auto-renewing | 2.49 |
+| Annual | medicea_personal | annual, auto-renewing | 19.99 |
+
+These IDs are proposed allowlisted identifiers, not evidence that products exist.
+If Play already has IDs, reconcile the constants before provider testing. Configure
+local-currency prices in Play and check them there. The native UI displays Google's
+localized ProductDetails price and explicit renewal disclosure. No trial or discount
+offers are selected. The existing web Stripe test flow remains separate.
+
+## Implemented flow
+
+The Capacitor plugin uses Billing Library 9.1.0, queries products and owned purchases,
+and launches Google checkout with the server-derived obfuscated account ID. The
+manifest declares BILLING. Native membership shows purchase, restore, and Play
+subscription management controls. Pending payment never grants access. Resuming the
+native membership screen queries purchases again. Consumed passes are restored from
+the signed-in account's server ledger, including after reinstall or on another device.
+An unaffiliated account cannot claim an existing token.
+
+Server purchase verification calls Android Publisher for the fixed application
+global.medicea.app and exact product/base plan. Only Google licence-test purchases
+are accepted. Active/cancelled-until-expiry/grace subscriptions receive access; hold,
+pause, pending and expired states do not. Pass duration starts at Google's purchase
+timestamp and cannot be extended by replay. Tokens are unique; replaced subscription
+tokens remain tombstoned. Grants update the existing server membership entitlement
+table, so normal guarded search handlers use the same account and quotas.
+
+The transaction commits the grant before server-side pass consumption or initial
+subscription acknowledgement. Restore and reconciliation retry provider failures.
+Linked-token changes are serialized. Tokens are not returned by account restore,
+logged, saved in browser storage or treated as client premium flags.
+
+Authenticated Google Pub/Sub OIDC notifications verify the issuer, RS256 signature,
+audience and verified service-account email. Notifications trigger a fresh Google
+read; their claimed active state is never trusted. Voided-purchase notifications revoke known tokens. Subscription refunds are matched
+to the current order so historical refunds cannot revoke a newer paid renewal. A private reconciliation endpoint refreshes stored
+purchases oldest first, up to ten per request. Schedule it at least every five minutes
+with enough calls for the backlog. Google entitlements have a 15-minute verification
+lease, capped by actual expiry: missed jobs eventually deny paid access rather than
+silently retain stale access. This is a deliberate test safeguard and requires
+operational load/availability review before launch. Restore refreshes the account.
+
+## Protected test configuration
+
+Keep existing membership preview/auth/database configuration. Add server-only:
+
+* MEDICEA_GOOGLE_PLAY_TEST=true (still requires membership Preview mode).
+* GOOGLE_PLAY_SERVICE_ACCOUNT_EMAIL and GOOGLE_PLAY_PRIVATE_KEY from a restricted
+  Android Publisher service account. Never place private credentials in NEXT_PUBLIC
+  variables, Android resources, chat, source control or the browser.
+* GOOGLE_PLAY_ACCOUNT_SECRET: stable independent random secret, at least 32 characters.
+  Changing it breaks existing purchase account bindings; plan rotation separately.
+* GOOGLE_PLAY_RTDN_AUDIENCE: exact HTTPS notification endpoint audience.
+* GOOGLE_PLAY_RTDN_EMAIL: expected Pub/Sub push authentication service account.
+* GOOGLE_PLAY_RECONCILE_SECRET: independent random secret, at least 32 characters.
+
+Endpoints: POST /api/membership/play (authenticated same-origin verification/restore),
+POST /api/membership/play/rtdn (Google-authenticated push), and
+POST /api/membership/play/reconcile (Bearer reconciliation secret).
+Configure notifications including voided purchases. Protect the entire preview;
+any hosting-protection exception must apply only to the authenticated notification
+endpoint. No schedule, credentials or service account was created here.
+
+Migration 003 is additive and unapplied. Inspect the current dedicated billing schema,
+take the normal backup and review it before applying after 001/002. It creates only
+medicea_billing.play_purchase and a small reconciliation cursor table. The existing entitlement provider constraint already
+permits google_play, so quota functions and clinical data need no migration.
+
+## Release gates and known limits
+
+Production remains disabled by the existing membership gate even if the new flag is
+set. The wrapper still loads https://medicea.global; it will not display the Preview
+membership flow until a deliberately configured test backend is used. Do not enable
+Production or point the released wrapper at a test service. Use a protected test
+variant/environment and licence tester accounts for real device acceptance.
+
+New native purchase copy is currently English; native-language review and integration
+with all 25 existing membership bundles remain before a multilingual release. No
+overlapping-plan upgrade/downgrade purchase flow is offered; manage existing
+subscriptions in Google Play. Account identity must remain available for consumed-pass
+restore. Provider acceptance must cover all five plans, pending completion, network
+loss after payment, reinstall/device changes, ownership isolation, purchase retries,
+renewal, cancellation, grace/hold, expiry, refund/chargeback and RTDN delivery/replay.
+Test catalogue GBP amounts and base-plan periods must be checked in Play; this code
+does not change product prices. A paginated Voided Purchases API backfill also revokes known refunded/charged-back
+tokens. Drain all pages within Google's 30-day history window. Reconciliation
+currently handles stored tokens; it is not a complete financial audit service.
+Unknown/unclaimed tokens still require Google verification on first claim.
+
+Embedded signing passwords were replaced by environment configuration and the copied
+keystore was removed from this branch. The original Git history still contains it;
+removal does not rotate or erase an exposed key. The owner should review upload-key
+exposure/reset through Play's normal process before release. No key rotation occurred.
+Capacitor sync requires JDK 21; the old machine-specific JDK 17 override was removed.
+Release builds now require MEDICEA_KEYSTORE_PATH, MEDICEA_KEYSTORE_PASSWORD,
+MEDICEA_KEY_ALIAS and MEDICEA_KEY_PASSWORD. Do not use the historical embedded values.
+Choose a new versionCode greater than the latest Play upload only when preparing the
+actual reviewed release. Version code is still 4 in this test branch.
+
+No AAB, publication, deployment, real purchase, live credential use, production billing
+activation, remote branch push or merge is part of this local implementation.
+
+Official references: https://developer.android.com/google/play/billing/integrate,
+https://developer.android.com/google/play/billing/security and
+https://developer.android.com/google/play/billing/rtdn-reference.

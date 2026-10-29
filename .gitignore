@@ -45,3 +45,8 @@ next-env.d.ts
 .vercel
 
 !billing/.env.example
+
+.npm-cache/
+.gradle-cache/
+*.jks
+*.keystore

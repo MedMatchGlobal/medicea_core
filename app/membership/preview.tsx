@@ -6,16 +6,18 @@ import styles from './membership.module.css';
 import {useSearchReturn} from '../components/MembershipAccess';
 import MembershipFooter from '../components/MembershipFooter';
 import MediceaBrand from '../components/MediceaBrand';
+import PlayOptions from './play-options';
 import LanguageButton from '../components/LanguageButton';
 import {useMembershipCopy,MembershipText,membershipText,type MembershipKey} from '../i18n/membership';
 export default function MembershipPreview(){
  const {copy,lang,dir}=useMembershipCopy();
  const [email,setEmail]=useState(''),[code,setCode]=useState(''),[status,setStatus]=useState<any>(null),[message,setMessage]=useState<MembershipKey|null>(null),[busy,setBusy]=useState(false),[native,setNative]=useState(true);
+ const [android,setAndroid]=useState(false);
  const returnHref=useSearchReturn();
  const accessOptions=useRef<HTMLHeadingElement>(null),refreshVersion=useRef(0);
  async function refresh(){const version=++refreshVersion.current;const response=await fetch('/api/membership/status',{cache:'no-store'});const data=await response.json();if(!response.ok)throw Error('ACCOUNT_UNAVAILABLE');if(version===refreshVersion.current)setStatus(data);return data;}
  useEffect(()=>{
-  setNative(Capacitor.isNativePlatform());
+  setNative(Capacitor.isNativePlatform());setAndroid(Capacitor.getPlatform()==='android');
   let active=true,attempts=0,timer:ReturnType<typeof setTimeout>|undefined;
   const returned=new URLSearchParams(window.location.search).get('checkout')==='returned';
   const update=async()=>{if(!active)return;try{const data=await refresh();if(active&&returned&&!data.premium&&attempts++<5)timer=setTimeout(update,2000);}catch{if(active)setMessage('accountError');}};
@@ -61,7 +63,8 @@ export default function MembershipPreview(){
  <p className={styles.terms}>{copy.cancellation}</p>
  {!signedIn&&<p className={styles.signInHint}>{copy.signInToChoose}</p>}{status?.premium&&<p className={styles.signInHint}>{copy.alreadyPaid}</p>}
  </section>}
- {native&&<p className={styles.previewNotice}>{copy.nativeUnavailable}</p>}
+ {native&&android&&<PlayOptions signedIn={signedIn} premium={!!status?.premium} onChange={refresh}/>}
+ {native&&!android&&<p className={styles.previewNotice}>{copy.nativeUnavailable}</p>}
  <footer className={styles.footer}><p>{copy.personalOnly}</p><p>{copy.education}</p><MembershipFooter/></footer>
  </main>;
 }
