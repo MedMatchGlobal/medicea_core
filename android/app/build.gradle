@@ -8,8 +8,10 @@ android {
         applicationId "global.medicea.app"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 4          // any integer higher than last upload
-        versionName "1.0.0"    // free text, doesn’t affect runtime
+        // Candidate 16 follows the newest prepared wrapper bundle (15). Verify against
+        // Play before upload; a later candidate can override -PmediceaVersionCode.
+        versionCode providers.gradleProperty('mediceaVersionCode').getOrElse('16').toInteger()
+        versionName "1.0.1"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
         aaptOptions {

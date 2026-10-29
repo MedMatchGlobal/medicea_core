@@ -2,6 +2,46 @@
 
 This is isolated test implementation, not an activated payment release.
 
+## Signed wrapper candidate follow-up
+
+The owner confirmed that the wrapper must keep loading https://medicea.global.
+Candidate 16 (version name 1.0.1) preserves the launcher artwork and SDK settings
+(minimum 24, compile/target 36) from the previous chat's prepared build 15. Only those
+Android packaging inputs were copied; no web feature branch was merged. Build 15's
+local manifest records playUploaded=false, so candidate 16 still needs checking against
+the highest version already used in Play before upload.
+
+The local upload keystore certificate exactly matched Play's old fingerprint
+90:DC:21:52:6E:F2:B6:6B:4F:51:82:F5:C3:0C:52:81:22:85:49:09:48:79:F8:A9:C5:40:64:30:4E:C5:7F:1B.
+Because that keystore/password had been committed, a replacement 3072-bit RSA upload
+key was generated outside the repository. Its random password is encrypted with
+Windows DPAPI for the owner's Windows account, and recovery was verified. Private
+files are restricted by Windows ACL; neither key nor password is packaged or committed.
+Replacement certificate SHA-256:
+0C:5D:14:93:06:6C:8E:20:57:A8:0A:BC:09:D7:CB:0E:03:D5:D8:13:D7:DB:E1:34:C3:99:3F:6E:70:35:90:B3.
+
+The owner submitted the reset manually. The refreshed Play Console reports validity
+from 31 October 2026 at 17:39 (console-displayed time); active registration has not yet
+been verified. The app-signing key was not changed.
+
+Candidate 16 builds successfully with bundleRelease and passes bundletool validation,
+JAR signature verification and signer-fingerprint checks. Its packaged manifest contains
+BILLING and Billing Library 9.1.0; the packaged Capacitor config still targets
+medicea.global. The release signing inputs are supplied transiently from the protected
+local key/password files. All 56 automated tests pass after the packaging changes.
+
+This candidate is for the next approved testing/catalogue-setup upload. Current
+Production web content still has no activated membership purchasing. Uploading this
+wrapper alone does not deploy the new server verification routes or purchase UI.
+Google Play products/permissions/credentials, the dedicated billing migration and
+notification/reconciliation configuration remain pending. Those server credentials
+are not configured in this checkout. Do not promise purchase testing until that setup
+and the approved web deployment/testing boundary have been completed.
+
+No Play upload, rollout, product activation, Production deployment or database change
+has occurred. The deliverables folder contains the local candidate, manifest/check
+report and public replacement certificate; preserve the protected key separately.
+
 ## Validation completed
 
 * 56 automated tests pass, including PostgreSQL ledger/migration tests using PGlite,
@@ -9,8 +49,8 @@ This is isolated test implementation, not an activated payment release.
   real RSA signature tests for notification identity, route authorization and unchanged
   medicine prompts. These are not live Google or PlanetScale acceptance tests.
 * Optimized Next.js build and TypeScript checks pass.
-* Capacitor Android sync and :app:compileDebugJavaWithJavac pass with JDK 21,
-  SDK 35 and Google Billing 9.1.0. No release signing or AAB was attempted.
+* Initial implementation: Capacitor Android sync and :app:compileDebugJavaWithJavac pass with JDK 21,
+  SDK 35 and Google Billing 9.1.0. The signed follow-up above preserves the later SDK 36 wrapper.
 * Local Production-mode HTTP smoke checks return 404 for membership and every new
   Play endpoint, with both Preview/test switches deliberately set true.
 
@@ -142,10 +182,11 @@ Capacitor sync requires JDK 21; the old machine-specific JDK 17 override was rem
 Release builds now require MEDICEA_KEYSTORE_PATH, MEDICEA_KEYSTORE_PASSWORD,
 MEDICEA_KEY_ALIAS and MEDICEA_KEY_PASSWORD. Do not use the historical embedded values.
 Choose a new versionCode greater than the latest Play upload only when preparing the
-actual reviewed release. Version code is still 4 in this test branch.
+actual reviewed release. Current candidate version code is 16; verify it against Play.
 
-No AAB, publication, deployment, real purchase, live credential use, production billing
-activation, remote branch push or merge is part of this local implementation.
+A signed local AAB has been prepared in the follow-up above. No publication, deployment,
+real purchase, live provider credential use, production billing activation, remote branch
+push or merge has occurred.
 
 Official references: https://developer.android.com/google/play/billing/integrate,
 https://developer.android.com/google/play/billing/security and
