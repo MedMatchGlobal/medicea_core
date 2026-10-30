@@ -2,6 +2,29 @@
 
 This is isolated test implementation, not an activated payment release.
 
+## Google provider access confirmed — 30 October 2026
+
+The owner enabled the Android Publisher API in project app-ab26f924 and created
+medicea-play-billing@app-ab26f924.iam.gserviceaccount.com. The service account is
+active in Play Console for medicéa. After the owner supplied its local credential
+file, a read-only check at 11:09 UTC successfully authenticated through Google's
+OAuth endpoint and received HTTP 200 from the Voided Purchases API for
+global.medicea.app. No purchase/order data, token or private credential was logged.
+This establishes provider authentication and Billing read access, not acceptance of
+the five products, actual purchase verification, acknowledgement or consumption.
+
+The original credential file has owner/SYSTEM-only Windows ACLs. A DPAPI-encrypted
+copy lives in the protected signing-private directory outside this repository, and
+its decryption was checked in memory. No raw credential or private key was committed,
+packaged, copied into an environment file or installed in Vercel. The redacted report
+is deliverables/google-play-api-access-check.json in the chat workspace.
+
+scripts/check-play-access.cjs reproduces the read-only check from a locally supplied
+credential path using the implementation's OAuth helper. It deliberately does not
+print response bodies or tokens. Server deployment configuration, dedicated billing
+database migration, RTDN/reconciliation, Play products and device acceptance remain
+pending; Production billing remains disabled.
+
 ## Signed wrapper candidate follow-up
 
 The owner confirmed that the wrapper must keep loading https://medicea.global.
