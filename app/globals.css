@@ -464,13 +464,15 @@ body { background:#f5f8fc; color:#112445; }
 * { box-sizing:border-box; }
 .medicea-shell { max-width:1240px; margin:0 auto; padding:0 28px 30px; }
 .site-header { display:flex; align-items:center; justify-content:space-between; gap:24px; min-height:102px; }
-.brand-link { display:block; width:190px; }
+:root { --medicea-logo-width:210px; }
+.brand-link { display:block; width:var(--medicea-logo-width); }
 .brand-link img { display:block; width:100%; height:auto; }
 .header-nav { display:flex; gap:36px; }
 .header-nav a { color:#233b5b; text-decoration:none; font-size:14px; font-weight:600; }
 .language-control button { color:#233b5b; min-height:44px; font:inherit; }
-.welcome-hero { min-height:260px; padding:44px 32px 74px; border-radius:22px; background:linear-gradient(90deg,#eef7ff 15%,rgba(238,247,255,.85) 40%,rgba(238,247,255,.1) 100%),url('/medicea-coast.png') center right/cover; }
+.welcome-hero { min-height:260px; padding:44px 32px 74px; border-radius:22px; background:linear-gradient(90deg,#eef7ff 15%,rgba(238,247,255,.85) 40%,rgba(238,247,255,.1) 100%),url('/riomaggiore.webp') center right/cover; }
 .hero-copy { max-width:740px; }
+.welcome-hero { background-size:auto,62% auto; background-repeat:no-repeat; background-color:#eef7ff; background-position:center,right 58%; }
 .hero-eyebrow { text-transform:uppercase; letter-spacing:.15em; font-size:11px; font-weight:700; color:#246fbe; }
 .hero-copy h1 { font-size:clamp(28px,3.2vw,44px); letter-spacing:-.045em; line-height:1.12; max-width:680px; margin:14px 0; }
 .hero-copy p { color:#4d6482; font-size:17px; line-height:1.6; margin:0; max-width:580px; }
@@ -512,7 +514,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 @media(max-width:900px) { .workspace-grid { grid-template-columns:1fr; } .care-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } .header-nav { gap:20px; } }
 @media(max-width:600px) {
  html { font-size:16px; } .medicea-shell { padding:0 14px 22px; }
- .site-header { min-height:78px; gap:12px; } .brand-link { width:140px; } .header-nav { display:none; }
+ .site-header { min-height:78px; gap:12px; } :root { --medicea-logo-width:160px; } .brand-link { width:var(--medicea-logo-width); } .header-nav { display:none; }
  .language-control button { min-width:92px!important; font-size:12px; }
  .welcome-hero { padding:24px 20px 60px; min-height:245px; background-position:65% center; }
  .hero-copy h1 { font-size:30px; max-width:290px; } .hero-copy p { font-size:13px; max-width:260px; }
@@ -688,3 +690,4 @@ html { scrollbar-gutter:stable; }
 .saved-search-row p { margin:4px 0; font-size:.85rem; overflow-wrap:anywhere; }
 .saved-search-status { margin:10px 0; }
 @media(max-width:640px) { .saved-search-row { align-items:flex-start; flex-direction:column; } }
+@media(max-width:600px){.welcome-hero{background-size:auto,cover;background-position:center,center}}
