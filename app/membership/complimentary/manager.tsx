@@ -22,7 +22,7 @@ export default function ComplimentaryManager(){
   <h1>Complimentary access</h1><p className={local.intro}>Give family, friends and testers unlimited personal access, for as long as you choose.</p>
   <section className={local.card}><h2>Add someone</h2><form onSubmit={e=>{e.preventDefault();void save('grant',{email,note});}}>
    <label>Email address<input required type="email" maxLength={254} value={email} onChange={e=>setEmail(e.target.value)} placeholder="name@example.com" autoComplete="off"/></label>
-   <label>Note <span>(optional, only you see this)</span><input maxLength={200} value={note} onChange={e=>setNote(e.target.value)} placeholder="Family, friend or tester"/></label>
+   <label><span>Note <small>(optional, only you see this)</small></span><input maxLength={200} value={note} onChange={e=>setNote(e.target.value)} placeholder="Family, friend or tester"/></label>
    <button className={styles.primary} disabled={busy||!loaded}>Grant unlimited access</button>
   </form><p className={styles.small}>They must sign in using this exact email. No expiry and no purchase prompts. Existing subscriptions keep renewing until the person cancels them.</p></section>
   <p role="status" aria-live="polite">{busy?'Saving…':message}</p>
