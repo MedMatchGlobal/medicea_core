@@ -2,6 +2,71 @@
 
 This is isolated test implementation, not an activated payment release.
 
+## Current status and next device-test preparation — 3 November 2026
+
+This section supersedes older pending-status notes below. With explicit owner
+approval, signed build 16 (1.0.1) was published to Internal testing. Production was
+not published. This unlocked catalogue setup: medicea_pass_7/14/30 (purchase option
+buy) and medicea_personal (monthly/annual base plans) are saved as inactive drafts,
+UK only. Final customer prices including UK VAT were checked: £1.49, £1.99,
+£2.99, £2.49/month and £19.99/year. No products/base plans have been activated.
+The dedicated test database migrations and authenticated RTDN test delivery are
+complete; scheduled reconciliation and device lifecycle acceptance remain pending.
+
+The owner wants deliberate regional price points with a small conversion buffer,
+not literal FX conversion. Confirmed EUR targets: pass7 €1.99 and pass14 €2.49.
+Other EUR prices/currencies are still to be reviewed. Before enabling a region,
+record a dated conversion reference, tax treatment and buffer, then select a
+familiar local price point above the buffered conversion. Do not silently reduce
+existing prices as exchange rates move. Review consumer-facing tax-inclusive
+totals; do not double-add taxes. This is a regional catalogue policy, not a client
+currency calculator or an added checkout fee. Android must display Google's
+formatted price exactly; never substitute these targets when an offer is absent.
+Web remains GBP until its checkout supports matching regional prices. No regional
+price or availability changes are applied by this code.
+
+Search signing can use MEDICEA_SEARCH_ACCESS_SECRET, an optional independent
+random server-only value of at least 32 characters. Without it, existing Stripe
+previews retain their legacy key; Play-only previews purpose-derive the search key
+from their existing GOOGLE_PLAY_ACCOUNT_SECRET (minimum 32 characters). No additional
+secret needs to be entered for this configured Play preview. An empty/invalid
+explicit variable fails closed. Switching keys invalidates old follow-up permissions, so avoid changing
+an existing environment's key without planning that transition. New key material
+has not been generated or deployed by this change.
+
+For a deliberately prepared private Android test bundle, set
+MEDICEA_ANDROID_TEST_PREVIEW=true when running Capacitor sync, then use a new unused
+version code when building. This targets only the stable protected billing preview.
+Normal builds still load medicea.global. Never embed a protection bypass, session
+or server credential in the wrapper. Verify the final AAB's packaged URL and version
+before upload. The preview must be reachable and signed-in inside the Android
+WebView before buying. The signed candidate is recorded in the build 17 section below.
+Use licence testers and Google's test payment methods only. Confirm the device's
+Google account before granting test access; do not enable an unrelated tester list.
+Catalogue activation and further uploads/rollouts require separate owner approval.
+
+### Signed build 17 prepared — 3 November 2026
+
+The owner approved preparation of the private-preview Android build after seeing
+that build 16 still opens the public site. Version 17 (1.0.1) is built and signed
+with the registered replacement upload certificate. Bundletool validation, JAR
+signature, manifest and packaged config checks passed. The actual AAB targets the
+stable protected billing preview, contains Billing 9.1.0 and BILLING permission,
+and includes the native billing plugin. No private key or deployment bypass is
+packaged. Min SDK 24 and target SDK 36 are preserved. The artifact and redacted
+checks are in the chat workspace's deliverables folder:
+medicea-1.0.1-build17-private-billing.aab and medicea-build17-checks.json.
+SHA-256: D253AA885BF459F58EB7DE89E9149444BDDC73291DDA349EC84F2D28AAD1F91D.
+
+Licence testing was saved with explicit owner approval for the single-account
+Medicea Billing Test — Sergio list (sergio.pasqualini1972@gmail.com), normal
+responses. The unrelated 22-person list stays unselected. This is distinct from
+Internal track opt-in. Build 17 is not uploaded/published and the five UK products
+remain inactive. Obtain specific approval for that rollout and product activation.
+Device acceptance still needs protection sign-in inside WebView, membership sign-in
+without a complimentary entitlement, test payment methods, restore and lifecycle
+checks. Do not remove anyone's existing complimentary access to perform a test.
+
 ## Test setup update — 3 November 2026
 
 The owner successfully signed into the Google Play branch preview using an email

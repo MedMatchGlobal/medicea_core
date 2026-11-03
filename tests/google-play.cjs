@@ -5,6 +5,17 @@ function load(file,imports={},extra={}){const module={exports:{}};const source=t
 const policy=load('lib/membership/play-policy.ts'),A='11111111-1111-4111-8111-111111111111',B='22222222-2222-4222-8222-222222222222',token='fixture-purchase-token-1';
 const pass=(changes={})=>({purchaseType:0,purchaseState:0,consumptionState:0,acknowledgementState:0,quantity:1,purchaseTimeMillis:String(Date.now()),obfuscatedExternalAccountId:policy.playAccount(A),...changes});
 const sub=(changes={})=>({latestOrderId:'GPA.fixture..0',testPurchase:{},externalAccountIdentifiers:{obfuscatedExternalAccountId:policy.playAccount(A)},subscriptionState:'SUBSCRIPTION_STATE_ACTIVE',acknowledgementState:'ACKNOWLEDGEMENT_STATE_PENDING',lineItems:[{productId:'medicea_personal',offerDetails:{basePlanId:'monthly'},autoRenewingPlan:{autoRenewEnabled:true},expiryTime:new Date(Date.now()+3600000).toISOString()}],...changes});
+
+test('Android defaults to the public site; private device testing requires explicit opt-in',()=>{
+ const normal=load('capacitor.config.ts').default;
+ assert.equal(normal.server.url,'https://medicea.global');
+ assert.equal(normal.server.cleartext,false);
+ const preview=load('capacitor.config.ts',{}, {env:{MEDICEA_ANDROID_TEST_PREVIEW:'true'}}).default;
+ assert.equal(preview.appId,'global.medicea.app');
+ assert.equal(preview.server.url,'https://medicea-core-git-feature-google-17fe5b-medmatchglobals-projects.vercel.app');
+ assert.equal(new URL(preview.server.url).search,'');
+ assert.equal(load('capacitor.config.ts',{}, {env:{MEDICEA_ANDROID_TEST_PREVIEW:'false'}}).default.server.url,normal.server.url);
+});
 test('pass expiry uses Google time; rejects wrong identity, real purchases, quantity and invalid time',()=>{
  const p=pass(),first=policy.playAccess('pass7',p,policy.playAccount(A)),again=policy.playAccess('pass7',p,policy.playAccount(A),Date.now()+86400000);
  assert.equal(first.until.getTime(),again.until.getTime());assert.equal(first.fulfill,'consume');
