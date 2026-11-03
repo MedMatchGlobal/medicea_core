@@ -114,5 +114,7 @@
  "activeSubscription":"Aktivní předplatné",
  "planDetailsUnavailable":"Váš placený přístup je aktivní. Přesné údaje o plánu nyní nejsou k dispozici.",
   "complimentaryActive": "Bezplatný přístup je aktivní",
-  "complimentaryDescription": "Neomezený osobní přístup. Bez vypršení a bez platby."
+  "complimentaryDescription": "Neomezený osobní přístup. Bez vypršení a bez platby.",
+ "ownerTools":"Nástroje vlastníka",
+ "manageComplimentary":"Spravovat bezplatný přístup"
 }

@@ -114,5 +114,7 @@
  "activeSubscription":"Active subscription",
  "planDetailsUnavailable":"Your paid access is active. Exact plan details are currently unavailable.",
  "complimentaryActive": "Complimentary access active",
- "complimentaryDescription": "Unlimited personal access. No expiry or payment required."
+ "complimentaryDescription": "Unlimited personal access. No expiry or payment required.",
+ "ownerTools":"Owner tools",
+ "manageComplimentary":"Manage complimentary access"
 }

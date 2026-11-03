@@ -114,5 +114,7 @@
  "activeSubscription":"Активная подписка",
  "planDetailsUnavailable":"Ваш платный доступ активен. Точные сведения о плане сейчас недоступны.",
   "complimentaryActive": "Бесплатный доступ активен",
-  "complimentaryDescription": "Неограниченный личный доступ. Без срока действия и оплаты."
+  "complimentaryDescription": "Неограниченный личный доступ. Без срока действия и оплаты.",
+ "ownerTools":"Инструменты владельца",
+ "manageComplimentary":"Управление бесплатным доступом"
 }

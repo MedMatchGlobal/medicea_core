@@ -114,5 +114,7 @@
  "activeSubscription":"Aktivt abonnement",
  "planDetailsUnavailable":"Din betalte tilgang er aktiv. Nøyaktige plandetaljer er ikke tilgjengelige akkurat nå.",
   "complimentaryActive": "Gratis tilgang er aktiv",
-  "complimentaryDescription": "Ubegrenset personlig tilgang. Ingen utløpsdato eller betaling."
+  "complimentaryDescription": "Ubegrenset personlig tilgang. Ingen utløpsdato eller betaling.",
+ "ownerTools":"Eierverktøy",
+ "manageComplimentary":"Administrer gratis tilgang"
 }

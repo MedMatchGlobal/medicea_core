@@ -114,5 +114,7 @@
  "activeSubscription":"Abonnement actif",
  "planDetailsUnavailable":"Votre accès payant est actif. Les détails exacts de votre formule sont actuellement indisponibles.",
   "complimentaryActive": "Accès offert actif",
-  "complimentaryDescription": "Accès personnel illimité. Sans expiration ni paiement."
+  "complimentaryDescription": "Accès personnel illimité. Sans expiration ni paiement.",
+ "ownerTools":"Outils du propriétaire",
+ "manageComplimentary":"Gérer les accès offerts"
 }

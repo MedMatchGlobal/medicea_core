@@ -114,5 +114,7 @@
  "activeSubscription":"Aktiv prenumeration",
  "planDetailsUnavailable":"Din betalda åtkomst är aktiv. Exakta uppgifter om planen är inte tillgängliga just nu.",
   "complimentaryActive": "Kostnadsfri åtkomst är aktiv",
-  "complimentaryDescription": "Obegränsad personlig åtkomst. Inget slutdatum eller betalningskrav."
+  "complimentaryDescription": "Obegränsad personlig åtkomst. Inget slutdatum eller betalningskrav.",
+ "ownerTools":"Ägarverktyg",
+ "manageComplimentary":"Hantera kostnadsfri åtkomst"
 }

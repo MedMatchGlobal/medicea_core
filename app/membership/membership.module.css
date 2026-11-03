@@ -85,3 +85,12 @@
 
 .complimentaryAccount{background:#f0faf5;border-color:#afd4bc}
 .complimentaryAccount h2{color:#286345}
+
+.authError{padding:10px 12px;border:1px solid #e3acac;border-radius:9px;background:#fff1f1;color:#992f35;font-size:14px;line-height:1.45}
+.auth input[aria-invalid=true]{border-color:#bc4851}
+.authHint{font-size:14px;color:#38556b}
+.ownerTools{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:24px;padding:16px 20px;border:1px solid #d7e6ed;border-radius:12px;background:#fff}
+.ownerTools>span{font-size:12px;letter-spacing:1px;text-transform:uppercase;font-weight:650;color:#617587}
+.ownerTools>a{display:inline-flex;align-items:center;gap:10px;font-size:14px;font-weight:650;text-decoration:none;padding:8px 0}
+.ownerTools>a:hover{text-decoration:underline}
+@media(max-width:560px){.ownerTools{align-items:flex-start;flex-direction:column;gap:4px;padding:14px 16px}}

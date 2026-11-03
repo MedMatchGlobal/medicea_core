@@ -114,5 +114,7 @@
  "activeSubscription":"Abbonamento attivo",
  "planDetailsUnavailable":"Il tuo accesso a pagamento è attivo. I dettagli esatti del piano non sono al momento disponibili.",
   "complimentaryActive": "Accesso omaggio attivo",
-  "complimentaryDescription": "Accesso personale illimitato. Senza scadenza né pagamento."
+  "complimentaryDescription": "Accesso personale illimitato. Senza scadenza né pagamento.",
+ "ownerTools":"Strumenti del titolare",
+ "manageComplimentary":"Gestisci gli accessi omaggio"
 }

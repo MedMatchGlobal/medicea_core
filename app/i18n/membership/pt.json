@@ -114,5 +114,7 @@
  "activeSubscription":"Subscrição ativa",
  "planDetailsUnavailable":"O seu acesso pago está ativo. Os detalhes exatos do plano estão indisponíveis de momento.",
   "complimentaryActive": "Acesso de cortesia ativo",
-  "complimentaryDescription": "Acesso pessoal ilimitado. Sem validade nem pagamento."
+  "complimentaryDescription": "Acesso pessoal ilimitado. Sem validade nem pagamento.",
+ "ownerTools":"Ferramentas do proprietário",
+ "manageComplimentary":"Gerir acesso de cortesia"
 }

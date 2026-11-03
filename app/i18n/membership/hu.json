@@ -114,5 +114,7 @@
  "activeSubscription":"Aktív előfizetés",
  "planDetailsUnavailable":"A fizetős hozzáférése aktív. A csomag pontos adatai jelenleg nem érhetők el.",
   "complimentaryActive": "Az ingyenes hozzáférés aktív",
-  "complimentaryDescription": "Korlátlan személyes hozzáférés. Nincs lejárat vagy fizetés."
+  "complimentaryDescription": "Korlátlan személyes hozzáférés. Nincs lejárat vagy fizetés.",
+ "ownerTools":"Tulajdonosi eszközök",
+ "manageComplimentary":"Ingyenes hozzáférés kezelése"
 }

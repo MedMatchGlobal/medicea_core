@@ -114,5 +114,7 @@
  "activeSubscription":"Aktives Abonnement",
  "planDetailsUnavailable":"Ihr bezahlter Zugang ist aktiv. Genaue Tarifdetails sind derzeit nicht verfügbar.",
   "complimentaryActive": "Kostenloser Zugang aktiv",
-  "complimentaryDescription": "Unbegrenzter persönlicher Zugang. Kein Ablaufdatum und keine Zahlung erforderlich."
+  "complimentaryDescription": "Unbegrenzter persönlicher Zugang. Kein Ablaufdatum und keine Zahlung erforderlich.",
+ "ownerTools":"Inhaber-Werkzeuge",
+ "manageComplimentary":"Kostenlosen Zugang verwalten"
 }

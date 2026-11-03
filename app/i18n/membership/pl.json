@@ -114,5 +114,7 @@
  "activeSubscription":"Aktywna subskrypcja",
  "planDetailsUnavailable":"Twój płatny dostęp jest aktywny. Dokładne informacje o planie są obecnie niedostępne.",
   "complimentaryActive": "Bezpłatny dostęp jest aktywny",
-  "complimentaryDescription": "Nieograniczony dostęp osobisty. Bez daty wygaśnięcia i bez opłat."
+  "complimentaryDescription": "Nieograniczony dostęp osobisty. Bez daty wygaśnięcia i bez opłat.",
+ "ownerTools":"Narzędzia właściciela",
+ "manageComplimentary":"Zarządzaj bezpłatnym dostępem"
 }

@@ -114,5 +114,7 @@
  "activeSubscription":"Voimassa oleva tilaus",
  "planDetailsUnavailable":"Maksullinen käyttöoikeutesi on voimassa. Tarkat tilaustiedot eivät ole juuri nyt saatavilla.",
   "complimentaryActive": "Maksuton käyttöoikeus on voimassa",
-  "complimentaryDescription": "Rajaton henkilökohtainen käyttö. Ei päättymispäivää eikä maksua."
+  "complimentaryDescription": "Rajaton henkilökohtainen käyttö. Ei päättymispäivää eikä maksua.",
+ "ownerTools":"Omistajan työkalut",
+ "manageComplimentary":"Hallitse maksutonta käyttöoikeutta"
 }

@@ -114,5 +114,7 @@
  "activeSubscription":"Aktiewe intekening",
  "planDetailsUnavailable":"Jou betaalde toegang is aktief. Presiese planbesonderhede is tans nie beskikbaar nie.",
   "complimentaryActive": "Komplimentêre toegang aktief",
-  "complimentaryDescription": "Onbeperkte persoonlike toegang. Geen vervaldatum of betaling nodig nie."
+  "complimentaryDescription": "Onbeperkte persoonlike toegang. Geen vervaldatum of betaling nodig nie.",
+ "ownerTools":"Eienaarnutsgoed",
+ "manageComplimentary":"Bestuur komplimentêre toegang"
 }

@@ -114,5 +114,7 @@
  "activeSubscription":"اشتراك نشط",
  "planDetailsUnavailable":"وصولك المدفوع نشط. تفاصيل الخطة الدقيقة غير متاحة حاليًا.",
   "complimentaryActive": "الوصول المجاني مفعّل",
-  "complimentaryDescription": "وصول شخصي غير محدود. بلا تاريخ انتهاء أو دفع."
+  "complimentaryDescription": "وصول شخصي غير محدود. بلا تاريخ انتهاء أو دفع.",
+ "ownerTools":"أدوات المالك",
+ "manageComplimentary":"إدارة الوصول المجاني"
 }

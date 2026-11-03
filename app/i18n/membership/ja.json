@@ -114,5 +114,7 @@
  "activeSubscription":"有効なサブスクリプション",
  "planDetailsUnavailable":"有料アクセスは有効です。プランの詳細は現在確認できません。",
   "complimentaryActive": "無料アクセスが有効です",
-  "complimentaryDescription": "個人向けの無制限アクセスです。有効期限やお支払いはありません。"
+  "complimentaryDescription": "個人向けの無制限アクセスです。有効期限やお支払いはありません。",
+ "ownerTools":"管理者ツール",
+ "manageComplimentary":"無料アクセスを管理"
 }

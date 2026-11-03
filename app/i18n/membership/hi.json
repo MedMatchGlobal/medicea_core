@@ -114,5 +114,7 @@
  "activeSubscription":"सक्रिय सदस्यता",
  "planDetailsUnavailable":"आपकी सशुल्क पहुँच सक्रिय है। योजना की सटीक जानकारी अभी उपलब्ध नहीं है।",
   "complimentaryActive": "निःशुल्क पहुँच सक्रिय है",
-  "complimentaryDescription": "असीमित व्यक्तिगत पहुँच। कोई समाप्ति तिथि या भुगतान नहीं।"
+  "complimentaryDescription": "असीमित व्यक्तिगत पहुँच। कोई समाप्ति तिथि या भुगतान नहीं।",
+ "ownerTools":"मालिक के उपकरण",
+ "manageComplimentary":"निःशुल्क पहुँच प्रबंधित करें"
 }
