@@ -125,5 +125,7 @@
   "moduleAllowance": "本月 <limit/> 次使用中剩余 <remaining/> 次",
   "moduleNoExpiry": "无到期日",
   "moduleUntil": "截至 <date/>",
-  "moduleNormalAccess": "其他模块遵循通常的免费或付费访问规则。"
+  "moduleNormalAccess": "其他模块遵循通常的免费或付费访问规则。",
+ "modulePortal":"患者门户",
+ "moduleAllFeatures":"所有功能"
 }

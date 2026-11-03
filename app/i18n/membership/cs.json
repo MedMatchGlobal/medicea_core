@@ -125,5 +125,7 @@
   "moduleAllowance": "Tento měsíc zbývá <remaining/> z <limit/> použití",
   "moduleNoExpiry": "Bez konce platnosti",
   "moduleUntil": "Do <date/>",
-  "moduleNormalAccess": "Ostatní moduly se řídí běžnými pravidly bezplatného či placeného přístupu."
+  "moduleNormalAccess": "Ostatní moduly se řídí běžnými pravidly bezplatného či placeného přístupu.",
+ "modulePortal":"Pacientský portál",
+ "moduleAllFeatures":"Všechny funkce"
 }

@@ -7,7 +7,7 @@ export function billingDb() {
   if (!url) throw new Error('Billing database is not configured');
   return client ||= new PrismaClient({datasources: {db: {url}}, log: ['error']});
 }
-export async function reserve(user: string, requestId: string, email?:string, module:AccessModule='medicine') {
+export async function reserve(user: string, requestId: string, email?:string, module:Exclude<AccessModule,'portal'>='medicine') {
   const rows = await billingDb().$queryRaw<Array<{result: {allowed:boolean; reason:string; id?:string}}>>`
     SELECT medicea_billing.reserve_search(${user}::uuid, ${requestId}::uuid, ${email||null}::text, ${module}::text) AS result`;
   return rows[0].result;
@@ -17,7 +17,7 @@ export async function finish(user: string, requestId: string, success: boolean) 
   await billingDb().$queryRaw`SELECT medicea_billing.finish_search(${user}::uuid, ${requestId}::uuid, ${success}::boolean)::text AS result`;
 }
 export async function membershipStatus(user: string, email?:string, module:AccessModule='medicine') {
-  const rows = await billingDb().$queryRaw<Array<{result: {used:number; reserved:number; freeReserved:number; trialReserved:number; limit:number; premium:boolean; paidAccess:boolean; complimentary:boolean; moduleGranted:boolean; moduleRemaining:number|null; moduleAccess:Array<{module:AccessModule;monthlyLimit:number|null;expiresAt:string|null;used:number;remaining:number|null}>; resetsAt:string; trialAvailable:boolean; trialEndsAt:string|null; trialUsed:number; trialLimit:number}}>>`
+  const rows = await billingDb().$queryRaw<Array<{result: {used:number; reserved:number; freeReserved:number; trialReserved:number; limit:number; premium:boolean; paidAccess:boolean; complimentary:boolean; portalAccess:boolean; moduleGranted:boolean; moduleRemaining:number|null; moduleAccess:Array<{module:AccessModule;monthlyLimit:number|null;expiresAt:string|null;used:number;remaining:number|null}>; resetsAt:string; trialAvailable:boolean; trialEndsAt:string|null; trialUsed:number; trialLimit:number}}>>`
     SELECT medicea_billing.member_status(${user}::uuid, ${email||null}::text, ${module}::text) AS result`;
   return rows[0].result;
 }

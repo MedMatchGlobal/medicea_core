@@ -125,5 +125,7 @@
   "moduleAllowance": "<remaining/> av <limit/> användningar kvar denna månad",
   "moduleNoExpiry": "Inget slutdatum",
   "moduleUntil": "Till <date/>",
-  "moduleNormalAccess": "Övriga moduler följer de vanliga reglerna för kostnadsfri eller betald åtkomst."
+  "moduleNormalAccess": "Övriga moduler följer de vanliga reglerna för kostnadsfri eller betald åtkomst.",
+ "modulePortal":"Patientportal",
+ "moduleAllFeatures":"Alla funktioner"
 }

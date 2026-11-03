@@ -125,5 +125,7 @@
   "moduleAllowance": "נותרו <remaining/> מתוך <limit/> שימושים החודש",
   "moduleNoExpiry": "ללא תאריך תפוגה",
   "moduleUntil": "עד <date/>",
-  "moduleNormalAccess": "על המודולים האחרים חלים כללי הגישה הרגילים, בחינם או בתשלום."
+  "moduleNormalAccess": "על המודולים האחרים חלים כללי הגישה הרגילים, בחינם או בתשלום.",
+ "modulePortal":"פורטל מטופלים",
+ "moduleAllFeatures":"כל התכונות"
 }

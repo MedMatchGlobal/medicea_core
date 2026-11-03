@@ -125,5 +125,7 @@
   "moduleAllowance": "Tässä kuussa jäljellä <remaining/> / <limit/> käyttökertaa",
   "moduleNoExpiry": "Ei päättymispäivää",
   "moduleUntil": "Voimassa <date/> asti",
-  "moduleNormalAccess": "Muihin moduuleihin sovelletaan tavallisia maksuttoman tai maksullisen käytön sääntöjä."
+  "moduleNormalAccess": "Muihin moduuleihin sovelletaan tavallisia maksuttoman tai maksullisen käytön sääntöjä.",
+ "modulePortal":"Potilasportaali",
+ "moduleAllFeatures":"Kaikki ominaisuudet"
 }

@@ -125,5 +125,7 @@
   "moduleAllowance": "Ebben a hónapban <limit/> használatból <remaining/> maradt",
   "moduleNoExpiry": "Nincs lejárat",
   "moduleUntil": "<date/> időpontig",
-  "moduleNormalAccess": "A többi modulra a szokásos ingyenes vagy fizetős hozzáférési szabályok érvényesek."
+  "moduleNormalAccess": "A többi modulra a szokásos ingyenes vagy fizetős hozzáférési szabályok érvényesek.",
+ "modulePortal":"Betegportál",
+ "moduleAllFeatures":"Minden funkció"
 }

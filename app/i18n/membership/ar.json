@@ -125,5 +125,7 @@
   "moduleAllowance": "متبقي <remaining/> من <limit/> استخدامًا هذا الشهر",
   "moduleNoExpiry": "بلا انتهاء",
   "moduleUntil": "حتى <date/>",
-  "moduleNormalAccess": "تخضع الوحدات الأخرى لقواعد الوصول المجاني أو المدفوع المعتادة."
+  "moduleNormalAccess": "تخضع الوحدات الأخرى لقواعد الوصول المجاني أو المدفوع المعتادة.",
+ "modulePortal":"بوابة المريض",
+ "moduleAllFeatures":"جميع الميزات"
 }

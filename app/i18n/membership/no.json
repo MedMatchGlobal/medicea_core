@@ -125,5 +125,7 @@
   "moduleAllowance": "<remaining/> av <limit/> bruk igjen denne måneden",
   "moduleNoExpiry": "Ingen utløpsdato",
   "moduleUntil": "Til <date/>",
-  "moduleNormalAccess": "Andre moduler følger de vanlige reglene for gratis eller betalt tilgang."
+  "moduleNormalAccess": "Andre moduler følger de vanlige reglene for gratis eller betalt tilgang.",
+ "modulePortal":"Pasientportal",
+ "moduleAllFeatures":"Alle funksjoner"
 }

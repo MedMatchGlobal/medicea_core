@@ -125,5 +125,7 @@
   "moduleAllowance": "Deze maand nog <remaining/> van <limit/> keer te gebruiken",
   "moduleNoExpiry": "Geen vervaldatum",
   "moduleUntil": "Tot <date/>",
-  "moduleNormalAccess": "Voor andere modules gelden de gebruikelijke regels voor gratis of betaalde toegang."
+  "moduleNormalAccess": "Voor andere modules gelden de gebruikelijke regels voor gratis of betaalde toegang.",
+ "modulePortal":"Patiëntenportaal",
+ "moduleAllFeatures":"Alle functies"
 }

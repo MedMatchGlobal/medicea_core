@@ -125,5 +125,7 @@
   "moduleAllowance": "Απομένουν <remaining/> από <limit/> χρήσεις αυτόν τον μήνα",
   "moduleNoExpiry": "Χωρίς λήξη",
   "moduleUntil": "Έως <date/>",
-  "moduleNormalAccess": "Οι άλλες ενότητες ακολουθούν τους συνήθεις κανόνες δωρεάν ή επί πληρωμή πρόσβασης."
+  "moduleNormalAccess": "Οι άλλες ενότητες ακολουθούν τους συνήθεις κανόνες δωρεάν ή επί πληρωμή πρόσβασης.",
+ "modulePortal":"Πύλη ασθενών",
+ "moduleAllFeatures":"Όλες οι λειτουργίες"
 }

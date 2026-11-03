@@ -125,5 +125,7 @@
  "moduleAllowance":"<remaining/> of <limit/> uses left this month",
  "moduleNoExpiry":"No expiry",
  "moduleUntil":"Until <date/>",
- "moduleNormalAccess":"Other modules follow normal free or paid access rules."
+ "moduleNormalAccess":"Other modules follow normal free or paid access rules.",
+ "modulePortal":"Patient portal",
+ "moduleAllFeatures":"All features"
 }

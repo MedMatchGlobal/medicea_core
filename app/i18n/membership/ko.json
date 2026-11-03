@@ -125,5 +125,7 @@
   "moduleAllowance": "이번 달 <limit/>회 중 <remaining/>회 남음",
   "moduleNoExpiry": "만료 없음",
   "moduleUntil": "<date/>까지",
-  "moduleNormalAccess": "다른 모듈에는 일반적인 무료 또는 유료 이용 규칙이 적용됩니다."
+  "moduleNormalAccess": "다른 모듈에는 일반적인 무료 또는 유료 이용 규칙이 적용됩니다.",
+ "modulePortal":"환자 포털",
+ "moduleAllFeatures":"모든 기능"
 }

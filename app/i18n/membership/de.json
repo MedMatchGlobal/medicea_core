@@ -125,5 +125,7 @@
   "moduleAllowance": "Diesen Monat noch <remaining/> von <limit/> Nutzungen",
   "moduleNoExpiry": "Kein Ablaufdatum",
   "moduleUntil": "Bis <date/>",
-  "moduleNormalAccess": "Für andere Module gelten die üblichen Regeln für kostenlosen oder kostenpflichtigen Zugang."
+  "moduleNormalAccess": "Für andere Module gelten die üblichen Regeln für kostenlosen oder kostenpflichtigen Zugang.",
+ "modulePortal":"Patientenportal",
+ "moduleAllFeatures":"Alle Funktionen"
 }

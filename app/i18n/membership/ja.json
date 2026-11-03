@@ -125,5 +125,7 @@
   "moduleAllowance": "今月は <limit/> 回中 <remaining/> 回利用可能",
   "moduleNoExpiry": "有効期限なし",
   "moduleUntil": "<date/> まで",
-  "moduleNormalAccess": "その他のモジュールには通常の無料または有料アクセスのルールが適用されます。"
+  "moduleNormalAccess": "その他のモジュールには通常の無料または有料アクセスのルールが適用されます。",
+ "modulePortal":"患者ポータル",
+ "moduleAllFeatures":"すべての機能"
 }

@@ -125,5 +125,7 @@
   "moduleAllowance": "Restano <remaining/> utilizzi su <limit/> questo mese",
   "moduleNoExpiry": "Senza scadenza",
   "moduleUntil": "Fino al <date/>",
-  "moduleNormalAccess": "Gli altri moduli seguono le normali regole di accesso gratuito o a pagamento."
+  "moduleNormalAccess": "Gli altri moduli seguono le normali regole di accesso gratuito o a pagamento.",
+ "modulePortal":"Portale paziente",
+ "moduleAllFeatures":"Tutte le funzionalità"
 }

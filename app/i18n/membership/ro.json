@@ -125,5 +125,7 @@
   "moduleAllowance": "Au rămas <remaining/> din <limit/> utilizări luna aceasta",
   "moduleNoExpiry": "Fără expirare",
   "moduleUntil": "Până la <date/>",
-  "moduleNormalAccess": "Celelalte module urmează regulile obișnuite de acces gratuit sau plătit."
+  "moduleNormalAccess": "Celelalte module urmează regulile obișnuite de acces gratuit sau plătit.",
+ "modulePortal":"Portalul pacientului",
+ "moduleAllFeatures":"Toate funcțiile"
 }

@@ -125,5 +125,7 @@
   "moduleAllowance": "Bu ay <limit/> kullanımın <remaining/> kadarı kaldı",
   "moduleNoExpiry": "Süresiz",
   "moduleUntil": "<date/> tarihine kadar",
-  "moduleNormalAccess": "Diğer modüllerde normal ücretsiz veya ücretli erişim kuralları geçerlidir."
+  "moduleNormalAccess": "Diğer modüllerde normal ücretsiz veya ücretli erişim kuralları geçerlidir.",
+ "modulePortal":"Hasta portalı",
+ "moduleAllFeatures":"Tüm özellikler"
 }

@@ -13,7 +13,7 @@ export async function membershipFetch(input:RequestInfo|URL,init?:RequestInit) {
  }
  return response;
 }
-export async function checkMembershipAccess(enabled:boolean,module:'medicine'|'health'|'pets'='medicine') {
+export async function checkMembershipAccess(enabled:boolean,module:'medicine'|'health'='medicine') {
  if(!enabled)return;
  try {
   const response=await membershipFetch('/api/membership/access',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({module})});

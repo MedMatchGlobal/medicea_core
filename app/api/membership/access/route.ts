@@ -10,7 +10,7 @@ export async function POST(req:Request) {
   if(!sameOrigin(req))return reply('INVALID_ORIGIN',403);
   const user=await membershipUser();if(!user)return reply('SIGN_IN_REQUIRED',401);
   const input=await req.json().catch(()=>null);const module=input?.module??'medicine';
-  if(!isAccessModule(module))return reply('INVALID_MODULE',400);
+  if(!isAccessModule(module)||module==='portal')return reply('INVALID_MODULE',400);
   const s=await membershipStatus(user.id,user.email,module);
   if(s.reserved>=3)return reply('TOO_MANY_CONCURRENT_REQUESTS',429);
   if(s.premium)return Response.json({allowed:true});
