@@ -109,5 +109,8 @@
   "errorPaid": "Accesul dvs. plătit este deja activ.",
   "errorCheckout": "Nu am putut deschide checkout-ul. Vă rugăm să încercați din nou în curând.",
   "errorPortal": "Nu am putut deschide gestionarea abonamentului. Vă rugăm să încercați din nou în curând.",
-  "errorGeneric": "Vă rugăm să încercați din nou în curând."
+  "errorGeneric": "Vă rugăm să încercați din nou în curând.",
+ "activePass":"Permis activ",
+ "activeSubscription":"Abonament activ",
+ "planDetailsUnavailable":"Accesul tău plătit este activ. Detaliile exacte ale planului nu sunt disponibile momentan."
 }

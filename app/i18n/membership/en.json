@@ -109,5 +109,8 @@
  "errorPaid":"Your paid access is already active.",
  "errorCheckout":"We could not open checkout. Please try again shortly.",
  "errorPortal":"We could not open subscription management. Please try again shortly.",
- "errorGeneric":"Please try again shortly."
+ "errorGeneric":"Please try again shortly.",
+ "activePass":"Active pass",
+ "activeSubscription":"Active subscription",
+ "planDetailsUnavailable":"Your paid access is active. Exact plan details are currently unavailable."
 }

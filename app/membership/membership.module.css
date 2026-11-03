@@ -22,6 +22,8 @@
 .secondary{background:#fff;color:#28556a;border:1px solid #bed3df}
 .secondary:hover:not(:disabled){background:#eef7fa}
 .page button:disabled{cursor:default;opacity:1;background:#e8eef5;color:#53687e;border-color:#d5e0eb}
+.page .activeButton:disabled{background:#e0f1e6;border:1px solid #9bc9ae;color:#215f40;opacity:1}
+.plan.activePlan{background:#f4fbf6;border-color:#9bc9ae}
 .page :is(button,a,input,summary):focus-visible{outline:3px solid #008ca5;outline-offset:4px}
 .page label{display:flex;flex-direction:column;gap:7px;font-size:14px;font-weight:650}
 .page input{font:inherit;font-size:16px;font-weight:400;width:100%;min-width:0;border:1px solid #bed1df;border-radius:9px;padding:11px;color:#17334a;background:#fff}

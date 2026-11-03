@@ -109,5 +109,8 @@
   "errorPaid": "Maksettu pääsysi on jo aktiivinen.",
   "errorCheckout": "Emme voineet avata kassaa. Yritä uudelleen hetken kuluttua.",
   "errorPortal": "Emme voineet avata tilaushallintaa. Yritä uudelleen hetken kuluttua.",
-  "errorGeneric": "Yritä uudelleen hetken kuluttua."
+  "errorGeneric": "Yritä uudelleen hetken kuluttua.",
+ "activePass":"Voimassa oleva passi",
+ "activeSubscription":"Voimassa oleva tilaus",
+ "planDetailsUnavailable":"Maksullinen käyttöoikeutesi on voimassa. Tarkat tilaustiedot eivät ole juuri nyt saatavilla."
 }

@@ -109,5 +109,8 @@
   "errorPaid": "Fizetett hozzáférése már aktív.",
   "errorCheckout": "Nem tudtuk megnyitni a pénztárat. Kérjük, próbálja újra rövidesen.",
   "errorPortal": "Nem tudtuk megnyitni az előfizetéskezelést. Kérjük, próbálja újra rövidesen.",
-  "errorGeneric": "Kérjük, próbálja újra rövidesen."
+  "errorGeneric": "Kérjük, próbálja újra rövidesen.",
+ "activePass":"Aktív bérlet",
+ "activeSubscription":"Aktív előfizetés",
+ "planDetailsUnavailable":"A fizetős hozzáférése aktív. A csomag pontos adatai jelenleg nem érhetők el."
 }

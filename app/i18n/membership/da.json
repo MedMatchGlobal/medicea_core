@@ -109,5 +109,8 @@
   "errorPaid": "Din betalte adgang er allerede aktiv.",
   "errorCheckout": "Vi kunne ikke åbne kassen. Prøv venligst igen om kort tid.",
   "errorPortal": "Vi kunne ikke åbne abonnementsadministrationen. Prøv venligst igen om kort tid.",
-  "errorGeneric": "Prøv venligst igen om kort tid."
+  "errorGeneric": "Prøv venligst igen om kort tid.",
+ "activePass":"Aktivt pas",
+ "activeSubscription":"Aktivt abonnement",
+ "planDetailsUnavailable":"Din betalte adgang er aktiv. De præcise planoplysninger er ikke tilgængelige lige nu."
 }

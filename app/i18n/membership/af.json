@@ -109,5 +109,8 @@
   "errorPaid": "Jou betaalde toegang is reeds aktief.",
   "errorCheckout": "Ons kon nie die kassa oopmaak nie. Probeer asseblief weer kortliks.",
   "errorPortal": "Ons kon nie die intekeningbestuur oopmaak nie. Probeer asseblief weer kortliks.",
-  "errorGeneric": "Probeer asseblief weer kortliks."
+  "errorGeneric": "Probeer asseblief weer kortliks.",
+ "activePass":"Aktiewe pas",
+ "activeSubscription":"Aktiewe intekening",
+ "planDetailsUnavailable":"Jou betaalde toegang is aktief. Presiese planbesonderhede is tans nie beskikbaar nie."
 }

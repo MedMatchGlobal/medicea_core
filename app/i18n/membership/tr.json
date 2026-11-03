@@ -109,5 +109,8 @@
   "errorPaid": "Ücretli erişiminiz zaten aktiftir.",
   "errorCheckout": "Ödeme sayfasını açamadık. Lütfen kısa süre içinde tekrar deneyin.",
   "errorPortal": "Abonelik yönetimini açamadık. Lütfen kısa süre içinde tekrar deneyin.",
-  "errorGeneric": "Lütfen kısa süre içinde tekrar deneyin."
+  "errorGeneric": "Lütfen kısa süre içinde tekrar deneyin.",
+ "activePass":"Aktif geçiş",
+ "activeSubscription":"Aktif abonelik",
+ "planDetailsUnavailable":"Ücretli erişiminiz aktif. Planın kesin ayrıntıları şu anda mevcut değil."
 }

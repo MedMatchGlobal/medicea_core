@@ -109,5 +109,8 @@
   "errorPaid": "Tu acceso de pago ya está activo.",
   "errorCheckout": "No pudimos abrir el proceso de pago. Por favor, inténtalo de nuevo en breve.",
   "errorPortal": "No pudimos abrir la gestión de suscripciones. Por favor, inténtalo de nuevo en breve.",
-  "errorGeneric": "Por favor, inténtalo de nuevo en breve."
+  "errorGeneric": "Por favor, inténtalo de nuevo en breve.",
+ "activePass":"Pase activo",
+ "activeSubscription":"Suscripción activa",
+ "planDetailsUnavailable":"Tu acceso de pago está activo. Los detalles exactos del plan no están disponibles ahora."
 }

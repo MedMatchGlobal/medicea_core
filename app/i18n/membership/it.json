@@ -109,5 +109,8 @@
   "errorPaid": "Il tuo accesso a pagamento è già attivo.",
   "errorCheckout": "Non siamo riusciti ad aprire il checkout. Riprova tra poco.",
   "errorPortal": "Non siamo riusciti ad aprire la gestione degli abbonamenti. Riprova tra poco.",
-  "errorGeneric": "Riprova tra poco."
+  "errorGeneric": "Riprova tra poco.",
+ "activePass":"Pass attivo",
+ "activeSubscription":"Abbonamento attivo",
+ "planDetailsUnavailable":"Il tuo accesso a pagamento è attivo. I dettagli esatti del piano non sono al momento disponibili."
 }

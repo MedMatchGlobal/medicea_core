@@ -44,10 +44,10 @@ export default function MembershipPreview(){
  const date=(value:string,time=false)=>time?new Date(value).toLocaleString(locale):new Date(value).toLocaleDateString(locale);
  const signedIn=!!status?.signedIn;
  const upgrade=()=>{accessOptions.current?.scrollIntoView({block:'start'});accessOptions.current?.focus({preventScroll:true});};
- const planCard=(plan:PersonalPlan,title:string,unit:string,description:string)=><article className={`${styles.plan} ${plan==='annual'?styles.featured:''}`} key={plan}>
+ const planCard=(plan:PersonalPlan,title:string,unit:string,description:string)=>{const active=!!status?.premium&&status.activePlans?.includes(plan);const activeLabel=plan.startsWith('pass')?copy.activePass:copy.activeSubscription;return <article className={`${styles.plan} ${active?styles.activePlan:''}`} key={plan}>
   <h3>{title}</h3><p className={styles.price}><bdi>{price(plan)}</bdi> <span>{plan.startsWith('pass')?null:unit}</span></p><p className={styles.planDescription}>{plan.startsWith('pass')?null:description}</p>
-  <button className={styles.primary} aria-label={membershipText(copy.choosePlan,{plan:title})} disabled={busy||!signedIn||status?.premium} onClick={()=>checkout(plan)}>{plan.startsWith('pass')?copy.choosePass:plan==='annual'?copy.chooseAnnual:copy.chooseMonthly}</button>
- </article>;
+  <button className={active?styles.activeButton:styles.primary} aria-label={active?activeLabel:membershipText(copy.choosePlan,{plan:title})} disabled={busy||!signedIn||status?.premium} onClick={()=>checkout(plan)}>{active?activeLabel:plan.startsWith('pass')?copy.choosePass:plan==='annual'?copy.chooseAnnual:copy.chooseMonthly}</button>
+ </article>;};
  return <main className={styles.page} dir={dir}>
  <header className={styles.header}><a href="/" aria-label={copy.backHome}><img src="/logo.png" alt="medicéa" width="180" height="60"/></a><div className={styles.headerActions}><a className={styles.back} href="/">{dir==='rtl'?'→':'←'} {copy.backHome}</a><LanguageButton/></div></header>
  <div className={styles.previewNotice}>{copy.previewNotice}</div>
@@ -56,7 +56,7 @@ export default function MembershipPreview(){
  </section>
  {!status?.premium&&<aside className={styles.welcome}><div><h2>{copy.welcomeHeading}</h2><p>{copy.welcomeSummary}</p></div><details><summary>{copy.welcomeDetailsHeading}</summary><p className={styles.small}>{copy.termsWelcome}</p><p className={styles.small}>{copy.welcomeSeparate}</p><p className={styles.small}>{copy.welcomeDetails}</p></details></aside>}
  <section className={styles.account} aria-labelledby="account-heading"><div><p className={styles.eyebrow}>{copy.yourAccount}</p><h2 id="account-heading">{signedIn?(status.premium?copy.paidActive:copy.personalAccess):copy.signInHeading}</h2>
- {signedIn?<><p className={styles.email}><bdi>{status.email}</bdi></p>{!status.premium&&<p><MembershipText text={copy.freeUsage} params={{count:number(status.used),limit:number(status.limit),date:date(status.resetsAt)}}/></p>}
+ {signedIn?<><p className={styles.email}><bdi>{status.email}</bdi></p>{status.premium&&status.planDetailsUnavailable&&<p className={styles.small}>{copy.planDetailsUnavailable}</p>}{!status.premium&&<p><MembershipText text={copy.freeUsage} params={{count:number(status.used),limit:number(status.limit),date:date(status.resetsAt)}}/></p>}
  {!status.premium&&status.trialAvailable&&status.trialUsed<status.trialLimit&&<p><MembershipText text={copy.trialRemaining} params={{count:number(status.trialLimit-status.trialUsed)}}/> {status.trialEndsAt?membershipText(copy.trialEnds,{date:date(status.trialEndsAt,true)}):copy.trialNotStarted}</p>}
  {status.reserved>0&&<p><MembershipText text={copy.inProgress} params={{count:number(status.reserved)}}/></p>}</>:<p>{copy.signInIntro}</p>}</div>
  {signedIn?<div className={styles.actions}>{!native&&(status.premium?<button className={styles.primary} disabled={busy} onClick={()=>run('portal',{})}>{copy.manage}</button>:<button className={styles.primary} disabled={busy} onClick={upgrade}>{copy.upgrade}</button>)}{returnHref&&<a className={styles.continueLink} href={returnHref}>{copy.continueSearch} {dir==='rtl'?'←':'→'}</a>}<button className={styles.secondary} disabled={busy} onClick={()=>run('auth',{action:'signout'})}>{copy.signOut}</button></div>:status===null?<p role="status">{message?copy.accountUnavailable:copy.loadingAccount}</p>:<div className={styles.auth}><form onSubmit={e=>{e.preventDefault();run('auth',{action:'send',email});}}><label>{copy.email}<input type="email" required value={email} onChange={e=>{setEmail(e.target.value);setCodeSent(false);setCode('');}} autoComplete="email" placeholder={copy.emailPlaceholder}/></label><button className={styles.primary} disabled={busy||!email}>{copy.emailCode}</button></form>{codeSent&&<form onSubmit={e=>{e.preventDefault();run('auth',{action:'verify',email,code});}}><label>{copy.code}<input ref={codeInput} required value={code} onChange={e=>setCode(e.target.value)} inputMode="numeric" autoComplete="one-time-code" placeholder={copy.codePlaceholder}/></label><button className={styles.secondary} disabled={busy||!email||!code}>{copy.verify}</button></form>}</div>}
@@ -69,7 +69,7 @@ export default function MembershipPreview(){
  <p className={styles.terms}>{copy.cancellation}</p>
  {!signedIn&&<p className={styles.signInHint}>{copy.signInToChoose}</p>}{status?.premium&&<p className={styles.signInHint}>{copy.alreadyPaid}</p>}
  </section>}
- {native&&android&&<PlayOptions signedIn={signedIn} premium={!!status?.premium} onChange={refresh}/>}
+ {native&&android&&<PlayOptions signedIn={signedIn} premium={!!status?.premium} activePlans={status?.activePlayPlans||[]} onChange={refresh}/>}
  {native&&!android&&<p className={styles.previewNotice}>{copy.nativeUnavailable}</p>}
  <footer className={styles.footer}><p>{copy.personalOnly}</p><p>{copy.education}</p><MembershipFooter/></footer>
  </main>;

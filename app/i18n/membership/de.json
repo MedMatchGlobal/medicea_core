@@ -109,5 +109,8 @@
   "errorPaid": "Ihr kostenpflichtiger Zugang ist bereits aktiv.",
   "errorCheckout": "Wir konnten die Kasse nicht öffnen. Bitte versuchen Sie es in Kürze erneut.",
   "errorPortal": "Wir konnten das Abonnement-Management nicht öffnen. Bitte versuchen Sie es in Kürze erneut.",
-  "errorGeneric": "Bitte versuchen Sie es in Kürze erneut."
+  "errorGeneric": "Bitte versuchen Sie es in Kürze erneut.",
+ "activePass":"Aktiver Pass",
+ "activeSubscription":"Aktives Abonnement",
+ "planDetailsUnavailable":"Ihr bezahlter Zugang ist aktiv. Genaue Tarifdetails sind derzeit nicht verfügbar."
 }

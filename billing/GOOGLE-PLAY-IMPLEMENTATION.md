@@ -27,6 +27,25 @@ Authenticated Pub/Sub notifications, scheduled reconciliation, Play products and
 device purchase/restore acceptance remain outstanding. Production remains disabled.
 The older sections below record the earlier preparation state.
 
+### Specific active-plan display
+
+Status now returns allowlisted activePlans from server billing records, resolving
+Google plan names from the owned, non-revoked purchase ledger and Stripe plan names
+from test-mode provider objects with matching member/customer bindings and price IDs.
+Provider references, tokens and customer IDs never enter the status response.
+Verified active cards/buttons use a soft green Active pass/Active subscription label;
+other choices remain disabled while premium. Google UI uses only activePlayPlans,
+so a Stripe subscription is not presented as a Google Play purchase. All new copy
+is translated across the 25 membership languages. Unknown plan metadata leaves
+paid access intact and shows an explicit details-unavailable message.
+
+The existing signed-in owner's active record is a Stripe subscription, but the
+Google Play preview has not yet received its Stripe test secret and price settings.
+Its monthly/annual identity therefore remains unconfirmed. Do not infer it from
+expiry, amount or the premium flag. No entitlement was changed for this UI work.
+43 membership/provider/prompt checks and the optimized build passed. Local fixtures
+were used to inspect active pass and active subscription styling without purchases.
+
 ## Google provider access confirmed — 30 October 2026
 
 The owner enabled the Android Publisher API in project app-ab26f924 and created

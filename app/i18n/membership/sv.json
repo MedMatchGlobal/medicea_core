@@ -109,5 +109,8 @@
   "errorPaid": "Din betalda åtkomst är redan aktiv.",
   "errorCheckout": "Vi kunde inte öppna kassan. Vänligen försök igen om en stund.",
   "errorPortal": "Vi kunde inte öppna prenumerationshantering. Vänligen försök igen om en stund.",
-  "errorGeneric": "Vänligen försök igen om en stund."
+  "errorGeneric": "Vänligen försök igen om en stund.",
+ "activePass":"Aktivt pass",
+ "activeSubscription":"Aktiv prenumeration",
+ "planDetailsUnavailable":"Din betalda åtkomst är aktiv. Exakta uppgifter om planen är inte tillgängliga just nu."
 }

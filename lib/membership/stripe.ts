@@ -1,8 +1,8 @@
 import {createHmac,timingSafeEqual} from 'node:crypto';
 import {stripeTestKey,PERSONAL_PLANS,isPersonalPlan,type PersonalPlan} from './config';
-export async function stripeRequest(path:string,params?:URLSearchParams,idempotencyKey?:string) {
+export async function stripeRequest(path:string,params?:URLSearchParams,idempotencyKey?:string,timeoutMs=15000) {
  if(!/^\/[a-z_]+(?:\/[a-zA-Z0-9_]+)*$/.test(path))throw new Error('Invalid Stripe path');
- const response=await fetch('https://api.stripe.com/v1'+path,{method:params?'POST':'GET',headers:{Authorization:'Bearer '+stripeTestKey(),'Stripe-Version':'2025-03-31.basil',...(params?{'Content-Type':'application/x-www-form-urlencoded'}:{}),...(idempotencyKey?{'Idempotency-Key':idempotencyKey}:{})},body:params?.toString(),cache:'no-store',signal:AbortSignal.timeout(15000)});
+ const response=await fetch('https://api.stripe.com/v1'+path,{method:params?'POST':'GET',headers:{Authorization:'Bearer '+stripeTestKey(),'Stripe-Version':'2025-03-31.basil',...(params?{'Content-Type':'application/x-www-form-urlencoded'}:{}),...(idempotencyKey?{'Idempotency-Key':idempotencyKey}:{})},body:params?.toString(),cache:'no-store',signal:AbortSignal.timeout(timeoutMs)});
  if(!response.ok)throw new Error('Stripe request unavailable');
  return response.json();
 }
