@@ -2,6 +2,31 @@
 
 This is isolated test implementation, not an activated payment release.
 
+## Test setup update — 3 November 2026
+
+The owner successfully signed into the Google Play branch preview using an email
+code. The account showed an existing paid entitlement; this is not evidence of a
+Google Play purchase. Plan buttons no longer label every plan Active based on the
+account-wide premium flag. Duplicate purchases remain disabled while premium.
+
+A strict-TLS metadata check confirmed the dedicated Supabase medicea-billing-test
+schema. After a successful preflight and 15 database/provider lifecycle tests,
+migration 003_google_play.sql was applied in one transaction at 08:29 UTC. It created
+only play_purchase and play_reconcile_cursor; no existing entitlement, account,
+search, catalogue or vault records were changed. The migration SHA-256 is
+7099f54acf632ef7414bb2393536db2ca374e8c442541a28abcc093a78f84bab.
+The redacted result is deliverables/google-play-test-migration.json in the chat
+workspace. scripts/apply-play-test-migration.cjs defaults to preflight only, pins
+the dedicated test project, requires strict TLS and the reviewed migration hash,
+and refuses to reapply if either Play table exists. It contains no credentials.
+
+The owner entered Preview-only Google credentials, account/reconciliation secrets,
+membership flags, auth configuration and the stable branch origin in Vercel.
+The stored Google credential values still need deployed-provider verification.
+Authenticated Pub/Sub notifications, scheduled reconciliation, Play products and
+device purchase/restore acceptance remain outstanding. Production remains disabled.
+The older sections below record the earlier preparation state.
+
 ## Google provider access confirmed — 30 October 2026
 
 The owner enabled the Android Publisher API in project app-ab26f924 and created

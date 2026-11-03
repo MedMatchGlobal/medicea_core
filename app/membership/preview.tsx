@@ -46,7 +46,7 @@ export default function MembershipPreview(){
  const upgrade=()=>{accessOptions.current?.scrollIntoView({block:'start'});accessOptions.current?.focus({preventScroll:true});};
  const planCard=(plan:PersonalPlan,title:string,unit:string,description:string)=><article className={`${styles.plan} ${plan==='annual'?styles.featured:''}`} key={plan}>
   <h3>{title}</h3><p className={styles.price}><bdi>{price(plan)}</bdi> <span>{plan.startsWith('pass')?null:unit}</span></p><p className={styles.planDescription}>{plan.startsWith('pass')?null:description}</p>
-  <button className={styles.primary} aria-label={status?.premium?copy.paidActive:membershipText(copy.choosePlan,{plan:title})} disabled={busy||!signedIn||status?.premium} onClick={()=>checkout(plan)}>{status?.premium?copy.active:plan.startsWith('pass')?copy.choosePass:plan==='annual'?copy.chooseAnnual:copy.chooseMonthly}</button>
+  <button className={styles.primary} aria-label={membershipText(copy.choosePlan,{plan:title})} disabled={busy||!signedIn||status?.premium} onClick={()=>checkout(plan)}>{plan.startsWith('pass')?copy.choosePass:plan==='annual'?copy.chooseAnnual:copy.chooseMonthly}</button>
  </article>;
  return <main className={styles.page} dir={dir}>
  <header className={styles.header}><a href="/" aria-label={copy.backHome}><img src="/logo.png" alt="medicéa" width="180" height="60"/></a><div className={styles.headerActions}><a className={styles.back} href="/">{dir==='rtl'?'→':'←'} {copy.backHome}</a><LanguageButton/></div></header>
