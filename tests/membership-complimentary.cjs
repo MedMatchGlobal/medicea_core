@@ -57,3 +57,10 @@ test('complimentary-only status never labels a paid plan or queries a payment pr
  const route=load('app/api/membership/status/route.ts',{'@/lib/membership/config':{membershipPreviewEnabled:()=>true},'@/lib/membership/auth':{membershipUser:async()=>({id:A,email:'friend@example.test'})},'@/lib/membership/complimentary':{isMembershipAdmin:()=>false},'@/lib/membership/store':{membershipStatus:async(id,email)=>{assert.equal(email,'friend@example.test');return {premium:true,paidAccess:false,complimentary:true};}},'@/lib/membership/active-plans':{membershipPlans:async()=>{lookedUp=true;throw Error();}}});
  const body=await (await route.GET()).json();assert.equal(body.complimentary,true);assert.equal(lookedUp,false);assert.equal(body.activePlans.length,0);assert.equal(body.planDetailsUnavailable,false);
 });
+
+test('server page identity reads never write cookies; route identity refresh still persists cookies',async()=>{
+ let writes=0;
+ const auth=load('lib/membership/auth.ts',{'@supabase/ssr':{createServerClient:(url,key,options)=>({auth:{getUser:async()=>{options.cookies.setAll([{name:'session',value:'fixture',options:{}}]);return {data:{user:{id:A,email:'owner@example.test',email_confirmed_at:'2026-01-01'}},error:null};}}})},'next/headers':{cookies:async()=>({getAll:()=>[],set:()=>{writes++;}})}},{MEDICEA_MEMBERSHIP_AUTH_URL:'https://auth.example.test',MEDICEA_MEMBERSHIP_AUTH_PUBLISHABLE_KEY:'fixture'});
+ assert.equal((await auth.membershipUser(true)).id,A);assert.equal(writes,0);
+ await auth.membershipUser();assert.equal(writes,1);
+});
