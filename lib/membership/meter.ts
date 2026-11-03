@@ -1,3 +1,4 @@
+import {operationModule} from './access-policy';
 import {randomUUID} from 'node:crypto';
 import {membershipPreviewEnabled, sameOrigin} from './config';
 import {membershipUser} from './auth';
@@ -37,7 +38,7 @@ export async function meteredSearch(req: Request, run: (req:Request)=>Promise<Re
   if(input&&grantMode)input={...input,mode:grantMode};
   if(kind==='matches')searchGrantConfigured();
   userId=user.id; id=randomUUID();
-  const reservation=await reserve(userId,id,user.email);
+  const reservation=await reserve(userId,id,user.email,await operationModule(req,grantMode));
   if(!reservation.allowed)return Response.json({error:reservation.reason,membershipAccess:true},{status:429});
   const result=await authorisedSearch.run(true,()=>run(req));
   // 2xx responses with no actual result also release the reservation.

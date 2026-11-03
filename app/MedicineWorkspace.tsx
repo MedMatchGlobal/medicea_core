@@ -865,7 +865,7 @@ function Home({ petMode = false }: { petMode?: boolean }) {
     }
     /* ---------------------------------------------------------------------- */
     setCheckingAccess(true);
-    try {await checkMembershipAccess(membershipEnabled);}catch{return;}finally{setCheckingAccess(false);}
+    try {await checkMembershipAccess(membershipEnabled,petMode?'pets':mode==='condition'?'health':'medicine');}catch{return;}finally{setCheckingAccess(false);}
 
     // PREMIUM-ONLY MODES: Pets, Generics, Triage (search button)
 type PremiumMode = Extract<Mode, 'pets' | 'pet-generic' | 'generic' | 'triage'>;

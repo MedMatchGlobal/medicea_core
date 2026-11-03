@@ -116,5 +116,14 @@
  "complimentaryActive": "Complimentary access active",
  "complimentaryDescription": "Unlimited personal access. No expiry or payment required.",
  "ownerTools":"Owner tools",
- "manageComplimentary":"Manage complimentary access"
+ "manageComplimentary":"Manage complimentary access",
+ "moduleAccessHeading":"Your complimentary modules",
+ "moduleMedicine":"Medicine searches",
+ "moduleHealth":"Health tools",
+ "modulePets":"Meds & pets",
+ "moduleUnlimited":"Unlimited",
+ "moduleAllowance":"<remaining/> of <limit/> uses left this month",
+ "moduleNoExpiry":"No expiry",
+ "moduleUntil":"Until <date/>",
+ "moduleNormalAccess":"Other modules follow normal free or paid access rules."
 }

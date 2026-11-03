@@ -1,7 +1,7 @@
 const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm'),ts=require('typescript');
 const {PGlite}=require('@electric-sql/pglite');
 const A='11111111-1111-4111-8111-111111111111',B='22222222-2222-4222-8222-222222222222';
-function load(file,imports={},env={}){const module={exports:{}};vm.runInNewContext(ts.transpileModule(fs.readFileSync(file,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText,{module,exports:module.exports,require:n=>imports[n]||require(n),process:{env},Date,Response,Request});return module.exports;}
+function load(file,imports={},env={}){const module={exports:{}};vm.runInNewContext(ts.transpileModule(fs.readFileSync(file,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText,{module,exports:module.exports,require:n=>imports[n]||(n==='@/lib/membership/access-policy'?load('lib/membership/access-policy.ts'):require(n)),process:{env},Date,Response,Request});return module.exports;}
 const access=load('lib/membership/complimentary.ts',{'./store':{}},{MEDICEA_MEMBERSHIP_ADMIN_EMAIL:'Owner@example.test'});
 test('owner access fails closed; email matching is exact, case insensitive and never accepts metadata',()=>{
  assert.equal(access.isMembershipAdmin({email:'OWNER@example.test'}),true);
@@ -19,6 +19,8 @@ test('management API rejects anonymous, ordinary users, forged origin and invali
  user={id:A,email:'owner@example.test'};
  assert.equal((await route.POST(req({action:'grant',email:'friend@example.test',note:''},'https://evil.test'))).status,403);
  assert.equal((await route.POST(req({action:'grant',email:'invalid',note:''}))).status,400);
+ assert.equal(writes,0);
+ for(const policy of [{mode:'custom',permissions:[]},{mode:'custom',permissions:[{module:'medicine',monthlyLimit:-1,expiresAt:null}]}])assert.equal((await route.POST(req({action:'grant',email:'friend@example.test',note:'',policy}))).status,400);
  assert.equal(writes,0);
  const response=await route.POST(req({action:'grant',email:'friend@example.test',note:'Friend'}));assert.equal(response.status,200);assert.equal(writes,1);assert.equal(response.headers.get('cache-control'),'no-store');
 });

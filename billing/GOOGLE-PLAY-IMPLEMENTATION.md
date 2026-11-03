@@ -285,3 +285,13 @@ the account retains management links. Adding a grant never cancels or refunds a
 payment. No invitation emails are sent. The audit retains the actor, target email,
 note, action and timestamp for accountability; production retention/erasure review
 is still required before launch. Production membership remains disabled.
+
+## Module-specific complimentary access (private Preview)
+
+Owner tools now support Full access or Custom access for Medicine searches, Health tools and Meds & pets. Each selected module has an unlimited or 1–100,000 monthly allowance, plus no expiry, 7/30/90 days from saving, or a chosen last UTC day. Shared controls copy settings to selected modules. Existing grants migrate to full indefinite access.
+
+Successful server operations count per authenticated member, module and UTC month; live reservations count against limits to prevent parallel overspending. Failed operations release their slot. Editing limits retains usage. Paid entitlements take priority. An exhausted active custom grant denies further uses in that module; unselected, expired or revoked grants fall back to ordinary trial/free/paid rules. Find care remains free because it opens external Maps. Health tools group condition and symptom tools, which share the existing AI search endpoint; no clinical prompts or provider routing were changed.
+
+Server routes determine the module from the actual operation, never a client entitlement flag. Owner updates replace policies and append audit records in one transaction. Migration 005 only touches the dedicated billing test database, preserves existing full grants and paid entitlements, and leaves the catalogue untouched. The pinned test migration runner records a redacted report. Owner email and verified-account authorization remain unchanged.
+
+Verification: 57 billing/membership tests, TypeScript, production build, and the prompt preservation check. Google Play rollout and Production billing remain disabled pending explicit approval and the remaining lifecycle checks.

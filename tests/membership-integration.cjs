@@ -2,7 +2,7 @@ const test=require('node:test'),assert=require('node:assert/strict'),fs=require(
 function load(file,imports={},env={STRIPE_WEBHOOK_SECRET:'whsec_fictional_fixture'}) {
  const module={exports:{}};
  const code=ts.transpileModule(fs.readFileSync(file,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText;
- vm.runInNewContext(code,{module,exports:module.exports,require:name=>imports[name]||(name.startsWith('.')?load(path.resolve(path.dirname(file),name+'.ts'),imports,env):require(name)),process:{env},Request,Response,Buffer,URL,Date});
+ vm.runInNewContext(code,{module,exports:module.exports,require:name=>imports[name]||(name==='@/lib/membership/access-policy'?load('lib/membership/access-policy.ts',imports,env):name.startsWith('.')?load(path.resolve(path.dirname(file),name+'.ts'),imports,env):require(name)),process:{env},Request,Response,Buffer,URL,Date});
  return module.exports;
 }
 const request=body=>new Request('https://preview.example/api',{method:'POST',headers:{origin:'https://preview.example','content-type':'application/json'},body:JSON.stringify(body)});
