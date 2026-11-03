@@ -112,5 +112,7 @@
  "errorGeneric":"Please try again shortly.",
  "activePass":"Active pass",
  "activeSubscription":"Active subscription",
- "planDetailsUnavailable":"Your paid access is active. Exact plan details are currently unavailable."
+ "planDetailsUnavailable":"Your paid access is active. Exact plan details are currently unavailable.",
+ "complimentaryActive": "Complimentary access active",
+ "complimentaryDescription": "Unlimited personal access. No expiry or payment required."
 }

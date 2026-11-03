@@ -112,5 +112,7 @@
   "errorGeneric": "Vă rugăm să încercați din nou în curând.",
  "activePass":"Permis activ",
  "activeSubscription":"Abonament activ",
- "planDetailsUnavailable":"Accesul tău plătit este activ. Detaliile exacte ale planului nu sunt disponibile momentan."
+ "planDetailsUnavailable":"Accesul tău plătit este activ. Detaliile exacte ale planului nu sunt disponibile momentan.",
+  "complimentaryActive": "Accesul gratuit este activ",
+  "complimentaryDescription": "Acces personal nelimitat. Fără expirare sau plată."
 }

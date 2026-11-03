@@ -112,5 +112,7 @@
   "errorGeneric": "请稍后再试。",
  "activePass":"有效通行证",
  "activeSubscription":"有效订阅",
- "planDetailsUnavailable":"您的付费访问权限已生效。目前无法确认具体方案详情。"
+ "planDetailsUnavailable":"您的付费访问权限已生效。目前无法确认具体方案详情。",
+  "complimentaryActive": "免费访问已启用",
+  "complimentaryDescription": "无限制个人访问。无到期时间，无需付款。"
 }

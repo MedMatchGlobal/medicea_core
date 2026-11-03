@@ -112,5 +112,7 @@
   "errorGeneric": "Bitte versuchen Sie es in Kürze erneut.",
  "activePass":"Aktiver Pass",
  "activeSubscription":"Aktives Abonnement",
- "planDetailsUnavailable":"Ihr bezahlter Zugang ist aktiv. Genaue Tarifdetails sind derzeit nicht verfügbar."
+ "planDetailsUnavailable":"Ihr bezahlter Zugang ist aktiv. Genaue Tarifdetails sind derzeit nicht verfügbar.",
+  "complimentaryActive": "Kostenloser Zugang aktiv",
+  "complimentaryDescription": "Unbegrenzter persönlicher Zugang. Kein Ablaufdatum und keine Zahlung erforderlich."
 }

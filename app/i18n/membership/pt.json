@@ -112,5 +112,7 @@
   "errorGeneric": "Por favor, tente novamente em breve.",
  "activePass":"Passe ativo",
  "activeSubscription":"Subscrição ativa",
- "planDetailsUnavailable":"O seu acesso pago está ativo. Os detalhes exatos do plano estão indisponíveis de momento."
+ "planDetailsUnavailable":"O seu acesso pago está ativo. Os detalhes exatos do plano estão indisponíveis de momento.",
+  "complimentaryActive": "Acesso de cortesia ativo",
+  "complimentaryDescription": "Acesso pessoal ilimitado. Sem validade nem pagamento."
 }

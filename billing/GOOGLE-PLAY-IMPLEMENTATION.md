@@ -258,3 +258,30 @@ push or merge has occurred.
 Official references: https://developer.android.com/google/play/billing/integrate,
 https://developer.android.com/google/play/billing/security and
 https://developer.android.com/google/play/billing/rtdn-reference.
+
+## Complimentary access (private Preview)
+
+The owner manages `/membership/complimentary` through the Account page. Add an
+email and optional private note; access has no expiry. Revoke with the two-step
+Remove access confirmation. The recipient must sign in using that verified email.
+Only the exact verified account configured by `MEDICEA_MEMBERSHIP_ADMIN_EMAIL`
+can list or modify grants. No default owner and no client-provided roles are used.
+Configure this variable only for `feature/google-play-billing` Preview. The owner
+selected `sergio@medicea.global`; this is separate from any other signed-in account.
+
+Migration 004 adds complimentary_access and an append-only application audit table
+in the dedicated billing schema, plus new status/reservation overloads. Apply the
+pinned `scripts/apply-complimentary-test-migration.cjs` to medicea-billing-test only.
+Existing paid entitlements, trial records and medical data are not modified. Grants
+are checked server-side on every access check and reservation; no expiry or quota
+is applied, but the existing three-concurrent-request protection remains. Revocation
+blocks new complimentary reservations; an already-authorised request can finish.
+Email changes require granting the new verified address. Grants also work before
+someone first registers. Notes and the list are never returned by public status.
+
+Complimentary accounts see a soft green status and no plan selection or upgrade
+prompt on web/Android. Existing paid subscriptions remain renewable until cancelled;
+the account retains management links. Adding a grant never cancels or refunds a
+payment. No invitation emails are sent. The audit retains the actor, target email,
+note, action and timestamp for accountability; production retention/erasure review
+is still required before launch. Production membership remains disabled.

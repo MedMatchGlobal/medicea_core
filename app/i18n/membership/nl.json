@@ -112,5 +112,7 @@
   "errorGeneric": "Probeer het over een tijdje opnieuw.",
  "activePass":"Actieve pas",
  "activeSubscription":"Actief abonnement",
- "planDetailsUnavailable":"Je betaalde toegang is actief. De precieze abonnementsgegevens zijn momenteel niet beschikbaar."
+ "planDetailsUnavailable":"Je betaalde toegang is actief. De precieze abonnementsgegevens zijn momenteel niet beschikbaar.",
+  "complimentaryActive": "Gratis toegang actief",
+  "complimentaryDescription": "Onbeperkte persoonlijke toegang. Geen vervaldatum of betaling."
 }

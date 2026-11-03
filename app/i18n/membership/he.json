@@ -112,5 +112,7 @@
   "errorGeneric": "אנא נסה שוב בקרוב.",
  "activePass":"כרטיס פעיל",
  "activeSubscription":"מינוי פעיל",
- "planDetailsUnavailable":"הגישה שלך בתשלום פעילה. פרטי המסלול המדויקים אינם זמינים כרגע."
+ "planDetailsUnavailable":"הגישה שלך בתשלום פעילה. פרטי המסלול המדויקים אינם זמינים כרגע.",
+  "complimentaryActive": "הגישה ללא תשלום פעילה",
+  "complimentaryDescription": "גישה אישית ללא הגבלה. ללא תאריך תפוגה או תשלום."
 }

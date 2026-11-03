@@ -112,5 +112,7 @@
   "errorGeneric": "Proszę spróbować ponownie za chwilę.",
  "activePass":"Aktywny karnet",
  "activeSubscription":"Aktywna subskrypcja",
- "planDetailsUnavailable":"Twój płatny dostęp jest aktywny. Dokładne informacje o planie są obecnie niedostępne."
+ "planDetailsUnavailable":"Twój płatny dostęp jest aktywny. Dokładne informacje o planie są obecnie niedostępne.",
+  "complimentaryActive": "Bezpłatny dostęp jest aktywny",
+  "complimentaryDescription": "Nieograniczony dostęp osobisty. Bez daty wygaśnięcia i bez opłat."
 }

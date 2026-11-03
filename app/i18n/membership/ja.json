@@ -112,5 +112,7 @@
   "errorGeneric": "しばらくしてから再試行してください。",
  "activePass":"有効なパス",
  "activeSubscription":"有効なサブスクリプション",
- "planDetailsUnavailable":"有料アクセスは有効です。プランの詳細は現在確認できません。"
+ "planDetailsUnavailable":"有料アクセスは有効です。プランの詳細は現在確認できません。",
+  "complimentaryActive": "無料アクセスが有効です",
+  "complimentaryDescription": "個人向けの無制限アクセスです。有効期限やお支払いはありません。"
 }

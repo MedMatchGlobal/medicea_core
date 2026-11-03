@@ -37,7 +37,7 @@ export async function meteredSearch(req: Request, run: (req:Request)=>Promise<Re
   if(input&&grantMode)input={...input,mode:grantMode};
   if(kind==='matches')searchGrantConfigured();
   userId=user.id; id=randomUUID();
-  const reservation=await reserve(userId,id);
+  const reservation=await reserve(userId,id,user.email);
   if(!reservation.allowed)return Response.json({error:reservation.reason,membershipAccess:true},{status:429});
   const result=await authorisedSearch.run(true,()=>run(req));
   // 2xx responses with no actual result also release the reservation.

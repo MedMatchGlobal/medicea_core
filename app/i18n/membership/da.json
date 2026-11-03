@@ -112,5 +112,7 @@
   "errorGeneric": "Prøv venligst igen om kort tid.",
  "activePass":"Aktivt pas",
  "activeSubscription":"Aktivt abonnement",
- "planDetailsUnavailable":"Din betalte adgang er aktiv. De præcise planoplysninger er ikke tilgængelige lige nu."
+ "planDetailsUnavailable":"Din betalte adgang er aktiv. De præcise planoplysninger er ikke tilgængelige lige nu.",
+  "complimentaryActive": "Gratis adgang er aktiv",
+  "complimentaryDescription": "Ubegrænset personlig adgang. Ingen udløbsdato eller betaling."
 }

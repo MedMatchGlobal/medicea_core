@@ -14,5 +14,5 @@ export async function membershipUser() {
   const client = await membershipAuth();
   const {data, error} = await client.auth.getUser();
   if (error || !data.user) return null;
-  return {id: data.user.id, email: data.user.email};
+  return {id: data.user.id, email: data.user.email_confirmed_at ? data.user.email : undefined};
 }

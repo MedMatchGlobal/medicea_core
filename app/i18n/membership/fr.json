@@ -112,5 +112,7 @@
   "errorGeneric": "Veuillez réessayer sous peu.",
  "activePass":"Pass actif",
  "activeSubscription":"Abonnement actif",
- "planDetailsUnavailable":"Votre accès payant est actif. Les détails exacts de votre formule sont actuellement indisponibles."
+ "planDetailsUnavailable":"Votre accès payant est actif. Les détails exacts de votre formule sont actuellement indisponibles.",
+  "complimentaryActive": "Accès offert actif",
+  "complimentaryDescription": "Accès personnel illimité. Sans expiration ni paiement."
 }

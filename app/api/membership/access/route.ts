@@ -8,7 +8,7 @@ export async function POST(req:Request) {
  try {
   if(!sameOrigin(req))return reply('INVALID_ORIGIN',403);
   const user=await membershipUser();if(!user)return reply('SIGN_IN_REQUIRED',401);
-  const s=await membershipStatus(user.id);
+  const s=await membershipStatus(user.id,user.email);
   if(s.reserved>=3)return reply('TOO_MANY_CONCURRENT_REQUESTS',429);
   if(s.premium)return Response.json({allowed:true});
   if(s.trialAvailable&&s.trialUsed+(s.trialReserved||0)<s.trialLimit)return Response.json({allowed:true});

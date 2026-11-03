@@ -112,5 +112,7 @@
   "errorGeneric": "يرجى المحاولة مرة أخرى بعد قليل.",
  "activePass":"تصريح نشط",
  "activeSubscription":"اشتراك نشط",
- "planDetailsUnavailable":"وصولك المدفوع نشط. تفاصيل الخطة الدقيقة غير متاحة حاليًا."
+ "planDetailsUnavailable":"وصولك المدفوع نشط. تفاصيل الخطة الدقيقة غير متاحة حاليًا.",
+  "complimentaryActive": "الوصول المجاني مفعّل",
+  "complimentaryDescription": "وصول شخصي غير محدود. بلا تاريخ انتهاء أو دفع."
 }

@@ -112,5 +112,7 @@
   "errorGeneric": "Lütfen kısa süre içinde tekrar deneyin.",
  "activePass":"Aktif geçiş",
  "activeSubscription":"Aktif abonelik",
- "planDetailsUnavailable":"Ücretli erişiminiz aktif. Planın kesin ayrıntıları şu anda mevcut değil."
+ "planDetailsUnavailable":"Ücretli erişiminiz aktif. Planın kesin ayrıntıları şu anda mevcut değil.",
+  "complimentaryActive": "Ücretsiz erişim etkin",
+  "complimentaryDescription": "Sınırsız kişisel erişim. Son kullanma tarihi veya ödeme yok."
 }

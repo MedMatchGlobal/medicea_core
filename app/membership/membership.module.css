@@ -82,3 +82,6 @@
  .auth form{grid-template-columns:minmax(0,1fr) auto;gap:8px}.auth button{max-width:140px;align-self:end}
 }
 @media(max-width:560px){.hero{background-size:auto,cover;background-position:center,center}}
+
+.complimentaryAccount{background:#f0faf5;border-color:#afd4bc}
+.complimentaryAccount h2{color:#286345}

@@ -112,5 +112,7 @@
   "errorGeneric": "Vennligst prøv igjen om kort tid.",
  "activePass":"Aktivt pass",
  "activeSubscription":"Aktivt abonnement",
- "planDetailsUnavailable":"Din betalte tilgang er aktiv. Nøyaktige plandetaljer er ikke tilgjengelige akkurat nå."
+ "planDetailsUnavailable":"Din betalte tilgang er aktiv. Nøyaktige plandetaljer er ikke tilgjengelige akkurat nå.",
+  "complimentaryActive": "Gratis tilgang er aktiv",
+  "complimentaryDescription": "Ubegrenset personlig tilgang. Ingen utløpsdato eller betaling."
 }

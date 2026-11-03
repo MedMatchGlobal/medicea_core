@@ -112,5 +112,7 @@
   "errorGeneric": "Yritä uudelleen hetken kuluttua.",
  "activePass":"Voimassa oleva passi",
  "activeSubscription":"Voimassa oleva tilaus",
- "planDetailsUnavailable":"Maksullinen käyttöoikeutesi on voimassa. Tarkat tilaustiedot eivät ole juuri nyt saatavilla."
+ "planDetailsUnavailable":"Maksullinen käyttöoikeutesi on voimassa. Tarkat tilaustiedot eivät ole juuri nyt saatavilla.",
+  "complimentaryActive": "Maksuton käyttöoikeus on voimassa",
+  "complimentaryDescription": "Rajaton henkilökohtainen käyttö. Ei päättymispäivää eikä maksua."
 }

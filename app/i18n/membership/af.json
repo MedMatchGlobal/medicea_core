@@ -112,5 +112,7 @@
   "errorGeneric": "Probeer asseblief weer kortliks.",
  "activePass":"Aktiewe pas",
  "activeSubscription":"Aktiewe intekening",
- "planDetailsUnavailable":"Jou betaalde toegang is aktief. Presiese planbesonderhede is tans nie beskikbaar nie."
+ "planDetailsUnavailable":"Jou betaalde toegang is aktief. Presiese planbesonderhede is tans nie beskikbaar nie.",
+  "complimentaryActive": "Komplimentêre toegang aktief",
+  "complimentaryDescription": "Onbeperkte persoonlike toegang. Geen vervaldatum of betaling nodig nie."
 }
