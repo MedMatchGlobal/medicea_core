@@ -2,6 +2,35 @@
 
 This is isolated test implementation, not an activated payment release.
 
+## Private WebView access correction — 4 November 2026
+
+The owner installed build 17 and reached Vercel's administrator login in Chrome.
+Capacitor sends that cross-origin authentication redirect to the external browser;
+its cookie does not unlock the application's WebView. Device purchase acceptance
+is therefore still blocked. Do not reset the owner's Vercel authenticator or remove
+deployment protection to work around this test-build issue.
+
+Signed local candidate 18 adds PreviewAccessPlugin. Only when the configured server
+is the exact stable billing-preview origin, it intercepts Vercel /login and /sso-api
+redirects and presents a native masked sharing-link input. It accepts only HTTPS,
+that exact host, the root path and a single _vercel_share parameter. It rejects
+other origins, credentials, ports, fragments, extra parameters and automation bypass
+tokens. No JavaScript unlock method, widened allowNavigation or packaged credential
+is added. The field is excluded from saved state/autofill and protected against
+screenshots. The pasted link is used transiently to let Vercel set its WebView cookie;
+the link is not stored in app preferences or application logs. Medicea sign-in and
+server-side entitlements remain required separately.
+
+Native compilation, two URI-validation tests (including rejection cases), prompt
+preservation, release build, bundletool, signature and packaged-manifest/config checks
+pass. The new flow has not yet passed a real-device test. Candidate 18 and its
+redacted check report are in the workspace deliverables folder. SHA-256:
+C23B4CE029F5E07A983E12C384499371283BB165EEEC0A52C8EE05923F49190D.
+No sharing link has been created and build 18 is not uploaded/published. Explicit
+approval is needed to enable Anyone with the link for the billing branch only and
+publish candidate 18 to Internal testing. This bearer link must remain private and
+revocable; do not use the project-wide notification automation bypass in the app.
+
 ## Approved Internal testing rollout and UK catalogue activation — 4 November 2026
 
 With explicit owner approval, build 17 (1.0.1) was uploaded and published to Internal
