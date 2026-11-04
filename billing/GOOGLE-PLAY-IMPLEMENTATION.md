@@ -2,6 +2,26 @@
 
 This is isolated test implementation, not an activated payment release.
 
+## Approved Internal testing rollout and UK catalogue activation — 4 November 2026
+
+With explicit owner approval, build 17 (1.0.1) was uploaded and published to Internal
+testing. Play confirms Available to internal testers, release 14. The signed AAB
+hash matches the validated private-preview candidate recorded below. All three
+passes (buy options) are active at UK £1.49/£1.99/£2.99; medicea_personal monthly
+and annual are active at UK £2.49/£19.99, auto-renewing, no trial offers. Each price
+was rechecked immediately before activation. Catalogue activation is app-wide,
+not restricted to licence testers. Production app rollout and public web billing
+remain unchanged. Other regions remain unavailable.
+
+The owner's Google account is present in the existing enabled Internal track list
+and in the separately saved single-account licence-test list. No additional tester
+permissions were changed. Internal opt-in/install link:
+https://play.google.com/apps/internaltest/4700698756021140159
+Device installation, protected-preview sign-in and Google test-payment lifecycle
+acceptance are the next gates; no test purchase has been performed by this agent.
+Redacted rollout/catalogue reports and screenshots are in the workspace deliverables
+folder. This section supersedes all older draft/unpublished status notes below.
+
 ## Current status and next device-test preparation — 3 November 2026
 
 This section supersedes older pending-status notes below. With explicit owner
