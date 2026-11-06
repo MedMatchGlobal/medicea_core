@@ -26,10 +26,16 @@ preservation, release build, bundletool, signature and packaged-manifest/config 
 pass. The new flow has not yet passed a real-device test. Candidate 18 and its
 redacted check report are in the workspace deliverables folder. SHA-256:
 C23B4CE029F5E07A983E12C384499371283BB165EEEC0A52C8EE05923F49190D.
-No sharing link has been created and build 18 is not uploaded/published. Explicit
-approval is needed to enable Anyone with the link for the billing branch only and
-publish candidate 18 to Internal testing. This bearer link must remain private and
-revocable; do not use the project-wide notification automation bypass in the app.
+On 6 November 2026, with explicit owner approval, the billing branch sharing
+link was enabled (Anyone with the link), copied through Vercel, and validated
+against the native URI policy. A private QR was generated locally; its temporary
+plaintext input was removed. The secret is not recorded in this repository.
+Build 18 was uploaded and published to Internal testing, release 15. Play confirms
+Available to internal testers. The only release warning is the optional missing
+deobfuscation file; this build does not enable minification. Production and
+product pricing were not changed. Real-device unlock and billing lifecycle
+acceptance remain pending. The bearer link must remain private and revocable;
+do not use the project-wide notification automation bypass in the app.
 
 ## Approved Internal testing rollout and UK catalogue activation — 4 November 2026
 
