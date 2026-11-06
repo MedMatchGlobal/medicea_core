@@ -13,9 +13,10 @@ export async function POST(req: Request) {
    if(error)return Response.json({error:'CODE_REQUEST_UNAVAILABLE'},{status:429});
    return Response.json({ok:true});
   }
-  if(body.action==='verify'&&typeof body.code==='string'&&/^\d{6,8}$/.test(body.code)) {
-   const {error}=await client.auth.verifyOtp({email:body.email,token:body.code,type:'email'});
-   if(error)return Response.json({error:'INVALID_CODE'},{status:401});
+  if(body.action==='verify') {
+   if(typeof body.code!=='string'||!/^\d{6,8}$/.test(body.code.trim()))return Response.json({error:'INVALID_CODE'},{status:401});
+   const {data,error}=await client.auth.verifyOtp({email:body.email,token:body.code.trim(),type:'email'});
+   if(error||!data?.session||!data?.user)return Response.json({error:'INVALID_CODE'},{status:401});
    return Response.json({ok:true});
   }
   return Response.json({error:'INVALID_REQUEST'},{status:400});

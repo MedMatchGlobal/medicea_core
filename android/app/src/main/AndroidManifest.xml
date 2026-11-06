@@ -35,6 +35,7 @@
         </provider>
     </application>
 
+    <uses-permission android:name="com.android.vending.BILLING" />
     <!-- Permissions -->
 
     <uses-permission android:name="android.permission.INTERNET" />

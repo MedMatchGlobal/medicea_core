@@ -2,12 +2,37 @@ const test=require('node:test'),assert=require('node:assert/strict'),fs=require(
 function load(file,imports={},env={STRIPE_WEBHOOK_SECRET:'whsec_fictional_fixture'}) {
  const module={exports:{}};
  const code=ts.transpileModule(fs.readFileSync(file,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText;
- vm.runInNewContext(code,{module,exports:module.exports,require:name=>imports[name]||(name.startsWith('.')?load(path.resolve(path.dirname(file),name+'.ts'),imports,env):require(name)),process:{env},Request,Response,Buffer,URL,Date});
+ vm.runInNewContext(code,{module,exports:module.exports,require:name=>imports[name]||(name==='@/lib/membership/access-policy'?load('lib/membership/access-policy.ts',imports,env):name.startsWith('.')?load(path.resolve(path.dirname(file),name+'.ts'),imports,env):require(name)),process:{env},Request,Response,Buffer,URL,Date});
  return module.exports;
 }
 const request=body=>new Request('https://preview.example/api',{method:'POST',headers:{origin:'https://preview.example','content-type':'application/json'},body:JSON.stringify(body)});
 const input={drugName:'Origin medicine',originCountry:'Italy',targetCountry:'United Kingdom',mode:'international',lang:'en'};
 const matches={originProfile:{active_ingredients:[{name:'Example',strength:'5 mg'}]},equivalentResults:{raw_text:'1. Medicine A\n2. Medicine B\n3. Medicine C\n4. Medicine D\n5. Medicine E'}};
+test('Play-only search signing uses an independent key and fails closed for invalid configuration',()=>{
+ const env={MEDICEA_SEARCH_ACCESS_SECRET:'fixture_search_key_0123456789abcdef'};
+ const grants=load('lib/membership/search-grant.ts',{},env);
+ const token=grants.issueSearchGrant('member',input,matches);
+ const followup={drugName:'Medicine A',originCountry:'United Kingdom'};
+ assert.equal(grants.allowsSearchFollowup(token,'member','leaflet',followup),true);
+ assert.equal(grants.allowsSearchFollowup(token,'other','leaflet',followup),false);
+ const rotated=load('lib/membership/search-grant.ts',{}, {MEDICEA_SEARCH_ACCESS_SECRET:'fixture_rotated_key_0123456789abcdef'});
+ assert.equal(rotated.allowsSearchFollowup(token,'member','leaflet',followup),false);
+ for(const invalid of ['', 'too-short', ' '+env.MEDICEA_SEARCH_ACCESS_SECRET]) {
+  assert.throws(()=>load('lib/membership/search-grant.ts',{}, {MEDICEA_SEARCH_ACCESS_SECRET:invalid,STRIPE_WEBHOOK_SECRET:'whsec_fixture'}).searchGrantConfigured());
+ }
+ assert.throws(()=>load('lib/membership/search-grant.ts',{},{}).searchGrantConfigured());
+ const legacy=load('lib/membership/search-grant.ts',{}, {STRIPE_WEBHOOK_SECRET:'whsec_fixture'});
+ const legacyToken=legacy.issueSearchGrant('member',input,matches);
+ assert.equal(legacy.allowsSearchFollowup(legacyToken,'member','leaflet',followup),true);
+ assert.equal(grants.allowsSearchFollowup(legacyToken,'member','leaflet',followup),false);
+ const play=load('lib/membership/search-grant.ts',{}, {GOOGLE_PLAY_ACCOUNT_SECRET:'fixture_play_account_0123456789abcdef'});
+ const playToken=play.issueSearchGrant('member',input,matches);
+ assert.equal(play.allowsSearchFollowup(playToken,'member','leaflet',followup),true);
+ assert.equal(grants.allowsSearchFollowup(playToken,'member','leaflet',followup),false);
+ const compatible=load('lib/membership/search-grant.ts',{}, {STRIPE_WEBHOOK_SECRET:'whsec_fixture',GOOGLE_PLAY_ACCOUNT_SECRET:'fixture_play_account_0123456789abcdef'});
+ assert.equal(compatible.allowsSearchFollowup(legacyToken,'member','leaflet',followup),true);
+ assert.throws(()=>load('lib/membership/search-grant.ts',{}, {GOOGLE_PLAY_ACCOUNT_SECRET:'short'}).searchGrantConfigured());
+});
 function meter(state={enabled:true,user:'member',allowed:true}) {
  const calls={reserve:0,finish:[],provider:0};
  const imports={'./config':{membershipPreviewEnabled:()=>state.enabled,sameOrigin:()=>true},'./auth':{membershipUser:async()=>state.user?{id:state.user}:null},'./store':{

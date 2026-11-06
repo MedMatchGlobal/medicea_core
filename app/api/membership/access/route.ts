@@ -1,3 +1,4 @@
+import {isAccessModule} from '@/lib/membership/access-policy';
 import {membershipPreviewEnabled,sameOrigin} from '@/lib/membership/config';
 import {membershipUser} from '@/lib/membership/auth';
 import {membershipStatus} from '@/lib/membership/store';
@@ -8,9 +9,12 @@ export async function POST(req:Request) {
  try {
   if(!sameOrigin(req))return reply('INVALID_ORIGIN',403);
   const user=await membershipUser();if(!user)return reply('SIGN_IN_REQUIRED',401);
-  const s=await membershipStatus(user.id);
+  const input=await req.json().catch(()=>null);const module=input?.module??'medicine';
+  if(!isAccessModule(module)||module==='portal')return reply('INVALID_MODULE',400);
+  const s=await membershipStatus(user.id,user.email,module);
   if(s.reserved>=3)return reply('TOO_MANY_CONCURRENT_REQUESTS',429);
   if(s.premium)return Response.json({allowed:true});
+  if(s.moduleGranted)return s.moduleRemaining===null||s.moduleRemaining>0?Response.json({allowed:true}):reply('MONTHLY_LIMIT',429);
   if(s.trialAvailable&&s.trialUsed+(s.trialReserved||0)<s.trialLimit)return Response.json({allowed:true});
   if(s.trialAvailable&&(s.trialReserved||0)>0)return reply('TRIAL_REQUESTS_PENDING',429);
   if(s.used+(s.freeReserved||0)<s.limit)return Response.json({allowed:true});

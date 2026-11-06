@@ -8,7 +8,7 @@ export async function POST(req:Request) {
  try {
   if(!sameOrigin(req))return Response.json({error:'INVALID_ORIGIN'},{status:403});
   const user=await membershipUser();if(!user)return Response.json({error:'SIGN_IN_REQUIRED'},{status:401});
-  if((await membershipStatus(user.id)).premium)return Response.json({error:'ALREADY_SUBSCRIBED'},{status:409});
+  if((await membershipStatus(user.id,user.email)).premium)return Response.json({error:'ALREADY_SUBSCRIBED'},{status:409});
   const body=await req.json();const requestedPlan:unknown=body?.plan;if(!isPersonalPlan(requestedPlan))return Response.json({error:'INVALID_PLAN'},{status:400});
   const plan=requestedPlan;
   const price=await validatePrice(plan);

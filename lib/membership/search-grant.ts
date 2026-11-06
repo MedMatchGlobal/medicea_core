@@ -1,9 +1,15 @@
 import {createHmac,timingSafeEqual} from 'node:crypto';
 type Grant={version:1;member:string;kind:'leaflet'|'information';medicines:{name:string;country:string}[]};
 function key() {
- const secret=process.env.STRIPE_WEBHOOK_SECRET;
- if(!secret?.startsWith('whsec_'))throw Error('Search access signing is not configured');
- // Separate purpose from Stripe signatures; the provider secret is never sent to clients.
+ const dedicated=process.env.MEDICEA_SEARCH_ACCESS_SECRET;
+ // Preserve existing Stripe preview permissions until an explicit key migration.
+ // An invalid explicit key must fail closed rather than silently fall back.
+ const legacy=process.env.STRIPE_WEBHOOK_SECRET;
+ const secret=dedicated??legacy??process.env.GOOGLE_PLAY_ACCOUNT_SECRET;
+ const usingLegacy=dedicated===undefined&&legacy!==undefined;
+ if(!secret || (usingLegacy?!secret.startsWith('whsec_'):secret.trim()!==secret||secret.length<32))
+  throw Error('Search access signing is not configured');
+ // Purpose-derived server key; neither secret is sent to clients.
  return createHmac('sha256',secret).update('medicea-completed-search-leaflets-v1').digest();
 }
 export function searchGrantConfigured(){key();}

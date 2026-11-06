@@ -110,7 +110,7 @@ export default function SymptomTriage() {
     const text = input.trim();
     if (!text || loading || checkingAccess) return;
     setCheckingAccess(true);
-    try {await checkMembershipAccess(membershipEnabled);}catch{return;}finally{setCheckingAccess(false);}
+    try {await checkMembershipAccess(membershipEnabled,'health');}catch{return;}finally{setCheckingAccess(false);}
 
     const userMsg: Msg = { id: crypto.randomUUID(), role: 'user', text };
     setMessages((prev) => [...prev, userMsg]);

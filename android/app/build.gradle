@@ -8,8 +8,10 @@ android {
         applicationId "global.medicea.app"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 4          // any integer higher than last upload
-        versionName "1.0.0"    // free text, doesn’t affect runtime
+        // Candidate 16 follows the newest prepared wrapper bundle (15). Verify against
+        // Play before upload; a later candidate can override -PmediceaVersionCode.
+        versionCode providers.gradleProperty('mediceaVersionCode').getOrElse('16').toInteger()
+        versionName "1.0.1"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
         aaptOptions {
@@ -21,19 +23,26 @@ android {
 
     // ⬇️ ADD THIS BLOCK ⬇️
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_17
-        targetCompatibility JavaVersion.VERSION_17
+        sourceCompatibility JavaVersion.VERSION_21
+        targetCompatibility JavaVersion.VERSION_21
     }
 
     // ⬆️ ADD THIS BLOCK ⬆️
 
+    def signingReady = ['MEDICEA_KEYSTORE_PATH','MEDICEA_KEYSTORE_PASSWORD','MEDICEA_KEY_ALIAS','MEDICEA_KEY_PASSWORD'].every { System.getenv(it) }
     signingConfigs {
         release {
-            // Keystore will live next to this build.gradle in android/app
-            storeFile file("medicea-release-key.jks")
-            storePassword "Gi@nni1011"   // <-- replace
-            keyAlias "medicea"                    // <-- must match the alias you choose
-            keyPassword "Gi@nni1011"       // <-- replace
+            if (signingReady) {
+                storeFile file(System.getenv('MEDICEA_KEYSTORE_PATH'))
+                storePassword System.getenv('MEDICEA_KEYSTORE_PASSWORD')
+                keyAlias System.getenv('MEDICEA_KEY_ALIAS')
+                keyPassword System.getenv('MEDICEA_KEY_PASSWORD')
+            }
+        }
+    }
+    gradle.taskGraph.whenReady { graph ->
+        if (graph.allTasks.any { it.name.toLowerCase().contains('release') } && !signingReady) {
+            throw new GradleException('Release signing environment is not configured')
         }
     }
 
@@ -58,6 +67,7 @@ repositories {
 }
 
 dependencies {
+    implementation "com.android.billingclient:billing:9.1.0"
     implementation fileTree(include: ['*.jar'], dir: 'libs')
 
     implementation "androidx.appcompat:appcompat:$androidxAppCompatVersion"
