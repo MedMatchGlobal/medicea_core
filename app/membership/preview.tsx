@@ -5,11 +5,12 @@ import {PERSONAL_PLANS,type PersonalPlan} from '@/lib/membership/config';
 import styles from './membership.module.css';
 import {useSearchReturn} from '../components/MembershipAccess';
 import MembershipFooter from '../components/MembershipFooter';
-import MediceaBrand from '../components/MediceaBrand';
+import {useLanguage} from '../LanguageProvider';
 import LanguageButton from '../components/LanguageButton';
 import {useMembershipCopy,MembershipText,membershipText,type MembershipKey} from '../i18n/membership';
 export default function MembershipPreview(){
  const {copy,lang,dir}=useMembershipCopy();
+ const {t}=useLanguage();
  const [email,setEmail]=useState(''),[code,setCode]=useState(''),[status,setStatus]=useState<any>(null),[message,setMessage]=useState<MembershipKey|null>(null),[busy,setBusy]=useState(false),[native,setNative]=useState(true);
  const returnHref=useSearchReturn();
  const accessOptions=useRef<HTMLHeadingElement>(null),refreshVersion=useRef(0);
@@ -52,7 +53,7 @@ export default function MembershipPreview(){
  {signedIn?<div className={styles.actions}>{!native&&(status.premium?<button className={styles.primary} disabled={busy} onClick={()=>run('portal',{})}>{copy.manage}</button>:<button className={styles.primary} disabled={busy} onClick={upgrade}>{copy.upgrade}</button>)}{returnHref&&<a className={styles.continueLink} href={returnHref}>{copy.continueSearch} {dir==='rtl'?'←':'→'}</a>}<button className={styles.secondary} disabled={busy} onClick={()=>run('auth',{action:'signout'})}>{copy.signOut}</button></div>:status===null?<p role="status">{message?copy.accountUnavailable:copy.loadingAccount}</p>:<div className={styles.auth}><form onSubmit={e=>{e.preventDefault();run('auth',{action:'send',email});}}><label>{copy.email}<input type="email" required value={email} onChange={e=>setEmail(e.target.value)} autoComplete="email" placeholder={copy.emailPlaceholder}/></label><button className={styles.primary} disabled={busy||!email}>{copy.emailCode}</button></form><form onSubmit={e=>{e.preventDefault();run('auth',{action:'verify',email,code});}}><label>{copy.code}<input required value={code} onChange={e=>setCode(e.target.value)} inputMode="numeric" autoComplete="one-time-code" placeholder={copy.codePlaceholder}/></label><button className={styles.secondary} disabled={busy||!email||!code}>{copy.verify}</button></form></div>}
  </section>
  <div className={styles.feedback}><p role="status" aria-live="polite">{busy?copy.working:message?copy[message]:''}</p>{status===null&&message&&<button className={styles.secondary} disabled={busy} onClick={()=>refresh().then(()=>setMessage(null)).catch(()=>setMessage('accountError'))}>{copy.tryAgain}</button>}</div>
- <section className={`${styles.hero} ${status?.premium?styles.heroPaid:''}`}><div><p className={styles.productName}><bdi dir="ltr"><MediceaBrand/><strong>GO</strong></bdi> <small>{copy.personal}</small></p><h1><MembershipText text={copy.headline}/></h1><p className={styles.intro}>{copy.intro}</p></div>
+ <section className={`${styles.hero} ${status?.premium?styles.heroPaid:''}`}><div><p className={styles.productName}>{t?.ui?.travelCompanion||'Your medicine companion'}</p><h1>{t?.ui?.modernHeadline||'Your medicine, wherever you are.'}</h1></div>
  {!status?.premium&&<aside className={styles.welcome}><h2>{copy.welcomeHeading}</h2><p>{copy.welcomeSummary}</p><p className={styles.small}>{copy.welcomeSeparate}</p><details><summary>{copy.welcomeDetailsHeading}</summary><p className={styles.small}>{copy.welcomeDetails}</p></details></aside>}</section>
  {!native&&<section className={styles.options} aria-labelledby="personal-access"><h2 id="personal-access" ref={accessOptions} tabIndex={-1}>{copy.travelHeading}</h2><p className={styles.sectionIntro}>{copy.travelIntro}</p>
  <div className={styles.travelPlans}>{planCard('pass7',copy.pass7,copy.duration7,copy.ends7)}{planCard('pass14',copy.pass14,copy.duration14,copy.ends14)}{planCard('pass30',copy.pass30,copy.duration30,copy.ends30)}</div>
