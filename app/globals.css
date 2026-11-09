@@ -712,3 +712,8 @@ body { padding-bottom: calc(76px + env(safe-area-inset-bottom, 0px)); }
 .emergency-dialog .emergency-consent { font-size: .88rem; color: #526578; margin-top: 22px; }
 .emergency-dialog .emergency-close { display: block; margin-inline-start: auto; }
 @media (max-width: 480px) { .emergency-dialog { padding: 20px; } }
+/* Preserve the human-module tints independently of billing preview flags. */
+.medicea-shell:not(.pet-theme) .search-area { background:#f5f8ff; border-color:#dce5f5; }
+.medicea-shell:not(.pet-theme) :is(.medicine-tools,.care-section) { background:#fff3f4; border-color:#eed8dd; }
+.medicea-shell:not(.pet-theme) :is(.medicine-tools,.care-section) .tool-icon { background:#fbe5e9; color:#9e4559; }
+.medicea-shell:not(.pet-theme) :is(.tool-card,.care-card).is-active { background:#fff7f8; border-color:#ce9baa; }
