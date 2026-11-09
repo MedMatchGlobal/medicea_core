@@ -1,6 +1,10 @@
 {
   "langName": "Čeština",
   "ui": {
+    "btnLaboratory": "Krevní testy a zdravotnické laboratoře",
+    "btnImaging": "Zobrazovací diagnostika",
+    "btnPhysiotherapy": "Fyzioterapie",
+    "emergencyButton": "Tísňová pomoc",
     "medicineDetails": "Podrobnosti o léku",
     "searchCountry": "Hledat země",
     "allRegions": "Všechny kontinenty",
