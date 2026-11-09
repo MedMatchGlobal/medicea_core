@@ -1,6 +1,10 @@
 {
   "langName": "Afrikaans",
   "ui": {
+    "btnLaboratory": "Bloedtoetse en mediese laboratoriums",
+    "btnImaging": "Diagnostiese beelding",
+    "btnPhysiotherapy": "Fisioterapie",
+    "emergencyButton": "Noodgeval",
     "medicineDetails": "Medisynebesonderhede",
     "searchCountry": "Soek lande",
     "allRegions": "Alle vastelande",

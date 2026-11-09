@@ -1,6 +1,10 @@
 {
   "langName": "Română",
   "ui": {
+    "btnLaboratory": "Analize de sânge și laboratoare medicale",
+    "btnImaging": "Imagistică medicală",
+    "btnPhysiotherapy": "Fizioterapie",
+    "emergencyButton": "Urgență",
     "medicineDetails": "Detalii despre medicament",
     "searchCountry": "Caută țări",
     "allRegions": "Toate continentele",

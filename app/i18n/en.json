@@ -1,6 +1,10 @@
 {
   "langName": "English",
   "ui": {
+    "btnLaboratory": "Blood tests & medical labs",
+    "btnImaging": "Diagnostic imaging",
+    "btnPhysiotherapy": "Physiotherapy",
+    "emergencyButton": "Emergency",
     "medicineDetails": "Medicine details",
     "searchCountry": "Search countries",
     "allRegions": "All continents",
