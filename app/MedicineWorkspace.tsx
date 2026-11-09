@@ -41,7 +41,7 @@ import { conditionAdditions } from '../data/condition-additions';
 import { searchFeedback } from './i18n/search-feedback';
 import { careSearchQuery, isCareMode } from './lib/care-search';
 import SymptomTriage from './components/SymptomTriage';
-import {useMembershipPreview} from './components/MembershipAccess';
+import {useMembershipPreview,useAccountHref} from './components/MembershipAccess';
 import MembershipFooter from './components/MembershipFooter';
 import {useMembershipCopy} from './i18n/membership';
 import {membershipFetch,checkMembershipAccess,MembershipAccessError,SAVE_DRAFT_EVENT,storeSearchDraft,takeSearchDraft,rememberSearchReturn} from './lib/membership-client';
@@ -398,6 +398,7 @@ function boldConditionHeadings(raw: string) {
 
 function Home({ petMode = false }: { petMode?: boolean }) {
   const membershipEnabled=useMembershipPreview();
+  const accountHref=useAccountHref();
   const {copy:membershipCopy}=useMembershipCopy();
   // localized group labels for condition groups
   const [groupLabels, setGroupLabels] = useState<Record<string, string>>({});
@@ -1115,10 +1116,10 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
   /* -------------------------- RENDER -------------------------- */
 
   return (
-    <main key={lang} className={`medicea-shell flow-${screen}${membershipEnabled ? " membership-preview" : ""}${petMode ? " pet-theme" : ""}${pharmacyOpen ? " pharmacy-trip-active" : ""}`} dir={isRTL(lang) ? 'rtl' : 'ltr'}>
+    <main key={lang} className={`medicea-shell flow-${screen}${accountHref ? " membership-preview" : ""}${petMode ? " pet-theme" : ""}${pharmacyOpen ? " pharmacy-trip-active" : ""}`} dir={isRTL(lang) ? 'rtl' : 'ltr'}>
       <header className="site-header">
         <Link className="brand-link" href="/" aria-label="medicea home"><img src="/logo.png" alt="medicéa" /></Link>
-        {membershipEnabled&&<Link className="header-account" href="/membership" onClick={()=>rememberSearchReturn()}>{membershipCopy.account}</Link>}
+        {accountHref&&<Link className="header-account" href={accountHref} onClick={()=>rememberSearchReturn()}>{membershipCopy.account}</Link>}
         <nav className="header-nav" aria-label="Main navigation">
           <Link href="/" aria-current={!pharmacyOpen && !petMode && activeSection === 'search' ? 'page' : undefined} onClick={petMode ? undefined : (event) => {event.preventDefault(); setActiveSection('search'); resetFieldsForMode('international');}}>{F(ui, 'findMedicine', 'Find a medicine')}</Link>
           <Link href="/?section=tools" aria-current={!pharmacyOpen && !petMode && activeSection === 'tools' ? 'page' : undefined} onClick={petMode ? undefined : (event) => {event.preventDefault(); showScreen('tools');}}>{F(ui, 'medicineTools', 'Health tools')}</Link>
@@ -1533,6 +1534,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
 
                     {showLF && leafletText && (
                       <div
+                        className="human-leaflet-content"
                         style={{
                           background: '#f6f9ff',
                           border: '1px solid #e5e7eb',

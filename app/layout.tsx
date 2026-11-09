@@ -52,7 +52,7 @@ export default function RootLayout({
         <Suspense fallback={null}>
           <GATracker />
         </Suspense>
-        <LanguageProvider><MembershipAccess enabled={membershipPreviewEnabled()}>{children}</MembershipAccess><EmergencyHelp /></LanguageProvider>
+        <LanguageProvider><MembershipAccess enabled={membershipPreviewEnabled()} accountHref={process.env.VERCEL_ENV==='preview'&&process.env.VERCEL_GIT_COMMIT_REF==='design/riviera-one-page'?'https://medicea-core-git-feature-google-17fe5b-medmatchglobals-projects.vercel.app/membership':undefined}>{children}</MembershipAccess><EmergencyHelp /></LanguageProvider>
       </body>
     </html>
   );

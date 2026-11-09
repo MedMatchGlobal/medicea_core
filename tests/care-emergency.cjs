@@ -48,3 +48,41 @@ test('new care labels exist in every supported language',()=>{
   for(const key of ['btnLaboratory','btnImaging','btnPhysiotherapy','emergencyButton'])assert.ok(ui[key]?.trim(),lang+key);
  }
 });
+
+test('device coordinates retain reported accuracy and IP fallback requests no coordinates',async()=>{
+ const location=await emergency.currentEmergencyLocation(geo({latitude:44,longitude:10,accuracy:12}));
+ assert.equal(location.accuracy,12);
+ const code=await emergency.lookupEmergencyCountry(async(url,options)=>{
+  const params=new URL(url).searchParams;
+  assert.equal(params.has('latitude'),false);assert.equal(params.has('longitude'),false);
+  assert.equal(options.credentials,'omit');return{ok:true,json:async()=>({countryCode:'GB'})};
+ },null);
+ assert.equal(code,'GB');
+ const controller=new AbortController();controller.abort();
+ await assert.rejects(()=>emergency.lookupEmergencyCountry(()=>assert.fail('Cancelled lookup called provider'),null,controller.signal));
+});
+
+function addressRoute(key,request){
+ const module={exports:{}};
+ const js=ts.transpileModule(fs.readFileSync('app/api/emergency/address/route.ts','utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2020}}).outputText;
+ vm.runInNewContext(js,{module,exports:module.exports,URL,URLSearchParams,AbortSignal,process:{env:{SOS_GEOCODING_API_KEY:key}},fetch:request,require:()=>({NextResponse:{json:(data,options)=>({data,...options})}})});
+ return module.exports.POST;
+}
+const addressRequest=(body,origin='https://example.test')=>new Request('https://example.test/api/emergency/address',{method:'POST',headers:{origin},body:JSON.stringify(body)});
+test('street lookup rejects foreign origins and invalid coordinates before contacting provider',async()=>{
+ const post=addressRoute('test-key',()=>assert.fail('Must not call provider'));
+ assert.equal((await post(addressRequest({latitude:44,longitude:10},'https://other.test'))).status,403);
+ for(const body of [{latitude:91,longitude:0},{latitude:0,longitude:181},{latitude:'44',longitude:10},{}])assert.equal((await post(addressRequest(body))).status,400);
+});
+test('street lookup without configuration has an honest unavailable fallback',async()=>{
+ const result=await addressRoute(undefined,()=>assert.fail('No key must mean no request'))(addressRequest({latitude:44,longitude:10}));
+ assert.equal(result.data.address,null);assert.equal(result.headers['Cache-Control'],'no-store');
+});
+test('street lookup returns only the address, keeps provider credentials server-side and handles outages',async()=>{
+ const result=await addressRoute('test-key',async(url,options)=>{
+  const parsed=new URL(url);assert.equal(parsed.hostname,'maps.googleapis.com');assert.equal(parsed.searchParams.get('latlng'),'44,10');assert.equal(options.cache,'no-store');
+  return{ok:true,json:async()=>({status:'OK',results:[{formatted_address:'Example street'}]})};
+ })(addressRequest({latitude:44,longitude:10}));
+ assert.equal(result.data.address,'Example street');assert.doesNotMatch(JSON.stringify(result),/test-key/);
+ assert.equal((await addressRoute('test-key',async()=>{throw Error('Offline');})(addressRequest({latitude:44,longitude:10}))).data.address,null);
+});

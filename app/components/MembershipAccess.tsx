@@ -5,8 +5,10 @@ import {ACCESS_EVENT,RETURN_KEY,membershipReturnHref,rememberSearchReturn} from 
 import styles from './MembershipAccess.module.css';
 import {useMembershipCopy} from '../i18n/membership';
 const MembershipContext=createContext(false);
+const AccountContext=createContext<string|null>(null);
+export const useAccountHref=()=>useContext(AccountContext);
 export const useMembershipPreview=()=>useContext(MembershipContext);
-export default function MembershipAccess({enabled,children}:{enabled:boolean;children:React.ReactNode}) {
+export default function MembershipAccess({enabled,accountHref,children}:{enabled:boolean;accountHref?:string;children:React.ReactNode}) {
  const [reason,setReason]=useState<string|null>(null);
  const {copy,dir}=useMembershipCopy();
  const lastFocus=useRef<HTMLElement|null>(null);
@@ -19,7 +21,7 @@ export default function MembershipAccess({enabled,children}:{enabled:boolean;chi
  const title=reason==='SIGN_IN_REQUIRED'?copy.signInDialogTitle:reason==='MONTHLY_LIMIT'?copy.limitDialogTitle:reason==='SEARCH_ACCESS_INVALID'?copy.invalidDialogTitle:copy.temporaryDialogTitle;
  const text=reason==='SIGN_IN_REQUIRED'?copy.signInDialogText:reason==='MONTHLY_LIMIT'?copy.limitDialogText:reason==='SEARCH_ACCESS_INVALID'?copy.invalidDialogText:reason==='SEARCH_UNAVAILABLE'?copy.unavailableDialogText:reason==='INVALID_ORIGIN'?copy.originDialogText:copy.pendingDialogText;
  function account(){rememberSearchReturn();setReason(null);window.location.assign('/membership');}
- return <MembershipContext.Provider value={enabled}>{children}<Dialog.Root open={!!reason} onOpenChange={open=>{if(!open)setReason(null);}}><Dialog.Portal><Dialog.Overlay className={styles.overlay}/><Dialog.Content dir={dir} className={styles.dialog} onCloseAutoFocus={event=>{event.preventDefault();lastFocus.current?.focus();}}><Dialog.Title className={styles.title}>{title}</Dialog.Title><Dialog.Description className={styles.description}>{text}</Dialog.Description><div className={styles.actions}>{!temporary&&<button className={styles.primary} onClick={account}>{copy.viewAccount}</button>}<Dialog.Close className={styles.secondary}>{temporary?copy.close:copy.notNow}</Dialog.Close></div></Dialog.Content></Dialog.Portal></Dialog.Root></MembershipContext.Provider>;
+ return <MembershipContext.Provider value={enabled}><AccountContext.Provider value={enabled?'/membership':accountHref||null}>{children}</AccountContext.Provider><Dialog.Root open={!!reason} onOpenChange={open=>{if(!open)setReason(null);}}><Dialog.Portal><Dialog.Overlay className={styles.overlay}/><Dialog.Content dir={dir} className={styles.dialog} onCloseAutoFocus={event=>{event.preventDefault();lastFocus.current?.focus();}}><Dialog.Title className={styles.title}>{title}</Dialog.Title><Dialog.Description className={styles.description}>{text}</Dialog.Description><div className={styles.actions}>{!temporary&&<button className={styles.primary} onClick={account}>{copy.viewAccount}</button>}<Dialog.Close className={styles.secondary}>{temporary?copy.close:copy.notNow}</Dialog.Close></div></Dialog.Content></Dialog.Portal></Dialog.Root></MembershipContext.Provider>;
 }
 export function useSearchReturn() {
  const [href,setHref]=useState<string|null>(null);

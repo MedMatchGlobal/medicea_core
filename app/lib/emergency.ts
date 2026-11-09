@@ -11,35 +11,41 @@ export const EMERGENCY_COUNTRIES = [...EU, 'GB','US','CA','AU'];
 export function emergencyNumber(country: string): string | null {
   const code = country.toUpperCase();
   if (EU.includes(code)) return '112';
-  return ({GB:'999',US:'911',CA:'911',AU:'000'} as Record<string,string>)[code] || null;
+  const numbers:Record<string,string>={GB:'999',US:'911',CA:'911',AU:'000'};
+  return Object.prototype.hasOwnProperty.call(numbers,code)?numbers[code]:null;
 }
 export function emergencySource(country: string) {
   const code = country.toUpperCase();
   return EU.includes(code) ? EMERGENCY_SOURCES.eu : EMERGENCY_SOURCES[code as 'GB'|'US'|'CA'|'AU'];
 }
 
-/** Explicit consent is collected by the UI before this function is called.
- * Live GPS only: no IP fallback, saved coordinates, application server or logging.
- * Dependencies are injectable so tests never request a real location or call a service.
+export type EmergencyLocation = {latitude:number;longitude:number;accuracy:number|null};
+export async function currentEmergencyLocation(geolocation:Pick<Geolocation,'getCurrentPosition'>,signal?:AbortSignal):Promise<EmergencyLocation> {
+ if(signal?.aborted)throw Error('Cancelled');
+ const coords=await new Promise<GeolocationCoordinates>((resolve,reject)=>{
+  const aborted=()=>reject(Error('Cancelled'));
+  signal?.addEventListener('abort',aborted,{once:true});
+  geolocation.getCurrentPosition(p=>{signal?.removeEventListener('abort',aborted);resolve(p.coords);},e=>{signal?.removeEventListener('abort',aborted);reject(e);},{enableHighAccuracy:true,maximumAge:0,timeout:6000});
+ });
+ if(signal?.aborted)throw Error('Cancelled');
+ if(!Number.isFinite(coords.latitude)||!Number.isFinite(coords.longitude)||Math.abs(coords.latitude)>90||Math.abs(coords.longitude)>180)throw Error('Invalid location');
+ return {latitude:coords.latitude,longitude:coords.longitude,accuracy:Number.isFinite(coords.accuracy)&&coords.accuracy>=0?coords.accuracy:null};
+}
+/** Called only after the SOS dialog explains GPS/IP lookup and the user chooses Locate.
+ * No coordinates means an explicitly labelled IP-country suggestion, never a street fix.
  */
-export async function detectEmergencyCountry(
-  geolocation: Pick<Geolocation,'getCurrentPosition'>,
-  request: typeof fetch,
-  signal?: AbortSignal,
-): Promise<string> {
-  if (signal?.aborted) throw new Error('Cancelled');
-  const coords = await new Promise<GeolocationCoordinates>((resolve,reject) => {
-    geolocation.getCurrentPosition(position => resolve(position.coords),reject,
-      {enableHighAccuracy:false,maximumAge:0,timeout:6000});
-  });
-  if (signal?.aborted) throw new Error('Cancelled');
-  if (!Number.isFinite(coords.latitude) || !Number.isFinite(coords.longitude) ||
-      Math.abs(coords.latitude)>90 || Math.abs(coords.longitude)>180) throw new Error('Invalid location');
-  const params = new URLSearchParams({latitude:String(coords.latitude),longitude:String(coords.longitude),localityLanguage:'en'});
-  const response = await request(`https://api.bigdatacloud.net/data/reverse-geocode-client?${params}`,
-    {signal,credentials:'omit',referrerPolicy:'no-referrer',cache:'no-store'});
-  if (!response.ok) throw new Error('Location unavailable');
-  const result = await response.json();
-  if (typeof result.countryCode !== 'string' || !/^[A-Z]{2}$/.test(result.countryCode)) throw new Error('Unknown country');
-  return result.countryCode;
+export async function lookupEmergencyCountry(request:typeof fetch,coords:EmergencyLocation|null,signal?:AbortSignal):Promise<string> {
+ if(signal?.aborted)throw Error('Cancelled');
+ const params=new URLSearchParams({localityLanguage:'en'});
+ if(coords){params.set('latitude',String(coords.latitude));params.set('longitude',String(coords.longitude));}
+ const response=await request(`https://api.bigdatacloud.net/data/reverse-geocode-client?${params}`,{signal,credentials:'omit',referrerPolicy:'no-referrer',cache:'no-store'});
+ if(!response.ok)throw Error('Location unavailable');
+ const result=await response.json();
+ if(signal?.aborted)throw Error('Cancelled');
+ if(typeof result.countryCode!=='string'||!/^[A-Z]{2}$/.test(result.countryCode))throw Error('Unknown country');
+ return result.countryCode;
+}
+// Retain the explicit GPS-only entry point for callers that have not opted into IP fallback.
+export async function detectEmergencyCountry(geolocation:Pick<Geolocation,'getCurrentPosition'>,request:typeof fetch,signal?:AbortSignal):Promise<string> {
+ return lookupEmergencyCountry(request,await currentEmergencyLocation(geolocation,signal),signal);
 }
