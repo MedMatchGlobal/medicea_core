@@ -22,7 +22,7 @@ const IT: typeof EN = {
   call:'Chiama', source:'Informazioni ufficiali sul numero', close:'Chiudi', unknown:'Non abbiamo un numero verificato per questo paese. Usa la chiamata di emergenza / SOS del telefono o chiedi il numero locale a qualcuno vicino a te.',
 };
 export default function EmergencyHelp() {
-  const {lang,t}=useLanguage(); const c=lang==='it'?IT:EN;
+  const {lang}=useLanguage(); const c=lang==='it'?IT:EN;
   const [open,setOpen]=useState(false),[country,setCountry]=useState(''),[busy,setBusy]=useState(false),[error,setError]=useState(false);
   const pending=useRef<AbortController|null>(null);
   useEffect(()=>()=>pending.current?.abort(),[]);
@@ -43,7 +43,7 @@ export default function EmergencyHelp() {
     finally{clearTimeout(timer);if(pending.current===controller){pending.current=null;setBusy(false);}}
   }
   return <Dialog.Root open={open} onOpenChange={changeOpen}>
-    <Dialog.Trigger className="emergency-trigger"><Phone size={18} aria-hidden="true"/>{t?.ui?.emergencyButton || c.button}</Dialog.Trigger>
+    <Dialog.Trigger className="emergency-trigger" aria-label={c.title}><Phone size={18} aria-hidden="true"/>SOS</Dialog.Trigger>
     <Dialog.Portal><Dialog.Overlay className="emergency-overlay"/><Dialog.Content className="emergency-dialog" lang={lang==='it'?'it':'en'} dir="ltr">
       <Dialog.Title>{c.title}</Dialog.Title><Dialog.Description>{c.intro}</Dialog.Description>
       <label htmlFor="emergency-country">{c.country}</label>

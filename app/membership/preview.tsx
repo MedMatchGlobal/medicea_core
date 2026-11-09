@@ -57,6 +57,7 @@ export default function MembershipPreview(){
  <header className={styles.header}><a href="/" aria-label={copy.backHome}><img src="/logo.png" alt="medicéa" width="180" height="60"/></a><div className={styles.headerActions}><a className={styles.back} href="/">{dir==='rtl'?'→':'←'} {copy.backHome}</a><LanguageButton/></div></header>
  <div className={styles.previewNotice}>{copy.previewNotice}</div>
 
+
  <section className={`${styles.hero} ${status?.premium?styles.heroPaid:''}`}><div><p className={styles.productName}>{t?.ui?.travelCompanion||'Your medicine companion'}</p><h1>{t?.ui?.modernHeadline||'Your medicine, wherever you are.'}</h1></div>
  </section>
  {status&&!status.premium&&!status.moduleAccess?.length&&<aside className={styles.welcome}><div><h2>{copy.welcomeHeading}</h2><p>{copy.welcomeSummary}</p></div><details><summary>{copy.welcomeDetailsHeading}</summary><p className={styles.small}>{copy.termsWelcome}</p><p className={styles.small}>{copy.welcomeSeparate}</p><p className={styles.small}>{copy.welcomeDetails}</p></details></aside>}
