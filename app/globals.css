@@ -816,3 +816,5 @@ body { padding-bottom: calc(76px + env(safe-area-inset-bottom, 0px)); }
 .medicea-shell:not(.pet-theme) :is(.medicine-tools,.care-section) { background:#fff3f4; border-color:#eed8dd; }
 .medicea-shell:not(.pet-theme) :is(.medicine-tools,.care-section) .tool-icon { background:#fbe5e9; color:#9e4559; }
 .medicea-shell:not(.pet-theme) :is(.tool-card,.care-card).is-active { background:#fff7f8; border-color:#ce9baa; }
+
+@media(max-width:600px){.welcome-hero{background-size:auto,cover;background-position:center,center 28%}}
