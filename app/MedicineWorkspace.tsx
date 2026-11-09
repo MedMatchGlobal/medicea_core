@@ -23,7 +23,7 @@ import SavedSearches from './components/SavedSearches';
 import {SAVED_SEARCH_KEY, readSavedSearches, addSavedSearch, isSavedMode, type SavedSearch} from './lib/saved-searches';
 import {savedSearchCopy} from './i18n/saved-searches';
 import type {VeterinarySection} from './lib/veterinary-sections';
-import { ArrowRight, Search, FileText, Pill, Stethoscope, Hospital, HeartPulse, UserRound, Cross, ShieldCheck } from 'lucide-react';
+import { ArrowRight, Search, FileText, CircleDot, Building2, HeartPulse, UserRound, Cross, ShieldCheck, ArrowLeftRight, MapPin, PawPrint, FlaskConical, ScanLine, Activity } from 'lucide-react';
 import countriesByRegion from '../data/countries';
 import { useLanguage } from './LanguageProvider';
 import LanguageButton from './components/LanguageButton';
@@ -1151,13 +1151,13 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
       </div>}
       <div className="workspace-panels">
       {!petMode && screen === 'search' && !pharmacyOpen && <nav className="riviera-shortcuts" aria-label="Explore medicéa">
-        <button type="button" onClick={() => showScreen('tools')}><span className="shortcut-icon rose"><Pill size={22}/></span><span>{F(ui, 'medicineTools', 'Health tools')}</span><ArrowRight size={18}/></button>
-        <button type="button" onClick={() => showScreen('care')}><span className="shortcut-icon sage"><Hospital size={22}/></span><span>{F(ui, 'findCare', 'Find care')}</span><ArrowRight size={18}/></button>
-        <Link href="/pets"><span className="shortcut-icon ochre"><HeartPulse size={22}/></span><span>{F(ui, 'btnPets', 'Meds 4 Pets')}</span><ArrowRight size={18}/></Link>
+        <button type="button" onClick={() => showScreen('tools')}><span className="shortcut-icon rose"><HeartPulse size={22}/></span><span>{F(ui, 'medicineTools', 'Health tools')}</span><ArrowRight size={18}/></button>
+        <button type="button" onClick={() => showScreen('care')}><span className="shortcut-icon sage"><MapPin size={22}/></span><span>{F(ui, 'findCare', 'Find care')}</span><ArrowRight size={18}/></button>
+        <Link href="/pets"><span className="shortcut-icon ochre"><PawPrint size={22}/></span><span>{F(ui, 'btnPets', 'Meds 4 Pets')}</span><ArrowRight size={18}/></Link>
       </nav>}
       <div className="workspace-grid">
       <section className="search-area" id="medicine-search" tabIndex={-1} aria-labelledby="search-title">
-      <div className="section-heading"><span className="section-icon"><Search size={22} /></span><div>
+      <div className="section-heading"><span className="section-icon" aria-hidden="true">{mode === 'leaflet' ? <FileText size={22}/> : mode === 'generic' || mode === 'pet-generic' ? <CircleDot size={22}/> : mode === 'pets' ? <PawPrint size={22}/> : mode === 'international' ? <ArrowLeftRight size={22}/> : mode === 'triage' || mode === 'condition' ? <HeartPulse size={22}/> : <MapPin size={22}/>}</span><div>
         <h2 id="search-title">{mode === 'international' ? F(ui, 'findMedicine', 'Find a medicine') :
           mode === 'generic' ? F(ui, 'btnGen', 'Search Generic') :
           mode === 'leaflet' ? F(ui, 'btnLeaflet', 'Medicine Leaflet') :
@@ -1329,9 +1329,9 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
         <div className="tool-grid">
           {([
             ['leaflet', 'btnLeaflet', 'Medicine Leaflet', FileText],
-            ['generic', 'btnGen', 'Search Generic', Pill],
+            ['generic', 'btnGen', 'Search Generic', CircleDot],
             ['condition', 'btnCond', 'Search by Medical Condition', HeartPulse],
-            ['triage', 'btnTriage', 'Symptoms Triage', Stethoscope],
+            ['triage', 'btnTriage', 'Symptoms Triage', Activity],
           ] as const).map(([value, key, fallback, Icon]) => (
             <button type="button" key={value} className={`tool-card ${mode === value ? 'is-active' : ''}`}
               aria-pressed={mode === value} onClick={() => resetFieldsForMode(value)}>
@@ -1353,12 +1353,12 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
         <div className="care-grid">
           {([
             ['pharmacy', 'btnPharmacy', 'Search Pharmacy', Cross],
-            ['doctor', 'btnDoctor', 'Search Doctor', Stethoscope],
-            ['hospital', 'btnHospital', 'Search Hospital', Hospital],
+            ['doctor', 'btnDoctor', 'Search Doctor', UserRound],
+            ['hospital', 'btnHospital', 'Search Hospital', Building2],
             ['gp', 'btnGP', 'Search GP', UserRound],
-            ['laboratory', 'btnLaboratory', 'Blood tests & medical labs', Cross],
-            ['imaging', 'btnImaging', 'Diagnostic imaging', Hospital],
-            ['physiotherapy', 'btnPhysiotherapy', 'Physiotherapy', HeartPulse],
+            ['laboratory', 'btnLaboratory', 'Blood tests & medical labs', FlaskConical],
+            ['imaging', 'btnImaging', 'Diagnostic imaging', ScanLine],
+            ['physiotherapy', 'btnPhysiotherapy', 'Physiotherapy', Activity],
           ] as const).map(([value, key, fallback, Icon]) => (
             <button type="button" key={value} className={`care-card ${mode === value ? 'is-active' : ''}`}
               aria-pressed={mode === value} onClick={() => resetFieldsForMode(value)}>

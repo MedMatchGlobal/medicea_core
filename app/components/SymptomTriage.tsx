@@ -147,19 +147,19 @@ export default function SymptomTriage() {
   }
 
   return (
-    <div style={styles.wrap}>
+    <div className="triage-panel" style={styles.wrap}>
       <div style={{ fontWeight: 700, marginBottom: 8, fontSize: '1.05rem' }}>
         {tri.prompt}
       </div>
 
-      <div style={styles.card}>
+      <div className="triage-card" style={styles.card}>
         <div ref={listRef} style={styles.chat}>
           {messages.map((m) => (
             <ChatBubble key={m.id} role={m.role} text={m.text} />
           ))}
           {loading && (
             <div style={styles.row}>
-              <div style={{ ...styles.bubbleAI, opacity: 0.9 }}>
+              <div className="triage-message" style={{ ...styles.bubbleAI, opacity: 0.9 }}>
                 <span style={styles.typingDot}>●</span>
                 <span style={styles.typingDot}>●</span>
                 <span style={styles.typingDot}>●</span>
@@ -170,6 +170,7 @@ export default function SymptomTriage() {
 
         <div style={styles.inputRow}>
           <textarea
+            className="triage-input"
             ref={inputRef}
             value={input}
             onChange={(e) => setInput(e.target.value)}
@@ -179,6 +180,7 @@ export default function SymptomTriage() {
             style={styles.textarea}
           />
           <button
+            className="triage-send"
             onClick={send}
             disabled={loading || checkingAccess || !input.trim()}
             style={{
@@ -191,7 +193,7 @@ export default function SymptomTriage() {
           </button>
         </div>
 
-        <div style={styles.disclaimer}>
+        <div className="triage-disclaimer" style={styles.disclaimer}>
           <strong>{tri.disclaimerTitle}:</strong> {tri.disclaimer}
           <p>{urgentCareNotice(lang)} <a href="https://www.nhs.uk/nhs-services/urgent-and-emergency-care-services/when-to-use-111/" target="_blank" rel="noopener noreferrer">NHS 111</a></p>
         </div>
@@ -204,7 +206,7 @@ function ChatBubble({ role, text }: { role: 'user' | 'assistant'; text: string }
   const isAI = role === 'assistant';
   return (
     <div style={styles.row}>
-      <div style={isAI ? styles.bubbleAI : styles.bubbleUser}>{text}</div>
+      <div className={`triage-message${isAI ? "" : " triage-message-user"}`} style={isAI ? styles.bubbleAI : styles.bubbleUser}>{text}</div>
     </div>
   );
 }
