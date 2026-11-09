@@ -31,7 +31,7 @@
 .feedback{display:flex;align-items:center;gap:16px;margin-top:12px}
 .feedback:has(p:empty){margin-top:0}
 .feedback p{overflow-wrap:anywhere}
-.hero{display:grid;grid-template-columns:1fr 1fr;gap:32px;align-items:center;padding:30px 0}
+.hero{display:flex;align-items:center;min-height:180px;padding:22px 32px;border-radius:22px;background:linear-gradient(90deg,rgba(238,247,255,.86),rgba(238,247,255,.76) 38%,rgba(238,247,255,.08) 78%),url('/vernazza.webp') center 28%/cover;background-repeat:no-repeat;background-color:#eef7ff}
 .heroPaid{grid-template-columns:1fr;padding:26px 0}
 .productName{font-size:22px;font-weight:650;letter-spacing:-.5px;margin-bottom:10px!important}
 .productName>bdi>strong{color:#17334a;margin-inline-start:2px}

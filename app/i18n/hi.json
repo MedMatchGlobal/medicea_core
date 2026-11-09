@@ -1,6 +1,10 @@
 {
   "langName": "हिन्दी",
   "ui": {
+    "btnLaboratory": "रक्त जाँच और चिकित्सा प्रयोगशालाएँ",
+    "btnImaging": "डायग्नोस्टिक इमेजिंग",
+    "btnPhysiotherapy": "फिजियोथेरेपी",
+    "emergencyButton": "आपातकाल",
     "medicineDetails": "दवा की जानकारी",
     "searchCountry": "देश खोजें",
     "allRegions": "सभी महाद्वीप",
