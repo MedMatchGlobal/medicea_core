@@ -1,3 +1,4 @@
+import EmergencyHelp from './components/EmergencyHelp';
 import Script from "next/script";
 import { Suspense } from "react";
 import { LanguageProvider } from "./LanguageProvider";
@@ -48,7 +49,7 @@ export default function RootLayout({
         <Suspense fallback={null}>
           <GATracker />
         </Suspense>
-        <LanguageProvider>{children}</LanguageProvider>
+        <LanguageProvider>{children}<EmergencyHelp /></LanguageProvider>
       </body>
     </html>
   );

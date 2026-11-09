@@ -1,6 +1,10 @@
 {
   "langName": "中文",
   "ui": {
+    "btnLaboratory": "血液检查与医学检验机构",
+    "btnImaging": "医学影像检查",
+    "btnPhysiotherapy": "物理治疗",
+    "emergencyButton": "紧急求助",
     "medicineDetails": "药品详情",
     "searchCountry": "搜索国家",
     "allRegions": "所有大洲",

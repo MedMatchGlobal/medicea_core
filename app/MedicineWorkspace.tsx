@@ -39,7 +39,7 @@ import {petGenericsLabel} from './i18n/pet-generics';
 import {leafletActions} from './i18n/leaflet-actions';
 import { conditionAdditions } from '../data/condition-additions';
 import { searchFeedback } from './i18n/search-feedback';
-import { careSearchQuery } from './lib/care-search';
+import { careSearchQuery, isCareMode } from './lib/care-search';
 import SymptomTriage from './components/SymptomTriage';
 
 import PremiumPaywall from './components/PremiumPaywall';
@@ -565,6 +565,9 @@ function Home({ petMode = false }: { petMode?: boolean }) {
     | 'pharmacy'
     | 'gp'
     | 'hospital'
+    | 'laboratory'
+    | 'imaging'
+    | 'physiotherapy'
     | 'doctor'
     | 'triage';
 
@@ -815,7 +818,7 @@ function Home({ petMode = false }: { petMode?: boolean }) {
     if (mode === 'triage') return;
 
     /* ---------------- LOCAL SEARCH BRANCH: open Google Maps ---------------- */
-    if (mode === 'pharmacy' || mode === 'hospital' || mode === 'gp' || mode === 'doctor') {
+    if (isCareMode(mode)) {
       const addr = useGeo ? geoStr : userAddress.trim();
       if (!addr) return;
       const coords = parseCoords(addr);
@@ -1109,6 +1112,9 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
           mode === 'triage' ? F(ui, 'btnTriage', 'Symptoms Triage') :
           mode === 'pet-generic' ? petGenericsLabel(lang) :
           mode === 'pets' ? F(ui, 'btnPets', 'Meds 4 Pets') :
+          mode === 'laboratory' ? F(ui, 'btnLaboratory', 'Blood tests & medical labs') :
+          mode === 'imaging' ? F(ui, 'btnImaging', 'Diagnostic imaging') :
+          mode === 'physiotherapy' ? F(ui, 'btnPhysiotherapy', 'Physiotherapy') :
           mode === 'pharmacy' ? F(ui, 'btnPharmacy', 'Search Pharmacy') :
           mode === 'doctor' ? F(ui, 'btnDoctor', 'Search Doctor') :
           mode === 'hospital' ? F(ui, 'btnHospital', 'Search Hospital') : F(ui, 'btnGP', 'Search GP')}</h2>
@@ -1119,7 +1125,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
       {mode !== 'triage' && (
         <div className="medicine-form">
           {/* Home country */}
-          {mode !== 'condition' && mode !== 'pharmacy' && mode !== 'gp' && mode !== 'hospital' && mode !== 'doctor' && (
+          {mode !== 'condition' && !isCareMode(mode) && (
             <div>
               <div style={{ fontWeight: 600, marginBottom: 4 }}>{F(ui, 'phHome', 'Please select your Home Country')}</div>
               <CountryPicker rememberHome label={F(ui, 'phHome', 'Home country')} value={originCode} onChange={setOriginCode} searchLabel={F(ui, 'searchCountry', 'Search countries')} regionLabel={F(ui, 'allRegions', 'All continents')} emptyLabel={F(ui, 'noCountries', 'No countries found')} />
@@ -1169,7 +1175,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
           )}
 
           {/* Drug + dose */}
-          {mode !== 'condition' && mode !== 'pharmacy' && mode !== 'gp' && mode !== 'hospital' && mode !== 'doctor' && (
+          {mode !== 'condition' && !isCareMode(mode) && (
             <>
               <div>
                 <div style={{ fontWeight: 600, marginBottom: 4 }}>{F(ui, 'phMed', 'Please select/enter medicine name')}</div>
@@ -1195,7 +1201,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
           )}
 
           {/* Location flows */}
-          {(mode === 'pharmacy' || mode === 'gp' || mode === 'hospital' || mode === 'doctor') && (
+          {(isCareMode(mode)) && (
             <>
               <div>
                 <div style={{ fontWeight: 600, marginBottom: 4 }}>{F(ui, 'addressPrompt', 'Enter an address (or use device location')}</div>
@@ -1237,10 +1243,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
               (mode === 'condition' && !(selectedCondition.trim() && targetCode)) ||
               (mode === 'pets' && !(originCode && selectedDrug && targetCode)) ||
               (mode === 'pet-generic' && !(originCode && selectedDrug)) ||
-              (mode === 'pharmacy' && !(useGeo ? geoStr : userAddress.trim())) ||
-              (mode === 'gp' && !(useGeo ? geoStr : userAddress.trim())) ||
-              (mode === 'hospital' && !(useGeo ? geoStr : userAddress.trim())) ||
-              (mode === 'doctor' && !(useGeo ? geoStr : userAddress.trim()))
+              (isCareMode(mode) && !(useGeo ? geoStr : userAddress.trim()))
             }
             className={`pill pill--blue search-submit${loading ? ' pill--disabled' : ''}`}
             aria-busy={loading}
@@ -1263,7 +1266,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
               : F(ui, 'openMaps', 'Open in Google Maps')}
           <ArrowRight size={19} aria-hidden="true" />
           </button>
-          <p className="search-note"><ShieldCheck size={17} />{(mode === 'pets' || mode === 'pet-generic') ? searchFeedback(lang).petNotice : ['doctor','hospital','gp','pharmacy'].includes(mode) ? searchFeedback(lang).careNotice : F(ui, 'educationalNote', 'Medicine information is educational. Confirm suitability with a pharmacist.')}</p>
+          <p className="search-note"><ShieldCheck size={17} />{(mode === 'pets' || mode === 'pet-generic') ? searchFeedback(lang).petNotice : isCareMode(mode) ? searchFeedback(lang).careNotice : F(ui, 'educationalNote', 'Medicine information is educational. Confirm suitability with a pharmacist.')}</p>
         </div>
       )}
       {mode === 'triage' && <SymptomTriage />}
@@ -1300,6 +1303,9 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
             ['doctor', 'btnDoctor', 'Search Doctor', Stethoscope],
             ['hospital', 'btnHospital', 'Search Hospital', Hospital],
             ['gp', 'btnGP', 'Search GP', UserRound],
+            ['laboratory', 'btnLaboratory', 'Blood tests & medical labs', Cross],
+            ['imaging', 'btnImaging', 'Diagnostic imaging', Hospital],
+            ['physiotherapy', 'btnPhysiotherapy', 'Physiotherapy', HeartPulse],
           ] as const).map(([value, key, fallback, Icon]) => (
             <button type="button" key={value} className={`care-card ${mode === value ? 'is-active' : ''}`}
               aria-pressed={mode === value} onClick={() => resetFieldsForMode(value)}>
