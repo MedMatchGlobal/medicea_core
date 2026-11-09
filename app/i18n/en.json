@@ -1,6 +1,10 @@
 {
   "langName": "English",
   "ui": {
+    "btnLaboratory": "Blood tests & medical labs",
+    "btnImaging": "Diagnostic imaging",
+    "btnPhysiotherapy": "Physiotherapy",
+    "emergencyButton": "Emergency",
     "slogan": "Inspired by Panacéa, the goddess of the universal cure, medicéa® is your passport to medicine anywhere in the world — connecting people to life-saving treatments without borders is our mission.",
     "btnIntl": "International Medicine Search",
     "btnCond": "Search by Medical Condition",

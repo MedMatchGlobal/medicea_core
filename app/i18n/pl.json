@@ -1,6 +1,10 @@
 {
   "langName": "Polski",
   "ui": {
+    "btnLaboratory": "Badania krwi i laboratoria medyczne",
+    "btnImaging": "Diagnostyka obrazowa",
+    "btnPhysiotherapy": "Fizjoterapia",
+    "emergencyButton": "Nagły wypadek",
     "slogan": "Zainspirowana przez Panacéę, boginię uniwersalnego leku, medicéa® jest Twoim paszportem do medycyny na całym świecie — naszą misją jest łączenie ludzi z ratującymi życie terapiami bez granic.",
     "btnIntl": "Międzynarodowe wyszukiwanie leków",
     "btnCond": "Szukaj według Stanu Medycznego",

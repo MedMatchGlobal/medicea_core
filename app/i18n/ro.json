@@ -1,6 +1,10 @@
 {
   "langName": "Română",
   "ui": {
+    "btnLaboratory": "Analize de sânge și laboratoare medicale",
+    "btnImaging": "Imagistică medicală",
+    "btnPhysiotherapy": "Fizioterapie",
+    "emergencyButton": "Urgență",
     "slogan": "Inspirat de Panacéa, zeița leacului universal, medicéa® este pașaportul tău către medicină oriunde în lume — misiunea noastră este să conectăm oamenii la tratamente care salvează vieți, fără frontiere.",
     "btnIntl": "Căutare internațională de medicamente",
     "btnCond": "Caută după Condiție Medicală",

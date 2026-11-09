@@ -1,6 +1,10 @@
 {
   "langName": "Türkçe",
   "ui": {
+    "btnLaboratory": "Kan testleri ve tıbbi laboratuvarlar",
+    "btnImaging": "Tanısal görüntüleme",
+    "btnPhysiotherapy": "Fizyoterapi",
+    "emergencyButton": "Acil durum",
     "slogan": "Evrensel şifanın tanrıçası Panacéa’dan ilham alan medicéa® dünyadaki her yerde tıbba açılan pasaportunuzdur — insanları sınır tanımayan, hayat kurtaran tedavilerle buluşturmak misyonumuzdur.",
     "btnIntl": "Uluslararası İlaç Arama",
     "btnCond": "Tıbbi Duruma Göre Ara",

@@ -1,6 +1,10 @@
 {
   "langName": "日本語",
   "ui": {
+    "btnLaboratory": "血液検査・臨床検査機関",
+    "btnImaging": "画像診断",
+    "btnPhysiotherapy": "理学療法",
+    "emergencyButton": "緊急時",
     "slogan": "万病に効く女神パナケイアに着想を得た medicéa® は、世界中どこでも医療へつながるあなたのパスポートです——国境を越えて命を救う治療へ人々をつなぐことが私たちの使命です.",
     "btnIntl": "国際医薬品検索",
     "btnCond": "病状で検索する",

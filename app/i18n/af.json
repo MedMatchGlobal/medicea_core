@@ -1,6 +1,10 @@
 {
   "langName": "Afrikaans",
   "ui": {
+    "btnLaboratory": "Bloedtoetse en mediese laboratoriums",
+    "btnImaging": "Diagnostiese beelding",
+    "btnPhysiotherapy": "Fisioterapie",
+    "emergencyButton": "Noodgeval",
     "slogan": "Geïnspireer deur Panacéa, die godin van die universele geneesmiddel, is medicéa® jou paspoort tot medisyne oral in die wêreld — om mense sonder grense met lewensreddende behandelings te verbind, is ons missie.",
     "btnIntl": "Internasionale medikasiesoektog",
     "btnCond": "Soek volgens Mediese Toestand",

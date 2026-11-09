@@ -1,6 +1,10 @@
 {
   "langName": "Deutsch",
   "ui": {
+    "btnLaboratory": "Bluttests und medizinische Labore",
+    "btnImaging": "Bildgebende Diagnostik",
+    "btnPhysiotherapy": "Physiotherapie",
+    "emergencyButton": "Notfall",
   "slogan": "Inspiriert von Panacéa, der Göttin des universellen Heilmittels, ist medicéa® Ihr Reisepass zur Medizin überall auf der Welt — Menschen ohne Grenzen mit lebensrettenden Behandlungen zu verbinden, ist unsere Mission.",
     "btnIntl": "Internationale Arzneimittelsuche",
     "btnCond": "Nach Medizinischer Erkrankung Suchen",

@@ -1,6 +1,10 @@
 {
   "langName": "한국어",
   "ui": {
+    "btnLaboratory": "혈액 검사 및 의료 검사실",
+    "btnImaging": "영상 진단",
+    "btnPhysiotherapy": "물리 치료",
+    "emergencyButton": "응급 상황",
     "slogan": "보편적 치유의 여신 파나케이아에서 영감을 얻은 medicéa®는 전 세계 어디서나 의료로 가는 당신의 여권입니다 — 국경을 넘어 생명을 구하는 치료로 사람들을 연결하는 것이 우리의 사명입니다.",
     "btnIntl": "국제 의약품 검색",
     "btnCond": "의학적 상태로 검색",

@@ -1,6 +1,10 @@
 {
   "langName": "Suomi",
   "ui": {
+    "btnLaboratory": "Verikokeet ja lääketieteelliset laboratoriot",
+    "btnImaging": "Kuvantamistutkimukset",
+    "btnPhysiotherapy": "Fysioterapia",
+    "emergencyButton": "Hätätilanne",
     "slogan": "Panacéasta, yleislääkkeen jumalattaresta, innoituksensa saanut medicéa® on passisi lääketieteeseen kaikkialla maailmassa — tehtävämme on yhdistää ihmiset henkiä pelastaviin hoitoihin ilman rajoja.",
     "btnIntl": "Kansainvälinen lääkkeenhaku",
     "btnCond": "Hae Lääketieteellisen Tilanteen Perusteella",

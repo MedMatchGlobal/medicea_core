@@ -1,6 +1,10 @@
 {
   "langName": "Norsk",
   "ui": {
+    "btnLaboratory": "Blodprøver og medisinske laboratorier",
+    "btnImaging": "Bildediagnostikk",
+    "btnPhysiotherapy": "Fysioterapi",
+    "emergencyButton": "Nødhjelp",
     "slogan": "Inspirert av Panacéa, gudinnen for den universelle kuren, er medicéa® ditt pass til medisin hvor som helst i verden — vår misjon er å knytte mennesker til livreddende behandlinger uten grenser.",
     "btnIntl": "Internasjonalt legemiddelsøk",
     "btnCond": "Søk etter Medisinsk Tilstand",

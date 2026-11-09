@@ -1,6 +1,10 @@
 {
   "langName": "Čeština",
   "ui": {
+    "btnLaboratory": "Krevní testy a zdravotnické laboratoře",
+    "btnImaging": "Zobrazovací diagnostika",
+    "btnPhysiotherapy": "Fyzioterapie",
+    "emergencyButton": "Tísňová pomoc",
     "slogan": "Inspirováno Panacéou, bohyní univerzálního léku, je medicéa® vaším pasem k medicíně kdekoliv na světě — naše mise je spojovat lidi se život zachraňující léčbou bez hranic.",
     "btnIntl": "Mezinárodní vyhledávání léčiv",
     "btnCond": "Hledat podle Zdravotního Stavu",

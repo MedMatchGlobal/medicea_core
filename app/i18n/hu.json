@@ -1,6 +1,10 @@
 {
   "langName": "Magyar",
   "ui": {
+    "btnLaboratory": "Vérvizsgálatok és orvosi laboratóriumok",
+    "btnImaging": "Képalkotó diagnosztika",
+    "btnPhysiotherapy": "Gyógytorna",
+    "emergencyButton": "Vészhelyzet",
     "slogan": "A mindent gyógyító istennő, Panacéa ihletésére a medicéa® az ön útlevele az orvosláshoz bárhol a világon — küldetésünk, hogy az embereket határok nélkül összekapcsoljuk életmentő kezelésekkel.",
     "btnIntl": "Nemzetközi gyógyszerkereső",
     "btnCond": "Keresés Egészségi Állapot Szerint",
