@@ -1,6 +1,10 @@
 {
   "langName": "العربية",
   "ui": {
+    "btnLaboratory": "تحاليل الدم والمختبرات الطبية",
+    "btnImaging": "التصوير التشخيصي",
+    "btnPhysiotherapy": "العلاج الطبيعي",
+    "emergencyButton": "طوارئ",
     "medicineDetails": "تفاصيل الدواء",
     "searchCountry": "البحث عن دول",
     "allRegions": "جميع القارات",
