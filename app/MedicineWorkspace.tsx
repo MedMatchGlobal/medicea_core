@@ -15,6 +15,9 @@ Fixed banner logic for "Generics" label + country, and removed banner from Leafl
 
 'use client';
 
+import MedicineNextSteps from './components/MedicineNextSteps';
+import {parseEquivalentCandidates} from './lib/equivalent-results';
+
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import {useRouter} from 'next/navigation';
@@ -339,24 +342,7 @@ function renderLeafletPretty(leafletText: string, t: UIStrings) {
   );
 }
 
-function parseMatchesFromRawText(rawText: string): Array<{ medicine_name: string }> {
-  if (!rawText) return [];
-  const lines = rawText.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
-  const items: string[] = [];
-  for (const l of lines) {
-    const m = l.match(/^(?:\d+[.)]|[-•*])\s*(.+)$/);
-    items.push(m ? m[1].trim() : l);
-  }
-  const seen = new Set<string>();
-  const out: Array<{ medicine_name: string }> = [];
-  for (let name of items) {
-    name = name.replace(/\s*[;,.]$/, '').trim();
-    if (!name || seen.has(name)) continue;
-    seen.add(name);
-    out.push({ medicine_name: name });
-  }
-  return out;
-}
+const parseMatchesFromRawText = parseEquivalentCandidates;
 
 function mapsUrl(query: string) {
   return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
@@ -598,6 +584,7 @@ function Home({ petMode = false }: { petMode?: boolean }) {
   const [searchFailed, setSearchFailed] = useState(false);
   const [pharmacyTrip, setPharmacyTrip] = useState<PharmacyTrip | null>(null);
   const [pharmacyOpen, setPharmacyOpen] = useState(false);
+  const [selectedMedicine, setSelectedMedicine] = useState<string | null>(null);
   const pharmacyTripRef = useRef<PharmacyTrip | null>(null);
   const pharmacyOpenRef = useRef(false);
 
@@ -639,15 +626,15 @@ function Home({ petMode = false }: { petMode?: boolean }) {
     pharmacyTripRef.current = null; pharmacyOpenRef.current = false;
     setPharmacyTrip(null); setPharmacyOpen(false);
   }
-  function openPharmacyTrip(country: string) {
-    const trip: PharmacyTrip = {id:crypto.randomUUID(), country,
-      medicines:pharmacyReminder(selectedDrug,matches),
+  function openPharmacyTrip(country: string, medicine?: string, service: 'pharmacy' | 'gp' = 'pharmacy') {
+    const trip: PharmacyTrip = {id:crypto.randomUUID(), country, service,
+      medicines:medicine ? [medicine] : pharmacyReminder(selectedDrug,matches),
       returnUrl:window.location.pathname + window.location.search + window.location.hash,
       scrollY:window.scrollY};
     pharmacyTripRef.current = trip; pharmacyOpenRef.current = true;
     setPharmacyTrip(trip); setPharmacyOpen(true);
     const destination = new URL(window.location.href);
-    destination.searchParams.set('service','pharmacy'); destination.searchParams.set('location',country);
+    destination.searchParams.set('service',service); destination.searchParams.set('location',country);
     destination.hash = '';
     window.history.pushState(pharmacyHistoryEntry(window.history.state,trip.id), '', destination);
     requestAnimationFrame(() => window.scrollTo({top:0,behavior:'instant'}));
@@ -730,7 +717,7 @@ function Home({ petMode = false }: { petMode?: boolean }) {
     resetFieldsForMode(saved.mode);
     completedSearchContext.current=saved;
     setOriginCode(saved.originCode);setTargetCode(saved.targetCode);setSelectedDrug(saved.selectedDrug);setSelectedDosage(saved.selectedDosage);
-    setResult(DOMPurify.sanitize(saved.result));setLeafletRaw(saved.leafletRaw);setMatches(saved.matches);
+    setResult(DOMPurify.sanitize(saved.result));setLeafletRaw(saved.leafletRaw);setMatches(saved.matches);setSelectedMedicine(null);
     setPetOriginIngredients(saved.petOriginIngredients);setLeaflets(saved.leaflets);setPetInformation(saved.petInformation);
     setSearchAccess(saved.searchAccess);
     setSearchFailed(false);setSearched(true);setScreen('results');setActiveSection(saved.mode==='generic'||saved.mode==='leaflet'?'tools':'search');
@@ -804,7 +791,7 @@ function Home({ petMode = false }: { petMode?: boolean }) {
     setSelectedCondition('');
     setConditionDetails('');
     setUserNotes('');
-    setMatches([]);
+    setMatches([]); setSelectedMedicine(null);
     setPetOriginIngredients([]);
     setLeafletRaw('');
     setOriginLeafletVisible(true);
@@ -924,7 +911,7 @@ if (!membershipEnabled && !BETA_TESTING && isPremiumMode(mode)) {
     showScreen('results');
     setLoading(true);
     setResult(F(ui, 'searching', 'Searching…'));
-    setMatches([]);
+    setMatches([]); setSelectedMedicine(null);
     setPetOriginIngredients([]);
     setSearchAccess(undefined);
     setLeafletRaw('');
@@ -1050,8 +1037,9 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
       if(membershipEnabled&&payload2.originLeaflet)setLeafletRaw(pickText(payload2.originLeaflet));
       if (mode === 'pets' || mode === 'pet-generic') setPetOriginIngredients(veterinaryIngredients(payload2.originProfile));
 
-      if (Array.isArray(payload2?.matches) && payload2.matches.length) {
+      if (Array.isArray(payload2?.matches) && (payload2.matches.length || mode === 'international')) {
         setMatches(payload2.matches);
+        if (!payload2.matches.length) setResult('We could not confirm a matching medicine. This does not establish that no equivalent exists. Please ask a local pharmacist to check the ingredients and strength.');
       } else if (payload2?.equivalentResults?.raw_text) {
         const parsed = parseMatchesFromRawText(payload2.equivalentResults.raw_text);
         setMatches(parsed);
@@ -1145,16 +1133,12 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
       {pharmacyTrip && <div hidden={!pharmacyOpen}>
         <PharmacyTripPanel key={pharmacyTrip.id} trip={pharmacyTrip} lang={lang} onBack={backFromPharmacy}
           onSave={saveCurrentSearch} saveLabel={savedSearchCopy(lang).save}
-          title={F(ui, 'btnPharmacy', 'Search pharmacy')} addressLabel={F(ui, 'addressPrompt', 'Enter an address (or use device location)')}
+          title={pharmacyTrip.service === 'gp' ? 'Find a GP' : F(ui, 'btnPharmacy', 'Search pharmacy')} addressLabel={F(ui, 'addressPrompt', 'Enter an address (or use device location)')}
           addressPlaceholder={F(ui, 'addressPH', 'Street, City, Country…')} useLocationLabel={F(ui, 'useDeviceLocation', 'Use device location')}
           openLabel={F(ui, 'openMaps', 'Open in Google Maps')} notice={searchFeedback(lang).careNotice} />
       </div>}
       <div className="workspace-panels">
-      {!petMode && screen === 'search' && !pharmacyOpen && <nav className="riviera-shortcuts" aria-label="Explore medicéa">
-        <button type="button" onClick={() => showScreen('tools')}><span className="shortcut-icon rose"><HeartPulse size={22}/></span><span>{F(ui, 'medicineTools', 'Health tools')}</span><ArrowRight size={18}/></button>
-        <button type="button" onClick={() => showScreen('care')}><span className="shortcut-icon sage"><MapPin size={22}/></span><span>{F(ui, 'findCare', 'Find care')}</span><ArrowRight size={18}/></button>
-        <Link href="/pets"><span className="shortcut-icon ochre"><PawPrint size={22}/></span><span>{F(ui, 'btnPets', 'Meds 4 Pets')}</span><ArrowRight size={18}/></Link>
-      </nav>}
+
       <div className="workspace-grid">
       <section className="search-area" id="medicine-search" tabIndex={-1} aria-labelledby="search-title">
       <div className="section-heading"><span className="section-icon" aria-hidden="true">{mode === 'leaflet' ? <FileText size={22}/> : mode === 'generic' || mode === 'pet-generic' ? <CircleDot size={22}/> : mode === 'pets' ? <PawPrint size={22}/> : mode === 'international' ? <ArrowLeftRight size={22}/> : mode === 'triage' || mode === 'condition' ? <HeartPulse size={22}/> : <MapPin size={22}/>}</span><div>
@@ -1469,12 +1453,12 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
                       <Link className="official-leaflet-link" href={`/?section=care&service=pharmacy&location=${encodeURIComponent(countryCode)}`}
                         onClick={event => {if (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return; event.preventDefault(); openPharmacyTrip(countryCode);}}>{F(ui, 'btnPharmacy', 'Search pharmacy')}</Link>
                     </div>
-                    <div style={{ fontSize: '0.85rem', marginTop: 4 }}>
+                    {matches.length > 0 && <div style={{ fontSize: '0.85rem', marginTop: 4 }}>
                       {F(ui, introKey, introDefault, {
                         drugName: baseName,
                         targetCountry: bannerCountry,
                       })}
-                    </div>
+                    </div>}
                   </>
                 );
               })()}
@@ -1510,6 +1494,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
                   >
                     <div className="medicine-result-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
                       <div style={{ fontWeight: 700, color: '#0f172a' }}>{medname}</div>
+                      <button type="button" className="pill pill--blue" aria-expanded={selectedMedicine === medname} onClick={() => setSelectedMedicine(selectedMedicine === medname ? null : medname)}>{selectedMedicine === medname ? 'Selected medicine' : 'Choose this medicine'}</button>
                       <div className="leaflet-actions">
                         <button
                           onClick={() => {
@@ -1532,6 +1517,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
                       </div>
                     </div>
 
+                    {selectedMedicine === medname && <MedicineNextSteps key={medname} medicine={medname} country={mode === 'international' ? targetCode || originCode : originCode} dosage={selectedDosage} onFind={service => openPharmacyTrip(mode === 'international' ? targetCode || originCode : originCode, medname, service)} />}
                     {showLF && leafletText && (
                       <div
                         className="human-leaflet-content"

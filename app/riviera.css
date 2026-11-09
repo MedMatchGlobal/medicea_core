@@ -111,3 +111,12 @@ body{background:var(--riviera-paper);color:var(--riviera-ink);font-family:Inter,
 .medicea-shell .triage-disclaimer{color:#726b60!important;font-size:12px!important;line-height:1.6}
 .medicea-shell .triage-input{font-size:15px!important}
 @media(max-width:700px){.medicea-shell :is(.medicine-result-card,.ai-plain,.structured-veterinary-leaflet,.human-leaflet-content){padding:16px}.medicea-shell .veterinary-care{padding:17px}.medicea-shell .triage-send{padding:10px 14px}.medicea-shell .triage-message{font-size:14px!important}}
+
+.medicine-next-steps { margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #dcd5ca; color: #26373b; }
+.medicine-next-actions { display:flex; gap:.6rem; flex-wrap:wrap; }
+.medicine-next-steps label { display:grid; gap:.4rem; margin: .8rem 0; }
+.medicine-next-steps textarea, .medicine-next-steps input, .medicine-next-steps select { width:100%; box-sizing:border-box; padding:.75rem; background:#fffdf9; color:#26373b; border:1px solid #dcd5ca; border-radius:12px; font:inherit; }
+.medicine-next-steps textarea { min-height:110px; }
+.medicine-next-steps summary { cursor:pointer; padding:.7rem 0; font-weight:600; }
+.conversation-translation { padding:1rem; margin-top:1rem; background:#f5f1e8; border-radius:12px; white-space:pre-wrap; }
+@media(max-width:600px) { .medicine-next-actions > button { width:100%; } }

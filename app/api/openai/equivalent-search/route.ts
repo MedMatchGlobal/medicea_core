@@ -1,3 +1,4 @@
+import {filterCompositionCandidates, parseEquivalentCandidates} from '@/app/lib/equivalent-results';
 import {withMembership} from '@/lib/membership/meter';
 export const maxDuration = 60;
 import { openaiFetch } from "@/app/lib/openaiClient";
@@ -56,40 +57,6 @@ function explicitListToPairs(explicitList: string) {
     .filter(Boolean) as { strength: string; name: string }[];
 }
 
-// Keep only lines that include ALL pairs as substrings (case-insensitive)
-function filterRawToExactPairs(raw: string, explicitList: string) {
-  const pairs = explicitListToPairs(explicitList);
-  if (!pairs.length) return { filtered: raw, kept: [], dropped: [] };
-
-  // Split model text into bullet-ish lines
-  const lines = raw
-    .split(/\r?\n/)
-    .map(l => l.trim())
-    .filter(l => l.length);
-
-  const kept: string[] = [];
-  const dropped: string[] = [];
-
-  for (const line of lines) {
-    const L = line.toLowerCase();
-    const ok = pairs.every(p => {
-      const nameOk = L.includes(p.name.toLowerCase());
-      // Normalize strength (e.g., "5 mg" vs "5mg")
-      const strengthNorm = p.strength.replace(/\s*(mcg|µg|ug|mg|g|micrograms|milligrams|grams)\b/gi, m => ` ${m.toLowerCase()}`).replace(/\s+/g, " ").toLowerCase();
-      const strengthAlt = strengthNorm.replace(/\s/g, ""); // "5 mg" → "5mg"
-      const strengthOk = L.includes(strengthNorm) || L.includes(strengthAlt);
-      return nameOk && strengthOk;
-    });
-    (ok ? kept : dropped).push(line);
-  }
-
-  // If nothing kept, return original (so you can still see what model said)
-  if (!kept.length) {
-    return { filtered: raw, kept, dropped };
-  }
-  return { filtered: kept.join("\n"), kept, dropped };
-}
-
 // Apply user dosage override if strength-count matches actives-count
 function applyUserDosageOverride(
   actives: ActiveIng[],
@@ -135,11 +102,11 @@ Return strictly JSON with keys: medicine_name, origin_country, active_ingredient
     });
 
     const data1 = await response1.json();
-    console.log("OPENAI STEP 1 RESPONSE:", JSON.stringify(data1, null, 2));
+    if (!response1.ok) throw new Error("Provider unavailable");
     const originProfile = JSON.parse(data1.choices?.[0]?.message?.content || "{}");
 
-    if (!originProfile?.active_ingredients || originProfile.error) {
-      return NextResponse.json({ error: "NOT_FOUND_ORIGIN", originProfile });
+    if (!Array.isArray(originProfile?.active_ingredients) || !originProfile.active_ingredients.length || originProfile.error || !originProfile.active_ingredients.every((item: ActiveIng) => typeof item?.name === "string" && item.name.trim() && typeof item.strength === "string" && item.strength.trim())) {
+      return NextResponse.json({ error: "NOT_FOUND_ORIGIN", matches: [] });
     }
 
     // Use the model-extracted actives, optionally override strengths from user dosage
@@ -174,13 +141,16 @@ const response2 = await openaiFetch(OPENAI_URL, {
       }),
     });
 
+    if (!response2.ok) throw new Error("Provider unavailable");
     const data2 = await response2.json();
     const rawText = (data2.choices?.[0]?.message?.content || "").trim() || "No response.";
 
     // ---------- STEP 3: post-filter to exact pairwise matches ----------
-    const { filtered, kept, dropped } = filterRawToExactPairs(rawText, explicitList);
+    const filtered = filterCompositionCandidates(rawText, explicitListToPairs(explicitList));
+    const matches = parseEquivalentCandidates(filtered);
 
     return NextResponse.json({
+      matches,
       originProfile,
       originProfileNamed: {
         ...named,
@@ -189,15 +159,15 @@ const response2 = await openaiFetch(OPENAI_URL, {
       equivalentResults: {
         target_country: targetCountry,
         search_composition: explicitList,
-        raw_text: filtered || "No matches.",
+        raw_text: filtered,
         // Optional debug fields if you want to see what got removed:
         // dropped_lines: dropped,
       },
     });
   } catch (error: any) {
-    console.error("Error in equivalent-search route:", error);
+
     return NextResponse.json(
-      { error: "SERVER_ERROR", details: error.message },
+      { error: "SERVER_ERROR" },
       { status: 500 }
     );
   }

@@ -29,7 +29,7 @@ export default function PharmacyTripPanel({trip, lang, onBack, title, addressLab
     <label>{addressLabel}<input type="text" maxLength={250} placeholder={addressPlaceholder}
       value={address} onChange={event=>setAddress(event.target.value)} /></label>
     <label className="pharmacy-location-choice"><input type="checkbox" checked={useLocation} onChange={event=>locate(event.target.checked)} />{useLocationLabel}</label>
-    {location ? <a className="pill pill--blue pharmacy-map-link" href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(careSearchQuery('pharmacy',location))}`} target="_blank" rel="noopener noreferrer">{openLabel} ↗</a>
+    {location ? <a className="pill pill--blue pharmacy-map-link" href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(careSearchQuery(trip.service || 'pharmacy',location))}`} target="_blank" rel="noopener noreferrer">{openLabel} ↗</a>
       : <button type="button" className="pill pill--blue" disabled>{openLabel}</button>}
     <p className="search-note">{notice}</p>
   </section>;
