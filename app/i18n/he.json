@@ -1,6 +1,10 @@
 {
   "langName": "עברית",
   "ui": {
+    "btnLaboratory": "בדיקות דם ומעבדות רפואיות",
+    "btnImaging": "דימות רפואי",
+    "btnPhysiotherapy": "פיזיותרפיה",
+    "emergencyButton": "חירום",
     "medicineDetails": "פרטי התרופה",
     "searchCountry": "חיפוש מדינות",
     "allRegions": "כל היבשות",

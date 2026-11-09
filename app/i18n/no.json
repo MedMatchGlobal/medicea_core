@@ -1,6 +1,10 @@
 {
   "langName": "Norsk",
   "ui": {
+    "btnLaboratory": "Blodprøver og medisinske laboratorier",
+    "btnImaging": "Bildediagnostikk",
+    "btnPhysiotherapy": "Fysioterapi",
+    "emergencyButton": "Nødhjelp",
     "medicineDetails": "Legemiddelinformasjon",
     "searchCountry": "Søk etter land",
     "allRegions": "Alle kontinenter",

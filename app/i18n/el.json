@@ -1,6 +1,10 @@
 {
   "langName": "Ελληνικά",
   "ui": {
+    "btnLaboratory": "Εξετάσεις αίματος και ιατρικά εργαστήρια",
+    "btnImaging": "Διαγνωστική απεικόνιση",
+    "btnPhysiotherapy": "Φυσικοθεραπεία",
+    "emergencyButton": "Επείγον",
     "medicineDetails": "Πληροφορίες φαρμάκου",
     "searchCountry": "Αναζήτηση χωρών",
     "allRegions": "Όλες οι ήπειροι",
