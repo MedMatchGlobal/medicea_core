@@ -469,7 +469,7 @@ body { background:#f5f8fc; color:#112445; }
 .header-nav { display:flex; gap:36px; }
 .header-nav a { color:#233b5b; text-decoration:none; font-size:14px; font-weight:600; }
 .language-control button { color:#233b5b; min-height:44px; font:inherit; }
-.welcome-hero { min-height:260px; padding:44px 32px 74px; border-radius:22px; background:linear-gradient(90deg,#eef7ff 15%,rgba(238,247,255,.85) 40%,rgba(238,247,255,.1) 100%),url('/medicea-coast.png') center right/cover; }
+.welcome-hero { min-height:170px; padding:24px 32px 36px; border-radius:22px; background:linear-gradient(90deg,rgba(238,247,255,.86),rgba(238,247,255,.76) 38%,rgba(238,247,255,.08) 78%),url('/vernazza.webp') center 28%/cover; }
 .hero-copy { max-width:740px; }
 .hero-eyebrow { text-transform:uppercase; letter-spacing:.15em; font-size:11px; font-weight:700; color:#246fbe; }
 .hero-copy h1 { font-size:clamp(28px,3.2vw,44px); letter-spacing:-.045em; line-height:1.12; max-width:680px; margin:14px 0; }
@@ -514,8 +514,8 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
  html { font-size:16px; } .medicea-shell { padding:0 14px 22px; }
  .site-header { min-height:78px; gap:12px; } .brand-link { width:140px; } .header-nav { display:none; }
  .language-control button { min-width:92px!important; font-size:12px; }
- .welcome-hero { padding:24px 20px 60px; min-height:245px; background-position:65% center; }
- .hero-copy h1 { font-size:30px; max-width:290px; } .hero-copy p { font-size:13px; max-width:260px; }
+ .welcome-hero { padding:16px 16px 20px; min-height:150px; background-position:center 28%; }
+ .hero-copy h1 { font-size:24px; max-width:310px; margin:8px 0; } .hero-copy p { font-size:12px; line-height:1.45; max-width:290px; }
  .hero-eyebrow { font-size:9px; } .workspace-grid { margin:-30px 0 0; gap:16px; }
  .search-area,.medicine-tools,.care-section { padding:20px; border-radius:15px; }
  .medicine-form { grid-template-columns:1fr; gap:15px; } .medicea-shell h2 { font-size:19px; }
@@ -593,3 +593,29 @@ html { scrollbar-gutter:stable; }
 @media(max-width:600px) { .workspace-panels { min-height:740px; } }
 
 @media (max-width: 640px) { .results-view .medicine-section-title { font-size:19px; } }
+
+/* Persistent emergency access, independent of sign-in and purchase gates. */
+body { padding-bottom: calc(76px + env(safe-area-inset-bottom, 0px)); }
+.emergency-trigger { position: fixed; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); left: 16px; z-index: 1000; display: inline-flex; align-items: center; gap: 8px; min-height: 46px; padding: 11px 18px; border: 2px solid #fff; border-radius: 999px; background: #b91c1c; color: #fff; font-weight: 750; box-shadow: 0 3px 14px #0003; cursor: pointer; }
+.emergency-trigger:hover, .emergency-call:hover { background: #991b1b; }
+.emergency-trigger:focus-visible, .emergency-dialog :focus-visible { outline: 3px solid #2563eb; outline-offset: 3px; }
+.emergency-overlay { position: fixed; inset: 0; z-index: 10000; background: #10223899; }
+.emergency-dialog { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 10001; width: min(560px, calc(100vw - 32px)); max-height: calc(100dvh - 40px); overflow-y: auto; box-sizing: border-box; padding: 26px; border-radius: 20px; background: #fff; color: #182d43; box-shadow: 0 16px 60px #0004; }
+.emergency-dialog h2 { margin: 0 0 12px; font-size: 1.5rem; color: #991b1b; }
+.emergency-dialog p { margin: 12px 0; line-height: 1.55; }
+.emergency-dialog label { display: block; font-weight: 700; margin: 20px 0 8px; }
+.emergency-dialog select { width: 100%; min-height: 46px; padding: 10px; border: 1px solid #9baebe; border-radius: 8px; background: white; color: inherit; }
+.emergency-dialog button:not(.emergency-trigger) { min-height: 44px; padding: 10px 14px; border: 1px solid #9baebe; border-radius: 8px; background: #f1f6fa; color: #182d43; cursor: pointer; }
+.emergency-dialog button:disabled { opacity: .65; cursor: wait; }
+.emergency-dialog a { text-decoration: underline; color: #176278; }
+.emergency-number { padding: 4px 14px 14px; margin-top: 16px; background: #fff4f3; border: 1px solid #efb9b3; border-radius: 12px; }
+.emergency-number a { display: block; width: fit-content; margin-top: 12px; }
+.emergency-number .emergency-call { background: #b91c1c; color: #fff; border-radius: 8px; padding: 12px 24px; text-decoration: none; font-size: 1.25rem; font-weight: 750; }
+.emergency-dialog .emergency-consent { font-size: .88rem; color: #526578; margin-top: 22px; }
+.emergency-dialog .emergency-close { display: block; margin-inline-start: auto; }
+@media (max-width: 480px) { .emergency-dialog { padding: 20px; } }
+/* Preserve the human-module tints independently of billing preview flags. */
+.medicea-shell:not(.pet-theme) .search-area { background:#f5f8ff; border-color:#dce5f5; }
+.medicea-shell:not(.pet-theme) :is(.medicine-tools,.care-section) { background:#fff3f4; border-color:#eed8dd; }
+.medicea-shell:not(.pet-theme) :is(.medicine-tools,.care-section) .tool-icon { background:#fbe5e9; color:#9e4559; }
+.medicea-shell:not(.pet-theme) :is(.tool-card,.care-card).is-active { background:#fff7f8; border-color:#ce9baa; }

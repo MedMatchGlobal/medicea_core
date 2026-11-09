@@ -1,6 +1,10 @@
 {
   "langName": "Nederlands",
   "ui": {
+    "btnLaboratory": "Bloedonderzoek en medische laboratoria",
+    "btnImaging": "Beeldvormend onderzoek",
+    "btnPhysiotherapy": "Fysiotherapie",
+    "emergencyButton": "Noodgeval",
     "medicineDetails": "Medicijngegevens",
     "searchCountry": "Landen zoeken",
     "allRegions": "Alle continenten",
