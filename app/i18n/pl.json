@@ -1,6 +1,10 @@
 {
   "langName": "Polski",
   "ui": {
+    "btnLaboratory": "Badania krwi i laboratoria medyczne",
+    "btnImaging": "Diagnostyka obrazowa",
+    "btnPhysiotherapy": "Fizjoterapia",
+    "emergencyButton": "Nagły wypadek",
     "medicineDetails": "Informacje o leku",
     "searchCountry": "Szukaj krajów",
     "allRegions": "Wszystkie kontynenty",
