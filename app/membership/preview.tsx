@@ -5,12 +5,13 @@ import {PERSONAL_PLANS,type PersonalPlan} from '@/lib/membership/config';
 import styles from './membership.module.css';
 import {useSearchReturn} from '../components/MembershipAccess';
 import MembershipFooter from '../components/MembershipFooter';
-import MediceaBrand from '../components/MediceaBrand';
+import {useLanguage} from '../LanguageProvider';
 import PlayOptions from './play-options';
 import LanguageButton from '../components/LanguageButton';
 import {useMembershipCopy,MembershipText,membershipText,type MembershipKey} from '../i18n/membership';
 export default function MembershipPreview(){
  const {copy,lang,dir}=useMembershipCopy();
+ const {t}=useLanguage();
  const [email,setEmail]=useState(''),[code,setCode]=useState(''),[status,setStatus]=useState<any>(null),[message,setMessage]=useState<MembershipKey|null>(null),[busy,setBusy]=useState(false),[native,setNative]=useState(true);
  const [android,setAndroid]=useState(false);
  const [codeSent,setCodeSent]=useState(false);
@@ -56,7 +57,7 @@ export default function MembershipPreview(){
  <header className={styles.header}><a href="/" aria-label={copy.backHome}><img src="/logo.png" alt="medicéa" width="180" height="60"/></a><div className={styles.headerActions}><a className={styles.back} href="/">{dir==='rtl'?'→':'←'} {copy.backHome}</a><LanguageButton/></div></header>
  <div className={styles.previewNotice}>{copy.previewNotice}</div>
 
- <section className={`${styles.hero} ${status?.premium?styles.heroPaid:''}`}><div><p className={styles.productName}><bdi dir="ltr"><MediceaBrand/><strong>GO</strong></bdi> <small>{copy.personal}</small></p><h1><MembershipText text={copy.headline}/></h1><p className={styles.intro}>{copy.intro}</p></div>
+ <section className={`${styles.hero} ${status?.premium?styles.heroPaid:''}`}><div><p className={styles.productName}>{t?.ui?.travelCompanion||'Your medicine companion'}</p><h1>{t?.ui?.modernHeadline||'Your medicine, wherever you are.'}</h1></div>
  </section>
  {status&&!status.premium&&!status.moduleAccess?.length&&<aside className={styles.welcome}><div><h2>{copy.welcomeHeading}</h2><p>{copy.welcomeSummary}</p></div><details><summary>{copy.welcomeDetailsHeading}</summary><p className={styles.small}>{copy.termsWelcome}</p><p className={styles.small}>{copy.welcomeSeparate}</p><p className={styles.small}>{copy.welcomeDetails}</p></details></aside>}
  <section className={`${styles.account} ${status?.complimentary?styles.complimentaryAccount:''}`} aria-labelledby="account-heading"><div><p className={styles.eyebrow}>{copy.yourAccount}</p><h2 id="account-heading">{signedIn?(status.complimentary?copy.complimentaryActive:status.premium?copy.paidActive:copy.personalAccess):copy.signInHeading}</h2>
