@@ -1,6 +1,10 @@
 {
   "langName": "Suomi",
   "ui": {
+    "btnLaboratory": "Verikokeet ja lääketieteelliset laboratoriot",
+    "btnImaging": "Kuvantamistutkimukset",
+    "btnPhysiotherapy": "Fysioterapia",
+    "emergencyButton": "Hätätilanne",
     "medicineDetails": "Lääkkeen tiedot",
     "searchCountry": "Hae maita",
     "allRegions": "Kaikki maanosat",

@@ -1,6 +1,10 @@
 {
   "langName": "日本語",
   "ui": {
+    "btnLaboratory": "血液検査・臨床検査機関",
+    "btnImaging": "画像診断",
+    "btnPhysiotherapy": "理学療法",
+    "emergencyButton": "緊急時",
     "medicineDetails": "医薬品の詳細",
     "searchCountry": "国を検索",
     "allRegions": "すべての大陸",
