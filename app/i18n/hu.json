@@ -1,6 +1,10 @@
 {
   "langName": "Magyar",
   "ui": {
+    "btnLaboratory": "Vérvizsgálatok és orvosi laboratóriumok",
+    "btnImaging": "Képalkotó diagnosztika",
+    "btnPhysiotherapy": "Gyógytorna",
+    "emergencyButton": "Vészhelyzet",
     "medicineDetails": "Gyógyszeradatok",
     "searchCountry": "Országok keresése",
     "allRegions": "Minden kontinens",
