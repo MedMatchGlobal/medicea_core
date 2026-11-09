@@ -1,0 +1,755 @@
+{
+  "dataPolicy": "Public example medicines and synthetic fixtures only; no patient records",
+  "profiles": [
+    {
+      "cases": [
+        {
+          "status": 200,
+          "name": "human-equivalents",
+          "structuralPassed": true,
+          "elapsedMs": 3081,
+          "upstream": [
+            {
+              "outputTokens": 50,
+              "finish": "stop",
+              "elapsedMs": 1425,
+              "inputTokens": 100,
+              "model": "gpt-4o-2024-08-06"
+            },
+            {
+              "outputTokens": 105,
+              "finish": "stop",
+              "elapsedMs": 1463,
+              "inputTokens": 50,
+              "model": "gpt-4o-2024-08-06"
+            }
+          ]
+        },
+        {
+          "status": 200,
+          "name": "veterinary-information",
+          "structuralPassed": true,
+          "elapsedMs": 2854,
+          "upstream": [
+            {
+              "outputTokens": 345,
+              "finish": "stop",
+              "elapsedMs": 2832,
+              "inputTokens": 347,
+              "model": "gpt-4o-2024-08-06"
+            }
+          ]
+        },
+        {
+          "status": 200,
+          "name": "translation",
+          "structuralPassed": true,
+          "elapsedMs": 828,
+          "upstream": [
+            {
+              "outputTokens": 18,
+              "finish": "stop",
+              "elapsedMs": 819,
+              "inputTokens": 76,
+              "model": "gpt-4o-mini-2024-07-18"
+            }
+          ]
+        },
+        {
+          "status": 200,
+          "name": "condition-budget",
+          "structuralPassed": true,
+          "elapsedMs": 2869,
+          "upstream": [
+            {
+              "outputTokens": 308,
+              "finish": "stop",
+              "elapsedMs": 2859,
+              "inputTokens": 227,
+              "model": "gpt-4o-2024-08-06"
+            }
+          ]
+        }
+      ],
+      "profile": "legacy"
+    },
+    {
+      "cases": [
+        {
+          "status": 200,
+          "name": "human-equivalents",
+          "structuralPassed": true,
+          "elapsedMs": 14104,
+          "upstream": [
+            {
+              "outputTokens": 38,
+              "finish": "stop",
+              "elapsedMs": 4310,
+              "inputTokens": 99,
+              "model": "gpt-6-astra"
+            },
+            {
+              "outputTokens": 394,
+              "finish": "stop",
+              "elapsedMs": 9605,
+              "inputTokens": 49,
+              "model": "gpt-6-astra"
+            }
+          ]
+        },
+        {
+          "status": 502,
+          "name": "veterinary-information",
+          "structuralPassed": false,
+          "elapsedMs": 10043,
+          "upstream": []
+        },
+        {
+          "status": 200,
+          "name": "translation",
+          "structuralPassed": true,
+          "elapsedMs": 1527,
+          "upstream": [
+            {
+              "outputTokens": 21,
+              "finish": "stop",
+              "elapsedMs": 1515,
+              "inputTokens": 75,
+              "model": "gpt-6-luna"
+            }
+          ]
+        },
+        {
+          "status": 500,
+          "name": "condition-budget",
+          "structuralPassed": false,
+          "elapsedMs": 10019,
+          "upstream": []
+        }
+      ],
+      "profile": "astra"
+    },
+    {
+      "cases": [
+        {
+          "status": 200,
+          "name": "human-equivalents",
+          "structuralPassed": true,
+          "elapsedMs": 11879,
+          "upstream": [
+            {
+              "outputTokens": 87,
+              "finish": "stop",
+              "elapsedMs": 3255,
+              "inputTokens": 99,
+              "model": "gpt-6.1-sol"
+            },
+            {
+              "outputTokens": 401,
+              "finish": "stop",
+              "elapsedMs": 8426,
+              "inputTokens": 49,
+              "model": "gpt-6.1-sol"
+            }
+          ]
+        },
+        {
+          "status": 502,
+          "name": "veterinary-information",
+          "structuralPassed": false,
+          "elapsedMs": 10050,
+          "upstream": []
+        },
+        {
+          "status": 200,
+          "name": "translation",
+          "structuralPassed": true,
+          "elapsedMs": 1138,
+          "upstream": [
+            {
+              "outputTokens": 21,
+              "finish": "stop",
+              "elapsedMs": 1118,
+              "inputTokens": 75,
+              "model": "gpt-6-luna"
+            }
+          ]
+        },
+        {
+          "status": 500,
+          "name": "condition-budget",
+          "structuralPassed": false,
+          "elapsedMs": 10031,
+          "upstream": []
+        }
+      ],
+      "profile": "sol"
+    },
+    {
+      "cases": [
+        {
+          "status": 200,
+          "name": "human-equivalents",
+          "structuralPassed": true,
+          "elapsedMs": 5089,
+          "upstream": [
+            {
+              "outputTokens": 42,
+              "finish": "stop",
+              "elapsedMs": 1794,
+              "inputTokens": 99,
+              "model": "gpt-6-luna"
+            },
+            {
+              "outputTokens": 142,
+              "finish": "stop",
+              "elapsedMs": 3050,
+              "inputTokens": 49,
+              "model": "gpt-6-luna"
+            }
+          ]
+        },
+        {
+          "status": 200,
+          "name": "veterinary-information",
+          "structuralPassed": true,
+          "elapsedMs": 2532,
+          "upstream": [
+            {
+              "outputTokens": 124,
+              "finish": "stop",
+              "elapsedMs": 2512,
+              "inputTokens": 346,
+              "model": "gpt-6-luna"
+            }
+          ]
+        },
+        {
+          "status": 200,
+          "name": "translation",
+          "structuralPassed": true,
+          "elapsedMs": 1276,
+          "upstream": [
+            {
+              "outputTokens": 21,
+              "finish": "stop",
+              "elapsedMs": 1267,
+              "inputTokens": 75,
+              "model": "gpt-6-luna"
+            }
+          ]
+        },
+        {
+          "status": 200,
+          "name": "condition-budget",
+          "structuralPassed": true,
+          "elapsedMs": 4010,
+          "upstream": [
+            {
+              "outputTokens": 261,
+              "finish": "stop",
+              "elapsedMs": 3999,
+              "inputTokens": 226,
+              "model": "gpt-6-luna"
+            }
+          ]
+        },
+        {
+          "status": 200,
+          "name": "combination",
+          "structuralPassed": true,
+          "elapsedMs": 3185,
+          "upstream": [
+            {
+              "outputTokens": 63,
+              "finish": "stop",
+              "elapsedMs": 1403,
+              "inputTokens": 97,
+              "model": "gpt-6-luna"
+            },
+            {
+              "outputTokens": 67,
+              "finish": "stop",
+              "elapsedMs": 1780,
+              "inputTokens": 66,
+              "model": "gpt-6-luna"
+            }
+          ]
+        },
+        {
+          "status": 200,
+          "name": "unknown-vet",
+          "structuralPassed": true,
+          "elapsedMs": 1415,
+          "upstream": [
+            {
+              "outputTokens": 38,
+              "finish": "stop",
+              "elapsedMs": 1375,
+              "inputTokens": 105,
+              "model": "gpt-6-luna"
+            }
+          ]
+        },
+        {
+          "status": 200,
+          "name": "pet-generics",
+          "structuralPassed": true,
+          "elapsedMs": 2267,
+          "upstream": [
+            {
+              "outputTokens": 49,
+              "finish": "stop",
+              "elapsedMs": 1497,
+              "inputTokens": 101,
+              "model": "gpt-6-luna"
+            },
+            {
+              "outputTokens": 5,
+              "finish": "stop",
+              "elapsedMs": 768,
+              "inputTokens": 135,
+              "model": "gpt-6-luna"
+            }
+          ]
+        },
+        {
+          "status": 200,
+          "name": "leaflet",
+          "structuralPassed": true,
+          "elapsedMs": 1825,
+          "upstream": [
+            {
+              "outputTokens": 92,
+              "finish": "stop",
+              "elapsedMs": 1810,
+              "inputTokens": 95,
+              "model": "gpt-6-luna"
+            }
+          ]
+        },
+        {
+          "status": 200,
+          "name": "leaflet-it",
+          "structuralPassed": true,
+          "elapsedMs": 4004,
+          "upstream": [
+            {
+              "outputTokens": 93,
+              "finish": "stop",
+              "elapsedMs": 2057,
+              "inputTokens": 95,
+              "model": "gpt-6-luna"
+            },
+            {
+              "outputTokens": 112,
+              "finish": "stop",
+              "elapsedMs": 1947,
+              "inputTokens": 254,
+              "model": "gpt-6-luna"
+            }
+          ]
+        },
+        {
+          "status": 200,
+          "name": "triage",
+          "structuralPassed": true,
+          "elapsedMs": 2276,
+          "upstream": [
+            {
+              "outputTokens": 140,
+              "finish": "stop",
+              "elapsedMs": 2268,
+              "inputTokens": 34,
+              "model": "gpt-6-luna"
+            }
+          ]
+        },
+        {
+          "status": 200,
+          "name": "json-af",
+          "structuralPassed": true,
+          "elapsedMs": 1329,
+          "upstream": [
+            {
+              "outputTokens": 36,
+              "finish": "stop",
+              "elapsedMs": 1308,
+              "inputTokens": 175,
+              "model": "gpt-6-luna"
+            }
+          ]
+        },
+        {
+          "status": 200,
+          "name": "json-ar",
+          "structuralPassed": true,
+          "elapsedMs": 1425,
+          "upstream": [
+            {
+              "outputTokens": 37,
+              "finish": "stop",
+              "elapsedMs": 1424,
+              "inputTokens": 174,
+              "model": "gpt-6-luna"
+            }
+          ]
+        },
+        {
+          "status": 200,
+          "name": "json-cs",
+          "structuralPassed": true,
+          "elapsedMs": 1261,
+          "upstream": [
+            {
+              "outputTokens": 38,
+              "finish": "stop",
+              "elapsedMs": 1260,
+              "inputTokens": 174,
+              "model": "gpt-6-luna"
+            }
+          ]
+        },
+        {
+          "status": 200,
+          "name": "json-da",
+          "structuralPassed": true,
+          "elapsedMs": 1540,
+          "upstream": [
+            {
+              "outputTokens": 36,
+              "finish": "stop",
+              "elapsedMs": 1540,
+              "inputTokens": 174,
+              "model": "gpt-6-luna"
+            }
+          ]
+        },
+        {
+          "status": 200,
+          "name": "json-de",
+          "structuralPassed": true,
+          "elapsedMs": 1259,
+          "upstream": [
+            {
+              "outputTokens": 34,
+              "finish": "stop",
+              "elapsedMs": 1258,
+              "inputTokens": 174,
+              "model": "gpt-6-luna"
+            }
+          ]
+        },
+        {
+          "status": 200,
+          "name": "json-el",
+          "structuralPassed": true,
+          "elapsedMs": 1109,
+          "upstream": [
+            {
+              "outputTokens": 44,
+              "finish": "stop",
+              "elapsedMs": 1109,
+              "inputTokens": 174,
+              "model": "gpt-6-luna"
+            }
+          ]
+        },
+        {
+          "status": 200,
+          "name": "json-en",
+          "structuralPassed": true,
+          "elapsedMs": 913,
+          "upstream": [
+            {
+              "outputTokens": 33,
+              "finish": "stop",
+              "elapsedMs": 913,
+              "inputTokens": 174,
+              "model": "gpt-6-luna"
+            }
+          ]
+        },
+        {
+          "status": 200,
+          "name": "json-es",
+          "structuralPassed": true,
+          "elapsedMs": 933,
+          "upstream": [
+            {
+              "outputTokens": 36,
+              "finish": "stop",
+              "elapsedMs": 933,
+              "inputTokens": 174,
+              "model": "gpt-6-luna"
+            }
+          ]
+        },
+        {
+          "status": 200,
+          "name": "json-fi",
+          "structuralPassed": true,
+          "elapsedMs": 1188,
+          "upstream": [
+            {
+              "outputTokens": 40,
+              "finish": "stop",
+              "elapsedMs": 1188,
+              "inputTokens": 174,
+              "model": "gpt-6-luna"
+            }
+          ]
+        },
+        {
+          "status": 200,
+          "name": "json-fr",
+          "structuralPassed": true,
+          "elapsedMs": 1012,
+          "upstream": [
+            {
+              "outputTokens": 35,
+              "finish": "stop",
+              "elapsedMs": 1011,
+              "inputTokens": 174,
+              "model": "gpt-6-luna"
+            }
+          ]
+        },
+        {
+          "status": 200,
+          "name": "json-he",
+          "structuralPassed": true,
+          "elapsedMs": 2346,
+          "upstream": [
+            {
+              "outputTokens": 35,
+              "finish": "stop",
+              "elapsedMs": 2345,
+              "inputTokens": 174,
+              "model": "gpt-6-luna"
+            }
+          ]
+        },
+        {
+          "status": 200,
+          "name": "json-hi",
+          "structuralPassed": true,
+          "elapsedMs": 1851,
+          "upstream": [
+            {
+              "outputTokens": 36,
+              "finish": "stop",
+              "elapsedMs": 1849,
+              "inputTokens": 174,
+              "model": "gpt-6-luna"
+            }
+          ]
+        },
+        {
+          "status": 200,
+          "name": "json-hu",
+          "structuralPassed": true,
+          "elapsedMs": 1549,
+          "upstream": [
+            {
+              "outputTokens": 41,
+              "finish": "stop",
+              "elapsedMs": 1548,
+              "inputTokens": 174,
+              "model": "gpt-6-luna"
+            }
+          ]
+        },
+        {
+          "status": 200,
+          "name": "json-it",
+          "structuralPassed": true,
+          "elapsedMs": 1308,
+          "upstream": [
+            {
+              "outputTokens": 37,
+              "finish": "stop",
+              "elapsedMs": 1308,
+              "inputTokens": 174,
+              "model": "gpt-6-luna"
+            }
+          ]
+        },
+        {
+          "status": 200,
+          "name": "json-ja",
+          "structuralPassed": true,
+          "elapsedMs": 1130,
+          "upstream": [
+            {
+              "outputTokens": 36,
+              "finish": "stop",
+              "elapsedMs": 1130,
+              "inputTokens": 174,
+              "model": "gpt-6-luna"
+            }
+          ]
+        },
+        {
+          "status": 200,
+          "name": "json-ko",
+          "structuralPassed": true,
+          "elapsedMs": 1021,
+          "upstream": [
+            {
+              "outputTokens": 35,
+              "finish": "stop",
+              "elapsedMs": 1020,
+              "inputTokens": 174,
+              "model": "gpt-6-luna"
+            }
+          ]
+        },
+        {
+          "status": 200,
+          "name": "json-nl",
+          "structuralPassed": true,
+          "elapsedMs": 1085,
+          "upstream": [
+            {
+              "outputTokens": 35,
+              "finish": "stop",
+              "elapsedMs": 1085,
+              "inputTokens": 174,
+              "model": "gpt-6-luna"
+            }
+          ]
+        },
+        {
+          "status": 200,
+          "name": "json-no",
+          "structuralPassed": true,
+          "elapsedMs": 1059,
+          "upstream": [
+            {
+              "outputTokens": 36,
+              "finish": "stop",
+              "elapsedMs": 1058,
+              "inputTokens": 174,
+              "model": "gpt-6-luna"
+            }
+          ]
+        },
+        {
+          "status": 200,
+          "name": "json-pl",
+          "structuralPassed": true,
+          "elapsedMs": 1942,
+          "upstream": [
+            {
+              "outputTokens": 37,
+              "finish": "stop",
+              "elapsedMs": 1942,
+              "inputTokens": 174,
+              "model": "gpt-6-luna"
+            }
+          ]
+        },
+        {
+          "status": 200,
+          "name": "json-pt",
+          "structuralPassed": true,
+          "elapsedMs": 943,
+          "upstream": [
+            {
+              "outputTokens": 35,
+              "finish": "stop",
+              "elapsedMs": 942,
+              "inputTokens": 174,
+              "model": "gpt-6-luna"
+            }
+          ]
+        },
+        {
+          "status": 200,
+          "name": "json-ro",
+          "structuralPassed": true,
+          "elapsedMs": 2069,
+          "upstream": [
+            {
+              "outputTokens": 39,
+              "finish": "stop",
+              "elapsedMs": 2069,
+              "inputTokens": 174,
+              "model": "gpt-6-luna"
+            }
+          ]
+        },
+        {
+          "status": 200,
+          "name": "json-ru",
+          "structuralPassed": true,
+          "elapsedMs": 1068,
+          "upstream": [
+            {
+              "outputTokens": 37,
+              "finish": "stop",
+              "elapsedMs": 1068,
+              "inputTokens": 174,
+              "model": "gpt-6-luna"
+            }
+          ]
+        },
+        {
+          "status": 200,
+          "name": "json-sv",
+          "structuralPassed": true,
+          "elapsedMs": 1156,
+          "upstream": [
+            {
+              "outputTokens": 37,
+              "finish": "stop",
+              "elapsedMs": 1156,
+              "inputTokens": 174,
+              "model": "gpt-6-luna"
+            }
+          ]
+        },
+        {
+          "status": 200,
+          "name": "json-tr",
+          "structuralPassed": true,
+          "elapsedMs": 1255,
+          "upstream": [
+            {
+              "outputTokens": 36,
+              "finish": "stop",
+              "elapsedMs": 1255,
+              "inputTokens": 174,
+              "model": "gpt-6-luna"
+            }
+          ]
+        },
+        {
+          "status": 200,
+          "name": "json-zh",
+          "structuralPassed": true,
+          "elapsedMs": 1133,
+          "upstream": [
+            {
+              "outputTokens": 36,
+              "finish": "stop",
+              "elapsedMs": 1132,
+              "inputTokens": 177,
+              "model": "gpt-6-luna"
+            }
+          ]
+        }
+      ],
+      "profile": "luna"
+    }
+  ],
+  "date": "2026-10-15",
+  "qualityReview": {
+    "source": "https://www.hpra.ie/find-a-medicine/for-human-use/authorised-medicines/details/25370",
+    "leaflet": "FAILED: Luna EN/IT responses declined retrieval instead of supplying the expected content",
+    "verdict": "DO NOT ACTIVATE",
+    "combination": "BLOCKED: unverified Solpadeine Plus names; baseline also returned Solpadeine, whose HPRA-listed formulation has caffeine as an extra active ingredient"
+  },
+  "scope": "Direct handler evaluation with membership stubbed; not a browser or clinical acceptance test"
+}

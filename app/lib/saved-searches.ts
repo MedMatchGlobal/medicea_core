@@ -1,13 +1,19 @@
 import type {VeterinarySection} from './veterinary-sections';
+import {medicineSources} from './medicine-evidence';
+import {isMedicineName} from './match-display';
 export const SAVED_SEARCH_KEY = 'medicea.saved-medicine-searches.v1';
 export const MAX_SAVED_SEARCHES = 20;
 export type SavedMode = 'international' | 'generic' | 'leaflet' | 'pets' | 'pet-generic';
 export type SavedSearch = {
   id:string; savedAt:string; lang:string; mode:SavedMode; originCode:string; targetCode:string;
   selectedDrug:string; selectedDosage:string; result:string; leafletRaw:string;
-  matches:{medicine_name:string}[]; petOriginIngredients:{name:string;strength:string}[];
+  matches:{medicine_name:string;sources?:string[]}[]; petOriginIngredients:{name:string;strength:string}[];
   leaflets:Record<string,string>; petInformation:Record<string,VeterinarySection[]>;
   searchAccess?:string;
+  originSources?:string[];
+  originIngredients?:{name:string;strength:string}[];
+  noExactMatch?:boolean;
+  originProductName?:string;
 };
 export function isSavedMode(mode:string): mode is SavedMode {
   return ['international','generic','leaflet','pets','pet-generic'].includes(mode);
@@ -28,8 +34,11 @@ export function normalizeSavedSearch(value:unknown): SavedSearch | null {
   }
   return {id:text(v.id,100),savedAt:new Date(v.savedAt).toISOString(),lang:/^[a-z]{2}$/.test(v.lang)?v.lang:'en',mode:v.mode,
     originCode:text(v.originCode,100),targetCode:text(v.targetCode,100),selectedDrug:text(v.selectedDrug,300),selectedDosage:text(v.selectedDosage,300),
-    result:text(v.result),leafletRaw:text(v.leafletRaw),leaflets,petInformation,...(typeof v.searchAccess==='string'?{searchAccess:text(v.searchAccess,24000)}:{}),
-    matches:Array.isArray(v.matches)?v.matches.slice(0,30).map((m:any)=>({medicine_name:text(m?.medicine_name ?? m?.Medicine_name,300)})).filter((m:any)=>m.medicine_name):[],
+    result:text(v.result),leafletRaw:text(v.leafletRaw),leaflets,petInformation,...(typeof v.searchAccess==='string'?{searchAccess:text(v.searchAccess,24000)}:{}),...(Array.isArray(v.originSources)?{originSources:medicineSources(v.originSources)}:{}),
+    ...(v.noExactMatch===true?{noExactMatch:true}:{}),
+    ...(typeof v.originProductName==='string'?{originProductName:text(v.originProductName,250)}:{}),
+    ...(Array.isArray(v.originIngredients)?{originIngredients:v.originIngredients.slice(0,20).map((i:any)=>({name:text(i?.name,300),strength:text(i?.strength,300)})).filter((i:any)=>i.name&&i.strength)}:{}),
+    matches:Array.isArray(v.matches)?v.matches.slice(0,30).map((m:any)=>({medicine_name:text(m?.medicine_name ?? m?.Medicine_name,300),...(Array.isArray(m?.sources)?{sources:medicineSources(m.sources)}:{})})).filter((m:any)=>isMedicineName(m.medicine_name)):[],
     petOriginIngredients:Array.isArray(v.petOriginIngredients)?v.petOriginIngredients.slice(0,30).map((i:any)=>({name:text(i?.name,300),strength:text(i?.strength,300)})).filter((i:any)=>i.name):[]};
 }
 export function readSavedSearches(raw:string|null):SavedSearch[] {

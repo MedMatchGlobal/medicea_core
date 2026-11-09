@@ -8,6 +8,20 @@ function load(file,imports={},env={STRIPE_WEBHOOK_SECRET:'whsec_fictional_fixtur
 const request=body=>new Request('https://preview.example/api',{method:'POST',headers:{origin:'https://preview.example','content-type':'application/json'},body:JSON.stringify(body)});
 const input={drugName:'Origin medicine',originCountry:'Italy',targetCountry:'United Kingdom',mode:'international',lang:'en'};
 const matches={originProfile:{active_ingredients:[{name:'Example',strength:'5 mg'}]},equivalentResults:{raw_text:'1. Medicine A\n2. Medicine B\n3. Medicine C\n4. Medicine D\n5. Medicine E'}};
+test('choosing an origin variant releases the reservation without charging a completed search',async()=>{
+ const m=meter();const result=await m.meteredSearch(request(input),async()=>Response.json({error:'CHOOSE_ORIGIN_VARIANT',variants:[{name:'Fixture tablet'}]},{status:409}));assert.equal(result.status,409);assert.deepEqual(m.calls.finish,[false]);assert.equal((await result.json()).searchAccess,undefined);
+});
+test('compound search uses the signed selected formulation for its summary and preserves matching context',async()=>{
+ const queries=[];const route=load('app/api/membership/search/route.ts',{
+  '@/lib/membership/meter':{meteredSearch:async(req,run)=>run(req)},
+  '@/app/lib/openaiClient':{modelUpgradeEnabled:()=>true},
+  '@/app/lib/origin-lookup':{readOriginSelection:token=>token==='valid'?{name:'Fixture soluble tablet'}:null},
+  '@/app/api/openai/leaflet/route':{POST:async req=>{queries.push(await req.json());return Response.json({leaflet:{leaflet_text:'Fixture summary'}});}},
+  '@/app/api/openai/equivalent-search/route':{POST:async req=>{queries.push(await req.json());return Response.json(matches);}},
+ });
+ assert.equal((await route.POST(request({...input,originSelection:'altered'}))).status,422);assert.equal(queries.length,0);
+ assert.equal((await route.POST(request({...input,originSelection:'valid'}))).status,200);assert.equal(queries[0].drugName,'Fixture soluble tablet');assert.equal(queries[1].drugName,input.drugName);assert.equal(queries[1].originSelection,'valid');
+});
 function meter(state={enabled:true,user:'member',allowed:true}) {
  const calls={reserve:0,finish:[],provider:0};
  const imports={'./config':{membershipPreviewEnabled:()=>state.enabled,sameOrigin:()=>true},'./auth':{membershipUser:async()=>state.user?{id:state.user}:null},'./store':{
@@ -27,6 +41,16 @@ test('compound search and all five follow-up leaflets use exactly one quota slot
  }
  assert.equal(leafletCalls,6);assert.equal(m.calls.reserve,1);assert.deepEqual(m.calls.finish,[true]);
  assert.equal((await matching(request(input))).status,429);
+});
+test('source-origin Preview compound search establishes the product before its summary and forwards the signed source token',async()=>{
+ const order=[];let choose=false;
+ const route=load('app/api/membership/search/route.ts',{
+  '@/lib/membership/meter':{meteredSearch:async(req,run)=>run(req)},
+  '@/app/lib/openaiClient':{modelUpgradeEnabled:()=>true,modelTestConfiguration:()=>({matchingMode:'prompt-test'})},
+  '@/app/api/openai/equivalent-search/route':{POST:async()=>{order.push('matching');return choose?Response.json({error:'CHOOSE_ORIGIN_VARIANT'},{status:409}):Response.json({...matches,originProfile:{medicine_name:'Selected tablet',selection_token:'source-token'}});}},
+  '@/app/api/openai/leaflet/route':{POST:async req=>{order.push('summary');const body=await req.json();assert.equal(body.drugName,'Selected tablet');assert.equal(body.originQueryName,input.drugName);assert.equal(body.originSelection,'source-token');return Response.json({leaflet:{leaflet_text:'Fixture summary'}});}},
+ });
+ assert.equal((await route.POST(request(input))).status,200);assert.deepEqual(order,['matching','summary']);choose=true;order.length=0;assert.equal((await route.POST(request(input))).status,409);assert.deepEqual(order,['matching']);
 });
 test('follow-up permissions reject altered tokens, other accounts, countries, medicines and kinds',async()=>{
  const m=meter();const token=(await (await m.meteredSearch(request(input),async()=>Response.json(matches))).json()).searchAccess;

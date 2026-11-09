@@ -1,0 +1,167 @@
+{
+  "date": "2026-10-15",
+  "results": [
+    {
+      "kind": null,
+      "elapsedMs": 10051,
+      "sources": [
+        "https://www.medicines.org.uk/emc/product/100828/smpc",
+        "https://www.medicines.org.uk/emc/product/9128/smpc"
+      ],
+      "status": 200,
+      "upstream": [
+        {
+          "model": "gpt-6-luna",
+          "usage": {
+            "input_tokens": 13369,
+            "input_tokens_details": {
+              "cache_write_tokens": 0,
+              "cached_tokens": 4666
+            },
+            "output_tokens": 164,
+            "output_tokens_details": {
+              "reasoning_tokens": 84
+            },
+            "total_tokens": 13533
+          },
+          "elapsedMs": 6010,
+          "finish": "stop"
+        },
+        {
+          "model": "gpt-6-luna",
+          "usage": {
+            "input_tokens": 12998,
+            "input_tokens_details": {
+              "cache_write_tokens": 117,
+              "cached_tokens": 4561
+            },
+            "output_tokens": 214,
+            "output_tokens_details": {
+              "reasoning_tokens": 57
+            },
+            "total_tokens": 13212
+          },
+          "elapsedMs": 3829,
+          "finish": "stop"
+        }
+      ],
+      "name": "generic-positive",
+      "passed": true,
+      "matches": 2
+    },
+    {
+      "kind": "ai_medicine_summary",
+      "elapsedMs": 5602,
+      "sources": [],
+      "status": 200,
+      "upstream": [
+        {
+          "model": "gpt-6-luna",
+          "usage": {
+            "prompt_tokens": 277,
+            "completion_tokens": 333,
+            "total_tokens": 610,
+            "prompt_tokens_details": {
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "audio_tokens": 0
+            },
+            "completion_tokens_details": {
+              "reasoning_tokens": 0,
+              "audio_tokens": 0,
+              "accepted_prediction_tokens": 0,
+              "rejected_prediction_tokens": 0
+            }
+          },
+          "elapsedMs": 5573,
+          "finish": "stop"
+        }
+      ],
+      "name": "leaflet",
+      "passed": true,
+      "matches": 0
+    },
+    {
+      "kind": "ai_medicine_summary",
+      "elapsedMs": 5908,
+      "sources": [],
+      "status": 200,
+      "upstream": [
+        {
+          "model": "gpt-6-luna",
+          "usage": {
+            "prompt_tokens": 277,
+            "completion_tokens": 425,
+            "total_tokens": 702,
+            "prompt_tokens_details": {
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "audio_tokens": 0
+            },
+            "completion_tokens_details": {
+              "reasoning_tokens": 0,
+              "audio_tokens": 0,
+              "accepted_prediction_tokens": 0,
+              "rejected_prediction_tokens": 0
+            }
+          },
+          "elapsedMs": 5907,
+          "finish": "stop"
+        }
+      ],
+      "name": "leaflet-it",
+      "passed": true,
+      "matches": 0
+    },
+    {
+      "kind": null,
+      "matches": 2,
+      "upstream": [
+        {
+          "elapsedMs": 7414,
+          "usage": {
+            "input_tokens": 13194,
+            "input_tokens_details": {
+              "cache_write_tokens": 4666,
+              "cached_tokens": 0
+            },
+            "output_tokens": 195,
+            "output_tokens_details": {
+              "reasoning_tokens": 65
+            },
+            "total_tokens": 13389
+          },
+          "model": "gpt-6.1-sol",
+          "finish": "stop"
+        },
+        {
+          "elapsedMs": 10011,
+          "usage": {
+            "input_tokens": 26127,
+            "input_tokens_details": {
+              "cache_write_tokens": 4676,
+              "cached_tokens": 0
+            },
+            "output_tokens": 335,
+            "output_tokens_details": {
+              "reasoning_tokens": 141
+            },
+            "total_tokens": 26462
+          },
+          "model": "gpt-6.1-sol",
+          "finish": "stop"
+        }
+      ],
+      "elapsedMs": 17608,
+      "status": 200,
+      "name": "international-positive",
+      "passed": true,
+      "sources": [
+        "https://base-donnees-publique.medicaments.gouv.fr/medicament/66185425/extrait",
+        "https://base-donnees-publique.medicaments.gouv.fr/medicament/68495013/extrait"
+      ]
+    }
+  ],
+  "coverage": "Regulator-source lookup is configured for 10 countries; unsupported countries fail explicitly, without an unsafe fallback.",
+  "scope": "Public example route tests after targeted fixes; no patient records; not clinical validation"
+}
