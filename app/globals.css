@@ -469,7 +469,7 @@ body { background:#f5f8fc; color:#112445; }
 .header-nav { display:flex; gap:36px; }
 .header-nav a { color:#233b5b; text-decoration:none; font-size:14px; font-weight:600; }
 .language-control button { color:#233b5b; min-height:44px; font:inherit; }
-.welcome-hero { min-height:170px; padding:24px 32px 36px; border-radius:22px; background:linear-gradient(90deg,rgba(238,247,255,.86),rgba(238,247,255,.76) 38%,rgba(238,247,255,.08) 78%),url('/riomaggiore.webp') center 58%/cover; }
+.welcome-hero { min-height:170px; padding:24px 32px 36px; border-radius:22px; background:linear-gradient(90deg,rgba(238,247,255,.86),rgba(238,247,255,.76) 38%,rgba(238,247,255,.08) 78%),url('/vernazza.webp') center 28%/cover; }
 .hero-copy { max-width:740px; }
 .hero-eyebrow { text-transform:uppercase; letter-spacing:.15em; font-size:11px; font-weight:700; color:#246fbe; }
 .hero-copy h1 { font-size:clamp(28px,3.2vw,44px); letter-spacing:-.045em; line-height:1.12; max-width:680px; margin:14px 0; }
@@ -514,7 +514,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
  html { font-size:16px; } .medicea-shell { padding:0 14px 22px; }
  .site-header { min-height:78px; gap:12px; } .brand-link { width:140px; } .header-nav { display:none; }
  .language-control button { min-width:92px!important; font-size:12px; }
- .welcome-hero { padding:16px 16px 20px; min-height:150px; background-position:65% center; }
+ .welcome-hero { padding:16px 16px 20px; min-height:150px; background-position:center 28%; }
  .hero-copy h1 { font-size:24px; max-width:310px; margin:8px 0; } .hero-copy p { font-size:12px; line-height:1.45; max-width:290px; }
  .hero-eyebrow { font-size:9px; } .workspace-grid { margin:-30px 0 0; gap:16px; }
  .search-area,.medicine-tools,.care-section { padding:20px; border-radius:15px; }
