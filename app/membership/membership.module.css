@@ -33,9 +33,9 @@
 .feedback{display:flex;align-items:center;gap:16px;margin-top:12px}
 .feedback:has(p:empty){margin-top:0}
 .feedback p{overflow-wrap:anywhere}
-.hero{display:flex;align-items:center;min-height:290px;padding:36px 32px;border-radius:22px;background:linear-gradient(90deg,rgba(238,247,255,.86),rgba(238,247,255,.76) 38%,rgba(238,247,255,.08) 78%),url('/riomaggiore.webp') center 58%/cover;background-repeat:no-repeat;background-color:#eef7ff}
+.hero{display:flex;align-items:center;min-height:180px;padding:22px 32px;border-radius:22px;background:linear-gradient(90deg,rgba(238,247,255,.86),rgba(238,247,255,.76) 38%,rgba(238,247,255,.08) 78%),url('/riomaggiore.webp') center 58%/cover;background-repeat:no-repeat;background-color:#eef7ff}
 .hero>div{max-width:580px}
-.heroPaid{min-height:240px}
+.heroPaid{min-height:180px}
 .productName{font-size:22px;font-weight:650;letter-spacing:-.5px;margin-bottom:10px!important}
 .productName>bdi>strong{color:#17334a;margin-inline-start:2px}
 .productName>small{font-size:13px;letter-spacing:1px;font-weight:650;margin-inline-start:8px;color:#506779}
@@ -72,7 +72,7 @@
 .footer p+p{margin-top:6px}
 @media(max-width:800px){.account{flex-direction:column}.auth{width:100%}.actions{align-self:start;justify-content:flex-start;max-width:none}.hero{gap:20px}.hero h1{font-size:36px}.plan{padding:16px}.plan h3{font-size:18px}.plan .price{font-size:28px}.price span{display:block;margin-top:4px}}
 @media(max-width:560px){
- .page{padding:0 14px 32px}.header{min-height:88px;gap:12px}.header img{width:var(--medicea-logo-width,160px)}.back{font-size:12px}.account{padding:20px;gap:18px}.page h2{font-size:23px}.hero{padding:28px 20px;min-height:300px;background-position:62% center}.hero>div{max-width:240px}.hero h1{font-size:32px;letter-spacing:-1px}.heroPaid{padding:28px 20px}.intro{font-size:15px}.productName{font-size:18px}.welcome{padding:18px;grid-template-columns:1fr}.welcome h2{font-size:18px}.auth form{grid-template-columns:1fr}.auth button{justify-self:start}.travelPlans,.regularPlans{grid-template-columns:1fr;gap:10px;margin-top:14px}
+ .page{padding:0 14px 32px}.header{min-height:88px;gap:12px}.header img{width:var(--medicea-logo-width,160px)}.back{font-size:12px}.account{padding:20px;gap:18px}.page h2{font-size:23px}.hero{padding:16px;min-height:160px;background-position:62% center}.hero>div{max-width:300px}.hero h1{font-size:24px;letter-spacing:-.7px;margin-bottom:8px}.heroPaid{padding:16px}.intro{font-size:12px;line-height:1.45}.productName{font-size:16px;margin-bottom:6px!important}.welcome{padding:18px;grid-template-columns:1fr}.welcome h2{font-size:18px}.auth form{grid-template-columns:1fr}.auth button{justify-self:start}.travelPlans,.regularPlans{grid-template-columns:1fr;gap:10px;margin-top:14px}
  .plan{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px 14px;align-items:start;padding:16px}.plan h3{font-size:17px;grid-column:1;grid-row:1}.plan .price{font-size:27px;text-align:end;margin-top:0;grid-column:2;grid-row:1}.price span{display:block;font-size:12px}.planDescription{grid-column:1;grid-row:2;margin:0!important;font-size:13px;align-self:center}.plan button{grid-column:2;grid-row:2;width:auto;padding:10px 12px;font-size:13px;align-self:end}.regularHeading{margin-top:22px}.feedback{flex-wrap:wrap}
 }
 @media(max-width:560px){
