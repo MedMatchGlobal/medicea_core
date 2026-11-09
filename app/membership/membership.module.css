@@ -107,3 +107,28 @@
 .welcome{margin:0 0 24px}
 .account{margin:24px 0 36px}
 @media(max-width:600px){.hero{min-height:150px;padding:20px 16px}.hero h1{font-size:clamp(13px,4.35vw,26px)}}
+
+/* Riviera account: the same paper, typography and coastal banner as discovery. */
+.page{max-width:1120px;color:#233237;font-family:Inter,Arial,sans-serif;font-size:15px}
+.header{min-height:88px;border-bottom:1px solid #ded5c8;margin-bottom:16px}
+.header img{width:158px}.back{color:#54544c!important;font-size:12px}
+.previewNotice{font-size:11px;color:#826956}
+.hero{min-height:166px;border-radius:12px;padding:26px 24px;background-image:linear-gradient(90deg,#f7f2eaf5,#f7f2eacc 42%,#f7f2ea12 85%),url('/vernazza.webp');background-position:center 43%}
+.hero h1{font-family:Fraunces,Georgia,serif;font-weight:400;color:#233237;font-size:clamp(21px,3.7vw,42px);letter-spacing:-.045em;line-height:1.2;margin-top:12px}
+.productName{color:#826956;font-size:10px;font-weight:500;letter-spacing:.16em}
+.page h2,.page h3{color:#233237}.account h2{font-family:Fraunces,Georgia,serif;font-size:27px;font-weight:400}
+.account,.plan,.ownerTools{background:#fffdf9;border-color:#dfd5c6;box-shadow:none}
+.account{margin:20px 0 26px;padding:22px;border-radius:16px}
+.eyebrow{font-size:10px;color:#826956;font-weight:500}
+.page input{background:#fffdf9;border-color:#d9ccba;color:#233237}
+.primary{background:#26383d;border-color:#26383d;border-radius:24px!important;font-weight:500!important}.primary:hover:not(:disabled){background:#345363}
+.secondary{background:#fffdf9;color:#54544c;border-color:#d9ccba;border-radius:24px!important;font-weight:500!important}
+.welcome{background:#edf0e8;border-color:#d2dccd;padding:16px 20px;border-radius:12px;margin-bottom:18px}
+.welcome h2{font-size:16px}.welcome>div>p,.welcome summary,.small,.email,.sectionIntro,.terms,.planDescription,.footer{color:#6b6a60}
+.plan{padding:20px;border-radius:14px}.plan h3{font-size:16px;font-weight:500}.plan .price{font-family:Fraunces,Georgia,serif;font-size:32px;font-weight:500;color:#233237}
+.featured,.complimentaryAccount,.plan.activePlan{background:#edf3e9;border-color:#a7bfa1}.complimentaryAccount h2{color:#49685d}
+.page button:disabled{background:#e8e2d8;color:#766f64;border-color:#ddd4c6}
+.page .activeButton:disabled{background:#dfeade;color:#345b43;border-color:#a7bfa1}
+.page :is(button,a,input,summary):focus-visible{outline-color:#a6533e}
+.ownerTools{padding:14px 20px}.ownerTools>span{color:#826956}.ownerTools>a{color:#49685d;font-weight:500}
+@media(max-width:700px){.page{padding:0 18px 90px;font-size:14px}.header{min-height:76px;gap:8px}.header img{width:124px}.hero{min-height:132px;padding:23px 12px}.hero h1{font-size:clamp(14px,4.1vw,27px);margin-top:10px}.productName{font-size:8px}.account{padding:17px;gap:16px}.account h2{font-size:25px}.welcome{padding:14px 16px}.plan{padding:16px}.page h2{font-size:21px}}

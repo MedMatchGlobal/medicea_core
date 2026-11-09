@@ -1,0 +1,79 @@
+/* Editorial presentation only. Search, access and purchase logic stays in place. */
+:root{--riviera-paper:#f7f2ea;--riviera-ink:#233237;--riviera-line:#ded5c8;--riviera-accent:#a6533e}
+body{background:var(--riviera-paper);color:var(--riviera-ink);font-family:Inter,Arial,sans-serif}
+.medicea-shell{max-width:1120px;font-size:15px;line-height:1.5}
+.medicea-shell .site-header{background:var(--riviera-paper);box-shadow:none;border-bottom:1px solid var(--riviera-line);margin-bottom:18px;gap:14px;min-height:88px}
+.medicea-shell .brand-link{width:158px}
+.medicea-shell .header-nav{gap:6px}
+.medicea-shell .header-nav a{border:0;border-radius:24px;background:transparent;color:#54544c;font-size:12px;min-height:44px}
+.medicea-shell .header-nav a[aria-current=page]{background:#e9e0d3;color:#233237}
+.medicea-shell .header-account{border-color:var(--riviera-line);border-radius:24px;color:#233237;font-size:12px;background:#fffdf9}
+.medicea-shell .welcome-hero{min-height:166px;padding:26px 24px;border-radius:12px;background-image:linear-gradient(90deg,#f7f2eaf5,#f7f2eacc 42%,#f7f2ea12 85%),url('/vernazza.webp');background-position:center 43%;margin-bottom:16px}
+.medicea-shell .hero-eyebrow{color:#826956;font-size:10px;font-weight:500;letter-spacing:.16em}
+.medicea-shell .hero-copy h1{font-family:Fraunces,Georgia,serif;color:#233237;font-weight:400;font-size:clamp(21px,3.7vw,42px);letter-spacing:-.045em;line-height:1.2;margin:12px 0 0;white-space:nowrap}
+.medicea-shell .hero-copy p{font-size:13px;color:#4f5a52}
+.medicea-shell .workspace-panels{min-height:0;display:flex;flex-direction:column}
+.medicea-shell .workspace-grid{margin:0;order:0}
+.medicea-shell .search-area{background:#fffdf9;border-color:#dfd5c6;box-shadow:none;border-radius:18px;padding:24px}
+.medicea-shell .section-heading{margin-bottom:18px}
+.medicea-shell .section-heading p{color:#726b60;font-size:12px}
+.medicea-shell .section-icon{background:#efdfd6;color:#a6533e;border-radius:50%;width:38px;height:38px}
+.medicea-shell h2{color:#233237;font-size:19px;letter-spacing:-.025em}
+.medicea-shell .medicine-form{gap:14px 20px}
+.medicea-shell .medicine-form>div>div{color:#6b6255;font-size:12px}
+.medicea-shell .country-trigger{background:transparent;color:#233237;border-color:#d9ccba;border-radius:9px;font-size:15px}
+.medicea-shell .medicine-form input:not([type=checkbox]),.medicea-shell .medicine-form select,.medicea-shell .medicine-form textarea{background:#fffdf9!important;border-color:#d9ccba!important;color:#233237;font-size:15px;box-shadow:none}
+.medicea-shell .medicine-form input::placeholder{color:#867d71}
+.medicea-shell .medicine-form input:focus,.medicea-shell .medicine-form textarea:focus{border-color:#a6533e!important;box-shadow:0 0 0 3px #a6533e16}
+.medicea-shell .medicine-form .search-submit,.medicea-shell .pill{background:#26383d;border-radius:28px;font-weight:500}
+.medicea-shell .pill:disabled{background:#e8e2d8;color:#766f64}
+.medicea-shell .clear-search,.medicea-shell .results-actions button,.medicea-shell .return-results{background:#f4eee4;color:#5e594e;border-color:#dfd5c6;border-radius:24px;font-size:12px}
+.medicea-shell .clear-search{grid-column:1;grid-row:auto;min-height:40px;padding:8px 14px}
+.medicea-shell .search-note{color:#756e62;font-size:11px}
+.medicea-shell .search-note svg{color:#698273}
+.medicea-shell .saved-searches{background:transparent;border-color:#dfd5c6;border-radius:10px;padding:10px 14px;margin:0 0 16px}
+.medicea-shell .saved-searches summary{color:#5c6259;font-size:12px;font-weight:500}
+.riviera-shortcuts{order:1;margin:16px 0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+.riviera-shortcuts>button,.riviera-shortcuts>a{display:flex;align-items:center;gap:12px;border:0;border-bottom:1px solid #ded5c8;border-radius:0;padding:12px 0;background:transparent;color:#233237;text-decoration:none;text-align:start;font:inherit;cursor:pointer;min-height:66px}
+.riviera-shortcuts>*>svg:last-child{margin-inline-start:auto;color:#867665;flex-shrink:0}
+.shortcut-icon{width:40px;height:40px;display:grid;place-items:center;border-radius:50%;flex-shrink:0}
+.shortcut-icon.rose{background:#efdfd6;color:#a6533e}.shortcut-icon.sage{background:#dfe8df;color:#49685d}.shortcut-icon.ochre{background:#eee5cf;color:#8c6d31}
+.medicea-shell:not(.pet-theme) .medicine-tools{background:#f3e9e3;border-color:#e1cfc4;box-shadow:none}
+.medicea-shell:not(.pet-theme) .care-section{background:#edf0e8;border-color:#d2dccd;box-shadow:none;margin:18px 0}
+.medicea-shell:not(.pet-theme) .medicine-tools .tool-icon{background:#efdfd6;color:#a6533e;border-radius:50%}
+.medicea-shell:not(.pet-theme) .care-section .tool-icon{background:#dfe8df;color:#49685d;border-radius:50%}
+.medicea-shell .tool-card,.medicea-shell .care-card{background:#fffdf9;border-color:#e0d8cc;border-radius:12px;color:#233237}
+.medicea-shell .tool-card.is-active{background:#f4e8de;border-color:#b98165}.medicea-shell .care-card.is-active{background:#dfe8df;border-color:#7c9a83}
+.medicea-shell .tool-arrow,.medicea-shell .care-card>svg{color:#867665}
+.medicea-shell .results-view{order:2;margin:18px 0}
+.medicea-shell .results-heading{background:#fffdf9;border-color:#ded5c8;box-shadow:none}
+.medicea-shell .results-heading h2{font-family:Fraunces,Georgia,serif;font-size:27px;font-weight:400}
+.medicea-shell .medical-disclaimer{margin:26px 0 0;color:#756e62}
+.medicea-shell :is(button,a,input,select,textarea,summary):focus-visible{outline:3px solid #a6533e;outline-offset:3px}
+@media(max-width:700px){
+ .medicea-shell{padding:0 18px 90px;font-size:14px}
+ .medicea-shell .site-header{min-height:76px;gap:8px;margin-bottom:14px}
+ .medicea-shell .brand-link{width:124px}
+ .medicea-shell .header-nav{gap:3px;padding-bottom:8px}
+ .medicea-shell .header-nav a{font-size:11px;padding:7px 3px;min-height:40px}
+ .medicea-shell .welcome-hero{min-height:132px;padding:23px 12px}
+ .medicea-shell .hero-eyebrow{font-size:8px;letter-spacing:.13em}
+ .medicea-shell .hero-copy h1{font-size:clamp(14px,4.1vw,27px);margin-top:10px}
+ .medicea-shell .section-heading{margin-bottom:14px;gap:10px}
+ .medicea-shell .search-area{padding:17px}
+ .medicea-shell .medicine-form{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+ .medicea-shell .medicine-form input:not([type=checkbox]),.medicea-shell .country-trigger{font-size:14px;padding:11px 10px;min-height:46px}
+ .medicea-shell .medicine-form>div{min-width:0}
+ .medicea-shell .medicine-form>div>div{font-size:11px;min-height:32px}
+ .medicea-shell .medicine-form input:not([type=checkbox]){width:100%;min-width:0}
+ .medicea-shell .medicine-form .search-submit{font-size:12px;padding:12px;min-height:46px;gap:8px;margin:0}
+ .riviera-shortcuts{grid-template-columns:1fr;gap:0;margin:10px 0}
+ .riviera-shortcuts>button,.riviera-shortcuts>a{min-height:59px;padding:9px 0;font-size:14px}
+ .shortcut-icon{width:35px;height:35px}
+ .medicea-shell .workspace-grid{margin:0}
+ .medicea-shell .care-section{margin:12px 0}
+ .medicea-shell .country-options{left:0;right:auto;width:min(300px,calc(100vw - 72px));min-width:0}
+ .medicea-shell .medicine-form>div:nth-child(2) .country-options{left:auto;right:0}
+ .medicea-shell .tool-grid,.medicea-shell .care-grid{gap:9px}
+}
+@media(max-width:350px){.medicea-shell .medicine-form{grid-template-columns:1fr}.medicea-shell .country-options{left:0;right:0;width:100%}.medicea-shell .medicine-form>div:nth-child(2) .country-options{left:0;right:0}}

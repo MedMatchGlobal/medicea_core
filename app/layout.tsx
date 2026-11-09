@@ -4,6 +4,7 @@ import { LanguageProvider } from "./LanguageProvider";
 
 // ✅ Import the global CSS from *this* folder
 import "./globals.css";
+import "./riviera.css";
 
 import GATracker from "./ga-tracker";
 import MembershipAccess from './components/MembershipAccess';
@@ -29,7 +30,7 @@ export default function RootLayout({
       <head>
         {/* Google Font */}
         <link
-          href="https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,500;1,400&family=Inter:wght@400;500;600;700&family=Patrick+Hand&display=swap"
           rel="stylesheet"
         />
 

@@ -1149,6 +1149,11 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
           openLabel={F(ui, 'openMaps', 'Open in Google Maps')} notice={searchFeedback(lang).careNotice} />
       </div>}
       <div className="workspace-panels">
+      {!petMode && screen === 'search' && !pharmacyOpen && <nav className="riviera-shortcuts" aria-label="Explore medicéa">
+        <button type="button" onClick={() => showScreen('tools')}><span className="shortcut-icon rose"><Pill size={22}/></span><span>{F(ui, 'medicineTools', 'Health tools')}</span><ArrowRight size={18}/></button>
+        <button type="button" onClick={() => showScreen('care')}><span className="shortcut-icon sage"><Hospital size={22}/></span><span>{F(ui, 'findCare', 'Find care')}</span><ArrowRight size={18}/></button>
+        <Link href="/pets"><span className="shortcut-icon ochre"><HeartPulse size={22}/></span><span>{F(ui, 'btnPets', 'Meds 4 Pets')}</span><ArrowRight size={18}/></Link>
+      </nav>}
       <div className="workspace-grid">
       <section className="search-area" id="medicine-search" tabIndex={-1} aria-labelledby="search-title">
       <div className="section-heading"><span className="section-icon"><Search size={22} /></span><div>
