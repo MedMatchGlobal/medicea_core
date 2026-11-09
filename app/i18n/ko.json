@@ -1,6 +1,10 @@
 {
   "langName": "한국어",
   "ui": {
+    "btnLaboratory": "혈액 검사 및 의료 검사실",
+    "btnImaging": "영상 진단",
+    "btnPhysiotherapy": "물리 치료",
+    "emergencyButton": "응급 상황",
     "medicineDetails": "의약품 상세 정보",
     "searchCountry": "국가 검색",
     "allRegions": "모든 대륙",

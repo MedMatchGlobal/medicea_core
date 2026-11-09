@@ -7,6 +7,7 @@ import "./globals.css";
 
 import GATracker from "./ga-tracker";
 import MembershipAccess from './components/MembershipAccess';
+import EmergencyHelp from './components/EmergencyHelp';
 import {membershipPreviewEnabled} from '@/lib/membership/config';
 
 export const metadata = {
@@ -50,7 +51,7 @@ export default function RootLayout({
         <Suspense fallback={null}>
           <GATracker />
         </Suspense>
-        <LanguageProvider><MembershipAccess enabled={membershipPreviewEnabled()}>{children}</MembershipAccess></LanguageProvider>
+        <LanguageProvider><MembershipAccess enabled={membershipPreviewEnabled()}>{children}</MembershipAccess><EmergencyHelp /></LanguageProvider>
       </body>
     </html>
   );

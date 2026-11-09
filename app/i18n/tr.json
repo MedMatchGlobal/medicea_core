@@ -1,6 +1,10 @@
 {
   "langName": "Türkçe",
   "ui": {
+    "btnLaboratory": "Kan testleri ve tıbbi laboratuvarlar",
+    "btnImaging": "Tanısal görüntüleme",
+    "btnPhysiotherapy": "Fizyoterapi",
+    "emergencyButton": "Acil durum",
     "medicineDetails": "İlaç bilgileri",
     "searchCountry": "Ülke ara",
     "allRegions": "Tüm kıtalar",
