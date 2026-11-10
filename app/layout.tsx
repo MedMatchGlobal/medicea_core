@@ -9,7 +9,7 @@ import "./riviera.css";
 import GATracker from "./ga-tracker";
 import MembershipAccess from './components/MembershipAccess';
 import EmergencyHelp from './components/EmergencyHelp';
-import {membershipPreviewEnabled} from '@/lib/membership/config';
+import {membershipPageEnabled, membershipPreviewEnabled} from '@/lib/membership/config';
 
 export const metadata = {
   title: "medicéa",
@@ -52,7 +52,7 @@ export default function RootLayout({
         <Suspense fallback={null}>
           <GATracker />
         </Suspense>
-        <LanguageProvider><MembershipAccess enabled={membershipPreviewEnabled()} accountHref={process.env.VERCEL_ENV==='preview'&&process.env.VERCEL_GIT_COMMIT_REF==='design/riviera-one-page'?'https://medicea-core-git-feature-google-17fe5b-medmatchglobals-projects.vercel.app/membership':undefined}>{children}</MembershipAccess><EmergencyHelp /></LanguageProvider>
+        <LanguageProvider><MembershipAccess enabled={membershipPreviewEnabled()} accountHref={membershipPageEnabled()?'/membership':undefined}>{children}</MembershipAccess><EmergencyHelp /></LanguageProvider>
       </body>
     </html>
   );

@@ -1,3 +1,9 @@
+export function membershipPageEnabled() {
+  return process.env.VERCEL_ENV === 'preview' || (
+    !process.env.VERCEL_ENV && process.env.NODE_ENV === 'development'
+  );
+}
+
 export function membershipPreviewEnabled() {
   return process.env.MEDICEA_MEMBERSHIP_PREVIEW === 'true' && (
     process.env.VERCEL_ENV === 'preview' ||

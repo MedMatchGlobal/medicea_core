@@ -26,7 +26,7 @@ import SavedSearches from './components/SavedSearches';
 import {SAVED_SEARCH_KEY, readSavedSearches, addSavedSearch, isSavedMode, type SavedSearch} from './lib/saved-searches';
 import {savedSearchCopy} from './i18n/saved-searches';
 import type {VeterinarySection} from './lib/veterinary-sections';
-import { ArrowRight, Search, FileText, CircleDot, Building2, HeartPulse, UserRound, Cross, ShieldCheck, ArrowLeftRight, MapPin, PawPrint, FlaskConical, ScanLine, Activity } from 'lucide-react';
+import { ArrowRight, Search, FileText, CircleDot, Building2, HeartPulse, UserRound, Cross, ShieldCheck, ArrowLeftRight, MapPin, PawPrint, FlaskConical, ScanLine, Activity, PersonStanding } from 'lucide-react';
 import countriesByRegion from '../data/countries';
 import { useLanguage } from './LanguageProvider';
 import LanguageButton from './components/LanguageButton';
@@ -1342,7 +1342,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
             ['gp', 'btnGP', 'Search GP', UserRound],
             ['laboratory', 'btnLaboratory', 'Blood tests & medical labs', FlaskConical],
             ['imaging', 'btnImaging', 'Diagnostic imaging', ScanLine],
-            ['physiotherapy', 'btnPhysiotherapy', 'Physiotherapy', Activity],
+            ['physiotherapy', 'btnPhysiotherapy', 'Physiotherapy', PersonStanding],
           ] as const).map(([value, key, fallback, Icon]) => (
             <button type="button" key={value} className={`care-card ${mode === value ? 'is-active' : ''}`}
               aria-pressed={mode === value} onClick={() => resetFieldsForMode(value)}>

@@ -3,6 +3,29 @@ function load(file,env={},imports={}){const module={exports:{}};const source=ts.
 test('membership stays disabled in production even with flag and test credentials',()=>{for(const env of [{VERCEL_ENV:'production',NODE_ENV:'production'},{NODE_ENV:'production'},{VERCEL_ENV:'development',NODE_ENV:'production'}])assert.equal(load('lib/membership/config.ts',{...env,MEDICEA_MEMBERSHIP_PREVIEW:'true'}).membershipPreviewEnabled(),false);assert.equal(load('lib/membership/config.ts',{VERCEL_ENV:'preview',MEDICEA_MEMBERSHIP_PREVIEW:'true'}).membershipPreviewEnabled(),true);});
 test('pricing, UTC month boundaries, origin and Stripe live-key rejection',()=>{const c=load('lib/membership/config.ts',{STRIPE_SECRET_KEY:'sk_live_forbidden',MEDICEA_MEMBERSHIP_ORIGIN:'https://preview.example'});assert.equal(c.PERSONAL_PLANS.monthly.amountMinor,249);assert.equal(c.PERSONAL_PLANS.annual.amountMinor,1999);assert.equal(c.periodKey(new Date('2026-11-01T00:00:00Z')),'2026-11');assert.throws(()=>c.stripeTestKey());assert.equal(c.sameOrigin(new Request('https://preview.example/api',{headers:{origin:'https://attacker.example'}})),false);});
 const sig=(raw,time,secret)=>'t='+time+',v1='+crypto.createHmac('sha256',secret).update(time+'.'+raw).digest('hex');
+test('account presentation does not enable private billing',()=>{
+  for(const [env,page,billing] of [
+    [{VERCEL_ENV:'preview'},true,false],
+    [{NODE_ENV:'development'},true,false],
+    [{VERCEL_ENV:'production',MEDICEA_MEMBERSHIP_PREVIEW:'true'},false,false],
+    [{VERCEL_ENV:'preview',MEDICEA_MEMBERSHIP_PREVIEW:'true'},true,true],
+  ]){
+    const config=load('lib/membership/config.ts',env);
+    assert.equal(config.membershipPageEnabled(),page);
+    assert.equal(config.membershipPreviewEnabled(),billing);
+  }
+});
+test('disabled billing status rejects requests before accessing account data',async()=>{
+  const unexpected=()=>{throw new Error('Account data must not be accessed');};
+  const route=load('app/api/membership/status/route.ts',{}, {
+    '@/lib/membership/config':{membershipPreviewEnabled:()=>false},
+    '@/lib/membership/auth':{membershipUser:unexpected},
+    '@/lib/membership/store':{membershipStatus:unexpected},
+    '@/lib/membership/active-plans':{membershipPlans:unexpected},
+    '@/lib/membership/complimentary':{isMembershipAdmin:unexpected},
+  });
+  assert.equal((await route.GET()).status,404);
+});
 function stripe(env={}){return load('lib/membership/stripe.ts',env,{'./config':load('lib/membership/config.ts',env)});}
 test('webhooks require exact body, timely signature and endpoint secret',()=>{const s=stripe();const raw=JSON.stringify({id:'evt_1'}),secret='whsec_test',now=10000;assert.equal(s.verifyStripeSignature(raw,sig(raw,now,secret),secret,now).id,'evt_1');assert.throws(()=>s.verifyStripeSignature(raw+' ',sig(raw,now,secret),secret,now));assert.throws(()=>s.verifyStripeSignature(raw,sig(raw,now-301,secret),secret,now));assert.throws(()=>s.verifyStripeSignature(raw,sig(raw,now,secret),'whsec_wrong',now));assert.throws(()=>s.verifyStripeSignature(raw,'t=10000,t=10000,v1=bad',secret,now));});
 test('subscription access excludes pending, unpaid, expired, live and wrong-product purchases',()=>{const s=stripe({STRIPE_PERSONAL_MONTHLY_PRICE_ID:'price_monthly'});const now=Date.now();const sub={livemode:false,status:'active',items:{data:[{price:{id:'price_monthly'},current_period_end:Math.floor(now/1000)+3600}]}};assert.equal(s.subscriptionAccess(sub,now).active,true);for(const status of ['incomplete','past_due','unpaid','canceled','trialing'])assert.equal(s.subscriptionAccess({...sub,status},now).active,false);assert.equal(s.subscriptionAccess(sub,now+7200000).active,false);assert.throws(()=>s.subscriptionAccess({...sub,livemode:true},now));assert.throws(()=>s.subscriptionAccess({...sub,items:{data:[]}},now));});
