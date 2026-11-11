@@ -1027,12 +1027,13 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
 
       const res2 = await membershipFetch(membershipEnabled?'/api/membership/search':endpoint, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...(mode === 'international' && new URLSearchParams(window.location.search).get('debug-equivalents') === '1' ? {'x-medicea-equivalent-debug':'1'} : {}) },
         body: JSON.stringify({ originCountry, targetCountry, drugName, drugDosage, lang, ...(membershipEnabled?{mode}:{}) }),
       });
       if (!res2.ok) throw new Error('Medicine service unavailable');
       const payload2 = await res2.json();
       if (version !== searchVersion.current) return;
+      if (payload2.equivalentDebug) console.info('[Equivalent preview diagnostics]', JSON.stringify(payload2.equivalentDebug));
       setSearchAccess(payload2.searchAccess);
       if(membershipEnabled&&payload2.originLeaflet)setLeafletRaw(pickText(payload2.originLeaflet));
       if (mode === 'pets' || mode === 'pet-generic') setPetOriginIngredients(veterinaryIngredients(payload2.originProfile));
@@ -1522,7 +1523,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
                       <div
                         className="human-leaflet-content"
                         style={{
-                          background: '#f6f9ff',
+                          background: 'transparent',
                           border: '1px solid #e5e7eb',
                           borderRadius: 10,
                           padding: '10px 12px',
@@ -1653,7 +1654,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
 /* -------------------------- STYLES -------------------------- */
 
 const styles: Record<string, React.CSSProperties> = {
-  leafletCard: { background: '#f6f9ff', border: '1px solid #e5e7eb', borderRadius: 12, padding: '14px 16px' },
+  leafletCard: { background: 'transparent', border: '1px solid #e5e7eb', borderRadius: 12, padding: '14px 16px' },
   h4: { fontWeight: 700, marginBottom: 4 },
   p: { margin: '6px 0', lineHeight: 1.5 },
   ul: { margin: '6px 0 6px 16px', padding: 0 },

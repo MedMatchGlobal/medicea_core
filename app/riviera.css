@@ -99,7 +99,7 @@ body{background:var(--riviera-paper);color:var(--riviera-ink);font-family:Inter,
 .medicea-shell :is(.pill,.search-submit,.triage-send,.veterinary-care-link,.clear-search,.results-actions button,.return-results):disabled{background:#e8e2d8!important;color:#766f64!important;border-color:#e0d8cc!important;opacity:1!important;cursor:not-allowed}
 .medicea-shell :is(.pill,.search-submit,.triage-send,.veterinary-care-link):not(:disabled):hover{background:#344c52!important}
 .medicea-shell :is(.clear-search,.results-actions button,.return-results,.official-leaflet-link):not(:disabled):hover{background:#eee7dc!important}
-.medicea-shell :is(.medicine-result-card,.ai-plain,.structured-veterinary-leaflet,.human-leaflet-content),.medicea-shell.pet-theme .medicine-leaflet-content>div{background:#fffdf9!important;border:1px solid var(--riviera-line)!important;border-radius:14px;box-shadow:none;color:var(--riviera-ink)!important}
+.medicea-shell :is(.medicine-result-card,.ai-plain,.structured-veterinary-leaflet,.human-leaflet-content),.medicea-shell.pet-theme .medicine-leaflet-content>div{background:transparent!important;border:1px solid var(--riviera-line)!important;border-radius:14px;box-shadow:none;color:var(--riviera-ink)!important}
 .medicea-shell :is(.medicine-result-card,.ai-plain,.structured-veterinary-leaflet,.human-leaflet-content){padding:20px;line-height:1.65}
 .medicea-shell :is(.medicine-result-card,.ai-plain,.structured-veterinary-leaflet,.human-leaflet-content) :is(h2,h3,h4){color:var(--riviera-ink);line-height:1.3}
 .medicea-shell :is(.medicine-result-card,.leaflet-block)>h2{font-family:Fraunces,Georgia,serif;font-size:25px;font-weight:400}

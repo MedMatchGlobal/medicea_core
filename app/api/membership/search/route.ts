@@ -9,7 +9,7 @@ export async function POST(req: Request) {
   if(!['international','generic','pets','pet-generic'].includes(mode))return Response.json({error:'INVALID_INPUT'},{status:400});
   if(typeof body.drugName!=='string'||!body.drugName.trim()||typeof body.originCountry!=='string'||!body.originCountry.trim()||
    ((mode==='international'||mode==='pets')&&(typeof body.targetCountry!=='string'||!body.targetCountry.trim())))return Response.json({error:'INVALID_INPUT'},{status:400});
-  const providerRequest=()=>new Request(request.url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  const providerRequest=()=>new Request(request.url,{method:'POST',headers:{'Content-Type':'application/json',...(process.env.VERCEL_ENV==='preview'&&request.headers.get('x-medicea-equivalent-debug')==='1'?{'x-medicea-equivalent-debug':'1'}:{})},body:JSON.stringify(body)});
   let originLeaflet;
   if(mode==='international'||mode==='generic') {
    const {POST}=await import('@/app/api/openai/leaflet/route');

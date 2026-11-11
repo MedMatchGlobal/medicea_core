@@ -151,6 +151,10 @@ const response2 = await openaiFetch(OPENAI_URL, {
 
     return NextResponse.json({
       matches,
+      // Explicit preview troubleshooting only; never used as medicine results.
+      ...(process.env.VERCEL_ENV === 'preview' && req.headers.get('x-medicea-equivalent-debug') === '1'
+        ? { equivalentDebug: { providerText: rawText, parsedCandidates: parseEquivalentCandidates(rawText).length, keptCandidates: matches.length } }
+        : {}),
       originProfile,
       originProfileNamed: {
         ...named,
