@@ -1062,7 +1062,11 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
         headers: { 'Content-Type': 'application/json', ...(mode === 'international' && new URLSearchParams(window.location.search).get('debug-equivalents') === '1' ? {'x-medicea-equivalent-debug':'1'} : {}) },
         body: JSON.stringify({ originCountry, targetCountry, drugName, drugDosage, lang, ...(selection?{originSelection:selection.token}:{}), ...(membershipEnabled?{mode}:{}) }),
       });
-      if (!res2.ok) throw new Error('Medicine service unavailable');
+      if (!res2.ok) {
+        const failure=await res2.json().catch(()=>null);
+        if(failure?.equivalentDebug)console.info('[Equivalent preview diagnostics]',JSON.stringify({error:failure.diagnostic||failure.error,...failure.equivalentDebug}));
+        throw new Error('Medicine service unavailable');
+      }
       const payload2 = await res2.json();
       if (version !== searchVersion.current) return;
       if (payload2.equivalentDebug) console.info('[Equivalent preview diagnostics]', JSON.stringify(payload2.equivalentDebug));
