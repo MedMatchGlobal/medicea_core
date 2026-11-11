@@ -1,7 +1,7 @@
 const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm'),path=require('node:path'),ts=require('typescript'),cp=require('node:child_process');
 function loader(env={},overrides={},fetch=()=>{throw Error('Unexpected network');}){
  const cache={};return function read(file){if(cache[file])return cache[file];const module={exports:{}};const code=ts.transpileModule(fs.readFileSync(file,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText;
- vm.runInNewContext(code,{module,exports:module.exports,process:{env},fetch,Response,Request,Headers,AbortController,URL,Buffer,Date,setTimeout,clearTimeout,console,require:name=>overrides[name]||(name.startsWith('.')?read(path.join(path.dirname(file),name+'.ts')):require(name))});return cache[file]=module.exports;};
+ vm.runInNewContext(code,{module,exports:module.exports,process:{env},fetch,Response,Request,Headers,AbortController,URL,Buffer,Date,Error,SyntaxError,TypeError,setTimeout,clearTimeout,console,require:name=>overrides[name]||(name.startsWith('.')?read(path.join(path.dirname(file),name+'.ts')):require(name))});return cache[file]=module.exports;};
 }
 const env={VERCEL_ENV:'preview',VERCEL_GIT_COMMIT_REF:'design/riviera-one-page',ANTHROPIC_API_KEY:'test-key'};
 const source='https://regulator.example/product';
@@ -13,7 +13,12 @@ test('historical research and matching instructions remain intact except the own
    .replace('Under Average Selling Price distinguish each listed quote and its price type; never combine reimbursement, wholesale and retail amounts into an average or range.','Under Average Selling Price return at most one short line giving an approximate typical retail price or narrow supported range, currency and exact pack size for the selected variant. Do not list stores, individual quotes or long URLs in this section. Do not infer a typical price from incompatible packs or price types; if not established, write Not available.');
   const current=fs.readFileSync(file,'utf8');
   const extract=(text,name)=>{const ast=ts.createSourceFile(file,text,ts.ScriptTarget.Latest,true);const node=ast.statements.find(n=>n.name?.getText(ast)===name||ts.isVariableStatement(n)&&n.declarationList.declarations.some(d=>d.name.getText(ast)===name));return node?.getText(ast);};
-  for(const name of names)assert.equal(extract(current,name),extract(old,name),name);
+  for(const name of names){
+   // Only the owner-approved diagnostic classification changes parser code;
+   // prompt text, successful parsing and source acceptance remain protected.
+   const expected=name==='readClaudeResearch'?extract(old,name).replace('const reply=JSON.parse(text);',"let reply:any;\n try{reply=JSON.parse(text);}catch{throw Error('CLAUDE_RESEARCH_JSON_INVALID');}\n if(!reply||typeof reply!=='object'||Array.isArray(reply))throw Error('CLAUDE_RESEARCH_SHAPE_INVALID');"):extract(old,name);
+   assert.equal(extract(current,name),expected,name);
+  }
  }
 });
 test('Sonnet medium researches the web and joins citation-separated answer blocks',async()=>{
@@ -69,4 +74,28 @@ test('diagnostics retain the stage and discovery data when catalogue validation 
  const token=read('app/lib/sonnet-research-support.ts').issueOriginSelection(product(),'Example');
  const response=await read('app/lib/sonnet-research-matches.ts').productionStrengthSearch({drugName:'Example',originCountry:'Italy',targetCountry:'Italy',originSelection:token},false,true);
  const body=await response.json();assert.equal(response.status,503);assert.equal(body.diagnostic,'INCOMPLETE_CATALOGUES');assert.equal(body.equivalentDebug.stage,'destination_catalogues');assert.equal(body.equivalentDebug.discoveryCount,1);
+});
+
+test('research diagnostics distinguish malformed JSON and invalid root shape without leaking raw text',()=>{
+ const research=loader(env)('app/lib/claude-preview.ts').readClaudeResearch;
+ const payload=text=>({stop_reason:'end_turn',content:[{type:'web_search_tool_result',content:[{type:'web_search_result',url:source}]},{type:'text',text}]});
+ assert.throws(()=>research(payload('private-source-text {broken')),e=>e.message==='CLAUDE_RESEARCH_JSON_INVALID');
+ for(const text of ['null','[]','42'])assert.throws(()=>research(payload(text)),e=>e.message==='CLAUDE_RESEARCH_SHAPE_INVALID');
+ assert.equal(research(payload('{"candidates":[]}')).candidates.length,0);
+});
+
+test('provider diagnostics distinguish transport, HTTP and invalid JSON responses',async()=>{
+ const run=fetch=>loader(env,{},fetch)('app/lib/claude-preview.ts').claudeMessage('Test',[{role:'user',content:'Test'}],false,Date.now()+1000);
+ await assert.rejects(()=>run(async()=>{throw new TypeError('private-network-detail');}),e=>e.message==='CLAUDE_NETWORK_ERROR');
+ await assert.rejects(()=>run(async()=>new Response('private-upstream-body')),e=>e.message==='CLAUDE_PROVIDER_JSON_INVALID');
+ await assert.rejects(()=>run(async()=>Response.json({error:{message:'private detail'}},{status:429})),e=>e.message==='CLAUDE_HTTP_429');
+});
+
+test('unexpected destination errors retain safe codes, stage and elapsed time',async()=>{
+ for(const [failure,expected] of [[new SyntaxError('private-json-fragment'),'CLAUDE_RESPONSE_JSON_INVALID'],[new TypeError('private-profile'),'CLAUDE_RESPONSE_SHAPE_INVALID'],[new Error('private-secret'),'CLAUDE_UNEXPECTED_ERROR'],[new Error('CLAUDE_PRIVATE_SECRET'),'CLAUDE_UNEXPECTED_ERROR'],[new Error('CLAUDE_RESEARCH_JSON_INVALID'),'CLAUDE_RESEARCH_JSON_INVALID']]){
+  const read=loader(env,{'./openaiClient':{},'./claude-preview':{claudePreviewEnabled:()=>true,claudeResearch:async()=>{throw failure;}}});
+  const token=read('app/lib/sonnet-research-support.ts').issueOriginSelection(product(),'Example');
+  const response=await read('app/lib/sonnet-research-matches.ts').productionStrengthSearch({drugName:'Example',originCountry:'Italy',targetCountry:'Italy',originSelection:token},false,true);
+  const body=await response.json();assert.equal(response.status,503);assert.equal(body.diagnostic,expected);assert.equal(body.equivalentDebug.stage,'destination_discovery');assert.ok(body.equivalentDebug.elapsedMs>=0);assert.doesNotMatch(JSON.stringify(body),/private-|test-key/);
+ }
 });

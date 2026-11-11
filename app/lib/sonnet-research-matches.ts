@@ -87,7 +87,8 @@ export async function productionStrengthSearch(input:{drugName:unknown;originCou
  if(!productionFrontendEnabled())return Response.json({error:'NOT_FOUND'},{status:404});
  const claude=claudePreviewEnabled(),deadline=Date.now()+100_000;
  const debug=claude&&diagnosticRequested&&!identifyOnly?{stage:'origin_selection',origin:null as any,discoveryCount:0,discoveryProfiles:[] as any[],catalogues:[] as any[],decisions:[] as any[],acceptedCount:0,truncated:false}:null;
- const debugResponse=()=>debug?{equivalentDebug:debug}:{};
+ const started=Date.now();
+ const debugResponse=()=>debug?{equivalentDebug:{...debug,elapsedMs:Date.now()-started}}:{};
  const {drugName,originCountry,targetCountry,drugDosage}=input;
  if(!plain(drugName,250)||!plain(originCountry)||!plain(targetCountry)||(drugDosage!=null&&(typeof drugDosage!=='string'||drugDosage.length>100)))return Response.json({error:'INVALID_INPUT'},{status:400});
  async function ask(instruction:string,data:unknown){
@@ -167,7 +168,8 @@ export async function productionStrengthSearch(input:{drugName:unknown;originCou
  } catch(error) {
   // Fixed operational codes only: never upstream text, input or credentials.
   const code=error instanceof Error?error.message:'';
-  const diagnostic=claude&&/^(?:CLAUDE_[A-Z_]+(?:\d{3})?|UNRESOLVED_VARIANTS|INVALID_CANDIDATES|INVALID_CANDIDATE_IDENTITY|INCOMPLETE_CATALOGUES|UNRESOLVED_CATALOGUE)$/.test(code)?code:undefined;
+  const knownDiagnostic=/^(?:CLAUDE_(?:HTTP_[45]\d{2}|INCOMPLETE|INVALID_PRODUCTS|KEY_MISSING|NETWORK_ERROR|NO_RESEARCH|PREVIEW_DISABLED|PROVIDER_JSON_INVALID|RESEARCH_JSON_INVALID|RESEARCH_SHAPE_INVALID|SEARCH_FAILED|TIMEOUT|UNSUPPORTED_PRODUCT|UNSUPPORTED_REQUEST|EMPTY_RESPONSE)|UNRESOLVED_VARIANTS|INVALID_CANDIDATES|INVALID_CANDIDATE_IDENTITY|INCOMPLETE_CATALOGUES|UNRESOLVED_CATALOGUE)$/.test(code);
+  const diagnostic=claude?(knownDiagnostic?code:error instanceof SyntaxError?'CLAUDE_RESPONSE_JSON_INVALID':error instanceof TypeError?'CLAUDE_RESPONSE_SHAPE_INVALID':'CLAUDE_UNEXPECTED_ERROR'):undefined;
   if(claude)console.warn('[Claude Preview validation]',{code:diagnostic||'INVALID_RESPONSE'});
   return Response.json({error:'MATCHING_UNAVAILABLE',...(diagnostic?{diagnostic}:{}),...debugResponse()},{status:503});
  }

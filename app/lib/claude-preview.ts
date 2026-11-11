@@ -28,7 +28,9 @@ export function readClaudeResearch(payload:any){
  }
  if(!searched||!retrieved.size)throw Error('CLAUDE_NO_RESEARCH');
  const text=payload.content.slice(lastResult+1).filter((b:any)=>b.type==='text').map((b:any)=>b.text).join('').trim().replace(/^```(?:json)?\s*/,'').replace(/\s*```$/,'');
- const reply=JSON.parse(text);
+ let reply:any;
+ try{reply=JSON.parse(text);}catch{throw Error('CLAUDE_RESEARCH_JSON_INVALID');}
+ if(!reply||typeof reply!=='object'||Array.isArray(reply))throw Error('CLAUDE_RESEARCH_SHAPE_INVALID');
  const products=reply.products??reply.candidates??(Array.isArray(reply.catalogues)?reply.catalogues.flatMap((c:any)=>c.products||[]):null);
  if(!Array.isArray(products))throw Error('CLAUDE_INVALID_PRODUCTS');
  for(const product of products){
@@ -59,8 +61,8 @@ export async function claudeMessage(system:string,messages:any[],research:boolea
  parentSignal?.addEventListener('abort',cancel,{once:true});if(parentSignal?.aborted)cancel();
  const started=Date.now();try{
   const response=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+key,'anthropic-version':'2023-06-01'},cache:'no-store',signal:controller.signal,body:JSON.stringify({model:'claude-sonnet-5-5',max_tokens:Math.max(2048,maxTokens),output_config:{effort:'medium'},
-   system,messages,...(research?{tools:[{type:'web_search_20250305',name:'web_search'}]}:{})})});
-  const payload=await response.json();
+   system,messages,...(research?{tools:[{type:'web_search_20250305',name:'web_search'}]}:{})})}).catch(()=>{throw Error(controller.signal.aborted?'CLAUDE_TIMEOUT':'CLAUDE_NETWORK_ERROR');});
+  const payload=await response.json().catch(()=>{throw Error(controller.signal.aborted?'CLAUDE_TIMEOUT':'CLAUDE_PROVIDER_JSON_INVALID');});
   if(!response.ok){
    // Enumerated diagnostics only; upstream messages may echo private input.
    const message=typeof payload?.error?.message==='string'?payload.error.message:'';
