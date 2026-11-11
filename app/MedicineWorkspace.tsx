@@ -903,7 +903,7 @@ if (!membershipEnabled && !BETA_TESTING && isPremiumMode(mode)) {
         if(version!==searchVersion.current)return;
         if(!Array.isArray(payload.variants)||!payload.variants.length)throw Error('Origin identification unavailable');
         originChoiceHistory.current=payload.variants;
-        if(payload.variants.length>1){
+        if(payload.variants.length>1||payload.requiresChoice){
           setOriginVariants(payload.variants);setOriginProduct(null);setLeafletRaw('');setMatches([]);setResult('');setSearchFailed(false);setRestoredSearch(null);setSaveMessage('');completedSearchContext.current=null;
           setSearched(true);showScreen('results');return;
         }

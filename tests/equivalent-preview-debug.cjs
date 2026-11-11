@@ -7,7 +7,7 @@ const ts = require('typescript');
 function load(file, imports, env = {}) {
   const module = {exports:{}};
   const output = ts.transpileModule(fs.readFileSync(file,'utf8'), {compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText;
-  vm.runInNewContext(output, {module,exports:module.exports,process:{env},Request,Response,require:name=>imports[name]});
+  vm.runInNewContext(output, {module,exports:module.exports,process:{env},Request,Response,require:name=>imports[name]||require('./legacy-provider-stubs.cjs')(name)});
   return module.exports;
 }
 

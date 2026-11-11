@@ -6,7 +6,7 @@ const ts=require('typescript');
 function load(file,imports={},env={}){
  const module={exports:{}};
  const output=ts.transpileModule(fs.readFileSync(file,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText;
- vm.runInNewContext(output,{module,exports:module.exports,process:{env:{OPENAI_API_KEY:'test-only-key',...env}},Buffer,Date,URL,Request,Response,require:name=>imports[name]||require(name)});
+ vm.runInNewContext(output,{module,exports:module.exports,process:{env:{OPENAI_API_KEY:'test-only-key',...env}},Buffer,Date,URL,Request,Response,require:name=>imports[name]||require('./legacy-provider-stubs.cjs')(name)||require(name)});
  return module.exports;
 }
 const product=(strength,form='tablet')=>({name:'Example '+strength+' '+form,form,route:'oral',release:'immediate-release',ingredients:[{name:'ingredient A',strength:'500 mg'},{name:'ingredient B',strength:strength+' mg'}]});

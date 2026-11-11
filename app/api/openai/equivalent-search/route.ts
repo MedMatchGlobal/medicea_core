@@ -2,7 +2,9 @@ import {filterCompositionCandidates, parseEquivalentCandidates} from '@/app/lib/
 import {readVariant} from '@/app/lib/origin-variants';
 import {verifyEquivalentCandidates} from '@/app/lib/equivalent-verification';
 import {withMembership} from '@/lib/membership/meter';
-export const maxDuration = 60;
+import {claudePreviewEnabled} from '@/app/lib/claude-preview';
+import {productionStrengthSearch} from '@/app/lib/sonnet-research-matches';
+export const maxDuration = 120;
 import { openaiFetch } from "@/app/lib/openaiClient";
 import { NextResponse } from "next/server";
 
@@ -75,6 +77,7 @@ function applyUserDosageOverride(
 async function generate(req: Request) {
   try {
     const { originCountry, drugName, drugDosage, targetCountry, originSelection } = await req.json();
+    if(claudePreviewEnabled())return productionStrengthSearch({originCountry,drugName,drugDosage,targetCountry,originSelection});
     const selected=originSelection?readVariant(originSelection,drugName,originCountry,drugDosage||''):null;
     if(originSelection&&!selected)return NextResponse.json({error:'ORIGIN_SELECTION_EXPIRED'},{status:422});
 

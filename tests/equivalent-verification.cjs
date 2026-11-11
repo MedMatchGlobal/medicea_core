@@ -1,5 +1,5 @@
 const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm'),ts=require('typescript');
-function load(file,imports={},env={}){const module={exports:{}};const output=ts.transpileModule(fs.readFileSync(file,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText;vm.runInNewContext(output,{module,exports:module.exports,process:{env},Request,Response,require:name=>imports[name]||require(name)});return module.exports;}
+function load(file,imports={},env={}){const module={exports:{}};const output=ts.transpileModule(fs.readFileSync(file,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText;vm.runInNewContext(output,{module,exports:module.exports,process:{env},Request,Response,require:name=>imports[name]||require('./legacy-provider-stubs.cjs')(name)||require(name)});return module.exports;}
 const variants=load('app/lib/origin-variants.ts');
 const helpers=load('app/lib/equivalent-results.ts');
 const product=(strength='30 mg',extra={})=>({name:'Example',form:'tablet',route:'oral',release:'immediate-release',ingredients:[{name:'Paracetamol',strength:'500 mg'},{name:'Codeine phosphate hemihydrate',strength}],...extra});

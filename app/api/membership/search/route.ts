@@ -1,7 +1,7 @@
 import {meteredSearch} from '@/lib/membership/meter';
 import {readVariant} from '@/app/lib/origin-variants';
 // The existing leaflet and matching handlers run sequentially inside one operation.
-export const maxDuration = 120;
+export const maxDuration = 180;
 // One reservation for a normal medicine search, including its origin leaflet.
 export async function POST(req: Request) {
  return meteredSearch(req,async request=>{

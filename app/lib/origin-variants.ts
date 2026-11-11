@@ -1,10 +1,12 @@
 import {createHmac, timingSafeEqual} from 'node:crypto';
+import {claudePreviewEnabled} from './claude-preview';
+import {readOriginSelection} from './sonnet-research-support';
 
 export type OriginVariant = {name:string;form:string;route:string;release:string;ingredients:{name:string;strength:string}[];token:string};
 const normal = (s:string) => s.normalize('NFKC').trim().toLowerCase();
 const text = (v:unknown, max=250):v is string => typeof v==='string' && !!v.trim() && v.length<=max;
 function key() {
-  const secret=process.env.OPENAI_API_KEY_1||process.env.OPENAI_API_KEY||process.env.OPENAI_API_KEY_2||process.env.OPENAI_API_KEY_3||process.env.OPENAI_API_KEY_4;
+  const secret=process.env.OPENAI_API_KEY_1||process.env.OPENAI_API_KEY||process.env.OPENAI_API_KEY_2||process.env.OPENAI_API_KEY_3||process.env.OPENAI_API_KEY_4||process.env.ANTHROPIC_API_KEY;
   if(!secret) throw Error('ORIGIN_SELECTION_UNAVAILABLE');
   return createHmac('sha256',secret).update('medicea-origin-variant-v1').digest();
 }
@@ -16,6 +18,10 @@ export function signVariant(product:Omit<OriginVariant,'token'>,query:string,cou
   return {...product,token:payload+'.'+createHmac('sha256',key()).update(payload).digest('base64url')};
 }
 export function readVariant(token:unknown,query:string,country:string,hint:string):OriginVariant|null {
+  if(claudePreviewEnabled()){
+    const profile=readOriginSelection(token,query,country,hint);
+    return profile&&typeof token==='string'?{...profile,release:profile.release||'',token}:null;
+  }
   try {
     if(typeof token!=='string'||token.length>20000) return null;
     const parts=token.split('.'); if(parts.length!==2) return null;
