@@ -31,6 +31,15 @@ test('composition screening rejects missing ingredients and partial strength mat
   assert.equal(filterCompositionCandidates('1. Example',[]),'');
 });
 
+test('a closing disclaimer does not erase valid equivalent entries',()=>{
+  const {parseEquivalentCandidates,filterCompositionCandidates}=load(path.join(root,'app/lib/equivalent-results.ts'));
+  const entry='1. Example ingredient A 5 mg, ingredient B 20 mg';
+  const raw=entry+'\n2. Please consult a pharmacist\nPlease confirm availability locally; some products are not available.';
+  assert.deepEqual(Array.from(parseEquivalentCandidates(raw),x=>x.medicine_name),['Example ingredient A 5 mg, ingredient B 20 mg']);
+  assert.equal(filterCompositionCandidates(raw,[{name:'ingredient A',strength:'5 mg'},{name:'ingredient B',strength:'20 mg'}]),entry);
+  assert.equal(filterCompositionCandidates('Please consult a pharmacist\n1. Sorry, unable to help',[{name:'ingredient A',strength:'5 mg'}]),'');
+});
+
 test('selected medicine offers pharmacy, GP and conversation steps without claiming online dispensing',()=>{
   const Panel=load(path.join(root,'app/components/MedicineNextSteps.tsx')).default;
   const html=renderToStaticMarkup(React.createElement(Panel,{medicine:'Example <name>',country:'Italy',dosage:'5 mg',onFind(){}}));
