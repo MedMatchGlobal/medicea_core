@@ -332,7 +332,7 @@ function renderLeafletPretty(leafletText: string, t: UIStrings) {
   return (
     <div style={styles.leafletCard}>
       {blocks.map(({ key, text }) => {
-        const label = (t.leafletHeadings && (t.leafletHeadings as any)[key]) || key;
+        const label = key==='Average Selling Price'?'Typical selling price':(t.leafletHeadings && (t.leafletHeadings as any)[key]) || key;
         return (
           <div key={key} style={{ marginBottom: 10 }}>
             <div style={styles.h4}>{label}:</div>
@@ -956,6 +956,7 @@ if (!membershipEnabled && !BETA_TESTING && isPremiumMode(mode)) {
     const targetCountry = targetCode || '';
     const drugName = selectedDrug || '';
     const drugDosage = selectedDosage || '';
+    let acceptOriginLeaflet=true;
 
     try {
       // Count usage locally only after all checks passed
@@ -1037,15 +1038,15 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
       }
 
       if (!membershipEnabled && mode !== 'pets' && mode !== 'pet-generic') {
-      const leafletResp = await fetch('/api/openai/leaflet', {
+      void fetch('/api/openai/leaflet', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ originCountry, drugName:selection?.name||drugName, drugDosage:selection?selection.ingredients.map(i=>i.strength).join(' + '):drugDosage, lang }),
-      });
-      if (!leafletResp.ok) throw new Error('Medicine service unavailable');
-      const leafletPayload = await leafletResp.json();
-      if (version !== searchVersion.current) return;
-      setLeafletRaw(pickText(leafletPayload));
+      }).then(async leafletResp=>{
+        if(!leafletResp.ok)return;
+        const leafletPayload=await leafletResp.json();
+        if(acceptOriginLeaflet&&version===searchVersion.current)setLeafletRaw(pickText(leafletPayload));
+      }).catch(()=>{});
       }
 
       const endpoint =
@@ -1088,6 +1089,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
 
       setLoading(false);
     } catch (error) {
+      acceptOriginLeaflet=false;
       if (version !== searchVersion.current) return;
       if(error instanceof MembershipAccessError){setSearched(false);setScreen('search');setLoading(false);return;}
       setSearchFailed(true);
