@@ -37,6 +37,7 @@ test('identification enumerates variants without destination searches and is dis
  const helper=load('app/lib/origin-variants.ts');let calls=0;
  const imports={
   '@/app/lib/origin-variants':helper,
+  '@/app/lib/equivalent-verification':{verifyEquivalentCandidates:()=>{throw Error('Unexpected verification outside preview');}},
   '@/lib/membership/config':{membershipPreviewEnabled:()=>false},
   '@/lib/membership/auth':{membershipUser:()=>{throw Error('Unexpected auth');}},
   '@/app/lib/openaiClient':{openaiFetch:async(url,init)=>{calls++;const sent=JSON.parse(init.body);assert.deepEqual(JSON.parse(sent.messages[1].content),{drugName:'Example',originCountry:'GB'});return Response.json({choices:[{finish_reason:'stop',message:{content:JSON.stringify({variants_complete:true,products:[product(8),product(30)]})}}]});}},
@@ -51,6 +52,7 @@ test('matching reuses the signed origin and never overwrites its amounts with th
  const helper=load('app/lib/origin-variants.ts');const selected=helper.signVariant(product(8),'Example','GB','500');let calls=0;
  const route=load('app/api/openai/equivalent-search/route.ts',{
   '@/app/lib/origin-variants':helper,
+  '@/app/lib/equivalent-verification':{verifyEquivalentCandidates:()=>{throw Error('Unexpected verification outside preview');}},
   '@/app/lib/equivalent-results':load('app/lib/equivalent-results.ts'),
   '@/lib/membership/meter':{withMembership:run=>run},'next/server':{NextResponse:Response},
   '@/app/lib/openaiClient':{openaiFetch:async(url,init)=>{calls++;const sent=JSON.parse(init.body);assert.equal(sent.messages[1].content,'Return preferably 10 products available in Italy that contain 500 mg of ingredient A together with 8 mg of ingredient B.');return Response.json({choices:[{message:{content:'No matches.'}}]});}},

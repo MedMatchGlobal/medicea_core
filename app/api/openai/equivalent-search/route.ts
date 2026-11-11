@@ -1,5 +1,6 @@
 import {filterCompositionCandidates, parseEquivalentCandidates} from '@/app/lib/equivalent-results';
 import {readVariant} from '@/app/lib/origin-variants';
+import {verifyEquivalentCandidates} from '@/app/lib/equivalent-verification';
 import {withMembership} from '@/lib/membership/meter';
 export const maxDuration = 60;
 import { openaiFetch } from "@/app/lib/openaiClient";
@@ -149,8 +150,12 @@ const response2 = await openaiFetch(OPENAI_URL, {
     const rawText = (data2.choices?.[0]?.message?.content || "").trim() || "No response.";
 
     // ---------- STEP 3: post-filter to exact pairwise matches ----------
-    const filtered = filterCompositionCandidates(rawText, explicitListToPairs(explicitList));
-    const matches = parseEquivalentCandidates(filtered);
+    const verifySelected=!!selected&&(process.env.VERCEL_ENV==='preview'||process.env.NODE_ENV==='development');
+    const screened=verifySelected?'':filterCompositionCandidates(rawText, explicitListToPairs(explicitList));
+    const matches = verifySelected
+      ? await verifyEquivalentCandidates(rawText,targetCountry,selected)
+      : parseEquivalentCandidates(screened);
+    const filtered = verifySelected?matches.map(item=>'- '+item.medicine_name).join('\n'):screened;
 
     return NextResponse.json({
       matches,
@@ -167,6 +172,7 @@ const response2 = await openaiFetch(OPENAI_URL, {
         target_country: targetCountry,
         search_composition: explicitList,
         raw_text: filtered,
+        ...(verifySelected?{verification:'model_generated_full_composition'}:{}),
         // Optional debug fields if you want to see what got removed:
         // dropped_lines: dropped,
       },
