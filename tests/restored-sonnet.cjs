@@ -16,7 +16,8 @@ test('historical research and matching instructions remain intact except the own
   for(const name of names){
    // Only the owner-approved diagnostic classification changes parser code;
    // prompt text, successful parsing and source acceptance remain protected.
-   const expected=name==='readClaudeResearch'?extract(old,name).replace('const reply=JSON.parse(text);',"let reply:any;\n try{reply=JSON.parse(text);}catch{throw Error('CLAUDE_RESEARCH_JSON_INVALID');}\n if(!reply||typeof reply!=='object'||Array.isArray(reply))throw Error('CLAUDE_RESEARCH_SHAPE_INVALID');"):extract(old,name);
+   let expected=name==='readClaudeResearch'?extract(old,name).replace('const reply=JSON.parse(text);',"let reply:any;\n try{reply=JSON.parse(text);}catch{throw Error('CLAUDE_RESEARCH_JSON_INVALID');}\n if(!reply||typeof reply!=='object'||Array.isArray(reply))throw Error('CLAUDE_RESEARCH_SHAPE_INVALID');"):extract(old,name);
+   if(name==='comparisonProfile')expected=expected.replace('function comparisonProfile(p:Product):Product {','function comparisonProfile(p:Product):Product {\n p=reviewedComparisonProfile(p);');
    assert.equal(extract(current,name),expected,name);
   }
  }
@@ -98,4 +99,37 @@ test('unexpected destination errors retain safe codes, stage and elapsed time',a
   const response=await read('app/lib/sonnet-research-matches.ts').productionStrengthSearch({drugName:'Example',originCountry:'Italy',targetCountry:'Italy',originSelection:token},false,true);
   const body=await response.json();assert.equal(response.status,503);assert.equal(body.diagnostic,expected);assert.equal(body.equivalentDebug.stage,'destination_discovery');assert.ok(body.equivalentDebug.elapsedMs>=0);assert.doesNotMatch(JSON.stringify(body),/private-|test-key/);
  }
+});
+
+const coEfferalgan=()=>({...product(),name:'Co-Efferalgan 500 mg + 30 mg compresse rivestite con film',form:'film-coated tablet',sources:['https://www.gazzettaufficiale.it/atto/parte_seconda/caricaDettaglioAtto/originario?atto.codiceRedazionale=TX22ADD12567&atto.dataPubblicazioneGazzetta=2022-11-24'],ingredients:[{name:'Paracetamol',strength:'500 mg per tablet'},{name:'Codeine phosphate',strength:'30 mg per tablet'}]});
+test('reviewed label enrichment is specific, preserves label text and never converts strengths',()=>{
+ const {reviewedComparisonProfile,reviewedCompositionEvidence}=loader(env)('app/lib/reviewed-composition.ts');
+ const origin=coEfferalgan(),before=JSON.stringify(origin),normal=reviewedComparisonProfile(origin);
+ assert.equal(normal.ingredients[1].name,'Codeine phosphate hemihydrate');assert.equal(normal.ingredients[1].strength,'30 mg per tablet');assert.equal(JSON.stringify(origin),before);assert.ok(reviewedCompositionEvidence(origin)[0].startsWith('https://www.gazzettaufficiale.it/'));
+ const eff={...origin,form:'effervescent tablet',sources:['https://www.bbfarma.it/pdf/stampati/038123028.pdf']};assert.equal(reviewedCompositionEvidence(eff).length,2);
+ for(const p of [
+  {...origin,name:'Another brand'}, {...origin,country:'United Kingdom'}, {...origin,form:'capsule'}, {...origin,form:'tablet'}, {...origin,release:'modified-release'}, {...origin,route:'rectal'}, {...origin,sources:[]}, {...origin,sources:['https://unverified.example/brand']}, {...origin,species:['dog']}, {...origin,complete:false},
+  {...origin,ingredients:[origin.ingredients[0],{name:'Codeine phosphate',strength:'8 mg per tablet'}]},
+  {...origin,ingredients:[origin.ingredients[0],{name:'Codeine phosphate',strength:'30 mg per ml'}]},
+  {...origin,ingredients:[origin.ingredients[0],{name:'Codeine phosphate sesquihydrate',strength:'30 mg per tablet'}]},
+  {...origin,ingredients:[...origin.ingredients,{name:'Caffeine',strength:'30 mg per tablet'}]},
+ ])assert.equal(reviewedComparisonProfile(p),p,'unsupported profile must not be enriched');
+});
+
+test('Co Efferalgan lookup uses reviewed chemical name and retains independently researched exact matches',async()=>{
+ const origin=coEfferalgan();let calls=0;
+ const correct={...product(),name:'Co-codamol 30/500 Tablets',country:'United Kingdom',ingredients:[{name:'Codeine phosphate hemihydrate',strength:'30 mg per tablet'},{name:'Paracetamol',strength:'500 mg per tablet'}]};
+ const wrongStrength={...correct,name:'Co-codamol 8/500 Tablets',ingredients:[correct.ingredients[1],{name:'Codeine phosphate hemihydrate',strength:'8 mg per tablet'}]};
+ const wrongForm={...correct,name:'Co-codamol 30/500 Effervescent Tablets',form:'effervescent tablet'};
+ const wrongOpioid={...correct,name:'Co-codamol 30/500 Tablets',ingredients:[correct.ingredients[1],{name:'Dihydrocodeine tartrate',strength:'30 mg per tablet'}]};
+ const read=loader(env,{'./openaiClient':{},'./claude-preview':{claudePreviewEnabled:()=>true,claudeResearch:async(instruction,data)=>{
+  calls++;
+  if(calls===1){assert.match(data,/30 mg per tablet of Codeine phosphate hemihydrate/);return {candidates:[correct]};}
+  assert.deepEqual(data.query_names,['Co-codamol']);assert.equal(JSON.stringify(data).includes('30 mg'),false);
+  return {catalogues:[{query_name:'Co-codamol',variants_complete:false,products:[correct,wrongStrength,wrongForm,wrongOpioid]}]};
+ }}});
+ const token=read('app/lib/sonnet-research-support.ts').issueOriginSelection(origin,'Co Efferalgan');
+ const response=await read('app/lib/sonnet-research-matches.ts').productionStrengthSearch({drugName:'Co Efferalgan',originCountry:'Italy',targetCountry:'United Kingdom',originSelection:token},false,true);
+ const body=await response.json();assert.equal(response.status,200);assert.equal(calls,2);assert.equal(body.matches.length,1);assert.equal(body.originProfile.active_ingredients[1].name,'Codeine phosphate');assert.equal(body.comparisonEvidence.length,1);assert.equal(body.equivalentDebug.acceptedCount,1);
+ assert.ok(body.equivalentDebug.decisions.some(d=>d.reasons.includes('STRENGTH_OR_UNIT_TEXT_DIFFERS')));assert.ok(body.equivalentDebug.decisions.some(d=>d.reasons.includes('FORM_MISMATCH')));assert.ok(body.equivalentDebug.decisions.some(d=>d.reasons.includes('INGREDIENT_NAMES_MISMATCH')));
 });

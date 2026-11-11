@@ -1,4 +1,5 @@
 import {claudePreviewEnabled,claudeResearch} from './claude-preview';
+import {reviewedComparisonProfile,reviewedCompositionEvidence} from './reviewed-composition';
 import {openaiFetch} from './openaiClient';
 const productionFrontendEnabled=claudePreviewEnabled;
 import {exactComposition,identificationHintAgrees,issueOriginSelection,readOriginSelection,type OriginProduct,isMedicineName} from './sonnet-research-support';
@@ -22,6 +23,7 @@ function releaseKey(value:string){
  return ['immediate','immediate release','conventional release'].includes(key)?'immediate release':key;
 }
 function comparisonProfile(p:Product):Product {
+ p=reviewedComparisonProfile(p);
  const form=formKey(p.form),route=norm(p.route);
  const unit=/\btablet$/.test(form)?'tablet':/\bcapsule$/.test(form)?'capsule':null;
  return {...p,form,route,release:releaseKey(p.release),ingredients:p.ingredients.map(i=>({name:i.name,strength:unit&&/^\d+(?:\.\d+)?\s*(?:mg|mcg|µg|g|IU|units|mmol)$/.test(i.strength.trim())?i.strength.trim()+' per '+unit:i.strength}))};
@@ -56,6 +58,9 @@ const shape='A product has name (include labelled strength and formulation), cou
 function debugProfile(p:any){
  const text=(v:unknown)=>typeof v==='string'?v.slice(0,600):null;
  return {name:text(p?.name),country:text(p?.country),form:text(p?.form),route:text(p?.route),release:text(p?.release),complete:p?.complete===true,generic:typeof p?.generic==='boolean'?p.generic:null,species:Array.isArray(p?.species)?p.species.slice(0,10).map(text):null,ingredients:Array.isArray(p?.ingredients)?p.ingredients.slice(0,20).map((i:any)=>({name:text(i?.name),strength:text(i?.strength)})):null,sourceCount:Array.isArray(p?.sources)?p.sources.length:0};
+}
+function comparisonEvidence(origin:Product,candidates:Product[]){
+ return [...new Set([origin,...candidates].flatMap(reviewedCompositionEvidence))];
 }
 export function explainCandidate(origin:Product,p:any,country:string,query?:string){
  const reasons:string[]=[];
@@ -164,7 +169,7 @@ export async function productionStrengthSearch(input:{drugName:unknown;originCou
   const unique=accepted.filter((p,i)=>accepted.findIndex(q=>norm(q.name)===norm(p.name)&&identity(q)===identity(p))===i);
   const matches=unique.map(p=>({medicine_name:displayName(p),ingredients:p.ingredients,form:p.form,route:p.route,release:p.release,...(claude?{sources:p.sources}:{})}));
   if(debug){debug.stage='complete';debug.acceptedCount=matches.length;}
-  return Response.json({matches,...debugResponse(),originProfile:{medicine_name:displayName(origin),origin_country:originCountry,active_ingredients:origin.ingredients,form:origin.form,route:origin.route,release:origin.release,selection_token:issueOriginSelection(origin,drugName)},equivalentResults:{target_country:targetCountry,search_composition:composition(origin),raw_text:matches.map(p=>'- '+p.medicine_name).join('\n')||'No matches.',verification:claude?'source_cited_full_composition':'model_generated_full_composition',origin_sources:claude?[...new Set([...origin.sources,...unique.flatMap(p=>p.sources)])]:[]}});
+  return Response.json({matches,...debugResponse(),comparisonEvidence:comparisonEvidence(origin,unique),originProfile:{medicine_name:displayName(origin),origin_country:originCountry,active_ingredients:origin.ingredients,form:origin.form,route:origin.route,release:origin.release,selection_token:issueOriginSelection(origin,drugName)},equivalentResults:{target_country:targetCountry,search_composition:composition(origin),raw_text:matches.map(p=>'- '+p.medicine_name).join('\n')||'No matches.',verification:claude?'source_cited_full_composition':'model_generated_full_composition',origin_sources:claude?[...new Set([...origin.sources,...unique.flatMap(p=>p.sources)])]:[]}});
  } catch(error) {
   // Fixed operational codes only: never upstream text, input or credentials.
   const code=error instanceof Error?error.message:'';
