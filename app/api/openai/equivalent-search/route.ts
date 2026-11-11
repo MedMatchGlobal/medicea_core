@@ -1,4 +1,5 @@
 import {filterCompositionCandidates, parseEquivalentCandidates} from '@/app/lib/equivalent-results';
+import {readVariant} from '@/app/lib/origin-variants';
 import {withMembership} from '@/lib/membership/meter';
 export const maxDuration = 60;
 import { openaiFetch } from "@/app/lib/openaiClient";
@@ -72,7 +73,9 @@ function applyUserDosageOverride(
 
 async function generate(req: Request) {
   try {
-    const { originCountry, drugName, drugDosage, targetCountry } = await req.json();
+    const { originCountry, drugName, drugDosage, targetCountry, originSelection } = await req.json();
+    const selected=originSelection?readVariant(originSelection,drugName,originCountry,drugDosage||''):null;
+    if(originSelection&&!selected)return NextResponse.json({error:'ORIGIN_SELECTION_EXPIRED'},{status:422});
 
     // ---------- STEP 1: get origin profile ----------
     const system1 =
@@ -84,7 +87,7 @@ sold in ${originCountry}${drugDosage ? ` (user-entered dosage hint: "${drugDosag
 Return strictly JSON with keys: medicine_name, origin_country, active_ingredients[{name, strength}]. No extra text.
 `.trim();
 
-    const response1 = await openaiFetch(OPENAI_URL, {
+    const response1 = selected ? null : await openaiFetch(OPENAI_URL, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -101,9 +104,9 @@ Return strictly JSON with keys: medicine_name, origin_country, active_ingredient
       }),
     });
 
-    const data1 = await response1.json();
-    if (!response1.ok) throw new Error("Provider unavailable");
-    const originProfile = JSON.parse(data1.choices?.[0]?.message?.content || "{}");
+    const data1 = response1 ? await response1.json() : null;
+    if (response1 && !response1.ok) throw new Error("Provider unavailable");
+    const originProfile = selected ? {medicine_name:selected.name,origin_country:originCountry,active_ingredients:selected.ingredients,form:selected.form,route:selected.route,release:selected.release} : JSON.parse(data1.choices?.[0]?.message?.content || "{}");
 
     if (!Array.isArray(originProfile?.active_ingredients) || !originProfile.active_ingredients.length || originProfile.error || !originProfile.active_ingredients.every((item: ActiveIng) => typeof item?.name === "string" && item.name.trim() && typeof item.strength === "string" && item.strength.trim())) {
       return NextResponse.json({ error: "NOT_FOUND_ORIGIN", matches: [] });
@@ -111,7 +114,7 @@ Return strictly JSON with keys: medicine_name, origin_country, active_ingredient
 
     // Use the model-extracted actives, optionally override strengths from user dosage
     const baseActives: ActiveIng[] = originProfile.active_ingredients;
-    const activesForSearch = applyUserDosageOverride(baseActives, drugDosage);
+    const activesForSearch = selected ? baseActives : applyUserDosageOverride(baseActives, drugDosage);
 
     // Named slots (AI1..AI5 / Strength1..Strength5) for your UI/debug
     const named = mapActivesToNamedSlots(activesForSearch);
