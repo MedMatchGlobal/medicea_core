@@ -133,3 +133,52 @@ test('Co Efferalgan lookup uses reviewed chemical name and retains independently
  const body=await response.json();assert.equal(response.status,200);assert.equal(calls,2);assert.equal(body.matches.length,1);assert.equal(body.originProfile.active_ingredients[1].name,'Codeine phosphate');assert.equal(body.comparisonEvidence.length,1);assert.equal(body.equivalentDebug.acceptedCount,1);
  assert.ok(body.equivalentDebug.decisions.some(d=>d.reasons.includes('STRENGTH_OR_UNIT_TEXT_DIFFERS')));assert.ok(body.equivalentDebug.decisions.some(d=>d.reasons.includes('FORM_MISMATCH')));assert.ok(body.equivalentDebug.decisions.some(d=>d.reasons.includes('INGREDIENT_NAMES_MISMATCH')));
 });
+
+test('supplier queries retain product identity without copying the proposed strength or form',()=>{
+ const {presentationQuery}=loader(env)('app/lib/product-presentations.ts');
+ const {candidateIdentity}=loader(env,{'./openaiClient':{}})('app/lib/sonnet-research-matches.ts');
+ const p={...product(),name:'Co-codamol 30/500 Effervescent Tablets',supplier:'Zentiva'};
+ assert.equal(presentationQuery(p,candidateIdentity),'Co-codamol (Zentiva)');
+ assert.equal(presentationQuery({...p,supplier:'Cipla EU Ltd'},candidateIdentity),'Co-codamol (Cipla EU Ltd)');
+ assert.equal(presentationQuery({...p,supplier:undefined},candidateIdentity),'Co-codamol');
+});
+
+test('four sourced presentations survive the independent catalogue lookup while duplicates and mismatches do not',async()=>{
+ const origin={...coEfferalgan(),name:'Co-Efferalgan 500 mg + 30 mg compresse effervescenti',form:'effervescent tablet',sources:['https://www.bbfarma.it/pdf/stampati/038123028.pdf']};
+ const ingredients=[{name:'Paracetamol',strength:'500 mg per tablet'},{name:'Codeine phosphate hemihydrate',strength:'30 mg per tablet'}];
+ const make=(name,supplier,url,id)=>({...product(),name,supplier,country:'United Kingdom',generic:name.startsWith('Co-'),form:'effervescent tablet',ingredients,sources:[url],...(id?{product_identifier:{system:'MHRA PL',value:id}}:{})});
+ const zentiva=make('Co-codamol 30/500 Effervescent Tablets','Zentiva','https://www.medicines.org.uk/emc/product/464/smpc','17780/0046');
+ const cipla=make('Co-codamol 30mg/500mg effervescent tablets','Cipla EU Ltd','https://www.medicines.org.uk/emc/product/10158/smpc');
+ const accord=make('Co-codamol 30mg/500mg effervescent tablets','Accord-UK Ltd','https://www.accord-healthcare-products.co.uk/products/c/co-codamol-tablets');
+ const solpadol=make('Solpadol 30mg/500mg effervescent tablets','Phoenix Labs Ltd','https://openprescribing.net/dmd/vmp/42009711000001109/');
+ const duplicate={...zentiva,name:'Co-codamol 30mg/500mg effervescent tablets',sources:['https://www.medicines.org.uk/emc/medicine/22736']};
+ const group={...zentiva,supplier:undefined,product_identifier:undefined};
+ const wrongStrength={...zentiva,name:'Co-codamol 8/500 Effervescent Tablets',ingredients:[ingredients[0],{...ingredients[1],strength:'8 mg per tablet'}]};
+ const wrongForm={...zentiva,name:'Co-codamol 30/500 Tablets',form:'tablet'};
+ const wrongOpioid={...zentiva,ingredients:[ingredients[0],{name:'Dihydrocodeine tartrate',strength:'30 mg per tablet'}]};
+ const candidates=[group,zentiva,cipla,accord,solpadol];let calls=0;
+ const read=loader(env,{'./openaiClient':{},'./claude-preview':{claudePreviewEnabled:()=>true,claudeResearch:async(instruction,data)=>{
+  calls++;assert.match(instruction,/supplier presentation separately/);assert.match(instruction,/Never invent or copy/);
+  if(calls===1)return {candidates};
+  assert.deepEqual(JSON.parse(JSON.stringify(data)),{country:'United Kingdom',query_names:['Co-codamol','Co-codamol (Zentiva)','Co-codamol (Cipla EU Ltd)','Co-codamol (Accord-UK Ltd)','Solpadol (Phoenix Labs Ltd)']});
+  // Generic catalogue deliberately returns the independently researched branded
+  // alternative too. Supplier-specific rows must still match that supplier.
+  return {catalogues:data.query_names.map(query=>({query_name:query,variants_complete:false,products:query==='Co-codamol'?[group,solpadol]:query==='Co-codamol (Zentiva)'?[zentiva,duplicate,wrongStrength,wrongForm,wrongOpioid,cipla]:query==='Co-codamol (Cipla EU Ltd)'?[cipla]:query==='Co-codamol (Accord-UK Ltd)'?[accord]:[solpadol]}))};
+ }}});
+ const token=read('app/lib/sonnet-research-support.ts').issueOriginSelection(origin,'Co Efferalgan');
+ const response=await read('app/lib/sonnet-research-matches.ts').productionStrengthSearch({drugName:'Co Efferalgan',originCountry:'Italy',targetCountry:'United Kingdom',originSelection:token},false,true);
+ const body=await response.json();assert.equal(response.status,200);assert.equal(calls,2);assert.equal(body.matches.length,4);
+ assert.deepEqual(body.matches.map(p=>p.supplier).sort(),['Accord-UK Ltd','Cipla EU Ltd','Phoenix Labs Ltd','Zentiva']);
+ const z=body.matches.find(p=>p.supplier==='Zentiva');assert.equal(z.product_identifier.value,'17780/0046');assert.equal(z.sources.length,2);assert.match(z.medicine_name,/Zentiva/);
+ assert.ok(body.matches.some(p=>p.medicine_name.startsWith('Solpadol')));
+ for(const reason of ['SUPPLIER_IDENTITY_MISMATCH','STRENGTH_OR_UNIT_TEXT_DIFFERS','FORM_MISMATCH','INGREDIENT_NAMES_MISMATCH'])assert.ok(body.equivalentDebug.decisions.some(d=>d.reasons.includes(reason)),reason);
+});
+
+test('product deduplication never merges different suppliers or distinct known national identifiers',()=>{
+ const {deduplicatePresentations,productIdentifierOf,supplierOf}=loader(env)('app/lib/product-presentations.ts');
+ const row={...product(),supplier:'Supplier A',product_identifier:{system:'dm+d AMP',value:'123'}};
+ const rows=[row,{...row,product_identifier:{system:'dm+d AMP',value:'456'}},{...row,supplier:'Supplier B'}];
+ assert.equal(deduplicatePresentations(rows,()=> 'same clinical profile',()=> 'Example').length,3);
+ assert.equal(productIdentifierOf({product_identifier:{system:'dm+d',value:'<invalid>'}}),undefined);assert.equal(supplierOf({supplier:'bad\nmetadata'}),undefined);
+ assert.equal(productIdentifierOf({product_identifier:{system:'dm+d VMP',value:'42009711000001109'}}),undefined);
+});
