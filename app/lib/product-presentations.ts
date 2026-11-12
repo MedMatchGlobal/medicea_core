@@ -1,4 +1,5 @@
-type Presentation={name:string;country:string;sources:string[];generic:boolean;supplier?:unknown;product_identifier?:unknown};
+import {mergeExcipientEvidence} from './excipient-comparison';
+type Presentation={name:string;country:string;sources:string[];generic:boolean;supplier?:unknown;product_identifier?:unknown;excipientEvidence?:unknown};
 const norm=(s:string)=>s.normalize('NFKC').trim().toLowerCase().replace(/\s+/g,' ');
 const plain=(s:unknown,max:number):s is string=>typeof s==='string'&&!!s.trim()&&s.length<=max&&!/[<>\r\n]/.test(s);
 export function supplierOf(p:Pick<Presentation,'supplier'>|null|undefined):string|undefined{
@@ -34,7 +35,7 @@ export function deduplicatePresentations<T extends Presentation>(products:T[],co
   // Keep an actual branded name when the same identified product also appeared
   // under its generic name. Never copy supplier metadata onto an unrelated row.
   const preferred=old.generic&&!p.generic?p:old;
-  out[index]={...preferred,supplier:supplierOf(preferred)||supplierOf(old)||supplierOf(p),product_identifier:productIdentifierOf(preferred)||productIdentifierOf(old)||productIdentifierOf(p),sources:[...new Set([...old.sources,...p.sources])]};
+  out[index]={...preferred,excipientEvidence:mergeExcipientEvidence(preferred,preferred===old?p:old),supplier:supplierOf(preferred)||supplierOf(old)||supplierOf(p),product_identifier:productIdentifierOf(preferred)||productIdentifierOf(old)||productIdentifierOf(p),sources:[...new Set([...old.sources,...p.sources])]};
  }
  // A generic group is not an extra supplier product when concrete presentations
  // of that same group are already shown. Keep it when no such rows were found.

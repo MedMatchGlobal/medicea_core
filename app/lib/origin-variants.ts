@@ -2,7 +2,7 @@ import {createHmac, timingSafeEqual} from 'node:crypto';
 import {claudePreviewEnabled} from './claude-preview';
 import {readOriginSelection} from './sonnet-research-support';
 
-export type OriginVariant = {name:string;form:string;route:string;release:string;ingredients:{name:string;strength:string}[];token:string};
+export type OriginVariant = {name:string;form:string;route:string;release:string;supplier?:string;ingredients:{name:string;strength:string}[];token:string};
 const normal = (s:string) => s.normalize('NFKC').trim().toLowerCase();
 const text = (v:unknown, max=250):v is string => typeof v==='string' && !!v.trim() && v.length<=max;
 function key() {

@@ -16,6 +16,7 @@ Fixed banner logic for "Generics" label + country, and removed banner from Leafl
 'use client';
 
 import MedicineNextSteps from './components/MedicineNextSteps';
+import ExcipientComparison from './components/ExcipientComparison';
 import {parseEquivalentCandidates} from './lib/equivalent-results';
 import type {OriginVariant} from './lib/origin-variants';
 import {originChoiceCopy} from './i18n/origin-choice';
@@ -1404,6 +1405,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
             <h3 id="origin-choice-title">{originChoiceCopy(lang).title}</h3><p>{originChoiceCopy(lang).body}</p>
             {originVariants.map(variant=><article className="medicine-result-card" key={variant.token}>
               <h4>{variant.name}</h4><p>{variant.form} · {variant.route} · {variant.release}</p>
+              {typeof variant.supplier==='string'&&<p><strong>Manufacturer / supplier:</strong> {variant.supplier}</p>}
               <ul>{variant.ingredients.map(i=><li key={i.name}>{i.name}: <strong>{i.strength}</strong></li>)}</ul>
               <button className="pill pill--blue" disabled={checkingAccess} onClick={()=>handleSearch(variant)}>{originChoiceCopy(lang).choose}</button>
             </article>)}
@@ -1517,6 +1519,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
           {/* Matches list */}
           {Array.isArray(matches) && matches.length > 0 && (
             <div style={{ marginTop: 12 }}>
+              {mode==='international'&&<p>Results match the complete active ingredients and strengths under the form, route and release comparison rules. Ordered by excipient comparison completeness, then available document dates. This order is not a personal treatment recommendation.</p>}
               {matches.map((m: any, idx: number) => {
                 const medname = m?.medicine_name ?? m?.Medicine_name ?? `Medicine ${idx + 1}`;
                 if (mode === 'pets' || mode === 'pet-generic') return <PetMedicineInformation searchAccess={searchAccess} key={medname + lang + (restoredSearch?.id || "")}
@@ -1566,6 +1569,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
                       </div>
                     </div>
 
+                    {mode==='international'&&<ExcipientComparison comparison={m.excipientComparison} />}
                     {selectedMedicine === medname && <MedicineNextSteps key={medname} medicine={medname} country={mode === 'international' ? targetCode || originCode : originCode} dosage={selectedDosage} onFind={service => openPharmacyTrip(mode === 'international' ? targetCode || originCode : originCode, medname, service)} />}
                     {showLF && leafletText && (
                       <div
