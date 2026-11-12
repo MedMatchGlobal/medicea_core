@@ -174,6 +174,7 @@ test('four sourced presentations survive the independent catalogue lookup while 
  const body=await response.json();assert.equal(response.status,200);assert.equal(calls,2);assert.equal(body.matches.length,4);
  assert.deepEqual(body.matches.map(p=>p.supplier).sort(),['Accord-UK Ltd','Cipla EU Ltd','Phoenix Labs Ltd','Zentiva']);
  const z=body.matches.find(p=>p.supplier==='Zentiva');assert.equal(z.product_identifier.value,'17780/0046');assert.equal(z.sources.length,2);assert.match(z.medicine_name,/Zentiva/);
+ assert.equal(z.medicineIdentity.productName,z.name||'Co-codamol 30/500 Effervescent Tablets');assert.equal(z.medicineIdentity.productIdentifier.value,'17780/0046');assert.equal(z.medicineIdentity.country,'United Kingdom');assert.equal(z.medicineIdentity.ingredients.length,2);assert.equal(z.medicineIdentity.sources.length,2);
  assert.ok(body.matches.some(p=>p.medicine_name.startsWith('Solpadol')));
  for(const reason of ['SUPPLIER_IDENTITY_MISMATCH','STRENGTH_OR_UNIT_TEXT_DIFFERS','FORM_MISMATCH','INGREDIENT_NAMES_MISMATCH'])assert.ok(body.equivalentDebug.decisions.some(d=>d.reasons.includes(reason)),reason);
 });

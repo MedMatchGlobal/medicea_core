@@ -19,6 +19,7 @@ import MedicineNextSteps from './components/MedicineNextSteps';
 import ExcipientComparison from './components/ExcipientComparison';
 import HumanMedicineLeaflet from './components/HumanMedicineLeaflet';
 import type {LeafletProfile} from './lib/readable-leaflet';
+import {leafletIdentity} from './lib/leaflet-identity';
 import {parseEquivalentCandidates} from './lib/equivalent-results';
 import type {OriginVariant} from './lib/origin-variants';
 import {originChoiceCopy} from './i18n/origin-choice';
@@ -1001,7 +1002,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
       void fetch('/api/openai/leaflet', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ originCountry, drugName:selection?.name||drugName, drugDosage:selection?selection.ingredients.map(i=>i.strength).join(' + '):drugDosage, lang }),
+        body: JSON.stringify({ originCountry, drugName:selection?.name||drugName, drugDosage:selection?selection.ingredients.map(i=>i.strength).join(' + '):drugDosage, lang, ...(selection?{selectedProduct:leafletIdentity(selection,selection.name,originCountry)}:{}) }),
       }).then(async leafletResp=>{
         if(!leafletResp.ok)return;
         const leafletPayload=await leafletResp.json();
@@ -1077,6 +1078,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
           drugName: medicineName,
           medicineName,
           drugDosage: profile?.ingredients?.map(i=>i.strength).join(' + ') || '',
+          selectedProduct:leafletIdentity(profile,medicineName,country),
           lang,
           searchAccess,
         }),

@@ -1,5 +1,6 @@
 import {meteredSearch} from '@/lib/membership/meter';
 import {readVariant} from '@/app/lib/origin-variants';
+import {leafletIdentity} from '@/app/lib/leaflet-identity';
 // The existing leaflet and matching handlers run sequentially inside one operation.
 export const maxDuration = 180;
 // One reservation for a normal medicine search, including its origin leaflet.
@@ -16,7 +17,7 @@ export async function POST(req: Request) {
   if(body.originSelection&&!selected)return Response.json({error:'ORIGIN_SELECTION_EXPIRED'},{status:422});
   if(mode==='international'||mode==='generic') {
    const {POST}=await import('@/app/api/openai/leaflet/route');
-   const leaflet=await POST(selected?new Request(request.url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({...body,drugName:selected.name,drugDosage:selected.ingredients.map(i=>i.strength).join(' + ')})}):providerRequest());
+   const leaflet=await POST(selected?new Request(request.url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({...body,drugName:selected.name,drugDosage:selected.ingredients.map(i=>i.strength).join(' + '),selectedProduct:leafletIdentity(selected,selected.name,body.originCountry)})}):providerRequest());
    if(!leaflet.ok)return leaflet;
    originLeaflet=await leaflet.json();
   }

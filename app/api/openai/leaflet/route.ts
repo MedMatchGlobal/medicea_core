@@ -2,13 +2,16 @@ import {withMembership} from '@/lib/membership/meter';
 export const maxDuration = 60;
 import { openaiFetch } from "@/app/lib/openaiClient";
 import { NextResponse } from "next/server";
+import {leafletIdentity,leafletIdentityMessages} from '@/app/lib/leaflet-identity';
 
 const OPENAI_URL = "https://api.openai.com/v1/chat/completions";
 
 async function generate(req: Request) {
   try {
     // Read request body (adds 'lang' support)
-    const { originCountry, drugName, drugDosage, lang } = await req.json();
+    const { originCountry, drugName, drugDosage, lang, selectedProduct } = await req.json();
+    const identity=selectedProduct==null?undefined:leafletIdentity(selectedProduct,drugName,originCountry);
+    if(selectedProduct!=null&&!identity)return NextResponse.json({error:'INVALID_SELECTED_PRODUCT'},{status:400});
     const language = (lang || "en").trim().toLowerCase();
 
     // ------------------ ORIGINAL PROMPTS (UNCHANGED) ------------------
@@ -38,6 +41,7 @@ Fetch the official medicine leaflet for ${drugName} sold in ${originCountry}.
         messages: [
           { role: "system", content: system },
           { role: "user", content: user },
+          ...leafletIdentityMessages(identity,drugDosage),
         ],
       }),
     });
