@@ -17,6 +17,8 @@ Fixed banner logic for "Generics" label + country, and removed banner from Leafl
 
 import MedicineNextSteps from './components/MedicineNextSteps';
 import ExcipientComparison from './components/ExcipientComparison';
+import HumanMedicineLeaflet from './components/HumanMedicineLeaflet';
+import type {LeafletProfile} from './lib/readable-leaflet';
 import {parseEquivalentCandidates} from './lib/equivalent-results';
 import type {OriginVariant} from './lib/origin-variants';
 import {originChoiceCopy} from './i18n/origin-choice';
@@ -296,53 +298,10 @@ function bulletifyBlock(text: string) {
   return <p style={styles.p}>{capitalized}</p>;
 }
 
-function renderLeafletPretty(leafletText: string, t: UIStrings) {
+function renderLeafletPretty(leafletText: string, t: UIStrings, profile?:LeafletProfile) {
   if (!leafletText) return null;
 
-  const cleaned = leafletText;
-
-  const order = [
-    'Manufacturer','Description','Overview','What it is','Active Ingredient','Active Ingredients','Mechanism of Action',
-    'How it Works','Uses','Indications','Posology','Strength','Dosage','Interactions','Side Effects','Precautions',
-    'Contraindications','Legal Classification','Storage','Average Selling Price','Note','Disclaimer',
-  ];
-
-  const lower = cleaned.toLowerCase();
-  const marks: Array<{ key: string; idx: number }> = [];
-  for (const key of order) {
-    const i = lower.indexOf(key.toLowerCase());
-    if (i >= 0) marks.push({ key, idx: i });
-  }
-  marks.sort((a, b) => a.idx - b.idx);
-
-  if (!marks.length) {
-    return <div style={styles.leafletCard}>{bulletifyBlock(cleaned)}</div>;
-  }
-
-  const blocks: Array<{ key: string; text: string }> = [];
-  for (let i = 0; i < marks.length; i++) {
-    const { key, idx } = marks[i];
-    const end = i + 1 < marks.length ? marks[i + 1].idx : cleaned.length;
-    const slice = cleaned
-      .slice(idx, end)
-      .replace(new RegExp(`^${key}\\s*[:.-]*\\s*`, 'i'), '')
-      .trim();
-    if (slice) blocks.push({ key, text: slice });
-  }
-
-  return (
-    <div style={styles.leafletCard}>
-      {blocks.map(({ key, text }) => {
-        const label = key==='Average Selling Price'?'Typical selling price':(t.leafletHeadings && (t.leafletHeadings as any)[key]) || key;
-        return (
-          <div key={key} style={{ marginBottom: 10 }}>
-            <div style={styles.h4}>{label}:</div>
-            {bulletifyBlock(text)}
-          </div>
-        );
-      })}
-    </div>
-  );
+  return <HumanMedicineLeaflet text={leafletText} profile={profile} headings={t.leafletHeadings as Record<string,string>||{}} />;
 }
 
 const parseMatchesFromRawText = parseEquivalentCandidates;
@@ -1101,7 +1060,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
     }
   };
 
-  async function handleFetchLeafletForMatch(medicineName: string) {
+  async function handleFetchLeafletForMatch(medicineName: string, profile?:LeafletProfile) {
     const version = searchVersion.current;
     setLeafletLoading((p) => ({ ...p, [medicineName]: true }));
     try {
@@ -1117,11 +1076,12 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
           country,
           drugName: medicineName,
           medicineName,
-          drugDosage: selectedDosage || '',
+          drugDosage: profile?.ingredients?.map(i=>i.strength).join(' + ') || '',
           lang,
           searchAccess,
         }),
       });
+      if(!res.ok)throw new Error('Leaflet unavailable');
       const data = await res.json();
       if (version !== searchVersion.current) return;
       setLeaflets((p) => ({ ...p, [medicineName]: pickText(data) }));
@@ -1411,7 +1371,6 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
             </article>)}
           </section>}
           {!originVariants.length&&<>
-          {!loading&&originProduct&&originChoiceHistory.current.length>1&&<button className="official-leaflet-link" onClick={()=>{setOriginVariants(originChoiceHistory.current);setLeafletRaw('');setMatches([]);setResult('');}}>{originChoiceCopy(lang).title}</button>}
           {(mode === 'pets' || mode === 'pet-generic') && !loading && !searchFailed && <div className="leaflet-block">
             <h2 className="medicine-section-title">{F(ui, 'medicineDetails', 'Medicine details')} — {selectedDrug}</h2>
             <PetMedicineInformation searchAccess={searchAccess} key={selectedDrug + originCode + lang + (restoredSearch?.id || "")} medicineName={selectedDrug} country={originCode} lang={lang}
@@ -1429,7 +1388,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
                 <button type="button" className="pill pill--blue pill-sm" aria-expanded={originLeafletVisible} onClick={() => setOriginLeafletVisible(!originLeafletVisible)}>{originLeafletVisible ? leafletActions(lang).hide : leafletActions(lang).view}</button>
                 <a className="official-leaflet-link" href={officialMedicineLeafletSearch(originProduct?.name||selectedDrug, originCode)} target="_blank" rel="noopener noreferrer">{leafletActions(lang).official}</a>
               </div>
-              {originLeafletVisible && renderLeafletPretty(extractLeafletText(leafletRaw), t)}
+              {originLeafletVisible && renderLeafletPretty(extractLeafletText(leafletRaw), t, originProduct||undefined)}
             </div>
           )}
 
@@ -1551,7 +1510,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
                         <button
                           onClick={() => {
                             if (!leafletText) {
-                              handleFetchLeafletForMatch(medname);
+                              handleFetchLeafletForMatch(medname,m);
                             } else {
                               setViewLeaflet((p) => ({ ...p, [medname]: !p[medname] }));
                             }
@@ -1584,7 +1543,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
                           overflowWrap: 'anywhere',
                         }}
                       >
-                        {renderLeafletPretty(extractLeafletText(leafletText), t)}
+                        {renderLeafletPretty(extractLeafletText(leafletText), t,m)}
                       </div>
                     )}
                   </div>

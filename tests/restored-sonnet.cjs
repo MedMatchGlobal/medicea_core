@@ -6,7 +6,7 @@ function loader(env={},overrides={},fetch=()=>{throw Error('Unexpected network')
 const env={VERCEL_ENV:'preview',VERCEL_GIT_COMMIT_REF:'design/riviera-one-page',ANTHROPIC_API_KEY:'test-key'};
 const source='https://regulator.example/product';
 const product=(strength='30 mg',name='Example')=>({name,country:'Italy',form:'tablet',route:'oral',release:'immediate-release',species:[],complete:true,generic:false,ingredients:[{name:'Paracetamol',strength:'500 mg'},{name:'Codeine phosphate hemihydrate',strength}],sources:[source],lookup:'original'});
-test('historical research and matching instructions remain intact except the owner-approved compact pricing text',()=>{
+test('historical research and matching instructions remain intact except owner-approved human leaflet formatting and compact pricing',()=>{
  for(const [file,names] of [['app/lib/claude-preview.ts',['researchInstruction','claudeResearch','claudeCompletion','readClaudeResearch']],['app/lib/sonnet-research-matches.ts',['shape','valid','sameProductComposition','comparisonProfile','formKey','releaseKey']]]){
   const old=cp.execFileSync('git',['show','origin/experiment/claude-sonnet-preview:'+file.replace('sonnet-research-matches','production-strength-matches')],{encoding:'utf8'})
    .replace('Label each price with its pack, currency, product variant and source URL; it is a listed quote, not a measured average or guaranteed checkout price.','For price requests, provide only a concise indicative selling price for the exact variant and pack, with currency. Never mix pack sizes, variants, reimbursement, wholesale or retail amounts. Do not enumerate retailers or price quotes. If reliable comparable retail evidence is unavailable, say unavailable.')
@@ -18,6 +18,10 @@ test('historical research and matching instructions remain intact except the own
    // prompt text, successful parsing and source acceptance remain protected.
    let expected=name==='readClaudeResearch'?extract(old,name).replace('const reply=JSON.parse(text);',"let reply:any;\n try{reply=JSON.parse(text);}catch{throw Error('CLAUDE_RESEARCH_JSON_INVALID');}\n if(!reply||typeof reply!=='object'||Array.isArray(reply))throw Error('CLAUDE_RESEARCH_SHAPE_INVALID');"):extract(old,name);
    if(name==='comparisonProfile')expected=expected.replace('function comparisonProfile(p:Product):Product {','function comparisonProfile(p:Product):Product {\n p=reviewedComparisonProfile(p);');
+   // Explicit owner request: readable origin AND equivalent leaflets, with
+   // proper strengths, collapsed references and a concise price field. Only
+   // this presentation addition changes; transport and clinical gates do not.
+   if(name==='claudeCompletion')expected=expected.replace(/const leafletFormat=[^\r\n]*/,"const leafletFormat=/leaflet_text/.test(original)&&!/precise medical translator/i.test(original)?humanLeafletFormat:'';");
    assert.equal(extract(current,name),expected,name);
   }
  }

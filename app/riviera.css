@@ -113,6 +113,14 @@ body{background:var(--riviera-paper);color:var(--riviera-ink);font-family:Inter,
 @media(max-width:700px){.medicea-shell :is(.medicine-result-card,.ai-plain,.structured-veterinary-leaflet,.human-leaflet-content){padding:16px}.medicea-shell .veterinary-care{padding:17px}.medicea-shell .triage-send{padding:10px 14px}.medicea-shell .triage-message{font-size:14px!important}}
 
 .medicine-next-steps { margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #dcd5ca; color: #26373b; }
+.readable-leaflet{margin-top:12px;overflow-wrap:anywhere;border:1px solid #dcd5ca;border-radius:14px;padding:18px;background:transparent}
+.readable-leaflet section{margin:0 0 18px}
+.readable-leaflet h3{font-size:1rem;font-weight:600;line-height:1.4;margin:0 0 6px}
+.readable-leaflet p{margin:5px 0;line-height:1.6}
+.readable-leaflet ul{margin:5px 0;padding-left:22px}
+.readable-leaflet .leaflet-product-facts,.readable-leaflet .leaflet-price{padding-bottom:14px;border-bottom:1px solid #dcd5ca}
+.readable-leaflet .leaflet-sources summary{cursor:pointer;font-weight:600;padding:8px 0}
+.readable-leaflet .leaflet-sources{font-size:.9em}
 .medicine-next-actions { display:flex; gap:.6rem; flex-wrap:wrap; }
 .medicine-next-steps label { display:grid; gap:.4rem; margin: .8rem 0; }
 .medicine-next-steps textarea, .medicine-next-steps input, .medicine-next-steps select { width:100%; box-sizing:border-box; padding:.75rem; background:#fffdf9; color:#26373b; border:1px solid #dcd5ca; border-radius:12px; font:inherit; }

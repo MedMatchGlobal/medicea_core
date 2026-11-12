@@ -1,3 +1,4 @@
+import {humanLeafletFormat} from './human-leaflet-format';
 import {AsyncLocalStorage} from 'node:async_hooks';
 type EvaluationCall={model:string;ms:number;usage:unknown;text:string};
 const evaluation=new AsyncLocalStorage<EvaluationCall[]>();
@@ -97,7 +98,7 @@ export async function claudeCompletion(endpoint:string,init:RequestInit){
  const format=responses?body.text?.format:body.response_format;
  const json=!!format||/return[^.\n]*\bjson\b/i.test(original);
  const schema=format?.json_schema?.schema||format?.schema;
- const leafletFormat=/leaflet_text/.test(original)?' In leaflet_text use the existing interface section headings: Summary, Active Ingredients, Strength, Formulation, Indications, Contraindications, Precautions, Side Effects, Interactions, Storage, Legal Classification, Manufacturer, Average Selling Price. Begin Summary with one or two short sentences explaining the source-supported uses of the identified drug, without dosing advice. Keep the Summary about the drug, not retrieval methods, leaflet dates or disclaimers; keep any necessary provenance qualifications in a final Note section. Preserve product-variant uncertainty explicitly rather than selecting a variant silently. Put concise bullet points under the remaining headings. Keep those headings in English for the interface parser. Include actual source URLs, never internal cite tags. Under Average Selling Price return at most one short line giving an approximate typical retail price or narrow supported range, currency and exact pack size for the selected variant. Do not list stores, individual quotes or long URLs in this section. Do not infer a typical price from incompatible packs or price types; if not established, write Not available.':'';
+ const leafletFormat=/leaflet_text/.test(original)&&!/precise medical translator/i.test(original)?humanLeafletFormat:'';
  const system=original+(research?researchInstruction:'')+leafletFormat+(json?' Return only valid JSON, no markdown or introductory prose.':'')+(schema?' Follow this exact JSON schema: '+JSON.stringify(schema):'');
  const payload=await claudeMessage(system,messages,research,Date.now()+50_000,body.max_tokens||body.max_completion_tokens||body.max_output_tokens||8000,init.signal);
  const text=answerText(payload);if(!text)throw Error('CLAUDE_EMPTY_RESPONSE');if(json)JSON.parse(text);
