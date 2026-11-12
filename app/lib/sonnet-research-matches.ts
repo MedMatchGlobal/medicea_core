@@ -141,11 +141,12 @@ export async function productionStrengthSearch(input:{drugName:unknown;originCou
    if(products.length>1||claude&&reply.variants_complete===false||(typeof drugDosage==='string'&&!!drugDosage.trim()&&identificationHintAgrees(drugDosage,products[0].ingredients)===null))return Response.json({error:'CHOOSE_ORIGIN_VARIANT',variants:products.map(p=>({name:displayName(p),form:p.form,ingredients:p.ingredients,sources:p.sources,token:issueOriginSelection(p,drugName)}))},{status:409,headers:{'Cache-Control':'no-store'}});
    origin=products[0];
   }
-  // Discover by composition and destination, not by the origin's brand, country,
-  // generic flag or internal selection metadata. Validate the actual profiles below.
+  // Preserve the user's selected product and form during discovery. The former
+  // composition-only request lost the formulation and spent its result budget
+  // researching unrelated forms. Never send internal selection tokens.
   const required=comparisonProfile(origin).ingredients.map(i=>`${i.strength} of ${i.name}`).join(' together with ');
   if(debug){debug.origin=debugProfile(origin);debug.stage='destination_discovery';}
-  const reply=await ask('Retrieve known HUMAN medicines sold in the requested destination country with the requested complete active ingredients and individual labelled amounts. Include branded and generic products; do not require the same brand or manufacturer as a product in another country. Report the actual form, route and release for each product so the application can compare them. For every identified brand, include all its known labelled formulations, not just its most familiar one. List distinct conventional/film-coated and effervescent/soluble forms separately; never merge forms. Effervescent describes a form, not a release type. Use immediate-release for explicit conventional release. Return JSON {"candidates":[products]}, up to 20 real product variants without filling a quota; an empty array is valid when unknown. Never invent a strength to satisfy the query.',`Return products available in ${targetCountry} that contain ${required}. Include each actual labelled formulation and release type separately.`);
+  const reply=await ask('Retrieve known HUMAN medicines sold in the requested destination country with the requested complete active ingredients and individual labelled amounts. Include branded and generic products; do not require the same brand or manufacturer as a product in another country. Prioritise the selected origin formulation, route and release; do not spend the result list on unrelated forms. Search both the generic product family and its named brands and suppliers in destination-country product records. Report the actual form, route and release for each product so the application can compare them. List distinct conventional/film-coated and effervescent/soluble forms separately; never merge forms. Effervescent describes a form, not a release type. Use immediate-release for explicit conventional release. Return JSON {"candidates":[products]}, up to 20 real product variants without filling a quota; an empty array is valid when unknown. Never invent a strength to satisfy the query.',`List me all equivalents in ${targetCountry} to the ${originCountry} ${origin.name}. Selected formulation: ${origin.form}; route: ${origin.route}; release: ${origin.release}. Return products available in ${targetCountry} that contain ${required}. Include each supported brand and supplier presentation separately. The source country identifies the origin product, not the country in which to search for alternatives.`);
   if(debug&&Array.isArray(reply.candidates)){debug.discoveryCount=reply.candidates.length;debug.discoveryProfiles=reply.candidates.slice(0,24).map(debugProfile);}
   if(!Array.isArray(reply.candidates)||reply.candidates.length>24)throw Error('INVALID_CANDIDATES');
   const names:string[]=reply.candidates.map((p:any)=>p&&isMedicineName(p.name)&&typeof p.country==='string'&&norm(p.country)===norm(targetCountry)?presentationQuery(p,candidateIdentity):'');
@@ -160,14 +161,18 @@ export async function productionStrengthSearch(input:{drugName:unknown;originCou
   const queryRecords=queryRows.filter((row:{name:string},i:number)=>queryRows.findIndex((other:{name:string})=>catalogueKey(other.name)===catalogueKey(row.name))===i);
   const queries:string[]=queryRecords.map((row:{name:string})=>row.name);
   const querySuppliers=new Map<string,string|undefined>(queryRecords.map((row:{name:string;supplier:string|undefined})=>[catalogueKey(row.name),row.supplier]));
+  // Query keys still group the catalogue. Preserve the full discovered names
+  // and their source leads separately so verification can locate the actual
+  // presentations instead of restarting from a bare generic name. These are
+  // untrusted lookup leads, never accepted profiles or a desired composition.
+  const queryLeads=reply.candidates.map((p:Product,i:number)=>({query_name:names[i],product_name:p.name,...(supplierOf(p)?{supplier:supplierOf(p)}:{}),sources:Array.isArray(p.sources)?p.sources.filter((s:unknown)=>typeof s==='string'&&s.length<=2048&&/^https:\/\//i.test(s)).slice(0,8):[]}));
   let catalogueProducts:Product[]=[];
   if(queries.length){
    if(debug)debug.stage='destination_catalogues';
-   // Fresh, destination-only product lookup. No origin, desired dose, candidate
-   // composition or previous assistant response is included in this request.
-   // This reduces anchoring. The returned source-cited profiles still require
-   // the unchanged ingredient, individual amount, form, route and release checks.
-   const checked=await ask('Independently identify the actual labelled HUMAN product variants for each query name in the requested country. Return JSON {"catalogues":[{"query_name":"exact input name","variants_complete":boolean,"products":[products]}]}. Include every known strength and form for each name, including conventional/film-coated and effervescent versions separately. Do not infer a strength from another product or create a variant that is not known. No composition or desired strength has been supplied: report actual label facts from your knowledge. If the product or variant set is uncertain, set variants_complete:false; do not guess. Keep each product name associated with its own query.',{country:targetCountry,query_names:queries});
+   // Independently retrieve label facts for the destination product leads.
+   // Never copy a strength from a lead into the verified ingredients. The
+   // deterministic clinical checks below remain unchanged.
+   const checked=await ask('Independently identify the actual labelled HUMAN product variants for each query name in the requested country. Return JSON {"catalogues":[{"query_name":"exact input name","variants_complete":boolean,"products":[products]}]}. query_leads contains unverified discovered product names and source URLs to locate, not facts to copy. Research those exact presentations first, then additional branded and supplier presentations in their generic family. Verify each actual labelled active ingredient, individual strength, form, route and release from newly retrieved product sources; if a lead is wrong, report the source facts or omit it. Never infer a strength from another product or create a variant that is not known. Include conventional/film-coated and effervescent versions separately. If the product or variant set is uncertain, set variants_complete:false; do not guess. Keep each product name associated with its own exact query_name.',{country:targetCountry,query_names:queries,query_leads:queryLeads});
    if(!Array.isArray(checked.catalogues)||checked.catalogues.length!==queries.length)throw Error('INCOMPLETE_CATALOGUES');
    for(const query of queries){
     const entries=checked.catalogues.filter((entry:any)=>entry&&typeof entry.query_name==='string'&&catalogueKey(entry.query_name)===catalogueKey(query));

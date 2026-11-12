@@ -129,7 +129,7 @@ test('Co Efferalgan lookup uses reviewed chemical name and retains independently
  const read=loader(env,{'./openaiClient':{},'./claude-preview':{claudePreviewEnabled:()=>true,claudeResearch:async(instruction,data)=>{
   calls++;
   if(calls===1){assert.match(data,/30 mg per tablet of Codeine phosphate hemihydrate/);return {candidates:[correct]};}
-  assert.deepEqual(data.query_names,['Co-codamol']);assert.equal(JSON.stringify(data).includes('30 mg'),false);
+  assert.deepEqual(data.query_names,['Co-codamol']);assert.equal(data.query_leads[0].product_name,correct.name);
   return {catalogues:[{query_name:'Co-codamol',variants_complete:false,products:[correct,wrongStrength,wrongForm,wrongOpioid]}]};
  }}});
  const token=read('app/lib/sonnet-research-support.ts').issueOriginSelection(origin,'Co Efferalgan');
@@ -164,7 +164,8 @@ test('four sourced presentations survive the independent catalogue lookup while 
  const read=loader(env,{'./openaiClient':{},'./claude-preview':{claudePreviewEnabled:()=>true,claudeResearch:async(instruction,data)=>{
   calls++;assert.match(instruction,/supplier presentation separately/);assert.match(instruction,/Never invent or copy/);
   if(calls===1)return {candidates};
-  assert.deepEqual(JSON.parse(JSON.stringify(data)),{country:'United Kingdom',query_names:['Co-codamol','Co-codamol (Zentiva)','Co-codamol (Cipla EU Ltd)','Co-codamol (Accord-UK Ltd)','Solpadol (Phoenix Labs Ltd)']});
+  assert.equal(data.country,'United Kingdom');assert.deepEqual(data.query_names,['Co-codamol','Co-codamol (Zentiva)','Co-codamol (Cipla EU Ltd)','Co-codamol (Accord-UK Ltd)','Solpadol (Phoenix Labs Ltd)']);
+  assert.deepEqual(data.query_leads.map(p=>p.product_name),candidates.map(p=>p.name));
   // Generic catalogue deliberately returns the independently researched branded
   // alternative too. Supplier-specific rows must still match that supplier.
   return {catalogues:data.query_names.map(query=>({query_name:query,variants_complete:false,products:query==='Co-codamol'?[group,solpadol]:query==='Co-codamol (Zentiva)'?[zentiva,duplicate,wrongStrength,wrongForm,wrongOpioid,cipla]:query==='Co-codamol (Cipla EU Ltd)'?[cipla]:query==='Co-codamol (Accord-UK Ltd)'?[accord]:[solpadol]}))};
@@ -238,4 +239,54 @@ test('generic-to-brand expansion is absent from origin identification',async()=>
  }}});
  const response=await read('app/lib/sonnet-research-matches.ts').productionStrengthSearch({drugName:'Example',originCountry:'Italy',targetCountry:'United Kingdom'},true);
  const body=await response.json();assert.equal(response.status,200);assert.equal(calls,1);assert.equal(body.variants.length,1);
+});
+
+test('selected formulation and discovered product leads survive handoff without trusting their compositions',async()=>{
+ const origin={...product(),name:'Origin 500 mg + 30 mg film-coated tablets',form:'film-coated tablet',private_extra:'secret-origin-field'};
+ const make=name=>({...product(),name,country:'United Kingdom',form:'film-coated tablet',private_extra:'secret-candidate-field'});
+ const generic={...make('Generic 30/500 tablets'),generic:true,supplier:'Supplier A'};
+ const brand=make('Brand B 30/500 film-coated tablets');
+ const falseLead=make('Brand C 30/500 film-coated tablets');
+ const changedLabel={...falseLead,ingredients:[falseLead.ingredients[0],{...falseLead.ingredients[1],strength:'8 mg'}]};
+ let calls=0;
+ const read=loader(env,{'./openaiClient':{},'./claude-preview':{claudePreviewEnabled:()=>true,claudeResearch:async(instruction,data)=>{
+  calls++;
+  if(calls===1){
+   assert.match(data,/List me all equivalents in United Kingdom to the Italy Origin 500 mg \+ 30 mg film-coated tablets/);
+   assert.match(data,/Selected formulation: film-coated tablet; route: oral; release: immediate-release/);
+   assert.doesNotMatch(data,/secret-origin-field|selection_token/);
+   return {candidates:[generic,brand,falseLead]};
+  }
+  assert.equal(calls,2,'no extra research calls');
+  assert.match(instruction,/unverified discovered product names and source URLs/);
+  assert.deepEqual(data.query_leads.map(p=>p.product_name),[generic.name,brand.name,falseLead.name]);
+  assert.deepEqual(data.query_leads[0].sources,[source]);
+  assert.doesNotMatch(JSON.stringify(data),/secret-candidate-field|secret-origin-field|selection_token|"ingredients"/);
+  return {catalogues:data.query_names.map(query=>({query_name:query,variants_complete:false,products:query.startsWith('Generic')?[generic]:query==='Brand B'?[brand]:[changedLabel]}))};
+ }}});
+ const token=read('app/lib/sonnet-research-support.ts').issueOriginSelection(origin,'Origin');
+ const response=await read('app/lib/sonnet-research-matches.ts').productionStrengthSearch({drugName:'Origin',originCountry:'Italy',targetCountry:'United Kingdom',originSelection:token},false,true);
+ const body=await response.json();assert.equal(response.status,200);assert.equal(calls,2);
+ assert.equal(body.matches.length,2);assert.ok(body.matches.some(p=>p.medicine_name.startsWith('Brand B')));
+ assert.ok(!body.matches.some(p=>p.medicine_name.startsWith('Brand C')),'a plausible lead cannot override independently returned label facts');
+ assert.ok(body.equivalentDebug.decisions.some(d=>d.reasons.includes('STRENGTH_OR_UNIT_TEXT_DIFFERS')));
+});
+
+test('one confirmed origin variant and a user-selected variant produce the same direct equivalent query',async()=>{
+ const origin={...product(),name:'Origin 500 mg + 30 mg film-coated tablets',form:'film-coated tablet'};
+ const candidate={...origin,name:'Destination 30/500 tablets',country:'United Kingdom'};
+ async function run(selected){
+  let requests=0,query;
+  const read=loader(env,{'./openaiClient':{},'./claude-preview':{claudePreviewEnabled:()=>true,claudeResearch:async(instruction,data)=>{
+   requests++;
+   if(instruction.startsWith('Identify the distinct labelled'))return {variants_complete:true,products:[origin]};
+   if(instruction.startsWith('Retrieve known HUMAN medicines')){query=data;return {candidates:[candidate]};}
+   return {catalogues:[{query_name:'Destination',variants_complete:true,products:[candidate]}]};
+  }}});
+  const token=selected?read('app/lib/sonnet-research-support.ts').issueOriginSelection(origin,'Origin'):undefined;
+  const response=await read('app/lib/sonnet-research-matches.ts').productionStrengthSearch({drugName:'Origin',originCountry:'Italy',targetCountry:'United Kingdom',originSelection:token});
+  const body=await response.json();assert.equal(response.status,200);assert.equal(body.matches.length,1);
+  assert.equal(requests,selected?2:3);return query;
+ }
+ assert.equal(await run(false),await run(true));
 });
