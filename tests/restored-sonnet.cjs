@@ -186,3 +186,40 @@ test('product deduplication never merges different suppliers or distinct known n
  assert.equal(productIdentifierOf({product_identifier:{system:'dm+d',value:'<invalid>'}}),undefined);assert.equal(supplierOf({supplier:'bad\nmetadata'}),undefined);
  assert.equal(productIdentifierOf({product_identifier:{system:'dm+d VMP',value:'42009711000001109'}}),undefined);
 });
+
+test('registered presentation identity supports reviewed enrichment without broad salt aliases',()=>{
+ const {reviewedComparisonProfile:review}=loader(env)('app/lib/reviewed-composition.ts');
+ const origin={...coEfferalgan(),sources:[source],product_identifier:{system:'AIC',value:'027989033'}};
+ assert.equal(review(origin).ingredients[1].name,'Codeine phosphate hemihydrate');
+ const zapain={...origin,name:'Zapain 30mg/500mg Tablets',country:'United Kingdom',product_identifier:undefined,sources:['https://www.medicines.org.uk/emc/product/431/smpc']};
+ assert.equal(review(zapain).ingredients[1].name,'Codeine phosphate hemihydrate');
+ for(const p of [
+  {...origin,product_identifier:{system:'AIC',value:'wrong'}},
+  {...origin,country:'United Kingdom'}, {...origin,form:'tablet'}, {...origin,sources:[]},
+  {...zapain,name:'Another brand'}, {...zapain,country:'Ireland'}, {...zapain,sources:[source]}, {...zapain,form:'capsule'},
+  {...zapain,ingredients:[zapain.ingredients[0],{name:'Codeine phosphate',strength:'8 mg per tablet'}]},
+  {...zapain,ingredients:[zapain.ingredients[0],{name:'Codeine phosphate sesquihydrate',strength:'30 mg per tablet'}]},
+  {...origin,ingredients:[...origin.ingredients,{name:'Caffeine',strength:'30 mg per tablet'}]},
+ ])assert.equal(review(p),p);
+ assert.equal(origin.ingredients[1].name,'Codeine phosphate');
+});
+
+test('supplier-only generic discovery also researches the neutral generic family in the same call',async()=>{
+ const origin={...coEfferalgan(),sources:[source],product_identifier:{system:'AIC',value:'027989033'}};
+ const generic={...product(),name:'Co-codamol 30/500 Tablets',country:'United Kingdom',generic:true,supplier:'Zentiva',form:'tablet'};
+ const solpadol={...generic,name:'Solpadol 30mg/500mg Tablets',generic:false,supplier:'Phoenix Labs'};
+ const zapain={...generic,name:'Zapain 30mg/500mg Tablets',generic:false,supplier:'ADVANZ',form:'film-coated tablet',ingredients:origin.ingredients,sources:['https://www.medicines.org.uk/emc/product/431/smpc']};
+ const wrongStrength={...generic,ingredients:[generic.ingredients[0],{name:'Codeine phosphate hemihydrate',strength:'8 mg per tablet'}]};
+ const wrongActive={...generic,ingredients:[generic.ingredients[0],{name:'Dihydrocodeine tartrate',strength:'30 mg per tablet'}]};
+ let calls=0;
+ const read=loader(env,{'./openaiClient':{},'./claude-preview':{claudePreviewEnabled:()=>true,claudeResearch:async(instruction,data)=>{
+  if(++calls===1)return {candidates:[generic]};
+  assert.deepEqual(data.query_names,['Co-codamol (Zentiva)','Co-codamol']);
+  return {catalogues:[{query_name:'Co-codamol (Zentiva)',variants_complete:false,products:[generic]},{query_name:'Co-codamol',variants_complete:false,products:[generic,solpadol,zapain,wrongStrength,wrongActive,{...generic,form:'effervescent tablet'},{...generic,form:'capsule'}]}]};
+ }}});
+ const token=read('app/lib/sonnet-research-support.ts').issueOriginSelection(origin,'Co Efferalgan');
+ const response=await read('app/lib/sonnet-research-matches.ts').productionStrengthSearch({drugName:'Co Efferalgan',originCountry:'Italy',targetCountry:'United Kingdom',originSelection:token},false,true);
+ const body=await response.json();assert.equal(response.status,200);assert.equal(calls,2);assert.equal(body.matches.length,3);
+ for(const name of ['Co-codamol','Solpadol','Zapain'])assert.ok(body.matches.some(p=>p.medicine_name.startsWith(name)),name);
+ for(const reason of ['STRENGTH_OR_UNIT_TEXT_DIFFERS','FORM_MISMATCH','INGREDIENT_NAMES_MISMATCH'])assert.ok(body.equivalentDebug.decisions.some(d=>d.reasons.includes(reason)),reason);
+});

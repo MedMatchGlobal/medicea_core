@@ -64,6 +64,7 @@ test('result panel exposes differences, provenance and unknowns without a suitab
  const Panel=read('app/components/ExcipientComparison.tsx').default;
  const comparison=lib.compareExcipients(product('Origin',['Starch']),product('Candidate',['Lactose']));
  const html=renderToStaticMarkup(React.createElement(Panel,{comparison}));
- for(const word of ['Excipients differ','Lactose','Starch','View ingredient lists and evidence','Document date','pharmacist','not a regulatory bioequivalence assessment'])assert.ok(html.includes(word),word);
+ for(const word of ['Excipients differ','Lactose','Starch','View comparison details','Document date','pharmacist','not a regulatory bioequivalence assessment'])assert.ok(html.includes(word),word);
+ const [compact,details]=html.split('<details');assert.match(compact,/Ingredients and strengths match/);assert.doesNotMatch(compact,/Document date|source-linked comparison|quantities|pharmacist/);assert.match(details,/Document date/);
  const missing=renderToStaticMarkup(React.createElement(Panel,{comparison:lib.compareExcipients(product('Origin'),product('Candidate'))}));assert.match(missing,/Missing information does not mean an ingredient is absent/);assert.doesNotMatch(missing,/Listed excipients match/);
 });

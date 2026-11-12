@@ -146,8 +146,16 @@ export async function productionStrengthSearch(input:{drugName:unknown;originCou
   if(!Array.isArray(reply.candidates)||reply.candidates.length>24)throw Error('INVALID_CANDIDATES');
   const names:string[]=reply.candidates.map((p:any)=>p&&isMedicineName(p.name)&&typeof p.country==='string'&&norm(p.country)===norm(targetCountry)?presentationQuery(p,candidateIdentity):'');
   if(names.some(name=>!plain(name,420)||!catalogueKey(name)))throw Error('INVALID_CANDIDATE_IDENTITY');
-  const queries=names.filter((name,i)=>names.findIndex(other=>catalogueKey(other)===catalogueKey(name))===i);
-  const querySuppliers=new Map(queries.map(query=>[catalogueKey(query),supplierOf(reply.candidates[names.indexOf(query)])]));
+  // A supplier-specific catalogue cannot cover the whole generic family. Also
+  // look up the source-discovered generic name without a supplier restriction
+  // in the SAME independent request. No hard-coded brands or desired strengths.
+  const queryRows=reply.candidates.flatMap((p:Product,i:number)=>[
+   {name:names[i],supplier:supplierOf(p)},
+   ...(p.generic===true&&supplierOf(p)?[{name:candidateIdentity(p.name),supplier:undefined}]:[]),
+  ]);
+  const queryRecords=queryRows.filter((row:{name:string},i:number)=>queryRows.findIndex((other:{name:string})=>catalogueKey(other.name)===catalogueKey(row.name))===i);
+  const queries:string[]=queryRecords.map((row:{name:string})=>row.name);
+  const querySuppliers=new Map<string,string|undefined>(queryRecords.map((row:{name:string;supplier:string|undefined})=>[catalogueKey(row.name),row.supplier]));
   let catalogueProducts:Product[]=[];
   if(queries.length){
    if(debug)debug.stage='destination_catalogues';

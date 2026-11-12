@@ -1478,7 +1478,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
           {/* Matches list */}
           {Array.isArray(matches) && matches.length > 0 && (
             <div style={{ marginTop: 12 }}>
-              {mode==='international'&&<p>Results match the complete active ingredients and strengths under the form, route and release comparison rules. Ordered by excipient comparison completeness, then available document dates. This order is not a personal treatment recommendation.</p>}
+              {mode==='international'&&<p>Ordered by available excipient comparison evidence.</p>}
               {matches.map((m: any, idx: number) => {
                 const medname = m?.medicine_name ?? m?.Medicine_name ?? `Medicine ${idx + 1}`;
                 if (mode === 'pets' || mode === 'pet-generic') return <PetMedicineInformation searchAccess={searchAccess} key={medname + lang + (restoredSearch?.id || "")}
@@ -1506,6 +1506,8 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
                     <div className="medicine-result-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
                       <div style={{ fontWeight: 700, color: '#0f172a' }}>{medname}</div>
                       <button type="button" className="pill pill--blue" aria-expanded={selectedMedicine === medname} onClick={() => setSelectedMedicine(selectedMedicine === medname ? null : medname)}>{selectedMedicine === medname ? 'Selected medicine' : 'Choose this medicine'}</button>
+                    </div>
+                    {mode==='international'&&<ExcipientComparison comparison={m.excipientComparison} />}
                       <div className="leaflet-actions">
                         <button
                           onClick={() => {
@@ -1526,9 +1528,6 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
                         </button>
                         <a className="official-leaflet-link" href={officialMedicineLeafletSearch(medname, mode === 'international' ? targetCode || originCode : originCode)} target="_blank" rel="noopener noreferrer">{leafletActions(lang).official}</a>
                       </div>
-                    </div>
-
-                    {mode==='international'&&<ExcipientComparison comparison={m.excipientComparison} />}
                     {selectedMedicine === medname && <MedicineNextSteps key={medname} medicine={medname} country={mode === 'international' ? targetCode || originCode : originCode} dosage={selectedDosage} onFind={service => openPharmacyTrip(mode === 'international' ? targetCode || originCode : originCode, medname, service)} />}
                     {showLF && leafletText && (
                       <div
