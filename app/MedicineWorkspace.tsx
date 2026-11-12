@@ -1512,6 +1512,9 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
                     {mode==='international'&&<ExcipientComparison comparison={m.excipientComparison} />}
                       <div className="leaflet-actions">
                         <button
+                          type="button"
+                          aria-expanded={showLF}
+                          aria-controls={`equivalent-leaflet-${idx}`}
                           onClick={() => {
                             if (!leafletText) {
                               handleFetchLeafletForMatch(medname,m);
@@ -1522,17 +1525,22 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
                           disabled={isLeafletLoading}
                           className={`pill pill--blue pill-sm${isLeafletLoading ? ' pill--disabled' : ''}`}
                         >
-                          {isLeafletLoading
+                          <span className="leaflet-toggle-label">
+                            <span aria-hidden="true" className="leaflet-toggle-size">{leafletActions(lang).view}</span>
+                            <span aria-hidden="true" className="leaflet-toggle-size">{leafletActions(lang).hide}</span>
+                            <span aria-hidden="true" className="leaflet-toggle-size">{F(ui, 'loadingLeaflet', 'Loading leaflet…')}</span>
+                            <span>{isLeafletLoading
                             ? F(ui, 'loadingLeaflet', 'Loading leaflet…')
                             : showLF
                             ? leafletActions(lang).hide
-                            : leafletActions(lang).view}
+                            : leafletActions(lang).view}</span>
+                          </span>
                         </button>
                         <a className="official-leaflet-link" href={officialMedicineLeafletSearch(medname, mode === 'international' ? targetCode || originCode : originCode)} target="_blank" rel="noopener noreferrer">{leafletActions(lang).official}</a>
                       </div>
-                    {selectedMedicine === medname && <MedicineNextSteps key={medname} medicine={medname} lang={lang} country={mode === 'international' ? targetCode || originCode : originCode} dosage={selectedDosage} onFind={service => openPharmacyTrip(mode === 'international' ? targetCode || originCode : originCode, medname, service)} />}
                     {showLF && leafletText && (
                       <div
+                        id={`equivalent-leaflet-${idx}`}
                         className="human-leaflet-content"
                         style={{
                           background: 'transparent',
@@ -1547,6 +1555,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
                         {renderLeafletPretty(extractLeafletText(leafletText), t,m)}
                       </div>
                     )}
+                    {selectedMedicine === medname && <MedicineNextSteps key={medname} medicine={medname} lang={lang} country={mode === 'international' ? targetCode || originCode : originCode} dosage={selectedDosage} onFind={service => openPharmacyTrip(mode === 'international' ? targetCode || originCode : originCode, medname, service)} />}
                   </div>
                 );
               })}
