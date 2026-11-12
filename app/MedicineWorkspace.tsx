@@ -1528,7 +1528,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
                         </button>
                         <a className="official-leaflet-link" href={officialMedicineLeafletSearch(medname, mode === 'international' ? targetCode || originCode : originCode)} target="_blank" rel="noopener noreferrer">{leafletActions(lang).official}</a>
                       </div>
-                    {selectedMedicine === medname && <MedicineNextSteps key={medname} medicine={medname} country={mode === 'international' ? targetCode || originCode : originCode} dosage={selectedDosage} onFind={service => openPharmacyTrip(mode === 'international' ? targetCode || originCode : originCode, medname, service)} />}
+                    {selectedMedicine === medname && <MedicineNextSteps key={medname} medicine={medname} lang={lang} country={mode === 'international' ? targetCode || originCode : originCode} dosage={selectedDosage} onFind={service => openPharmacyTrip(mode === 'international' ? targetCode || originCode : originCode, medname, service)} />}
                     {showLF && leafletText && (
                       <div
                         className="human-leaflet-content"
