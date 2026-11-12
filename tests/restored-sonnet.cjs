@@ -213,7 +213,11 @@ test('supplier-only generic discovery also researches the neutral generic family
  const wrongActive={...generic,ingredients:[generic.ingredients[0],{name:'Dihydrocodeine tartrate',strength:'30 mg per tablet'}]};
  let calls=0;
  const read=loader(env,{'./openaiClient':{},'./claude-preview':{claudePreviewEnabled:()=>true,claudeResearch:async(instruction,data)=>{
-  if(++calls===1)return {candidates:[generic]};
+  if(++calls===1){assert.doesNotMatch(instruction,/For each generic-name query, explicitly search/);return {candidates:[generic]};}
+  assert.match(instruction,/For each generic-name query, explicitly search destination-country medicine registers/);
+  assert.match(instruction,/Independently check each discovered brand's actual labelled ingredients, strengths, forms, route and release/);
+  assert.match(instruction,/Never infer a missing strength or formulation, fill a quota, or claim market-wide completeness/);
+  assert.doesNotMatch(instruction,/Solpadol|Zapain|Co-Efferalgan/);
   assert.deepEqual(data.query_names,['Co-codamol (Zentiva)','Co-codamol']);
   return {catalogues:[{query_name:'Co-codamol (Zentiva)',variants_complete:false,products:[generic]},{query_name:'Co-codamol',variants_complete:false,products:[generic,solpadol,zapain,wrongStrength,wrongActive,{...generic,form:'effervescent tablet'},{...generic,form:'capsule'}]}]};
  }}});
@@ -222,4 +226,15 @@ test('supplier-only generic discovery also researches the neutral generic family
  const body=await response.json();assert.equal(response.status,200);assert.equal(calls,2);assert.equal(body.matches.length,3);
  for(const name of ['Co-codamol','Solpadol','Zapain'])assert.ok(body.matches.some(p=>p.medicine_name.startsWith(name)),name);
  for(const reason of ['STRENGTH_OR_UNIT_TEXT_DIFFERS','FORM_MISMATCH','INGREDIENT_NAMES_MISMATCH'])assert.ok(body.equivalentDebug.decisions.some(d=>d.reasons.includes(reason)),reason);
+});
+
+test('generic-to-brand expansion is absent from origin identification',async()=>{
+ let calls=0;
+ const read=loader(env,{'./openaiClient':{},'./claude-preview':{claudePreviewEnabled:()=>true,claudeResearch:async(instruction,data)=>{
+  calls++;assert.match(instruction,/Identify the distinct labelled HUMAN product variants/);
+  assert.doesNotMatch(instruction,/For each generic-name query, explicitly search/);
+  assert.equal(data.drugName,'Example');return {variants_complete:true,products:[product()]};
+ }}});
+ const response=await read('app/lib/sonnet-research-matches.ts').productionStrengthSearch({drugName:'Example',originCountry:'Italy',targetCountry:'United Kingdom'},true);
+ const body=await response.json();assert.equal(response.status,200);assert.equal(calls,1);assert.equal(body.variants.length,1);
 });

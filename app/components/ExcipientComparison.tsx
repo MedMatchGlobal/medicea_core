@@ -2,6 +2,11 @@ import type {ExcipientComparison as Comparison,ExcipientEvidence} from '../lib/e
 export default function ExcipientComparison({comparison}:{comparison?:Comparison}) {
  if(!comparison)return <p>Excipient comparison unavailable for this result. Check the exact product leaflet with a pharmacist.</p>;
  const label={listed_match:'Listed excipients match',different:'Excipients differ',incomplete:'Excipient information incomplete'}[comparison.status];
+ const noLists=!comparison.origin.items.length&&!comparison.candidate.items.length;
+ if(noLists)return <div className="excipient-comparison" aria-label="Equivalence comparison" style={{margin:'12px 0',padding:'12px 0',borderTop:'1px solid #d9d3c8'}}>
+  <p><strong>Ingredients and strengths match</strong></p>
+  <p>Excipients have not been compared: ingredient lists were not retrieved for these exact products. Ask the pharmacist to check any allergies or intolerances.</p>
+ </div>;
  function evidence(title:string,e:ExcipientEvidence){return <section>
   <h4>{title}: {e.productName}</h4>
   <p>{e.status==='complete'?'Source reports a complete list':e.status==='partial'?'Partial list':'No supported list available'}{e.documentDate?` · Document date: ${e.documentDate}`:' · Document date unavailable'}</p>
@@ -10,7 +15,7 @@ export default function ExcipientComparison({comparison}:{comparison?:Comparison
  </section>;}
  return <div className="excipient-comparison" aria-label="Equivalence comparison" style={{margin:'12px 0',padding:'12px 0',borderTop:'1px solid #d9d3c8'}}>
   <p><strong>Ingredients and strengths match</strong> · {label}</p>
-  <details><summary>View comparison details</summary>
+  <details><summary>View available excipient lists</summary>
   <p><strong>Form, route and release:</strong> match under the medicine comparison rules.</p>
   {comparison.status==='incomplete'&&<p>Missing information does not mean an ingredient is absent.</p>}
   {comparison.status==='listed_match'&&<p>The declared ingredient names match. This does not establish an identical formulation or individual tolerability.</p>}
