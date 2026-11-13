@@ -48,7 +48,9 @@ import {petGenericsLabel} from './i18n/pet-generics';
 import {leafletActions} from './i18n/leaflet-actions';
 import { conditionAdditions } from '../data/condition-additions';
 import { searchFeedback } from './i18n/search-feedback';
-import { careSearchQuery, isCareMode } from './lib/care-search';
+import { careSearchUrl, isCareMode } from './lib/care-search';
+import {useCareLocation} from './components/useCareLocation';
+import CareLocationStatus from './components/CareLocationStatus';
 import SymptomTriage from './components/SymptomTriage';
 import {useMembershipPreview,useAccountHref} from './components/MembershipAccess';
 import MembershipFooter from './components/MembershipFooter';
@@ -306,20 +308,6 @@ function renderLeafletPretty(leafletText: string, t: UIStrings, profile?:Leaflet
 }
 
 const parseMatchesFromRawText = parseEquivalentCandidates;
-
-function mapsUrl(query: string) {
-  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
-}
-
-/* NEW: open a Maps **pin** for any place/address string */
-function mapsPlaceUrl(place: string) {
-  return `https://www.google.com/maps/place/${encodeURIComponent(place)}`;
-}
-
-function parseCoords(s: string | null | undefined): { lat: number; lng: number } | null {
-  const m = (s || '').match(/^\s*(-?\d+(\.\d+)?),\s*(-?\d+(\.\d+)?)\s*$/);
-  return m ? { lat: parseFloat(m[1]), lng: parseFloat(m[3]) } : null;
-}
 
 /** Brand replacer for body content (not used for slogan) */
 function stylizeBrand(html: string) {
@@ -702,7 +690,7 @@ function Home({ petMode = false, originVariantSelectionEnabled=false }: { petMod
   }
   const [userAddress, setUserAddress] = useState('');
   const [useGeo, setUseGeo] = useState(false);
-  const [geoStr, setGeoStr] = useState('');
+  const geo=useCareLocation(useGeo);
   const [paywallVisible, setPaywallVisible] = useState(false);
   const [paywallReason, setPaywallReason] = useState<PaywallReason | null>(null);
 
@@ -724,26 +712,6 @@ function Home({ petMode = false, originVariantSelectionEnabled=false }: { petMod
       .then((d) => setVisits(d.value))
       .catch(() => setVisits(null));
   }, []);
-
-  /** Geolocation fetch when the user ticks "Use device location" */
-  useEffect(() => {
-    if (!useGeo) {
-      setGeoStr('');
-      return;
-    }
-    if (typeof navigator === 'undefined' || !navigator.geolocation) {
-      setGeoStr('near me');
-      return;
-    }
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        const { latitude, longitude } = pos.coords;
-        setGeoStr(`${latitude},${longitude}`); // Google Maps accepts "lat,long"
-      },
-      () => setGeoStr('near me'),
-      { enableHighAccuracy: false, maximumAge: 60000, timeout: 8000 }
-    );
-  }, [useGeo]);
 
   function resetFieldsForMode(m: Mode) {
     setOriginVariants([]);setOriginProduct(null);originChoiceHistory.current=[];
@@ -815,12 +783,10 @@ function Home({ petMode = false, originVariantSelectionEnabled=false }: { petMod
 
     /* ---------------- LOCAL SEARCH BRANCH: open Google Maps ---------------- */
     if (isCareMode(mode)) {
-      const addr = useGeo ? geoStr : userAddress.trim();
-      if (!addr) return;
-      const coords = parseCoords(addr);
-      const location = coords ? `${coords.lat},${coords.lng}` : addr;
+      const href=careSearchUrl(mode,useGeo ? geo.coordinates : userAddress.trim(),doctorSpec);
+      if (!href) return;
       if (typeof window !== 'undefined') {
-        window.open(mapsUrl(careSearchQuery(mode, location, doctorSpec)), '_blank', 'noopener,noreferrer');
+        window.open(href, '_blank', 'noopener,noreferrer');
       }
       return; // prevent falling into AI path
     }
@@ -1247,7 +1213,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
                 <input
                   type="text"
                   required={!useGeo} aria-label={F(ui, 'addressPrompt', 'Enter an address (or use device location)')} placeholder={F(ui, 'addressPH', 'Street, City, Country…')}
-                  value={userAddress}
+                  value={userAddress} disabled={useGeo}
                   onChange={(e) => setUserAddress(e.target.value)}
                   style={input}
                 />
@@ -1267,6 +1233,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
                 <input type="checkbox" checked={useGeo} onChange={(e) => setUseGeo(e.target.checked)} />
                 {F(ui, 'useDeviceLocation', 'Use device location')}
               </label>
+              <CareLocationStatus enabled={useGeo} {...geo} lang={lang}/>
             </>
           )}
 
@@ -1282,7 +1249,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
               (mode === 'condition' && !(selectedCondition.trim() && targetCode)) ||
               (mode === 'pets' && !(originCode && selectedDrug && targetCode)) ||
               (mode === 'pet-generic' && !(originCode && selectedDrug)) ||
-              (isCareMode(mode) && !(useGeo ? geoStr : userAddress.trim()))
+              (isCareMode(mode) && !careSearchUrl(mode,useGeo ? geo.coordinates : userAddress.trim(),doctorSpec))
             }
             className={`pill pill--blue search-submit${loading ? ' pill--disabled' : ''}`}
             aria-busy={loading}
