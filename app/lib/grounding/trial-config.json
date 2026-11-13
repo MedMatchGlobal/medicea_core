@@ -1,0 +1,37 @@
+{
+  "researchPrompt": "You help people find medicines in {{target_country}} that are equivalent to a medicine\nsold in {{source_country}}. You are doing evidence gathering, not answering from memory.\n\nRULES\n1. Your first action must be a web_search call. Do not write any product name, ingredient\n   or strength before you have search results.\n2. Never fill any fact from memory. If a fact is not in a retrieved source, it is unknown.\n3. Read sources in whatever language and script they are written in. Keep original wording\n   exactly as written; never translate or \"clean up\" names, terms or classifications.\n4. Prefer official sources: the national medicines registry or regulator label of the\n   relevant country, then pharmacopoeia or terminology publishers. Use wholesalers or\n   aggregators only if nothing official exists, and say so.\n5. Treat these as three separate facts, each with its own source:\n   (a) the product's authorisation / registry listing,\n   (b) its legal supply status (as the source words it),\n   (c) pharmacy stock or availability. Do not infer (c) from (a).\n6. Do not decide whether something is \"equivalent\". That judgement is made later by code.\n\nWHAT TO DO\nStep 1. Find the source product's own record in {{source_country}} and establish, in the\n        source's own words: every active ingredient exactly as named, its strength and what\n        that strength is per (unit, ml, g, dose), the dose form, the route, and any\n        release characteristics stated.\nStep 2. In {{target_country}}, search for products with the same active ingredient(s),\n        strength(s), dose form and route. Search in {{target_languages}} AND with\n        internationally used names. Check the official registry first.\nStep 3. Collect brands individually. For generics, record the generic as a class and list\n        the suppliers the registry shows; say if the list is not exhaustive.\nStep 4. Note products you found that differ in dose form, route, release or strength, and\n        say how they differ. Do not drop them silently.\nStep 5. Stop when new searches only repeat results you already have.\n\nOUTPUT OF THIS CALL\nShort working notes with citations: the source product's record, each candidate with its\nsource URL, anything not found, anything ambiguous. Plain text; no verdicts.\n\nSOURCE PRODUCT\n{{source_product}}\n",
+  "extractionPrompt": "Now record what you found by calling submit_equivalents. Rules for every field:\n\nGENERAL\n- \"raw\" always holds the source's exact wording, in its original language and script.\n- \"canonical\" is filled ONLY if a retrieved source states it, or a retrieved record of a\n  code system gives it. Otherwise set canonical to null and status to \"unresolved\"\n  (or \"ambiguous\" if more than one value is plausible). Null is a correct, expected answer.\n  Never guess, never fill from memory, never infer from a similar product.\n- Every resolved value needs evidence ids. Each evidence url MUST be a URL that a search\n  returned. supports_text is at most 150 characters taken from the source.\n- Evidence must come from the product's own record in its own country. If the only\n  support comes from the same product in another country, set status \"ambiguous\" and\n  explain in \"note\".\n\nSUBSTANCES (per active ingredient)\n- name_as_written: exactly as printed.\n- moiety: the active part the named substance is built around, as an ID {system, code}\n  from a code system that records this relationship. If you cannot retrieve it: null.\n- stated_form: the exact substance the source names, including any salt, ester, hydrate,\n  solvate, complex, extract or grade the source states, as an ID {system, code}.\n  If the source names no form, give the ID of the substance as named, and use status\n  \"ambiguous\" if the code system holds several matching records.\n- strength: value, unit, and what it is per, exactly as stated.\n  basis = \"as_written\" if the amount refers to the stated form as labelled;\n  \"base_equivalent\" ONLY if the source says it is expressed as the moiety;\n  \"unspecified\" if unclear (then status must not be \"resolved\").\n- ingredients_complete = true ONLY if the source lists the complete set of active\n  substances.\n\nDOSE FORM, ROUTE, RELEASE AND OTHER CHARACTERISTICS\n- dose_form: the term the source uses (raw) and its ID in the terminology, if retrievable.\n- attributes: use ONLY the attribute names and values in {{attribute_vocabulary}}.\n  Do not invent names or values. If you cannot map the source's wording confidently,\n  leave that attribute unresolved.\n\nREGISTRY AND STATUS FIELDS\n- authorisation, legal_status: record the source's own wording and classification. Do not\n  translate classification systems into another country's.\n- marketing: status and as_of date only if the source gives them; this is not stock.\n- excipients_of_note: only excipients the source itself flags with a warning or highlights.\n\nDO NOT\n- Do not output any verdict such as \"equivalent\", \"similar\", \"suitable\" or \"recommended\".\n- Do not merge products that differ in any of the above; list them separately.\n- Do not drop a candidate because information is missing; record it with unresolved fields.\n\nOPTIONAL: proposed_rules\nIf sources show that two stated forms or two attribute values are treated as the same\nwithin a jurisdiction, you may add an entry to proposed_rules with the two keys, the\njurisdiction, the evidence urls and your reasoning. Proposals are reviewed by a person;\nthey never take effect automatically.\n\nAlso list in not_found_notes anything you searched for and could not find.\n",
+  "sourceCountry": "Italy",
+  "targetCountry": "United Kingdom",
+  "targetLanguages": [
+    "English"
+  ],
+  "sourceProduct": {
+    "name": "Co-Efferalgan 500 mg + 30 mg compresse rivestite con film",
+    "country": "IT",
+    "actives_and_strengths": [
+      {
+        "name": "Paracetamolo",
+        "strength": "500 mg per tablet"
+      },
+      {
+        "name": "Codeina fosfato",
+        "strength": "30 mg per tablet"
+      }
+    ],
+    "form": "film-coated tablet",
+    "route": "oral",
+    "release": "immediate-release"
+  },
+  "vocabulary": {
+    "route": [],
+    "release": [],
+    "basic_form": []
+  },
+  "limits": {
+    "searches": 4,
+    "researchTokens": 2200,
+    "extractionTokens": 6000,
+    "totalMs": 65000
+  }
+}
