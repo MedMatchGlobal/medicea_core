@@ -13,5 +13,5 @@ export function useCareLocation(enabled:boolean){
   });return()=>controller.abort();
  },[enabled]);
  // Hiding the previous fix immediately also prevents a stale callback being used after toggling.
- return enabled?state:{coordinates:'',pending:false,error:null};
+ return enabled?{...state,pending:state.pending||(!state.coordinates&&!state.error)}:{coordinates:'',pending:false,error:null};
 }

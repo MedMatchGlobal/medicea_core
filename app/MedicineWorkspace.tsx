@@ -48,9 +48,10 @@ import {petGenericsLabel} from './i18n/pet-generics';
 import {leafletActions} from './i18n/leaflet-actions';
 import { conditionAdditions } from '../data/condition-additions';
 import { searchFeedback } from './i18n/search-feedback';
-import { careSearchUrl, isCareMode } from './lib/care-search';
+import { careSearchUrl, careLaunchUrl, isCareMode } from './lib/care-search';
 import {useCareLocation} from './components/useCareLocation';
-import CareLocationStatus from './components/CareLocationStatus';
+import CareLocationStatus,{careLocationCopy} from './components/CareLocationStatus';
+import SpecialtyPicker from './components/SpecialtyPicker';
 import SymptomTriage from './components/SymptomTriage';
 import {useMembershipPreview,useAccountHref} from './components/MembershipAccess';
 import MembershipFooter from './components/MembershipFooter';
@@ -694,17 +695,7 @@ function Home({ petMode = false, originVariantSelectionEnabled=false }: { petMod
   const [paywallVisible, setPaywallVisible] = useState(false);
   const [paywallReason, setPaywallReason] = useState<PaywallReason | null>(null);
 
-  const specList = useMemo(() => {
-    const fromLang = Array.isArray((t as any)?.ui?.specialties) ? ((t as any).ui.specialties as string[]) : [];
-    const fromEn = (enStrings as any)?.ui?.specialties as string[] | undefined;
-    const list = fromLang.length ? fromLang : fromEn || [];
-    return list.slice().sort((a, b) => a.localeCompare(b));
-  }, [t]);
-
   const [doctorSpec, setDoctorSpec] = useState('');
-  useEffect(() => {
-    setDoctorSpec((prev) => (specList.includes(prev) ? prev : ''));
-  }, [specList]);
 
   useEffect(() => {
     fetch('https://counterapi.dev/api/hit/medicea.vercel.app/visits')
@@ -783,10 +774,11 @@ function Home({ petMode = false, originVariantSelectionEnabled=false }: { petMod
 
     /* ---------------- LOCAL SEARCH BRANCH: open Google Maps ---------------- */
     if (isCareMode(mode)) {
-      const href=careSearchUrl(mode,useGeo ? geo.coordinates : userAddress.trim(),doctorSpec);
+      const href=careLaunchUrl(mode,useGeo ? geo.coordinates : userAddress.trim(),doctorSpec,typeof navigator!=='undefined'?navigator.userAgent:'');
       if (!href) return;
       if (typeof window !== 'undefined') {
-        window.open(href, '_blank', 'noopener,noreferrer');
+        if(href.startsWith('geo:'))window.location.assign(href);
+        else window.open(href, '_blank', 'noopener,noreferrer');
       }
       return; // prevent falling into AI path
     }
@@ -1222,10 +1214,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
               {mode === 'doctor' && (
                 <div>
                   <div style={{ fontWeight: 600, marginBottom: 4 }}>{F(ui, 'doctorSpec', 'Doctor specialty')}</div>
-                  <select value={doctorSpec} onChange={(e) => setDoctorSpec(e.target.value)} style={select}>
-                    <option value="">{F(ui, 'btnDoctor', 'Search doctor')}</option>
-                    {specList.map((s) => (<option key={s} value={s}>{s}</option>))}
-                  </select>
+                  <SpecialtyPicker value={doctorSpec} onChange={setDoctorSpec} labels={(t as any).specialties||{}} lang={lang} placeholder={F(ui,'doctorSpec','Doctor specialty')} />
                 </div>
               )}
 
@@ -1252,10 +1241,12 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
               (isCareMode(mode) && !careSearchUrl(mode,useGeo ? geo.coordinates : userAddress.trim(),doctorSpec))
             }
             className={`pill pill--blue search-submit${loading ? ' pill--disabled' : ''}`}
-            aria-busy={loading}
+            aria-busy={loading || (isCareMode(mode) && useGeo && geo.pending)}
           >
             <Search size={19} aria-hidden="true" />
-            {loading
+            {isCareMode(mode) && useGeo && geo.pending
+              ? careLocationCopy(lang).pending
+              : loading
               ? '…'
               : mode === 'international'
               ? F(ui, 'searchIntl', 'Search International Equivalents')
@@ -1272,6 +1263,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
               : F(ui, 'openMaps', 'Open in Google Maps')}
           <ArrowRight size={19} aria-hidden="true" />
           </button>
+          {isCareMode(mode)&&useGeo&&geo.coordinates&&<p className="search-note"><a href={careSearchUrl(mode,geo.coordinates,doctorSpec)||undefined} target="_blank" rel="noopener noreferrer">{lang==='it'?'Apri la mappa nel browser':'Open browser map'}</a></p>}
           <p className="search-note"><ShieldCheck size={17} />{(mode === 'pets' || mode === 'pet-generic') ? searchFeedback(lang).petNotice : isCareMode(mode) ? searchFeedback(lang).careNotice : F(ui, 'educationalNote', 'Medicine information is educational. Confirm suitability with a pharmacist.')}</p>
         </div>
       )}

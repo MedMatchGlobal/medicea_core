@@ -144,3 +144,14 @@ body{background:var(--riviera-paper);color:var(--riviera-ink);font-family:Inter,
 .conversation-half small { display:block;margin-top:10px;line-height:1.4 }
 @media(max-width:600px) { .conversation-languages {grid-template-columns:1fr;gap:0} .conversation-divider span {max-width:45%} .conversation-half .pill {font-size:.85rem;padding:9px 12px} }
 @media(max-width:600px) { .medicine-next-actions > button { width:100%; } }
+
+.specialty-picker{display:grid;gap:10px;min-width:0}.specialty-picker label{display:grid;gap:5px}.specialty-picker input,.specialty-picker select{width:100%;min-width:0;box-sizing:border-box;padding:12px;border:1px solid #d9ccba;border-radius:9px;font:inherit}.specialty-picker select{white-space:normal}
+
+.specialty-menu{border:1px solid #d9ccba;border-radius:9px;background:#fffdf9;overflow:hidden}
+.specialty-menu>summary{padding:12px;cursor:pointer;font:inherit}
+.specialty-menu>label{padding:10px 12px}
+.specialty-options{max-height:360px;overflow-y:auto;padding:0 10px 10px;overscroll-behavior:contain}
+.specialty-group>summary{cursor:pointer;padding:12px 6px;font-weight:600;border-top:1px solid #e5ded3}
+.specialty-children{margin-left:16px;border-left:2px solid #e5ded3;padding-left:8px}
+.medicea-shell .specialty-choice{display:block;width:100%;text-align:left;border:0;border-radius:6px;background:transparent;color:#233237;padding:11px 8px;font:inherit;white-space:normal;cursor:pointer}
+.medicea-shell .specialty-choice:hover,.medicea-shell .specialty-choice[aria-pressed=true]{background:#ebe4d8}

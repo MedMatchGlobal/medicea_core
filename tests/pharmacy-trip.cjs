@@ -8,10 +8,11 @@ const React=require('react');
 const {renderToStaticMarkup}=require('react-dom/server');
 const root=path.join(__dirname,'..');
 function load(file) {
+  if(file.endsWith('.json'))return JSON.parse(fs.readFileSync(file,'utf8'));
   const output=ts.transpileModule(fs.readFileSync(file,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2020,jsx:ts.JsxEmit.ReactJSX,esModuleInterop:true}}).outputText;
   const module={exports:{}};
   vm.runInNewContext(output,{module,exports:module.exports,require(name){
-    if(name.startsWith('.')) {const target=path.resolve(path.dirname(file),name);return load(fs.existsSync(target+'.ts')?target+'.ts':target+'.tsx');}
+    if(name.startsWith('.')) {const target=path.resolve(path.dirname(file),name);return load(fs.existsSync(target)?target:fs.existsSync(target+'.ts')?target+'.ts':target+'.tsx');}
     return require(name);
   }});
   return module.exports;
@@ -51,7 +52,7 @@ test('selected medicine offers pharmacy, GP and conversation steps without claim
 test('GP handoff keeps medicine context out of the external location search',()=>{
   const Panel=load(path.join(root,'app/components/PharmacyTripPanel.tsx')).default;
   const html=renderToStaticMarkup(React.createElement(Panel,{trip:{id:'gp',service:'gp',country:'Italy',medicines:['Private medicine'],returnUrl:'/',scrollY:0},lang:'en',onBack(){},title:'Find GP',addressLabel:'Address',addressPlaceholder:'Town',useLocationLabel:'Use location',openLabel:'Open Maps',notice:'Check listings'}));
-  assert.match(html,/general%20practitioners%20family%20doctors%20near%20Italy/);
+  assert.match(html,/general%20practitioner%20near%20Italy/);
   const hrefs=Array.from(html.matchAll(/href="([^"]+)"/g),x=>x[1]).join(' ');
   assert.doesNotMatch(hrefs,/Private|medicine/);
 });

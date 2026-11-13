@@ -1,0 +1,6407 @@
+[
+  {
+    "id": "general_practice_family_medicine",
+    "label": "General practice / family medicine",
+    "it": "General practice / family medicine",
+    "items": [
+      {
+        "id": "general_practice_family_medicine",
+        "label": "General practice / family medicine",
+        "parent": "",
+        "query": "general practitioner",
+        "aliases": "GP; family doctor; family physician; primary care; general practitioner; Hausarzt; huisarts; médecin généraliste; medico di base; médico de familia ",
+        "legacyIds": [
+          "gp"
+        ],
+        "kind": "specialty",
+        "needsReview": false
+      }
+    ]
+  },
+  {
+    "id": "internal_medicine",
+    "label": "Internal medicine",
+    "it": "Internal medicine",
+    "items": [
+      {
+        "id": "internal_medicine",
+        "label": "Internal medicine",
+        "parent": "",
+        "query": "internist",
+        "aliases": "internist; general physician; general medicine; Internist ",
+        "legacyIds": [
+          "im"
+        ],
+        "kind": "specialty",
+        "needsReview": false
+      }
+    ]
+  },
+  {
+    "id": "geriatrics",
+    "label": "Geriatrics",
+    "it": "Geriatrics",
+    "items": [
+      {
+        "id": "geriatrics",
+        "label": "Geriatrics",
+        "parent": "",
+        "query": "geriatrician",
+        "aliases": "geriatric medicine; elderly care; care of the older person; gerontology ",
+        "legacyIds": [
+          "ger"
+        ],
+        "kind": "specialty",
+        "needsReview": false
+      },
+      {
+        "id": "orthogeriatrics",
+        "label": "Orthogeriatrics",
+        "parent": "geriatrics",
+        "query": "Orthogeriatrics clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "memory_and_cognitive_assessment",
+        "label": "Memory and cognitive assessment",
+        "parent": "geriatrics",
+        "query": "Memory and cognitive assessment",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "falls_and_frailty_clinic",
+        "label": "Falls and frailty clinic",
+        "parent": "geriatrics",
+        "query": "Falls and frailty clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      }
+    ]
+  },
+  {
+    "id": "occupational_medicine",
+    "label": "Occupational medicine",
+    "it": "Occupational medicine",
+    "items": [
+      {
+        "id": "occupational_medicine",
+        "label": "Occupational medicine",
+        "parent": "",
+        "query": "occupational medicine physician",
+        "aliases": "occupational health; work-related health; industrial medicine ",
+        "legacyIds": [
+          "occupational"
+        ],
+        "kind": "specialty",
+        "needsReview": false
+      }
+    ]
+  },
+  {
+    "id": "hospital_medicine",
+    "label": "Hospital medicine",
+    "it": "Hospital medicine",
+    "items": [
+      {
+        "id": "hospital_medicine",
+        "label": "Hospital medicine",
+        "parent": "",
+        "query": "Hospital medicine",
+        "aliases": "hospitalist; acute medicine",
+        "legacyIds": [],
+        "kind": "specialty",
+        "needsReview": false
+      }
+    ]
+  },
+  {
+    "id": "urgent_care_walk_in",
+    "label": "Urgent care / walk-in",
+    "it": "Urgent care / walk-in",
+    "items": [
+      {
+        "id": "urgent_care_walk_in",
+        "label": "Urgent care / walk-in",
+        "parent": "",
+        "query": "Urgent care / walk-in",
+        "aliases": "walk-in clinic; minor injuries; urgent care centre",
+        "legacyIds": [],
+        "kind": "specialty",
+        "needsReview": false
+      }
+    ]
+  },
+  {
+    "id": "preventive_medicine_and_health_screening",
+    "label": "Preventive medicine and health screening",
+    "it": "Preventive medicine and health screening",
+    "items": [
+      {
+        "id": "preventive_medicine_and_health_screening",
+        "label": "Preventive medicine and health screening",
+        "parent": "",
+        "query": "Preventive medicine and health screening",
+        "aliases": "check-up; health check; executive health; screening",
+        "legacyIds": [],
+        "kind": "specialty",
+        "needsReview": false
+      }
+    ]
+  },
+  {
+    "id": "cardiology",
+    "label": "Cardiology",
+    "it": "Cardiology",
+    "items": [
+      {
+        "id": "cardiology",
+        "label": "Cardiology",
+        "parent": "",
+        "query": "cardiologist",
+        "aliases": "heart specialist; cardiologist  heart cuore",
+        "legacyIds": [
+          "cards"
+        ],
+        "kind": "specialty",
+        "needsReview": false
+      },
+      {
+        "id": "interventional_cardiology",
+        "label": "Interventional cardiology",
+        "parent": "cardiology",
+        "query": "interventional cardiologist",
+        "aliases": " ",
+        "legacyIds": [
+          "cards-int"
+        ],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "cardiac_electrophysiology",
+        "label": "Cardiac electrophysiology",
+        "parent": "cardiology",
+        "query": "cardiac electrophysiologist",
+        "aliases": "arrhythmia; heart rhythm; pacemaker ",
+        "legacyIds": [
+          "cards-ep"
+        ],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "heart_failure",
+        "label": "Heart failure",
+        "parent": "cardiology",
+        "query": "Heart failure clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "cardiac_imaging_echo_ct_mri",
+        "label": "Cardiac imaging (echo, CT, MRI)",
+        "parent": "cardiology",
+        "query": "Cardiac imaging (echo, CT, MRI) clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "adult_congenital_heart_disease",
+        "label": "Adult congenital heart disease",
+        "parent": "cardiology",
+        "query": "Adult congenital heart disease clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "inherited_cardiac_conditions",
+        "label": "Inherited cardiac conditions",
+        "parent": "cardiology",
+        "query": "Inherited cardiac conditions clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "preventive_cardiology",
+        "label": "Preventive cardiology",
+        "parent": "cardiology",
+        "query": "Preventive cardiology clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "cardio_oncology",
+        "label": "Cardio-oncology",
+        "parent": "cardiology",
+        "query": "Cardio-oncology clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "cardiac_rehabilitation",
+        "label": "Cardiac rehabilitation",
+        "parent": "cardiology",
+        "query": "Cardiac rehabilitation",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "hypertension_clinic",
+        "label": "Hypertension clinic",
+        "parent": "cardiology",
+        "query": "Hypertension clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "valvular_heart_disease",
+        "label": "Valvular heart disease",
+        "parent": "cardiology",
+        "query": "Valvular heart disease clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      }
+    ]
+  },
+  {
+    "id": "lipidology",
+    "label": "Lipidology",
+    "it": "Lipidology",
+    "items": [
+      {
+        "id": "lipidology",
+        "label": "Lipidology",
+        "parent": "",
+        "query": "lipid clinic",
+        "aliases": "lipid specialist; lipid clinic; cholesterol specialist; familial hypercholesterolaemia; dyslipidaemia; cardiometabolic lipidology cholesterol triglycerides lipidologist dyslipidaemia colesterolo lipidi trigliceridi lipidologo",
+        "legacyIds": [
+          "lipids"
+        ],
+        "kind": "specialty",
+        "needsReview": false
+      }
+    ]
+  },
+  {
+    "id": "vascular_medicine_angiology",
+    "label": "Vascular medicine / angiology",
+    "it": "Vascular medicine / angiology",
+    "items": [
+      {
+        "id": "vascular_medicine_angiology",
+        "label": "Vascular medicine / angiology",
+        "parent": "",
+        "query": "Vascular medicine / angiology",
+        "aliases": "angiology; vascular physician; circulation specialist",
+        "legacyIds": [],
+        "kind": "specialty",
+        "needsReview": false
+      }
+    ]
+  },
+  {
+    "id": "endocrinology",
+    "label": "Endocrinology",
+    "it": "Endocrinology",
+    "items": [
+      {
+        "id": "endocrinology",
+        "label": "Endocrinology",
+        "parent": "",
+        "query": "endocrinologist",
+        "aliases": "hormone specialist; endocrinologist ",
+        "legacyIds": [
+          "endo"
+        ],
+        "kind": "specialty",
+        "needsReview": false
+      },
+      {
+        "id": "diabetes_diabetology",
+        "label": "Diabetes (diabetology)",
+        "parent": "endocrinology",
+        "query": "diabetes specialist",
+        "aliases": " ",
+        "legacyIds": [
+          "diabetes"
+        ],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "thyroid_disease",
+        "label": "Thyroid disease",
+        "parent": "endocrinology",
+        "query": "Thyroid disease clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "pituitary_and_adrenal_disease",
+        "label": "Pituitary and adrenal disease",
+        "parent": "endocrinology",
+        "query": "Pituitary and adrenal disease clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "bone_and_calcium_disorders_osteoporosis",
+        "label": "Bone and calcium disorders (osteoporosis)",
+        "parent": "endocrinology",
+        "query": "Bone and calcium disorders (osteoporosis) clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "obesity_and_metabolic_medicine",
+        "label": "Obesity and metabolic medicine",
+        "parent": "endocrinology",
+        "query": "Obesity and metabolic medicine clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "reproductive_endocrinology",
+        "label": "Reproductive endocrinology",
+        "parent": "endocrinology",
+        "query": "Reproductive endocrinology clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "neuroendocrine_tumours",
+        "label": "Neuroendocrine tumours",
+        "parent": "endocrinology",
+        "query": "Neuroendocrine tumours clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "inherited_metabolic_disease",
+        "label": "Inherited metabolic disease",
+        "parent": "endocrinology",
+        "query": "Inherited metabolic disease clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      }
+    ]
+  },
+  {
+    "id": "gastroenterology",
+    "label": "Gastroenterology",
+    "it": "Gastroenterology",
+    "items": [
+      {
+        "id": "gastroenterology",
+        "label": "Gastroenterology",
+        "parent": "",
+        "query": "gastroenterologist",
+        "aliases": "digestive diseases; gastroenterologist; GI specialist ",
+        "legacyIds": [
+          "gi"
+        ],
+        "kind": "specialty",
+        "needsReview": false
+      },
+      {
+        "id": "hepatology_liver",
+        "label": "Hepatology (liver)",
+        "parent": "gastroenterology",
+        "query": "Hepatology (liver) clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "inflammatory_bowel_disease",
+        "label": "Inflammatory bowel disease",
+        "parent": "gastroenterology",
+        "query": "Inflammatory bowel disease clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "endoscopy",
+        "label": "Endoscopy",
+        "parent": "gastroenterology",
+        "query": "Endoscopy clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "pancreatology",
+        "label": "Pancreatology",
+        "parent": "gastroenterology",
+        "query": "Pancreatology clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "neurogastroenterology_and_motility",
+        "label": "Neurogastroenterology and motility",
+        "parent": "gastroenterology",
+        "query": "Neurogastroenterology and motility clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "coeliac_disease",
+        "label": "Coeliac disease",
+        "parent": "gastroenterology",
+        "query": "Coeliac disease clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "gastro_oncology",
+        "label": "Gastro-oncology",
+        "parent": "gastroenterology",
+        "query": "Gastro-oncology clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "clinical_nutrition_and_intestinal_failure",
+        "label": "Clinical nutrition and intestinal failure",
+        "parent": "gastroenterology",
+        "query": "Clinical nutrition and intestinal failure",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      }
+    ]
+  },
+  {
+    "id": "haematology",
+    "label": "Haematology",
+    "it": "Haematology",
+    "items": [
+      {
+        "id": "haematology",
+        "label": "Haematology",
+        "parent": "",
+        "query": "haematologist",
+        "aliases": "blood specialist; hematology ",
+        "legacyIds": [
+          "heme"
+        ],
+        "kind": "specialty",
+        "needsReview": false
+      },
+      {
+        "id": "haemostasis_and_thrombosis",
+        "label": "Haemostasis and thrombosis",
+        "parent": "haematology",
+        "query": "Haemostasis and thrombosis clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "haemophilia_and_bleeding_disorders",
+        "label": "Haemophilia and bleeding disorders",
+        "parent": "haematology",
+        "query": "Haemophilia and bleeding disorders clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "sickle_cell_disease_and_thalassaemia",
+        "label": "Sickle cell disease and thalassaemia",
+        "parent": "haematology",
+        "query": "Sickle cell disease and thalassaemia clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "haemato_oncology_leukaemia_lymphoma_myeloma",
+        "label": "Haemato-oncology (leukaemia, lymphoma, myeloma)",
+        "parent": "haematology",
+        "query": "Haemato-oncology (leukaemia, lymphoma, myeloma) clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "transfusion_medicine",
+        "label": "Transfusion medicine",
+        "parent": "haematology",
+        "query": "Transfusion medicine clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "bone_marrow_transplant",
+        "label": "Bone marrow transplant",
+        "parent": "haematology",
+        "query": "Bone marrow transplant clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "iron_and_anaemia_clinic",
+        "label": "Iron and anaemia clinic",
+        "parent": "haematology",
+        "query": "Iron and anaemia clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      }
+    ]
+  },
+  {
+    "id": "infectious_diseases",
+    "label": "Infectious diseases",
+    "it": "Infectious diseases",
+    "items": [
+      {
+        "id": "infectious_diseases",
+        "label": "Infectious diseases",
+        "parent": "",
+        "query": "infectious disease specialist",
+        "aliases": "infection specialist; infectiologist ",
+        "legacyIds": [
+          "id"
+        ],
+        "kind": "specialty",
+        "needsReview": false
+      },
+      {
+        "id": "hiv_medicine",
+        "label": "HIV medicine",
+        "parent": "infectious_diseases",
+        "query": "HIV medicine clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "tropical_medicine",
+        "label": "Tropical medicine",
+        "parent": "infectious_diseases",
+        "query": "Tropical medicine clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "travel_medicine",
+        "label": "Travel medicine",
+        "parent": "infectious_diseases",
+        "query": "Travel medicine clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "hepatitis_viral_clinic",
+        "label": "Hepatitis (viral) clinic",
+        "parent": "infectious_diseases",
+        "query": "Hepatitis (viral) clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "tuberculosis",
+        "label": "Tuberculosis",
+        "parent": "infectious_diseases",
+        "query": "Tuberculosis clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "infection_prevention_and_control",
+        "label": "Infection prevention and control",
+        "parent": "infectious_diseases",
+        "query": "Infection prevention and control clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "antimicrobial_stewardship",
+        "label": "Antimicrobial stewardship",
+        "parent": "infectious_diseases",
+        "query": "Antimicrobial stewardship clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      }
+    ]
+  },
+  {
+    "id": "nephrology",
+    "label": "Nephrology",
+    "it": "Nephrology",
+    "items": [
+      {
+        "id": "nephrology",
+        "label": "Nephrology",
+        "parent": "",
+        "query": "nephrologist",
+        "aliases": "kidney specialist; renal medicine  kidney renal reni nefrologo",
+        "legacyIds": [
+          "neph"
+        ],
+        "kind": "specialty",
+        "needsReview": false
+      },
+      {
+        "id": "dialysis",
+        "label": "Dialysis",
+        "parent": "nephrology",
+        "query": "Dialysis clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "kidney_transplant_medicine",
+        "label": "Kidney transplant medicine",
+        "parent": "nephrology",
+        "query": "Kidney transplant medicine clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "glomerular_disease",
+        "label": "Glomerular disease",
+        "parent": "nephrology",
+        "query": "Glomerular disease clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "hypertension_renal",
+        "label": "Hypertension (renal)",
+        "parent": "nephrology",
+        "query": "Hypertension (renal) clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      }
+    ]
+  },
+  {
+    "id": "pulmonology_respiratory_medicine",
+    "label": "Pulmonology / respiratory medicine",
+    "it": "Pulmonology / respiratory medicine",
+    "items": [
+      {
+        "id": "pulmonology_respiratory_medicine",
+        "label": "Pulmonology / respiratory medicine",
+        "parent": "",
+        "query": "pulmonologist",
+        "aliases": "lung specialist; chest physician; pneumology ",
+        "legacyIds": [
+          "pulm"
+        ],
+        "kind": "specialty",
+        "needsReview": false
+      },
+      {
+        "id": "asthma_and_copd",
+        "label": "Asthma and COPD",
+        "parent": "pulmonology_respiratory_medicine",
+        "query": "Asthma and COPD clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "interstitial_lung_disease",
+        "label": "Interstitial lung disease",
+        "parent": "pulmonology_respiratory_medicine",
+        "query": "Interstitial lung disease clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "cystic_fibrosis",
+        "label": "Cystic fibrosis",
+        "parent": "pulmonology_respiratory_medicine",
+        "query": "Cystic fibrosis clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "pulmonary_hypertension",
+        "label": "Pulmonary hypertension",
+        "parent": "pulmonology_respiratory_medicine",
+        "query": "Pulmonary hypertension clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "interventional_pulmonology_bronchoscopy",
+        "label": "Interventional pulmonology (bronchoscopy)",
+        "parent": "pulmonology_respiratory_medicine",
+        "query": "Interventional pulmonology (bronchoscopy) clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "sleep_disordered_breathing",
+        "label": "Sleep-disordered breathing",
+        "parent": "pulmonology_respiratory_medicine",
+        "query": "Sleep-disordered breathing clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "lung_cancer_clinic",
+        "label": "Lung cancer clinic",
+        "parent": "pulmonology_respiratory_medicine",
+        "query": "Lung cancer clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      }
+    ]
+  },
+  {
+    "id": "rheumatology",
+    "label": "Rheumatology",
+    "it": "Rheumatology",
+    "items": [
+      {
+        "id": "rheumatology",
+        "label": "Rheumatology",
+        "parent": "",
+        "query": "rheumatologist",
+        "aliases": "joint and autoimmune specialist; arthritis specialist ",
+        "legacyIds": [
+          "rheum"
+        ],
+        "kind": "specialty",
+        "needsReview": false
+      },
+      {
+        "id": "lupus_and_connective_tissue_disease",
+        "label": "Lupus and connective tissue disease",
+        "parent": "rheumatology",
+        "query": "Lupus and connective tissue disease clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "vasculitis",
+        "label": "Vasculitis",
+        "parent": "rheumatology",
+        "query": "Vasculitis clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "spondyloarthritis",
+        "label": "Spondyloarthritis",
+        "parent": "rheumatology",
+        "query": "Spondyloarthritis clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "gout_and_crystal_arthritis",
+        "label": "Gout and crystal arthritis",
+        "parent": "rheumatology",
+        "query": "Gout and crystal arthritis clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "osteoporosis_clinic",
+        "label": "Osteoporosis clinic",
+        "parent": "rheumatology",
+        "query": "Osteoporosis clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "paediatric_rheumatology",
+        "label": "Paediatric rheumatology",
+        "parent": "rheumatology",
+        "query": "Paediatric rheumatology clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "scleroderma",
+        "label": "Scleroderma",
+        "parent": "rheumatology",
+        "query": "Scleroderma clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      }
+    ]
+  },
+  {
+    "id": "allergy_and_clinical_immunology",
+    "label": "Allergy and clinical immunology",
+    "it": "Allergy and clinical immunology",
+    "items": [
+      {
+        "id": "allergy_and_clinical_immunology",
+        "label": "Allergy and clinical immunology",
+        "parent": "",
+        "query": "allergist immunologist",
+        "aliases": "allergist; immunologist; allergy specialist ",
+        "legacyIds": [
+          "allergy"
+        ],
+        "kind": "specialty",
+        "needsReview": false
+      },
+      {
+        "id": "food_allergy",
+        "label": "Food allergy",
+        "parent": "allergy_and_clinical_immunology",
+        "query": "Food allergy clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "drug_allergy",
+        "label": "Drug allergy",
+        "parent": "allergy_and_clinical_immunology",
+        "query": "Drug allergy clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "immunodeficiency",
+        "label": "Immunodeficiency",
+        "parent": "allergy_and_clinical_immunology",
+        "query": "Immunodeficiency clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "asthma_and_allergic_rhinitis",
+        "label": "Asthma and allergic rhinitis",
+        "parent": "allergy_and_clinical_immunology",
+        "query": "Asthma and allergic rhinitis clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "anaphylaxis",
+        "label": "Anaphylaxis",
+        "parent": "allergy_and_clinical_immunology",
+        "query": "Anaphylaxis clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "mast_cell_disorders",
+        "label": "Mast cell disorders",
+        "parent": "allergy_and_clinical_immunology",
+        "query": "Mast cell disorders clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": true
+      }
+    ]
+  },
+  {
+    "id": "obesity_medicine_weight_management",
+    "label": "Obesity medicine / weight management",
+    "it": "Obesity medicine / weight management",
+    "items": [
+      {
+        "id": "obesity_medicine_weight_management",
+        "label": "Obesity medicine / weight management",
+        "parent": "",
+        "query": "Obesity medicine / weight management",
+        "aliases": "weight loss doctor; bariatric physician",
+        "legacyIds": [],
+        "kind": "specialty",
+        "needsReview": false
+      }
+    ]
+  },
+  {
+    "id": "clinical_nutrition",
+    "label": "Clinical nutrition",
+    "it": "Clinical nutrition",
+    "items": [
+      {
+        "id": "clinical_nutrition",
+        "label": "Clinical nutrition",
+        "parent": "",
+        "query": "Clinical nutrition",
+        "aliases": "nutrition physician; nutritional medicine",
+        "legacyIds": [],
+        "kind": "specialty",
+        "needsReview": false
+      }
+    ]
+  },
+  {
+    "id": "rare_disease_undiagnosed_disease_service",
+    "label": "Rare disease / undiagnosed disease service",
+    "it": "Rare disease / undiagnosed disease service",
+    "items": [
+      {
+        "id": "rare_disease_undiagnosed_disease_service",
+        "label": "Rare disease / undiagnosed disease service",
+        "parent": "",
+        "query": "Rare disease / undiagnosed disease service",
+        "aliases": "rare diseases; orphan diseases",
+        "legacyIds": [],
+        "kind": "specialty",
+        "needsReview": true
+      }
+    ]
+  },
+  {
+    "id": "sleep_medicine",
+    "label": "Sleep medicine",
+    "it": "Sleep medicine",
+    "items": [
+      {
+        "id": "sleep_medicine",
+        "label": "Sleep medicine",
+        "parent": "",
+        "query": "sleep clinic",
+        "aliases": "sleep specialist; sleep clinic ",
+        "legacyIds": [
+          "sleep"
+        ],
+        "kind": "specialty",
+        "needsReview": false
+      },
+      {
+        "id": "insomnia",
+        "label": "Insomnia",
+        "parent": "sleep_medicine",
+        "query": "Insomnia clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "narcolepsy_and_hypersomnia",
+        "label": "Narcolepsy and hypersomnia",
+        "parent": "sleep_medicine",
+        "query": "Narcolepsy and hypersomnia clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "sleep_apnoea",
+        "label": "Sleep apnoea",
+        "parent": "sleep_medicine",
+        "query": "Sleep apnoea clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "paediatric_sleep",
+        "label": "Paediatric sleep",
+        "parent": "sleep_medicine",
+        "query": "Paediatric sleep clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      }
+    ]
+  },
+  {
+    "id": "general_surgery",
+    "label": "General surgery",
+    "it": "General surgery",
+    "items": [
+      {
+        "id": "general_surgery",
+        "label": "General surgery",
+        "parent": "",
+        "query": "general surgeon",
+        "aliases": "general surgeon ",
+        "legacyIds": [
+          "general-surgery"
+        ],
+        "kind": "specialty",
+        "needsReview": false
+      },
+      {
+        "id": "upper_gi_and_bariatric_surgery",
+        "label": "Upper GI and bariatric surgery",
+        "parent": "general_surgery",
+        "query": "Upper GI and bariatric surgery",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "hepatobiliary_and_pancreatic_surgery",
+        "label": "Hepatobiliary and pancreatic surgery",
+        "parent": "general_surgery",
+        "query": "Hepatobiliary and pancreatic surgery",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "colorectal_surgery_coloproctology",
+        "label": "Colorectal surgery / coloproctology",
+        "parent": "general_surgery",
+        "query": "Colorectal surgery / coloproctology",
+        "aliases": "proctology; proctologist; piles; haemorrhoids; anal fistula; anorectal",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "breast_surgery",
+        "label": "Breast surgery",
+        "parent": "general_surgery",
+        "query": "Breast surgery",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "endocrine_surgery_thyroid_parathyroid_adrenal",
+        "label": "Endocrine surgery (thyroid, parathyroid, adrenal)",
+        "parent": "general_surgery",
+        "query": "Endocrine surgery (thyroid, parathyroid, adrenal)",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "hernia_surgery",
+        "label": "Hernia surgery",
+        "parent": "general_surgery",
+        "query": "Hernia surgery",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "emergency_general_surgery",
+        "label": "Emergency general surgery",
+        "parent": "general_surgery",
+        "query": "Emergency general surgery",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "surgical_oncology",
+        "label": "Surgical oncology",
+        "parent": "general_surgery",
+        "query": "surgical oncologist",
+        "aliases": " ",
+        "legacyIds": [
+          "onc-surg"
+        ],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "minimally_invasive_and_robotic_surgery",
+        "label": "Minimally invasive and robotic surgery",
+        "parent": "general_surgery",
+        "query": "Minimally invasive and robotic surgery",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "bariatric_and_metabolic_surgery",
+        "label": "Bariatric and metabolic surgery",
+        "parent": "general_surgery",
+        "query": "Bariatric and metabolic surgery",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "transplant_surgery",
+        "label": "Transplant surgery",
+        "parent": "general_surgery",
+        "query": "Transplant surgery",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "trauma_surgery",
+        "label": "Trauma surgery",
+        "parent": "general_surgery",
+        "query": "Trauma surgery",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      }
+    ]
+  },
+  {
+    "id": "orthopaedic_surgery",
+    "label": "Orthopaedic surgery",
+    "it": "Orthopaedic surgery",
+    "items": [
+      {
+        "id": "orthopaedic_surgery",
+        "label": "Orthopaedic surgery",
+        "parent": "",
+        "query": "orthopaedic surgeon",
+        "aliases": "orthopedics; bone and joint surgeon; orthopaedics ",
+        "legacyIds": [
+          "ortho"
+        ],
+        "kind": "specialty",
+        "needsReview": false
+      },
+      {
+        "id": "hip_and_knee_replacement",
+        "label": "Hip and knee replacement",
+        "parent": "orthopaedic_surgery",
+        "query": "Hip and knee replacement clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "spine_surgery",
+        "label": "Spine surgery",
+        "parent": "orthopaedic_surgery",
+        "query": "Spine surgery",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "shoulder_and_elbow",
+        "label": "Shoulder and elbow",
+        "parent": "orthopaedic_surgery",
+        "query": "Shoulder and elbow clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "foot_and_ankle",
+        "label": "Foot and ankle",
+        "parent": "orthopaedic_surgery",
+        "query": "Foot and ankle clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "hand_and_wrist_surgery",
+        "label": "Hand and wrist surgery",
+        "parent": "orthopaedic_surgery",
+        "query": "Hand and wrist surgery",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "sports_orthopaedics",
+        "label": "Sports orthopaedics",
+        "parent": "orthopaedic_surgery",
+        "query": "Sports orthopaedics clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "orthopaedic_trauma",
+        "label": "Orthopaedic trauma",
+        "parent": "orthopaedic_surgery",
+        "query": "Orthopaedic trauma clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "paediatric_orthopaedics",
+        "label": "Paediatric orthopaedics",
+        "parent": "orthopaedic_surgery",
+        "query": "Paediatric orthopaedics clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "orthopaedic_oncology_bone_tumours",
+        "label": "Orthopaedic oncology (bone tumours)",
+        "parent": "orthopaedic_surgery",
+        "query": "Orthopaedic oncology (bone tumours) clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "limb_lengthening_and_reconstruction",
+        "label": "Limb lengthening and reconstruction",
+        "parent": "orthopaedic_surgery",
+        "query": "Limb lengthening and reconstruction clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      }
+    ]
+  },
+  {
+    "id": "neurosurgery",
+    "label": "Neurosurgery",
+    "it": "Neurosurgery",
+    "items": [
+      {
+        "id": "neurosurgery",
+        "label": "Neurosurgery",
+        "parent": "",
+        "query": "neurosurgeon",
+        "aliases": "brain and spine surgeon ",
+        "legacyIds": [
+          "nsurg"
+        ],
+        "kind": "specialty",
+        "needsReview": false
+      },
+      {
+        "id": "spinal_neurosurgery",
+        "label": "Spinal neurosurgery",
+        "parent": "neurosurgery",
+        "query": "Spinal neurosurgery",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "cranial_and_skull_base_surgery",
+        "label": "Cranial and skull-base surgery",
+        "parent": "neurosurgery",
+        "query": "Cranial and skull-base surgery",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "functional_and_stereotactic_neurosurgery",
+        "label": "Functional and stereotactic neurosurgery",
+        "parent": "neurosurgery",
+        "query": "Functional and stereotactic neurosurgery",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "neurovascular_surgery",
+        "label": "Neurovascular surgery",
+        "parent": "neurosurgery",
+        "query": "Neurovascular surgery",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "paediatric_neurosurgery",
+        "label": "Paediatric neurosurgery",
+        "parent": "neurosurgery",
+        "query": "Paediatric neurosurgery",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "neuro_oncology_surgery",
+        "label": "Neuro-oncology surgery",
+        "parent": "neurosurgery",
+        "query": "Neuro-oncology surgery",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "peripheral_nerve_surgery",
+        "label": "Peripheral nerve surgery",
+        "parent": "neurosurgery",
+        "query": "Peripheral nerve surgery",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      }
+    ]
+  },
+  {
+    "id": "cardiothoracic_surgery",
+    "label": "Cardiothoracic surgery",
+    "it": "Cardiothoracic surgery",
+    "items": [
+      {
+        "id": "cardiothoracic_surgery",
+        "label": "Cardiothoracic surgery",
+        "parent": "",
+        "query": "Cardiothoracic surgery",
+        "aliases": "heart and chest surgeon",
+        "legacyIds": [],
+        "kind": "specialty",
+        "needsReview": false
+      },
+      {
+        "id": "cardiac_surgery",
+        "label": "Cardiac surgery",
+        "parent": "cardiothoracic_surgery",
+        "query": "cardiac surgeon",
+        "aliases": " ",
+        "legacyIds": [
+          "cardiac-surgery"
+        ],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "thoracic_chest_surgery",
+        "label": "Thoracic (chest) surgery",
+        "parent": "cardiothoracic_surgery",
+        "query": "Thoracic (chest) surgery",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "congenital_heart_surgery",
+        "label": "Congenital heart surgery",
+        "parent": "cardiothoracic_surgery",
+        "query": "Congenital heart surgery",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "heart_and_lung_transplant",
+        "label": "Heart and lung transplant",
+        "parent": "cardiothoracic_surgery",
+        "query": "Heart and lung transplant clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      }
+    ]
+  },
+  {
+    "id": "vascular_surgery",
+    "label": "Vascular surgery",
+    "it": "Vascular surgery",
+    "items": [
+      {
+        "id": "vascular_surgery",
+        "label": "Vascular surgery",
+        "parent": "",
+        "query": "vascular surgeon",
+        "aliases": "vascular surgeon ",
+        "legacyIds": [
+          "vasc"
+        ],
+        "kind": "specialty",
+        "needsReview": false
+      },
+      {
+        "id": "endovascular_surgery",
+        "label": "Endovascular surgery",
+        "parent": "vascular_surgery",
+        "query": "Endovascular surgery",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "aortic_aneurysm",
+        "label": "Aortic aneurysm",
+        "parent": "vascular_surgery",
+        "query": "Aortic aneurysm clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "varicose_veins_venous_surgery",
+        "label": "Varicose veins / venous surgery",
+        "parent": "vascular_surgery",
+        "query": "Varicose veins / venous surgery",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "carotid_surgery",
+        "label": "Carotid surgery",
+        "parent": "vascular_surgery",
+        "query": "Carotid surgery",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "dialysis_access_surgery",
+        "label": "Dialysis access surgery",
+        "parent": "vascular_surgery",
+        "query": "Dialysis access surgery",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "diabetic_foot",
+        "label": "Diabetic foot",
+        "parent": "vascular_surgery",
+        "query": "Diabetic foot clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      }
+    ]
+  },
+  {
+    "id": "plastic_reconstructive_and_aesthetic_surgery",
+    "label": "Plastic, reconstructive and aesthetic surgery",
+    "it": "Plastic, reconstructive and aesthetic surgery",
+    "items": [
+      {
+        "id": "plastic_reconstructive_and_aesthetic_surgery",
+        "label": "Plastic, reconstructive and aesthetic surgery",
+        "parent": "",
+        "query": "Plastic, reconstructive and aesthetic surgery",
+        "aliases": "plastic surgery; cosmetic surgery; aesthetic surgery; plastic surgeon; cosmetic surgeon",
+        "legacyIds": [],
+        "kind": "specialty",
+        "needsReview": false
+      },
+      {
+        "id": "cosmetic_aesthetic_surgery",
+        "label": "Cosmetic / aesthetic surgery",
+        "parent": "plastic_reconstructive_and_aesthetic_surgery",
+        "query": "Cosmetic / aesthetic surgery",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "breast_reconstruction_and_augmentation",
+        "label": "Breast reconstruction and augmentation",
+        "parent": "plastic_reconstructive_and_aesthetic_surgery",
+        "query": "Breast reconstruction and augmentation clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "body_contouring",
+        "label": "Body contouring",
+        "parent": "plastic_reconstructive_and_aesthetic_surgery",
+        "query": "Body contouring clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "facial_plastic_surgery",
+        "label": "Facial plastic surgery",
+        "parent": "plastic_reconstructive_and_aesthetic_surgery",
+        "query": "Facial plastic surgery",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "rhinoplasty",
+        "label": "Rhinoplasty",
+        "parent": "plastic_reconstructive_and_aesthetic_surgery",
+        "query": "Rhinoplasty clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "craniofacial_surgery",
+        "label": "Craniofacial surgery",
+        "parent": "plastic_reconstructive_and_aesthetic_surgery",
+        "query": "Craniofacial surgery",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "burns_surgery",
+        "label": "Burns surgery",
+        "parent": "plastic_reconstructive_and_aesthetic_surgery",
+        "query": "Burns surgery",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "hand_surgery_plastic",
+        "label": "Hand surgery (plastic)",
+        "parent": "plastic_reconstructive_and_aesthetic_surgery",
+        "query": "Hand surgery (plastic)",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "microsurgery_and_lymphatic_surgery",
+        "label": "Microsurgery and lymphatic surgery",
+        "parent": "plastic_reconstructive_and_aesthetic_surgery",
+        "query": "Microsurgery and lymphatic surgery",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "hair_transplant_surgery",
+        "label": "Hair transplant surgery",
+        "parent": "plastic_reconstructive_and_aesthetic_surgery",
+        "query": "Hair transplant surgery",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "gender_affirming_surgery",
+        "label": "Gender-affirming surgery",
+        "parent": "plastic_reconstructive_and_aesthetic_surgery",
+        "query": "Gender-affirming surgery",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": true
+      },
+      {
+        "id": "scar_and_keloid_treatment",
+        "label": "Scar and keloid treatment",
+        "parent": "plastic_reconstructive_and_aesthetic_surgery",
+        "query": "Scar and keloid treatment clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      }
+    ]
+  },
+  {
+    "id": "paediatric_surgery",
+    "label": "Paediatric surgery",
+    "it": "Paediatric surgery",
+    "items": [
+      {
+        "id": "paediatric_surgery",
+        "label": "Paediatric surgery",
+        "parent": "",
+        "query": "paediatric surgeon",
+        "aliases": "children's surgeon ",
+        "legacyIds": [
+          "paediatric-surgery"
+        ],
+        "kind": "specialty",
+        "needsReview": false
+      },
+      {
+        "id": "neonatal_surgery",
+        "label": "Neonatal surgery",
+        "parent": "paediatric_surgery",
+        "query": "Neonatal surgery",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "paediatric_urology",
+        "label": "Paediatric urology",
+        "parent": "paediatric_surgery",
+        "query": "Paediatric urology clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "paediatric_orthopaedics_2",
+        "label": "Paediatric orthopaedics",
+        "parent": "paediatric_surgery",
+        "query": "Paediatric orthopaedics clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      }
+    ]
+  },
+  {
+    "id": "transplant_surgery_2",
+    "label": "Transplant surgery",
+    "it": "Transplant surgery",
+    "items": [
+      {
+        "id": "transplant_surgery_2",
+        "label": "Transplant surgery",
+        "parent": "",
+        "query": "Transplant surgery",
+        "aliases": "organ transplant",
+        "legacyIds": [],
+        "kind": "specialty",
+        "needsReview": false
+      },
+      {
+        "id": "kidney_transplant",
+        "label": "Kidney transplant",
+        "parent": "transplant_surgery_2",
+        "query": "Kidney transplant clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "liver_transplant",
+        "label": "Liver transplant",
+        "parent": "transplant_surgery_2",
+        "query": "Liver transplant clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "pancreas_transplant",
+        "label": "Pancreas transplant",
+        "parent": "transplant_surgery_2",
+        "query": "Pancreas transplant clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "heart_and_lung_transplant_2",
+        "label": "Heart and lung transplant",
+        "parent": "transplant_surgery_2",
+        "query": "Heart and lung transplant clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      }
+    ]
+  },
+  {
+    "id": "burns_and_wound_surgery",
+    "label": "Burns and wound surgery",
+    "it": "Burns and wound surgery",
+    "items": [
+      {
+        "id": "burns_and_wound_surgery",
+        "label": "Burns and wound surgery",
+        "parent": "",
+        "query": "Burns and wound surgery",
+        "aliases": "burns unit",
+        "legacyIds": [],
+        "kind": "specialty",
+        "needsReview": true
+      }
+    ]
+  },
+  {
+    "id": "podiatric_surgery",
+    "label": "Podiatric surgery",
+    "it": "Podiatric surgery",
+    "items": [
+      {
+        "id": "podiatric_surgery",
+        "label": "Podiatric surgery",
+        "parent": "",
+        "query": "Podiatric surgery",
+        "aliases": "foot surgeon",
+        "legacyIds": [],
+        "kind": "specialty",
+        "needsReview": false
+      }
+    ]
+  },
+  {
+    "id": "obstetrics_and_gynaecology",
+    "label": "Obstetrics and gynaecology",
+    "it": "Obstetrics and gynaecology",
+    "items": [
+      {
+        "id": "obstetrics_and_gynaecology",
+        "label": "Obstetrics and gynaecology",
+        "parent": "",
+        "query": "gynaecologist",
+        "aliases": "OB-GYN; ob/gyn; gynecology; obstetrics; gynaecologist; women's health; Frauenarzt; ginecologo; gynécologue ",
+        "legacyIds": [
+          "obgyn"
+        ],
+        "kind": "specialty",
+        "needsReview": false
+      },
+      {
+        "id": "maternal_fetal_medicine_high_risk_pregnancy",
+        "label": "Maternal-fetal medicine (high-risk pregnancy)",
+        "parent": "obstetrics_and_gynaecology",
+        "query": "Maternal-fetal medicine (high-risk pregnancy) clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "fetal_medicine",
+        "label": "Fetal medicine",
+        "parent": "obstetrics_and_gynaecology",
+        "query": "Fetal medicine clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "reproductive_medicine_and_fertility_ivf",
+        "label": "Reproductive medicine and fertility (IVF)",
+        "parent": "obstetrics_and_gynaecology",
+        "query": "Reproductive medicine and fertility (IVF) clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "gynaecological_oncology",
+        "label": "Gynaecological oncology",
+        "parent": "obstetrics_and_gynaecology",
+        "query": "Gynaecological oncology clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "urogynaecology_female_pelvic_medicine",
+        "label": "Urogynaecology / female pelvic medicine",
+        "parent": "obstetrics_and_gynaecology",
+        "query": "Urogynaecology / female pelvic medicine clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "menopause",
+        "label": "Menopause",
+        "parent": "obstetrics_and_gynaecology",
+        "query": "Menopause clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "endometriosis_and_pelvic_pain",
+        "label": "Endometriosis and pelvic pain",
+        "parent": "obstetrics_and_gynaecology",
+        "query": "Endometriosis and pelvic pain clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "minimally_invasive_gynaecological_surgery",
+        "label": "Minimally invasive gynaecological surgery",
+        "parent": "obstetrics_and_gynaecology",
+        "query": "Minimally invasive gynaecological surgery",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "contraception_and_family_planning",
+        "label": "Contraception and family planning",
+        "parent": "obstetrics_and_gynaecology",
+        "query": "Contraception and family planning clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "paediatric_and_adolescent_gynaecology",
+        "label": "Paediatric and adolescent gynaecology",
+        "parent": "obstetrics_and_gynaecology",
+        "query": "Paediatric and adolescent gynaecology clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "recurrent_miscarriage",
+        "label": "Recurrent miscarriage",
+        "parent": "obstetrics_and_gynaecology",
+        "query": "Recurrent miscarriage clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "antenatal_and_postnatal_care",
+        "label": "Antenatal and postnatal care",
+        "parent": "obstetrics_and_gynaecology",
+        "query": "Antenatal and postnatal care clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "colposcopy",
+        "label": "Colposcopy",
+        "parent": "obstetrics_and_gynaecology",
+        "query": "Colposcopy clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "vulval_disorders",
+        "label": "Vulval disorders",
+        "parent": "obstetrics_and_gynaecology",
+        "query": "Vulval disorders clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      }
+    ]
+  },
+  {
+    "id": "urology",
+    "label": "Urology",
+    "it": "Urology",
+    "items": [
+      {
+        "id": "urology",
+        "label": "Urology",
+        "parent": "",
+        "query": "urologist",
+        "aliases": "urologist; kidney stones; prostate specialist ",
+        "legacyIds": [
+          "uro"
+        ],
+        "kind": "specialty",
+        "needsReview": false
+      },
+      {
+        "id": "endourology_and_stone_disease",
+        "label": "Endourology and stone disease",
+        "parent": "urology",
+        "query": "Endourology and stone disease clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "uro_oncology_prostate_bladder_kidney",
+        "label": "Uro-oncology (prostate, bladder, kidney)",
+        "parent": "urology",
+        "query": "Uro-oncology (prostate, bladder, kidney) clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "functional_urology_and_incontinence",
+        "label": "Functional urology and incontinence",
+        "parent": "urology",
+        "query": "Functional urology and incontinence clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "neuro_urology",
+        "label": "Neuro-urology",
+        "parent": "urology",
+        "query": "Neuro-urology clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "reconstructive_urology",
+        "label": "Reconstructive urology",
+        "parent": "urology",
+        "query": "Reconstructive urology clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "paediatric_urology_2",
+        "label": "Paediatric urology",
+        "parent": "urology",
+        "query": "Paediatric urology clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "prostate_bph_clinic",
+        "label": "Prostate (BPH) clinic",
+        "parent": "urology",
+        "query": "Prostate (BPH) clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "men_s_health",
+        "label": "Men's health",
+        "parent": "urology",
+        "query": "Men's health clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      }
+    ]
+  },
+  {
+    "id": "andrology_male_reproductive_health",
+    "label": "Andrology / male reproductive health",
+    "it": "Andrology / male reproductive health",
+    "items": [
+      {
+        "id": "andrology_male_reproductive_health",
+        "label": "Andrology / male reproductive health",
+        "parent": "",
+        "query": "Andrology / male reproductive health",
+        "aliases": "male infertility; erectile dysfunction; testosterone deficiency; men's sexual health; male hypogonadism",
+        "legacyIds": [],
+        "kind": "specialty",
+        "needsReview": false
+      }
+    ]
+  },
+  {
+    "id": "sexual_medicine_sexology",
+    "label": "Sexual medicine / sexology",
+    "it": "Sexual medicine / sexology",
+    "items": [
+      {
+        "id": "sexual_medicine_sexology",
+        "label": "Sexual medicine / sexology",
+        "parent": "",
+        "query": "Sexual medicine / sexology",
+        "aliases": "sexologist; sex therapy; psychosexual medicine; sexual dysfunction; sexual therapist",
+        "legacyIds": [],
+        "kind": "specialty",
+        "needsReview": false
+      }
+    ]
+  },
+  {
+    "id": "sexual_health_genitourinary_medicine",
+    "label": "Sexual health / genitourinary medicine",
+    "it": "Sexual health / genitourinary medicine",
+    "items": [
+      {
+        "id": "sexual_health_genitourinary_medicine",
+        "label": "Sexual health / genitourinary medicine",
+        "parent": "",
+        "query": "Sexual health / genitourinary medicine",
+        "aliases": "STD; STI; STD clinic; STI clinic; venereology; GUM; PrEP clinic; sexually transmitted infections",
+        "legacyIds": [],
+        "kind": "specialty",
+        "needsReview": false
+      }
+    ]
+  },
+  {
+    "id": "fertility_and_assisted_reproduction",
+    "label": "Fertility and assisted reproduction",
+    "it": "Fertility and assisted reproduction",
+    "items": [
+      {
+        "id": "fertility_and_assisted_reproduction",
+        "label": "Fertility and assisted reproduction",
+        "parent": "",
+        "query": "Fertility and assisted reproduction",
+        "aliases": "IVF; infertility; fertility clinic",
+        "legacyIds": [],
+        "kind": "specialty",
+        "needsReview": false
+      },
+      {
+        "id": "male_fertility",
+        "label": "Male fertility",
+        "parent": "fertility_and_assisted_reproduction",
+        "query": "Male fertility clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "egg_and_sperm_freezing",
+        "label": "Egg and sperm freezing",
+        "parent": "fertility_and_assisted_reproduction",
+        "query": "Egg and sperm freezing clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "donor_programmes",
+        "label": "Donor programmes",
+        "parent": "fertility_and_assisted_reproduction",
+        "query": "Donor programmes clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "recurrent_implantation_failure",
+        "label": "Recurrent implantation failure",
+        "parent": "fertility_and_assisted_reproduction",
+        "query": "Recurrent implantation failure clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      }
+    ]
+  },
+  {
+    "id": "midwifery",
+    "label": "Midwifery",
+    "it": "Midwifery",
+    "items": [
+      {
+        "id": "midwifery",
+        "label": "Midwifery",
+        "parent": "",
+        "query": "Midwifery",
+        "aliases": "midwife; maternity care",
+        "legacyIds": [],
+        "kind": "specialty",
+        "needsReview": true
+      }
+    ]
+  },
+  {
+    "id": "gender_affirming_medicine",
+    "label": "Gender-affirming medicine",
+    "it": "Gender-affirming medicine",
+    "items": [
+      {
+        "id": "gender_affirming_medicine",
+        "label": "Gender-affirming medicine",
+        "parent": "",
+        "query": "Gender-affirming medicine",
+        "aliases": "transgender health; gender clinic",
+        "legacyIds": [],
+        "kind": "specialty",
+        "needsReview": true
+      }
+    ]
+  },
+  {
+    "id": "paediatrics",
+    "label": "Paediatrics",
+    "it": "Paediatrics",
+    "items": [
+      {
+        "id": "paediatrics",
+        "label": "Paediatrics",
+        "parent": "",
+        "query": "paediatrician",
+        "aliases": "pediatrics; children's doctor; kinderarts; pédiatre; pediatra ",
+        "legacyIds": [
+          "peds"
+        ],
+        "kind": "specialty",
+        "needsReview": false
+      },
+      {
+        "id": "neonatology",
+        "label": "Neonatology",
+        "parent": "paediatrics",
+        "query": "neonatologist",
+        "aliases": " ",
+        "legacyIds": [
+          "neonatal"
+        ],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "paediatric_cardiology",
+        "label": "Paediatric cardiology",
+        "parent": "paediatrics",
+        "query": "paediatric cardiologist",
+        "aliases": " ",
+        "legacyIds": [
+          "paediatric-cards"
+        ],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "paediatric_neurology",
+        "label": "Paediatric neurology",
+        "parent": "paediatrics",
+        "query": "paediatric neurologist",
+        "aliases": " ",
+        "legacyIds": [
+          "paediatric-neuro"
+        ],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "paediatric_endocrinology_and_diabetes",
+        "label": "Paediatric endocrinology and diabetes",
+        "parent": "paediatrics",
+        "query": "Paediatric endocrinology and diabetes clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "paediatric_gastroenterology",
+        "label": "Paediatric gastroenterology",
+        "parent": "paediatrics",
+        "query": "paediatric gastroenterologist",
+        "aliases": " ",
+        "legacyIds": [
+          "paediatric-gi"
+        ],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "paediatric_respiratory",
+        "label": "Paediatric respiratory",
+        "parent": "paediatrics",
+        "query": "Paediatric respiratory clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "paediatric_nephrology",
+        "label": "Paediatric nephrology",
+        "parent": "paediatrics",
+        "query": "paediatric nephrologist",
+        "aliases": " ",
+        "legacyIds": [
+          "paediatric-neph"
+        ],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "paediatric_haematology_and_oncology",
+        "label": "Paediatric haematology and oncology",
+        "parent": "paediatrics",
+        "query": "Paediatric haematology and oncology clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "paediatric_infectious_diseases",
+        "label": "Paediatric infectious diseases",
+        "parent": "paediatrics",
+        "query": "Paediatric infectious diseases clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "paediatric_rheumatology_2",
+        "label": "Paediatric rheumatology",
+        "parent": "paediatrics",
+        "query": "Paediatric rheumatology clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "paediatric_allergy_and_immunology",
+        "label": "Paediatric allergy and immunology",
+        "parent": "paediatrics",
+        "query": "Paediatric allergy and immunology clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "paediatric_dermatology",
+        "label": "Paediatric dermatology",
+        "parent": "paediatrics",
+        "query": "Paediatric dermatology clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "paediatric_ophthalmology",
+        "label": "Paediatric ophthalmology",
+        "parent": "paediatrics",
+        "query": "Paediatric ophthalmology clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "paediatric_ent",
+        "label": "Paediatric ENT",
+        "parent": "paediatrics",
+        "query": "Paediatric ENT clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "paediatric_orthopaedics_3",
+        "label": "Paediatric orthopaedics",
+        "parent": "paediatrics",
+        "query": "Paediatric orthopaedics clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "paediatric_emergency_medicine",
+        "label": "Paediatric emergency medicine",
+        "parent": "paediatrics",
+        "query": "Paediatric emergency medicine clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "paediatric_intensive_care",
+        "label": "Paediatric intensive care",
+        "parent": "paediatrics",
+        "query": "Paediatric intensive care clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "adolescent_medicine",
+        "label": "Adolescent medicine",
+        "parent": "paediatrics",
+        "query": "adolescent medicine clinic",
+        "aliases": " ",
+        "legacyIds": [
+          "adolescent"
+        ],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "community_paediatrics",
+        "label": "Community paediatrics",
+        "parent": "paediatrics",
+        "query": "Community paediatrics clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "developmental_paediatrics_neurodevelopment_autism_adhd",
+        "label": "Developmental paediatrics (neurodevelopment, autism, ADHD)",
+        "parent": "paediatrics",
+        "query": "Developmental paediatrics (neurodevelopment, autism, ADHD) clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "child_protection_medicine",
+        "label": "Child protection medicine",
+        "parent": "paediatrics",
+        "query": "Child protection medicine clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "paediatric_palliative_care",
+        "label": "Paediatric palliative care",
+        "parent": "paediatrics",
+        "query": "Paediatric palliative care clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "paediatric_rehabilitation",
+        "label": "Paediatric rehabilitation",
+        "parent": "paediatrics",
+        "query": "Paediatric rehabilitation",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "paediatric_genetics_and_metabolic_disease",
+        "label": "Paediatric genetics and metabolic disease",
+        "parent": "paediatrics",
+        "query": "Paediatric genetics and metabolic disease clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      }
+    ]
+  },
+  {
+    "id": "child_and_adolescent_psychiatry",
+    "label": "Child and adolescent psychiatry",
+    "it": "Child and adolescent psychiatry",
+    "items": [
+      {
+        "id": "child_and_adolescent_psychiatry",
+        "label": "Child and adolescent psychiatry",
+        "parent": "",
+        "query": "child adolescent psychiatrist",
+        "aliases": "CAMHS; child psychiatrist ",
+        "legacyIds": [
+          "child-psych"
+        ],
+        "kind": "specialty",
+        "needsReview": false
+      }
+    ]
+  },
+  {
+    "id": "child_psychology",
+    "label": "Child psychology",
+    "it": "Child psychology",
+    "items": [
+      {
+        "id": "child_psychology",
+        "label": "Child psychology",
+        "parent": "",
+        "query": "Child psychology",
+        "aliases": "child psychologist",
+        "legacyIds": [],
+        "kind": "specialty",
+        "needsReview": true
+      }
+    ]
+  },
+  {
+    "id": "paediatric_dentistry",
+    "label": "Paediatric dentistry",
+    "it": "Paediatric dentistry",
+    "items": [
+      {
+        "id": "paediatric_dentistry",
+        "label": "Paediatric dentistry",
+        "parent": "",
+        "query": "Paediatric dentistry",
+        "aliases": "pedodontics; children's dentist",
+        "legacyIds": [],
+        "kind": "specialty",
+        "needsReview": false
+      }
+    ]
+  },
+  {
+    "id": "neurology",
+    "label": "Neurology",
+    "it": "Neurology",
+    "items": [
+      {
+        "id": "neurology",
+        "label": "Neurology",
+        "parent": "",
+        "query": "neurologist",
+        "aliases": "neurologist; nerve and brain specialist ",
+        "legacyIds": [
+          "neuro"
+        ],
+        "kind": "specialty",
+        "needsReview": false
+      },
+      {
+        "id": "stroke",
+        "label": "Stroke",
+        "parent": "neurology",
+        "query": "Stroke clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "epilepsy",
+        "label": "Epilepsy",
+        "parent": "neurology",
+        "query": "Epilepsy clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "movement_disorders_and_parkinson_s_disease",
+        "label": "Movement disorders and Parkinson's disease",
+        "parent": "neurology",
+        "query": "Movement disorders and Parkinson's disease clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "dementia_and_memory_disorders",
+        "label": "Dementia and memory disorders",
+        "parent": "neurology",
+        "query": "Dementia and memory disorders clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "multiple_sclerosis_and_neuroimmunology",
+        "label": "Multiple sclerosis and neuroimmunology",
+        "parent": "neurology",
+        "query": "Multiple sclerosis and neuroimmunology clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "headache_and_migraine",
+        "label": "Headache and migraine",
+        "parent": "neurology",
+        "query": "Headache and migraine clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "neuromuscular_disease",
+        "label": "Neuromuscular disease",
+        "parent": "neurology",
+        "query": "Neuromuscular disease clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "neuro_ophthalmology",
+        "label": "Neuro-ophthalmology",
+        "parent": "neurology",
+        "query": "Neuro-ophthalmology clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "neuro_otology_and_vestibular_disorders",
+        "label": "Neuro-otology and vestibular disorders",
+        "parent": "neurology",
+        "query": "Neuro-otology and vestibular disorders clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "neurogenetics",
+        "label": "Neurogenetics",
+        "parent": "neurology",
+        "query": "Neurogenetics clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "neurorehabilitation",
+        "label": "Neurorehabilitation",
+        "parent": "neurology",
+        "query": "Neurorehabilitation",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "neurocritical_care",
+        "label": "Neurocritical care",
+        "parent": "neurology",
+        "query": "Neurocritical care clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "autonomic_disorders",
+        "label": "Autonomic disorders",
+        "parent": "neurology",
+        "query": "Autonomic disorders clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "cognitive_neurology",
+        "label": "Cognitive neurology",
+        "parent": "neurology",
+        "query": "Cognitive neurology clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "neuropathic_pain",
+        "label": "Neuropathic pain",
+        "parent": "neurology",
+        "query": "Neuropathic pain clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "botulinum_toxin_spasticity_clinic",
+        "label": "Botulinum toxin / spasticity clinic",
+        "parent": "neurology",
+        "query": "Botulinum toxin / spasticity clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      }
+    ]
+  },
+  {
+    "id": "psychiatry",
+    "label": "Psychiatry",
+    "it": "Psychiatry",
+    "items": [
+      {
+        "id": "psychiatry",
+        "label": "Psychiatry",
+        "parent": "",
+        "query": "psychiatrist",
+        "aliases": "psychiatrist; mental health doctor ",
+        "legacyIds": [
+          "psych"
+        ],
+        "kind": "specialty",
+        "needsReview": false
+      },
+      {
+        "id": "adult_psychiatry",
+        "label": "Adult psychiatry",
+        "parent": "psychiatry",
+        "query": "Adult psychiatry clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "old_age_psychiatry",
+        "label": "Old-age psychiatry",
+        "parent": "psychiatry",
+        "query": "Old-age psychiatry clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "addiction_psychiatry",
+        "label": "Addiction psychiatry",
+        "parent": "psychiatry",
+        "query": "Addiction psychiatry clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "forensic_psychiatry",
+        "label": "Forensic psychiatry",
+        "parent": "psychiatry",
+        "query": "Forensic psychiatry clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "perinatal_psychiatry",
+        "label": "Perinatal psychiatry",
+        "parent": "psychiatry",
+        "query": "Perinatal psychiatry clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "eating_disorders",
+        "label": "Eating disorders",
+        "parent": "psychiatry",
+        "query": "Eating disorders clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "neuropsychiatry",
+        "label": "Neuropsychiatry",
+        "parent": "psychiatry",
+        "query": "Neuropsychiatry clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "liaison_consultation_psychiatry",
+        "label": "Liaison / consultation psychiatry",
+        "parent": "psychiatry",
+        "query": "Liaison / consultation psychiatry clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "adhd_assessment_and_treatment_adult",
+        "label": "ADHD assessment and treatment (adult)",
+        "parent": "psychiatry",
+        "query": "ADHD assessment and treatment (adult)",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "autism_assessment_adult",
+        "label": "Autism assessment (adult)",
+        "parent": "psychiatry",
+        "query": "Autism assessment (adult)",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "intellectual_disability_psychiatry",
+        "label": "Intellectual disability psychiatry",
+        "parent": "psychiatry",
+        "query": "Intellectual disability psychiatry clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "psychotherapy_and_psychoanalysis",
+        "label": "Psychotherapy and psychoanalysis",
+        "parent": "psychiatry",
+        "query": "Psychotherapy and psychoanalysis",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "mood_and_anxiety_disorders",
+        "label": "Mood and anxiety disorders",
+        "parent": "psychiatry",
+        "query": "Mood and anxiety disorders clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "psychosis_and_schizophrenia",
+        "label": "Psychosis and schizophrenia",
+        "parent": "psychiatry",
+        "query": "Psychosis and schizophrenia clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "obsessive_compulsive_disorder",
+        "label": "Obsessive-compulsive disorder",
+        "parent": "psychiatry",
+        "query": "Obsessive-compulsive disorder clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "trauma_and_ptsd",
+        "label": "Trauma and PTSD",
+        "parent": "psychiatry",
+        "query": "Trauma and PTSD clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "neuromodulation_tms_ect",
+        "label": "Neuromodulation (TMS, ECT)",
+        "parent": "psychiatry",
+        "query": "Neuromodulation (TMS, ECT) clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      }
+    ]
+  },
+  {
+    "id": "addiction_medicine",
+    "label": "Addiction medicine",
+    "it": "Addiction medicine",
+    "items": [
+      {
+        "id": "addiction_medicine",
+        "label": "Addiction medicine",
+        "parent": "",
+        "query": "addiction medicine clinic",
+        "aliases": "substance misuse; alcohol and drug treatment; drug dependency ",
+        "legacyIds": [
+          "addiction"
+        ],
+        "kind": "specialty",
+        "needsReview": false
+      }
+    ]
+  },
+  {
+    "id": "clinical_neurophysiology",
+    "label": "Clinical neurophysiology",
+    "it": "Clinical neurophysiology",
+    "items": [
+      {
+        "id": "clinical_neurophysiology",
+        "label": "Clinical neurophysiology",
+        "parent": "",
+        "query": "Clinical neurophysiology",
+        "aliases": "EEG; EMG; nerve conduction",
+        "legacyIds": [],
+        "kind": "specialty",
+        "needsReview": false
+      }
+    ]
+  },
+  {
+    "id": "neuropsychology",
+    "label": "Neuropsychology",
+    "it": "Neuropsychology",
+    "items": [
+      {
+        "id": "neuropsychology",
+        "label": "Neuropsychology",
+        "parent": "",
+        "query": "neuropsychologist",
+        "aliases": "cognitive assessment; neuropsychological testing ",
+        "legacyIds": [
+          "neuropsych"
+        ],
+        "kind": "specialty",
+        "needsReview": false
+      }
+    ]
+  },
+  {
+    "id": "sleep_medicine_neurological",
+    "label": "Sleep medicine (neurological)",
+    "it": "Sleep medicine (neurological)",
+    "items": [
+      {
+        "id": "sleep_medicine_neurological",
+        "label": "Sleep medicine (neurological)",
+        "parent": "",
+        "query": "Sleep medicine (neurological)",
+        "aliases": "sleep neurology",
+        "legacyIds": [],
+        "kind": "specialty",
+        "needsReview": true
+      }
+    ]
+  },
+  {
+    "id": "ophthalmology",
+    "label": "Ophthalmology",
+    "it": "Ophthalmology",
+    "items": [
+      {
+        "id": "ophthalmology",
+        "label": "Ophthalmology",
+        "parent": "",
+        "query": "ophthalmologist",
+        "aliases": "eye doctor; eye surgeon; ophthalmologist; oculist ",
+        "legacyIds": [
+          "oph"
+        ],
+        "kind": "specialty",
+        "needsReview": false
+      },
+      {
+        "id": "cataract_surgery",
+        "label": "Cataract surgery",
+        "parent": "ophthalmology",
+        "query": "Cataract surgery",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "glaucoma",
+        "label": "Glaucoma",
+        "parent": "ophthalmology",
+        "query": "Glaucoma clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "retina_and_vitreoretinal_surgery",
+        "label": "Retina and vitreoretinal surgery",
+        "parent": "ophthalmology",
+        "query": "Retina and vitreoretinal surgery",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "medical_retina",
+        "label": "Medical retina",
+        "parent": "ophthalmology",
+        "query": "Medical retina clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "cornea_and_external_disease",
+        "label": "Cornea and external disease",
+        "parent": "ophthalmology",
+        "query": "Cornea and external disease clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "oculoplastics_and_orbit",
+        "label": "Oculoplastics and orbit",
+        "parent": "ophthalmology",
+        "query": "Oculoplastics and orbit clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "paediatric_ophthalmology_and_strabismus",
+        "label": "Paediatric ophthalmology and strabismus",
+        "parent": "ophthalmology",
+        "query": "Paediatric ophthalmology and strabismus clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "neuro_ophthalmology_2",
+        "label": "Neuro-ophthalmology",
+        "parent": "ophthalmology",
+        "query": "Neuro-ophthalmology clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "uveitis",
+        "label": "Uveitis",
+        "parent": "ophthalmology",
+        "query": "Uveitis clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "refractive_and_laser_eye_surgery",
+        "label": "Refractive and laser eye surgery",
+        "parent": "ophthalmology",
+        "query": "Refractive and laser eye surgery",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "ocular_oncology",
+        "label": "Ocular oncology",
+        "parent": "ophthalmology",
+        "query": "Ocular oncology clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "low_vision",
+        "label": "Low vision",
+        "parent": "ophthalmology",
+        "query": "Low vision clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "dry_eye_clinic",
+        "label": "Dry eye clinic",
+        "parent": "ophthalmology",
+        "query": "Dry eye clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      }
+    ]
+  },
+  {
+    "id": "otolaryngology_ent",
+    "label": "Otolaryngology (ENT)",
+    "it": "Otolaryngology (ENT)",
+    "items": [
+      {
+        "id": "otolaryngology_ent",
+        "label": "Otolaryngology (ENT)",
+        "parent": "",
+        "query": "ENT specialist",
+        "aliases": "ENT; ear nose and throat; otorhinolaryngology; HNO; ORL; ENT surgeon ",
+        "legacyIds": [
+          "ent"
+        ],
+        "kind": "specialty",
+        "needsReview": false
+      },
+      {
+        "id": "otology_ear",
+        "label": "Otology (ear)",
+        "parent": "otolaryngology_ent",
+        "query": "Otology (ear) clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "neurotology_and_skull_base_surgery",
+        "label": "Neurotology and skull-base surgery",
+        "parent": "otolaryngology_ent",
+        "query": "Neurotology and skull-base surgery",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "audiovestibular_medicine",
+        "label": "Audiovestibular medicine",
+        "parent": "otolaryngology_ent",
+        "query": "Audiovestibular medicine clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "rhinology_and_sinus_surgery",
+        "label": "Rhinology and sinus surgery",
+        "parent": "otolaryngology_ent",
+        "query": "Rhinology and sinus surgery",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "laryngology_and_voice",
+        "label": "Laryngology and voice",
+        "parent": "otolaryngology_ent",
+        "query": "Laryngology and voice clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "head_and_neck_surgery",
+        "label": "Head and neck surgery",
+        "parent": "otolaryngology_ent",
+        "query": "Head and neck surgery",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "paediatric_ent_2",
+        "label": "Paediatric ENT",
+        "parent": "otolaryngology_ent",
+        "query": "Paediatric ENT clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "facial_plastic_and_reconstructive_surgery",
+        "label": "Facial plastic and reconstructive surgery",
+        "parent": "otolaryngology_ent",
+        "query": "Facial plastic and reconstructive surgery",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "sleep_and_snoring_surgery",
+        "label": "Sleep and snoring surgery",
+        "parent": "otolaryngology_ent",
+        "query": "Sleep and snoring surgery",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "thyroid_and_parathyroid_surgery",
+        "label": "Thyroid and parathyroid surgery",
+        "parent": "otolaryngology_ent",
+        "query": "Thyroid and parathyroid surgery",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "cochlear_implants",
+        "label": "Cochlear implants",
+        "parent": "otolaryngology_ent",
+        "query": "Cochlear implants clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "balance_and_dizziness_clinic",
+        "label": "Balance and dizziness clinic",
+        "parent": "otolaryngology_ent",
+        "query": "Balance and dizziness clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "tinnitus_clinic",
+        "label": "Tinnitus clinic",
+        "parent": "otolaryngology_ent",
+        "query": "Tinnitus clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "allergy_ent",
+        "label": "Allergy (ENT)",
+        "parent": "otolaryngology_ent",
+        "query": "Allergy (ENT) clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      }
+    ]
+  },
+  {
+    "id": "audiology",
+    "label": "Audiology",
+    "it": "Audiology",
+    "items": [
+      {
+        "id": "audiology",
+        "label": "Audiology",
+        "parent": "",
+        "query": "audiologist",
+        "aliases": "hearing specialist; hearing test; hearing aids ",
+        "legacyIds": [
+          "audiology"
+        ],
+        "kind": "specialty",
+        "needsReview": false
+      }
+    ]
+  },
+  {
+    "id": "oral_and_maxillofacial_surgery",
+    "label": "Oral and maxillofacial surgery",
+    "it": "Oral and maxillofacial surgery",
+    "items": [
+      {
+        "id": "oral_and_maxillofacial_surgery",
+        "label": "Oral and maxillofacial surgery",
+        "parent": "",
+        "query": "oral maxillofacial surgeon",
+        "aliases": "OMFS; jaw surgery; maxillofacial surgeon ",
+        "legacyIds": [
+          "maxillofacial"
+        ],
+        "kind": "specialty",
+        "needsReview": false
+      },
+      {
+        "id": "orthognathic_surgery",
+        "label": "Orthognathic surgery",
+        "parent": "oral_and_maxillofacial_surgery",
+        "query": "Orthognathic surgery",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "facial_trauma",
+        "label": "Facial trauma",
+        "parent": "oral_and_maxillofacial_surgery",
+        "query": "Facial trauma clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "head_and_neck_oncology_surgery",
+        "label": "Head and neck oncology surgery",
+        "parent": "oral_and_maxillofacial_surgery",
+        "query": "Head and neck oncology surgery",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "tmj_jaw_joint_disorders",
+        "label": "TMJ (jaw joint) disorders",
+        "parent": "oral_and_maxillofacial_surgery",
+        "query": "TMJ (jaw joint) disorders clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "dental_implant_surgery",
+        "label": "Dental implant surgery",
+        "parent": "oral_and_maxillofacial_surgery",
+        "query": "Dental implant surgery",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "cleft_lip_and_palate",
+        "label": "Cleft lip and palate",
+        "parent": "oral_and_maxillofacial_surgery",
+        "query": "Cleft lip and palate clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      }
+    ]
+  },
+  {
+    "id": "speech_and_swallowing",
+    "label": "Speech and swallowing",
+    "it": "Speech and swallowing",
+    "items": [
+      {
+        "id": "speech_and_swallowing",
+        "label": "Speech and swallowing",
+        "parent": "",
+        "query": "Speech and swallowing",
+        "aliases": "dysphagia; swallowing clinic; voice clinic",
+        "legacyIds": [],
+        "kind": "specialty",
+        "needsReview": false
+      }
+    ]
+  },
+  {
+    "id": "general_dentistry",
+    "label": "General dentistry",
+    "it": "General dentistry",
+    "items": [
+      {
+        "id": "general_dentistry",
+        "label": "General dentistry",
+        "parent": "",
+        "query": "General dentistry",
+        "aliases": "dentist; family dentist; dental surgeon",
+        "legacyIds": [],
+        "kind": "dental",
+        "needsReview": false
+      }
+    ]
+  },
+  {
+    "id": "orthodontics",
+    "label": "Orthodontics",
+    "it": "Orthodontics",
+    "items": [
+      {
+        "id": "orthodontics",
+        "label": "Orthodontics",
+        "parent": "",
+        "query": "orthodontist",
+        "aliases": "braces; teeth straightening; aligners ",
+        "legacyIds": [
+          "orthodontics"
+        ],
+        "kind": "dental",
+        "needsReview": false
+      }
+    ]
+  },
+  {
+    "id": "endodontics",
+    "label": "Endodontics",
+    "it": "Endodontics",
+    "items": [
+      {
+        "id": "endodontics",
+        "label": "Endodontics",
+        "parent": "",
+        "query": "Endodontics",
+        "aliases": "root canal",
+        "legacyIds": [],
+        "kind": "dental",
+        "needsReview": false
+      }
+    ]
+  },
+  {
+    "id": "periodontics",
+    "label": "Periodontics",
+    "it": "Periodontics",
+    "items": [
+      {
+        "id": "periodontics",
+        "label": "Periodontics",
+        "parent": "",
+        "query": "Periodontics",
+        "aliases": "gum disease; gum specialist",
+        "legacyIds": [],
+        "kind": "dental",
+        "needsReview": false
+      }
+    ]
+  },
+  {
+    "id": "prosthodontics",
+    "label": "Prosthodontics",
+    "it": "Prosthodontics",
+    "items": [
+      {
+        "id": "prosthodontics",
+        "label": "Prosthodontics",
+        "parent": "",
+        "query": "Prosthodontics",
+        "aliases": "dentures; crowns and bridges; restorative dentistry",
+        "legacyIds": [],
+        "kind": "dental",
+        "needsReview": false
+      }
+    ]
+  },
+  {
+    "id": "dental_implantology",
+    "label": "Dental implantology",
+    "it": "Dental implantology",
+    "items": [
+      {
+        "id": "dental_implantology",
+        "label": "Dental implantology",
+        "parent": "",
+        "query": "Dental implantology",
+        "aliases": "dental implants",
+        "legacyIds": [],
+        "kind": "dental",
+        "needsReview": false
+      }
+    ]
+  },
+  {
+    "id": "oral_surgery",
+    "label": "Oral surgery",
+    "it": "Oral surgery",
+    "items": [
+      {
+        "id": "oral_surgery",
+        "label": "Oral surgery",
+        "parent": "",
+        "query": "Oral surgery",
+        "aliases": "wisdom teeth; tooth extraction",
+        "legacyIds": [],
+        "kind": "dental",
+        "needsReview": false
+      }
+    ]
+  },
+  {
+    "id": "oral_medicine",
+    "label": "Oral medicine",
+    "it": "Oral medicine",
+    "items": [
+      {
+        "id": "oral_medicine",
+        "label": "Oral medicine",
+        "parent": "",
+        "query": "oral medicine specialist",
+        "aliases": "mouth disease; oral mucosal disease ",
+        "legacyIds": [
+          "oral-medicine"
+        ],
+        "kind": "dental",
+        "needsReview": false
+      }
+    ]
+  },
+  {
+    "id": "paediatric_dentistry_children",
+    "label": "Paediatric dentistry (children)",
+    "it": "Paediatric dentistry (children)",
+    "items": [
+      {
+        "id": "paediatric_dentistry_children",
+        "label": "Paediatric dentistry (children)",
+        "parent": "",
+        "query": "Paediatric dentistry (children)",
+        "aliases": "pedodontics",
+        "legacyIds": [],
+        "kind": "dental",
+        "needsReview": false
+      }
+    ]
+  },
+  {
+    "id": "cosmetic_dentistry",
+    "label": "Cosmetic dentistry",
+    "it": "Cosmetic dentistry",
+    "items": [
+      {
+        "id": "cosmetic_dentistry",
+        "label": "Cosmetic dentistry",
+        "parent": "",
+        "query": "Cosmetic dentistry",
+        "aliases": "veneers; teeth whitening; smile makeover",
+        "legacyIds": [],
+        "kind": "dental",
+        "needsReview": false
+      }
+    ]
+  },
+  {
+    "id": "special_care_dentistry",
+    "label": "Special care dentistry",
+    "it": "Special care dentistry",
+    "items": [
+      {
+        "id": "special_care_dentistry",
+        "label": "Special care dentistry",
+        "parent": "",
+        "query": "Special care dentistry",
+        "aliases": "dentistry for disabilities",
+        "legacyIds": [],
+        "kind": "dental",
+        "needsReview": false
+      }
+    ]
+  },
+  {
+    "id": "oral_pathology_and_oral_radiology",
+    "label": "Oral pathology and oral radiology",
+    "it": "Oral pathology and oral radiology",
+    "items": [
+      {
+        "id": "oral_pathology_and_oral_radiology",
+        "label": "Oral pathology and oral radiology",
+        "parent": "",
+        "query": "Oral pathology and oral radiology",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "dental",
+        "needsReview": false
+      }
+    ]
+  },
+  {
+    "id": "dental_hygiene",
+    "label": "Dental hygiene",
+    "it": "Dental hygiene",
+    "items": [
+      {
+        "id": "dental_hygiene",
+        "label": "Dental hygiene",
+        "parent": "",
+        "query": "Dental hygiene",
+        "aliases": "hygienist",
+        "legacyIds": [],
+        "kind": "dental",
+        "needsReview": false
+      }
+    ]
+  },
+  {
+    "id": "dental_public_health",
+    "label": "Dental public health",
+    "it": "Dental public health",
+    "items": [
+      {
+        "id": "dental_public_health",
+        "label": "Dental public health",
+        "parent": "",
+        "query": "Dental public health",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "dental",
+        "needsReview": true
+      }
+    ]
+  },
+  {
+    "id": "dermatology",
+    "label": "Dermatology",
+    "it": "Dermatology",
+    "items": [
+      {
+        "id": "dermatology",
+        "label": "Dermatology",
+        "parent": "",
+        "query": "dermatologist",
+        "aliases": "skin specialist; dermatologist; dermatovenereology; Hautarzt; dermatologue ",
+        "legacyIds": [
+          "derm"
+        ],
+        "kind": "specialty",
+        "needsReview": false
+      },
+      {
+        "id": "medical_dermatology_eczema_psoriasis_acne",
+        "label": "Medical dermatology (eczema, psoriasis, acne)",
+        "parent": "dermatology",
+        "query": "Medical dermatology (eczema, psoriasis, acne) clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "dermatological_surgery_and_mohs",
+        "label": "Dermatological surgery and Mohs",
+        "parent": "dermatology",
+        "query": "Dermatological surgery and Mohs",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "skin_cancer_and_melanoma_clinic",
+        "label": "Skin cancer and melanoma clinic",
+        "parent": "dermatology",
+        "query": "Skin cancer and melanoma clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "cosmetic_aesthetic_dermatology",
+        "label": "Cosmetic / aesthetic dermatology",
+        "parent": "dermatology",
+        "query": "Cosmetic / aesthetic dermatology clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "paediatric_dermatology_2",
+        "label": "Paediatric dermatology",
+        "parent": "dermatology",
+        "query": "Paediatric dermatology clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "hair_and_scalp_disorders_trichology",
+        "label": "Hair and scalp disorders (trichology)",
+        "parent": "dermatology",
+        "query": "Hair and scalp disorders (trichology) clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "nail_disorders",
+        "label": "Nail disorders",
+        "parent": "dermatology",
+        "query": "Nail disorders clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "contact_allergy_and_patch_testing",
+        "label": "Contact allergy and patch testing",
+        "parent": "dermatology",
+        "query": "Contact allergy and patch testing clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "dermatopathology",
+        "label": "Dermatopathology",
+        "parent": "dermatology",
+        "query": "Dermatopathology clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "hidradenitis_suppurativa",
+        "label": "Hidradenitis suppurativa",
+        "parent": "dermatology",
+        "query": "Hidradenitis suppurativa clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "vitiligo_and_pigmentation",
+        "label": "Vitiligo and pigmentation",
+        "parent": "dermatology",
+        "query": "Vitiligo and pigmentation clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "photodermatology",
+        "label": "Photodermatology",
+        "parent": "dermatology",
+        "query": "Photodermatology clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "laser_dermatology",
+        "label": "Laser dermatology",
+        "parent": "dermatology",
+        "query": "Laser dermatology clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "skin_allergy",
+        "label": "Skin allergy",
+        "parent": "dermatology",
+        "query": "Skin allergy clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "venereology_dermatology",
+        "label": "Venereology (dermatology)",
+        "parent": "dermatology",
+        "query": "Venereology (dermatology) clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      }
+    ]
+  },
+  {
+    "id": "aesthetic_non_surgical_medicine",
+    "label": "Aesthetic (non-surgical) medicine",
+    "it": "Aesthetic (non-surgical) medicine",
+    "items": [
+      {
+        "id": "aesthetic_non_surgical_medicine",
+        "label": "Aesthetic (non-surgical) medicine",
+        "parent": "",
+        "query": "Aesthetic (non-surgical) medicine",
+        "aliases": "injectables; botox; fillers; skin rejuvenation; medical aesthetics",
+        "legacyIds": [],
+        "kind": "specialty",
+        "needsReview": true
+      }
+    ]
+  },
+  {
+    "id": "trichology",
+    "label": "Trichology",
+    "it": "Trichology",
+    "items": [
+      {
+        "id": "trichology",
+        "label": "Trichology",
+        "parent": "",
+        "query": "Trichology",
+        "aliases": "hair loss; hair specialist",
+        "legacyIds": [],
+        "kind": "specialty",
+        "needsReview": true
+      }
+    ]
+  },
+  {
+    "id": "wound_care_tissue_viability",
+    "label": "Wound care / tissue viability",
+    "it": "Wound care / tissue viability",
+    "items": [
+      {
+        "id": "wound_care_tissue_viability",
+        "label": "Wound care / tissue viability",
+        "parent": "",
+        "query": "Wound care / tissue viability",
+        "aliases": "chronic wounds; leg ulcers; pressure ulcers",
+        "legacyIds": [],
+        "kind": "specialty",
+        "needsReview": false
+      }
+    ]
+  },
+  {
+    "id": "lymphoedema",
+    "label": "Lymphoedema",
+    "it": "Lymphoedema",
+    "items": [
+      {
+        "id": "lymphoedema",
+        "label": "Lymphoedema",
+        "parent": "",
+        "query": "Lymphoedema",
+        "aliases": "lymphatic disorders",
+        "legacyIds": [],
+        "kind": "specialty",
+        "needsReview": false
+      }
+    ]
+  },
+  {
+    "id": "radiology",
+    "label": "Radiology",
+    "it": "Radiology",
+    "items": [
+      {
+        "id": "radiology",
+        "label": "Radiology",
+        "parent": "",
+        "query": "radiology clinic",
+        "aliases": "diagnostic imaging; radiologist; MRI; CT scan; ultrasound; X-ray ",
+        "legacyIds": [
+          "rad-diag"
+        ],
+        "kind": "specialty",
+        "needsReview": false
+      },
+      {
+        "id": "neuroradiology",
+        "label": "Neuroradiology",
+        "parent": "radiology",
+        "query": "Neuroradiology clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "musculoskeletal_radiology",
+        "label": "Musculoskeletal radiology",
+        "parent": "radiology",
+        "query": "Musculoskeletal radiology clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "breast_imaging_mammography",
+        "label": "Breast imaging (mammography)",
+        "parent": "radiology",
+        "query": "Breast imaging (mammography) clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "cardiac_imaging",
+        "label": "Cardiac imaging",
+        "parent": "radiology",
+        "query": "Cardiac imaging clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "paediatric_radiology",
+        "label": "Paediatric radiology",
+        "parent": "radiology",
+        "query": "Paediatric radiology clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "abdominal_and_gi_radiology",
+        "label": "Abdominal and GI radiology",
+        "parent": "radiology",
+        "query": "Abdominal and GI radiology clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "chest_radiology",
+        "label": "Chest radiology",
+        "parent": "radiology",
+        "query": "Chest radiology clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "emergency_radiology",
+        "label": "Emergency radiology",
+        "parent": "radiology",
+        "query": "Emergency radiology clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "head_and_neck_radiology",
+        "label": "Head and neck radiology",
+        "parent": "radiology",
+        "query": "Head and neck radiology clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "oncologic_imaging",
+        "label": "Oncologic imaging",
+        "parent": "radiology",
+        "query": "Oncologic imaging clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "women_s_imaging",
+        "label": "Women's imaging",
+        "parent": "radiology",
+        "query": "Women's imaging clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "prostate_mri",
+        "label": "Prostate MRI",
+        "parent": "radiology",
+        "query": "Prostate MRI clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      }
+    ]
+  },
+  {
+    "id": "interventional_radiology",
+    "label": "Interventional radiology",
+    "it": "Interventional radiology",
+    "items": [
+      {
+        "id": "interventional_radiology",
+        "label": "Interventional radiology",
+        "parent": "",
+        "query": "interventional radiologist",
+        "aliases": "IR; image-guided procedures; embolisation ",
+        "legacyIds": [
+          "rad-ir"
+        ],
+        "kind": "specialty",
+        "needsReview": false
+      }
+    ]
+  },
+  {
+    "id": "nuclear_medicine",
+    "label": "Nuclear medicine",
+    "it": "Nuclear medicine",
+    "items": [
+      {
+        "id": "nuclear_medicine",
+        "label": "Nuclear medicine",
+        "parent": "",
+        "query": "nuclear medicine clinic",
+        "aliases": "PET scan; SPECT; radionuclide therapy; theranostics ",
+        "legacyIds": [
+          "nuclear"
+        ],
+        "kind": "specialty",
+        "needsReview": false
+      }
+    ]
+  },
+  {
+    "id": "pathology",
+    "label": "Pathology",
+    "it": "Pathology",
+    "items": [
+      {
+        "id": "pathology",
+        "label": "Pathology",
+        "parent": "",
+        "query": "pathology laboratory",
+        "aliases": "histopathology; anatomical pathology ",
+        "legacyIds": [
+          "path"
+        ],
+        "kind": "specialty",
+        "needsReview": false
+      },
+      {
+        "id": "cytopathology",
+        "label": "Cytopathology",
+        "parent": "pathology",
+        "query": "Cytopathology clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "dermatopathology_2",
+        "label": "Dermatopathology",
+        "parent": "pathology",
+        "query": "Dermatopathology clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "neuropathology",
+        "label": "Neuropathology",
+        "parent": "pathology",
+        "query": "Neuropathology clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "paediatric_pathology",
+        "label": "Paediatric pathology",
+        "parent": "pathology",
+        "query": "Paediatric pathology clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "haematopathology",
+        "label": "Haematopathology",
+        "parent": "pathology",
+        "query": "Haematopathology clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "molecular_pathology",
+        "label": "Molecular pathology",
+        "parent": "pathology",
+        "query": "Molecular pathology clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "forensic_pathology",
+        "label": "Forensic pathology",
+        "parent": "pathology",
+        "query": "Forensic pathology clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "gynaecological_pathology",
+        "label": "Gynaecological pathology",
+        "parent": "pathology",
+        "query": "Gynaecological pathology clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "breast_pathology",
+        "label": "Breast pathology",
+        "parent": "pathology",
+        "query": "Breast pathology clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      }
+    ]
+  },
+  {
+    "id": "chemical_pathology_clinical_biochemistry_metabolic_medicine",
+    "label": "Chemical pathology / clinical biochemistry / metabolic medicine",
+    "it": "Chemical pathology / clinical biochemistry / metabolic medicine",
+    "items": [
+      {
+        "id": "chemical_pathology_clinical_biochemistry_metabolic_medicine",
+        "label": "Chemical pathology / clinical biochemistry / metabolic medicine",
+        "parent": "",
+        "query": "Chemical pathology / clinical biochemistry / metabolic medicine",
+        "aliases": "clinical biochemistry; laboratory medicine; metabolic physician",
+        "legacyIds": [],
+        "kind": "specialty",
+        "needsReview": false
+      }
+    ]
+  },
+  {
+    "id": "clinical_microbiology_and_virology",
+    "label": "Clinical microbiology and virology",
+    "it": "Clinical microbiology and virology",
+    "items": [
+      {
+        "id": "clinical_microbiology_and_virology",
+        "label": "Clinical microbiology and virology",
+        "parent": "",
+        "query": "Clinical microbiology and virology",
+        "aliases": "microbiologist; virologist",
+        "legacyIds": [],
+        "kind": "specialty",
+        "needsReview": false
+      }
+    ]
+  },
+  {
+    "id": "clinical_immunology_laboratory",
+    "label": "Clinical immunology (laboratory)",
+    "it": "Clinical immunology (laboratory)",
+    "items": [
+      {
+        "id": "clinical_immunology_laboratory",
+        "label": "Clinical immunology (laboratory)",
+        "parent": "",
+        "query": "Clinical immunology (laboratory)",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "specialty",
+        "needsReview": true
+      }
+    ]
+  },
+  {
+    "id": "medical_genetics_and_genomics",
+    "label": "Medical genetics and genomics",
+    "it": "Medical genetics and genomics",
+    "items": [
+      {
+        "id": "medical_genetics_and_genomics",
+        "label": "Medical genetics and genomics",
+        "parent": "",
+        "query": "Medical genetics and genomics",
+        "aliases": "clinical geneticist; genetic testing; hereditary conditions",
+        "legacyIds": [],
+        "kind": "specialty",
+        "needsReview": false
+      },
+      {
+        "id": "cancer_genetics_hereditary_cancer",
+        "label": "Cancer genetics (hereditary cancer)",
+        "parent": "medical_genetics_and_genomics",
+        "query": "Cancer genetics (hereditary cancer) clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "prenatal_and_reproductive_genetics",
+        "label": "Prenatal and reproductive genetics",
+        "parent": "medical_genetics_and_genomics",
+        "query": "Prenatal and reproductive genetics clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "cardiogenetics",
+        "label": "Cardiogenetics",
+        "parent": "medical_genetics_and_genomics",
+        "query": "Cardiogenetics clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "neurogenetics_2",
+        "label": "Neurogenetics",
+        "parent": "medical_genetics_and_genomics",
+        "query": "Neurogenetics clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "pharmacogenomics",
+        "label": "Pharmacogenomics",
+        "parent": "medical_genetics_and_genomics",
+        "query": "Pharmacogenomics clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "newborn_and_paediatric_genetics",
+        "label": "Newborn and paediatric genetics",
+        "parent": "medical_genetics_and_genomics",
+        "query": "Newborn and paediatric genetics clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "genetic_counselling",
+        "label": "Genetic counselling",
+        "parent": "medical_genetics_and_genomics",
+        "query": "Genetic counselling clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      }
+    ]
+  },
+  {
+    "id": "cardiac_physiology_ecg_echo_stress_testing",
+    "label": "Cardiac physiology (ECG, echo, stress testing)",
+    "it": "Cardiac physiology (ECG, echo, stress testing)",
+    "items": [
+      {
+        "id": "cardiac_physiology_ecg_echo_stress_testing",
+        "label": "Cardiac physiology (ECG, echo, stress testing)",
+        "parent": "",
+        "query": "Cardiac physiology (ECG, echo, stress testing)",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "specialty",
+        "needsReview": true
+      }
+    ]
+  },
+  {
+    "id": "respiratory_physiology_lung_function_tests",
+    "label": "Respiratory physiology (lung function tests)",
+    "it": "Respiratory physiology (lung function tests)",
+    "items": [
+      {
+        "id": "respiratory_physiology_lung_function_tests",
+        "label": "Respiratory physiology (lung function tests)",
+        "parent": "",
+        "query": "Respiratory physiology (lung function tests)",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "specialty",
+        "needsReview": true
+      }
+    ]
+  },
+  {
+    "id": "transfusion_medicine_and_blood_banking",
+    "label": "Transfusion medicine and blood banking",
+    "it": "Transfusion medicine and blood banking",
+    "items": [
+      {
+        "id": "transfusion_medicine_and_blood_banking",
+        "label": "Transfusion medicine and blood banking",
+        "parent": "",
+        "query": "Transfusion medicine and blood banking",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "specialty",
+        "needsReview": false
+      }
+    ]
+  },
+  {
+    "id": "toxicology",
+    "label": "Toxicology",
+    "it": "Toxicology",
+    "items": [
+      {
+        "id": "toxicology",
+        "label": "Toxicology",
+        "parent": "",
+        "query": "Toxicology",
+        "aliases": "poison; drug testing",
+        "legacyIds": [],
+        "kind": "specialty",
+        "needsReview": false
+      }
+    ]
+  },
+  {
+    "id": "emergency_medicine",
+    "label": "Emergency medicine",
+    "it": "Emergency medicine",
+    "items": [
+      {
+        "id": "emergency_medicine",
+        "label": "Emergency medicine",
+        "parent": "",
+        "query": "emergency department",
+        "aliases": "A&E; ER; emergency doctor; accident and emergency ",
+        "legacyIds": [
+          "em"
+        ],
+        "kind": "specialty",
+        "needsReview": false
+      },
+      {
+        "id": "paediatric_emergency_medicine_2",
+        "label": "Paediatric emergency medicine",
+        "parent": "emergency_medicine",
+        "query": "Paediatric emergency medicine clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "pre_hospital_and_retrieval_medicine",
+        "label": "Pre-hospital and retrieval medicine",
+        "parent": "emergency_medicine",
+        "query": "Pre-hospital and retrieval medicine clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "toxicology_and_poisoning",
+        "label": "Toxicology and poisoning",
+        "parent": "emergency_medicine",
+        "query": "Toxicology and poisoning clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "trauma_care",
+        "label": "Trauma care",
+        "parent": "emergency_medicine",
+        "query": "Trauma care clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "disaster_medicine",
+        "label": "Disaster medicine",
+        "parent": "emergency_medicine",
+        "query": "Disaster medicine clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      }
+    ]
+  },
+  {
+    "id": "anaesthesiology",
+    "label": "Anaesthesiology",
+    "it": "Anaesthesiology",
+    "items": [
+      {
+        "id": "anaesthesiology",
+        "label": "Anaesthesiology",
+        "parent": "",
+        "query": "anaesthesiologist",
+        "aliases": "anaesthesia; anesthesiologist; anaesthetist ",
+        "legacyIds": [
+          "anes"
+        ],
+        "kind": "specialty",
+        "needsReview": false
+      },
+      {
+        "id": "cardiac_anaesthesia",
+        "label": "Cardiac anaesthesia",
+        "parent": "anaesthesiology",
+        "query": "Cardiac anaesthesia clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "paediatric_anaesthesia",
+        "label": "Paediatric anaesthesia",
+        "parent": "anaesthesiology",
+        "query": "Paediatric anaesthesia clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "obstetric_anaesthesia",
+        "label": "Obstetric anaesthesia",
+        "parent": "anaesthesiology",
+        "query": "Obstetric anaesthesia clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "regional_anaesthesia",
+        "label": "Regional anaesthesia",
+        "parent": "anaesthesiology",
+        "query": "Regional anaesthesia clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "neuroanaesthesia",
+        "label": "Neuroanaesthesia",
+        "parent": "anaesthesiology",
+        "query": "Neuroanaesthesia clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "day_case_and_ambulatory_anaesthesia",
+        "label": "Day-case and ambulatory anaesthesia",
+        "parent": "anaesthesiology",
+        "query": "Day-case and ambulatory anaesthesia clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "sedation",
+        "label": "Sedation",
+        "parent": "anaesthesiology",
+        "query": "Sedation clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      }
+    ]
+  },
+  {
+    "id": "intensive_care_critical_care_medicine",
+    "label": "Intensive care / critical care medicine",
+    "it": "Intensive care / critical care medicine",
+    "items": [
+      {
+        "id": "intensive_care_critical_care_medicine",
+        "label": "Intensive care / critical care medicine",
+        "parent": "",
+        "query": "Intensive care / critical care medicine",
+        "aliases": "ICU; intensivist; critical care",
+        "legacyIds": [],
+        "kind": "specialty",
+        "needsReview": false
+      },
+      {
+        "id": "neurocritical_care_2",
+        "label": "Neurocritical care",
+        "parent": "intensive_care_critical_care_medicine",
+        "query": "Neurocritical care clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "cardiac_intensive_care",
+        "label": "Cardiac intensive care",
+        "parent": "intensive_care_critical_care_medicine",
+        "query": "Cardiac intensive care clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "paediatric_intensive_care_2",
+        "label": "Paediatric intensive care",
+        "parent": "intensive_care_critical_care_medicine",
+        "query": "Paediatric intensive care clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "neonatal_intensive_care",
+        "label": "Neonatal intensive care",
+        "parent": "intensive_care_critical_care_medicine",
+        "query": "Neonatal intensive care clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "respiratory_support_ecmo",
+        "label": "Respiratory support / ECMO",
+        "parent": "intensive_care_critical_care_medicine",
+        "query": "Respiratory support / ECMO clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      }
+    ]
+  },
+  {
+    "id": "pain_medicine",
+    "label": "Pain medicine",
+    "it": "Pain medicine",
+    "items": [
+      {
+        "id": "pain_medicine",
+        "label": "Pain medicine",
+        "parent": "",
+        "query": "pain clinic",
+        "aliases": "chronic pain; pain clinic; pain specialist ",
+        "legacyIds": [
+          "pain"
+        ],
+        "kind": "specialty",
+        "needsReview": false
+      },
+      {
+        "id": "interventional_pain_procedures",
+        "label": "Interventional pain procedures",
+        "parent": "pain_medicine",
+        "query": "Interventional pain procedures clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "cancer_pain",
+        "label": "Cancer pain",
+        "parent": "pain_medicine",
+        "query": "Cancer pain clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "neuropathic_pain_2",
+        "label": "Neuropathic pain",
+        "parent": "pain_medicine",
+        "query": "Neuropathic pain clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "headache_and_facial_pain",
+        "label": "Headache and facial pain",
+        "parent": "pain_medicine",
+        "query": "Headache and facial pain clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "back_pain_clinic",
+        "label": "Back pain clinic",
+        "parent": "pain_medicine",
+        "query": "Back pain clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "pelvic_pain",
+        "label": "Pelvic pain",
+        "parent": "pain_medicine",
+        "query": "Pelvic pain clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "complex_regional_pain_syndrome",
+        "label": "Complex regional pain syndrome",
+        "parent": "pain_medicine",
+        "query": "Complex regional pain syndrome clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "spinal_cord_stimulation",
+        "label": "Spinal cord stimulation",
+        "parent": "pain_medicine",
+        "query": "Spinal cord stimulation clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      }
+    ]
+  },
+  {
+    "id": "hyperbaric_and_diving_medicine",
+    "label": "Hyperbaric and diving medicine",
+    "it": "Hyperbaric and diving medicine",
+    "items": [
+      {
+        "id": "hyperbaric_and_diving_medicine",
+        "label": "Hyperbaric and diving medicine",
+        "parent": "",
+        "query": "Hyperbaric and diving medicine",
+        "aliases": "diving doctor; decompression illness",
+        "legacyIds": [],
+        "kind": "specialty",
+        "needsReview": false
+      }
+    ]
+  },
+  {
+    "id": "aviation_and_space_medicine",
+    "label": "Aviation and space medicine",
+    "it": "Aviation and space medicine",
+    "items": [
+      {
+        "id": "aviation_and_space_medicine",
+        "label": "Aviation and space medicine",
+        "parent": "",
+        "query": "Aviation and space medicine",
+        "aliases": "pilot medical; flight medical",
+        "legacyIds": [],
+        "kind": "specialty",
+        "needsReview": true
+      }
+    ]
+  },
+  {
+    "id": "medical_oncology",
+    "label": "Medical oncology",
+    "it": "Medical oncology",
+    "items": [
+      {
+        "id": "medical_oncology",
+        "label": "Medical oncology",
+        "parent": "",
+        "query": "oncologist",
+        "aliases": "cancer doctor; chemotherapy; oncologist; immunotherapy ",
+        "legacyIds": [
+          "onc-med"
+        ],
+        "kind": "specialty",
+        "needsReview": false
+      },
+      {
+        "id": "breast_cancer",
+        "label": "Breast cancer",
+        "parent": "medical_oncology",
+        "query": "Breast cancer clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "lung_cancer",
+        "label": "Lung cancer",
+        "parent": "medical_oncology",
+        "query": "Lung cancer clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "gastrointestinal_cancer",
+        "label": "Gastrointestinal cancer",
+        "parent": "medical_oncology",
+        "query": "Gastrointestinal cancer clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "genitourinary_cancer_prostate_bladder_kidney",
+        "label": "Genitourinary cancer (prostate, bladder, kidney)",
+        "parent": "medical_oncology",
+        "query": "Genitourinary cancer (prostate, bladder, kidney) clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "gynaecological_cancer",
+        "label": "Gynaecological cancer",
+        "parent": "medical_oncology",
+        "query": "Gynaecological cancer clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "head_and_neck_cancer",
+        "label": "Head and neck cancer",
+        "parent": "medical_oncology",
+        "query": "Head and neck cancer clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "melanoma_and_skin_cancer",
+        "label": "Melanoma and skin cancer",
+        "parent": "medical_oncology",
+        "query": "Melanoma and skin cancer clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "sarcoma",
+        "label": "Sarcoma",
+        "parent": "medical_oncology",
+        "query": "Sarcoma clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "neuro_oncology",
+        "label": "Neuro-oncology",
+        "parent": "medical_oncology",
+        "query": "Neuro-oncology clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "neuroendocrine_tumours_2",
+        "label": "Neuroendocrine tumours",
+        "parent": "medical_oncology",
+        "query": "Neuroendocrine tumours clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "haemato_oncology",
+        "label": "Haemato-oncology",
+        "parent": "medical_oncology",
+        "query": "Haemato-oncology clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "paediatric_oncology",
+        "label": "Paediatric oncology",
+        "parent": "medical_oncology",
+        "query": "Paediatric oncology clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "early_phase_clinical_trials",
+        "label": "Early-phase / clinical trials",
+        "parent": "medical_oncology",
+        "query": "Early-phase / clinical trials",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "cancer_genetics",
+        "label": "Cancer genetics",
+        "parent": "medical_oncology",
+        "query": "Cancer genetics clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "cancer_survivorship",
+        "label": "Cancer survivorship",
+        "parent": "medical_oncology",
+        "query": "Cancer survivorship clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "cancer_of_unknown_primary",
+        "label": "Cancer of unknown primary",
+        "parent": "medical_oncology",
+        "query": "Cancer of unknown primary clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "supportive_and_integrative_oncology",
+        "label": "Supportive and integrative oncology",
+        "parent": "medical_oncology",
+        "query": "Supportive and integrative oncology clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": true
+      }
+    ]
+  },
+  {
+    "id": "clinical_oncology",
+    "label": "Clinical oncology",
+    "it": "Clinical oncology",
+    "items": [
+      {
+        "id": "clinical_oncology",
+        "label": "Clinical oncology",
+        "parent": "",
+        "query": "Clinical oncology",
+        "aliases": "radiotherapy and chemotherapy doctor",
+        "legacyIds": [],
+        "kind": "specialty",
+        "needsReview": false
+      }
+    ]
+  },
+  {
+    "id": "radiation_oncology",
+    "label": "Radiation oncology",
+    "it": "Radiation oncology",
+    "items": [
+      {
+        "id": "radiation_oncology",
+        "label": "Radiation oncology",
+        "parent": "",
+        "query": "radiotherapy clinic",
+        "aliases": "radiotherapy; radiation therapist ",
+        "legacyIds": [
+          "onc-rad"
+        ],
+        "kind": "specialty",
+        "needsReview": false
+      },
+      {
+        "id": "brachytherapy",
+        "label": "Brachytherapy",
+        "parent": "radiation_oncology",
+        "query": "Brachytherapy",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "stereotactic_radiotherapy_sbrt_radiosurgery",
+        "label": "Stereotactic radiotherapy (SBRT, radiosurgery)",
+        "parent": "radiation_oncology",
+        "query": "Stereotactic radiotherapy (SBRT, radiosurgery)",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "proton_and_particle_therapy",
+        "label": "Proton and particle therapy",
+        "parent": "radiation_oncology",
+        "query": "Proton and particle therapy",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "paediatric_radiotherapy",
+        "label": "Paediatric radiotherapy",
+        "parent": "radiation_oncology",
+        "query": "Paediatric radiotherapy",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      }
+    ]
+  },
+  {
+    "id": "surgical_oncology_2",
+    "label": "Surgical oncology",
+    "it": "Surgical oncology",
+    "items": [
+      {
+        "id": "surgical_oncology_2",
+        "label": "Surgical oncology",
+        "parent": "",
+        "query": "Surgical oncology",
+        "aliases": "cancer surgeon",
+        "legacyIds": [],
+        "kind": "specialty",
+        "needsReview": false
+      }
+    ]
+  },
+  {
+    "id": "palliative_medicine",
+    "label": "Palliative medicine",
+    "it": "Palliative medicine",
+    "items": [
+      {
+        "id": "palliative_medicine",
+        "label": "Palliative medicine",
+        "parent": "",
+        "query": "palliative care service",
+        "aliases": "hospice; end-of-life care; supportive care; palliative care ",
+        "legacyIds": [
+          "pall"
+        ],
+        "kind": "specialty",
+        "needsReview": false
+      },
+      {
+        "id": "paediatric_palliative_care_2",
+        "label": "Paediatric palliative care",
+        "parent": "palliative_medicine",
+        "query": "Paediatric palliative care clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "home_based_palliative_care",
+        "label": "Home-based palliative care",
+        "parent": "palliative_medicine",
+        "query": "Home-based palliative care clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "cancer_pain_and_symptom_control",
+        "label": "Cancer pain and symptom control",
+        "parent": "palliative_medicine",
+        "query": "Cancer pain and symptom control clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      }
+    ]
+  },
+  {
+    "id": "rehabilitation_medicine_physical_medicine_and_rehabilitation",
+    "label": "Rehabilitation medicine / physical medicine and rehabilitation",
+    "it": "Rehabilitation medicine / physical medicine and rehabilitation",
+    "items": [
+      {
+        "id": "rehabilitation_medicine_physical_medicine_and_rehabilitation",
+        "label": "Rehabilitation medicine / physical medicine and rehabilitation",
+        "parent": "",
+        "query": "Rehabilitation medicine / physical medicine and rehabilitation",
+        "aliases": "PM&R; physiatry; rehab doctor; rehabilitation",
+        "legacyIds": [],
+        "kind": "specialty",
+        "needsReview": false
+      },
+      {
+        "id": "neurorehabilitation_2",
+        "label": "Neurorehabilitation",
+        "parent": "rehabilitation_medicine_physical_medicine_and_rehabilitation",
+        "query": "Neurorehabilitation",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "spinal_cord_injury",
+        "label": "Spinal cord injury",
+        "parent": "rehabilitation_medicine_physical_medicine_and_rehabilitation",
+        "query": "Spinal cord injury clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "brain_injury",
+        "label": "Brain injury",
+        "parent": "rehabilitation_medicine_physical_medicine_and_rehabilitation",
+        "query": "Brain injury clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "musculoskeletal_rehabilitation",
+        "label": "Musculoskeletal rehabilitation",
+        "parent": "rehabilitation_medicine_physical_medicine_and_rehabilitation",
+        "query": "Musculoskeletal rehabilitation",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "cardiac_and_pulmonary_rehabilitation",
+        "label": "Cardiac and pulmonary rehabilitation",
+        "parent": "rehabilitation_medicine_physical_medicine_and_rehabilitation",
+        "query": "Cardiac and pulmonary rehabilitation",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "amputee_and_prosthetic_rehabilitation",
+        "label": "Amputee and prosthetic rehabilitation",
+        "parent": "rehabilitation_medicine_physical_medicine_and_rehabilitation",
+        "query": "Amputee and prosthetic rehabilitation",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "paediatric_rehabilitation_2",
+        "label": "Paediatric rehabilitation",
+        "parent": "rehabilitation_medicine_physical_medicine_and_rehabilitation",
+        "query": "Paediatric rehabilitation",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "cancer_rehabilitation",
+        "label": "Cancer rehabilitation",
+        "parent": "rehabilitation_medicine_physical_medicine_and_rehabilitation",
+        "query": "Cancer rehabilitation",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "spasticity_management",
+        "label": "Spasticity management",
+        "parent": "rehabilitation_medicine_physical_medicine_and_rehabilitation",
+        "query": "Spasticity management clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      }
+    ]
+  },
+  {
+    "id": "sports_and_exercise_medicine",
+    "label": "Sports and exercise medicine",
+    "it": "Sports and exercise medicine",
+    "items": [
+      {
+        "id": "sports_and_exercise_medicine",
+        "label": "Sports and exercise medicine",
+        "parent": "",
+        "query": "Sports and exercise medicine",
+        "aliases": "sports doctor; sports injury; sport physician",
+        "legacyIds": [],
+        "kind": "specialty",
+        "needsReview": false
+      },
+      {
+        "id": "musculoskeletal_and_tendon_injury",
+        "label": "Musculoskeletal and tendon injury",
+        "parent": "sports_and_exercise_medicine",
+        "query": "Musculoskeletal and tendon injury clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "concussion",
+        "label": "Concussion",
+        "parent": "sports_and_exercise_medicine",
+        "query": "Concussion clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "exercise_physiology_and_performance_testing",
+        "label": "Exercise physiology and performance testing",
+        "parent": "sports_and_exercise_medicine",
+        "query": "Exercise physiology and performance testing clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "sports_cardiology",
+        "label": "Sports cardiology",
+        "parent": "sports_and_exercise_medicine",
+        "query": "Sports cardiology clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "team_doctor",
+        "label": "Team doctor",
+        "parent": "sports_and_exercise_medicine",
+        "query": "Team doctor clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      }
+    ]
+  },
+  {
+    "id": "musculoskeletal_medicine_back_and_spine_clinic",
+    "label": "Musculoskeletal medicine / back and spine clinic",
+    "it": "Musculoskeletal medicine / back and spine clinic",
+    "items": [
+      {
+        "id": "musculoskeletal_medicine_back_and_spine_clinic",
+        "label": "Musculoskeletal medicine / back and spine clinic",
+        "parent": "",
+        "query": "Musculoskeletal medicine / back and spine clinic",
+        "aliases": "MSK clinic; orthopaedic medicine; back pain",
+        "legacyIds": [],
+        "kind": "specialty",
+        "needsReview": false
+      }
+    ]
+  },
+  {
+    "id": "public_health_medicine",
+    "label": "Public health medicine",
+    "it": "Public health medicine",
+    "items": [
+      {
+        "id": "public_health_medicine",
+        "label": "Public health medicine",
+        "parent": "",
+        "query": "Public health medicine",
+        "aliases": "epidemiology; community medicine",
+        "legacyIds": [],
+        "kind": "specialty",
+        "needsReview": false
+      }
+    ]
+  },
+  {
+    "id": "travel_medicine_2",
+    "label": "Travel medicine",
+    "it": "Travel medicine",
+    "items": [
+      {
+        "id": "travel_medicine_2",
+        "label": "Travel medicine",
+        "parent": "",
+        "query": "Travel medicine",
+        "aliases": "travel vaccinations; travel clinic; tropical medicine",
+        "legacyIds": [],
+        "kind": "specialty",
+        "needsReview": false
+      }
+    ]
+  },
+  {
+    "id": "tropical_medicine_2",
+    "label": "Tropical medicine",
+    "it": "Tropical medicine",
+    "items": [
+      {
+        "id": "tropical_medicine_2",
+        "label": "Tropical medicine",
+        "parent": "",
+        "query": "Tropical medicine",
+        "aliases": "tropical diseases",
+        "legacyIds": [],
+        "kind": "specialty",
+        "needsReview": false
+      }
+    ]
+  },
+  {
+    "id": "forensic_and_legal_medicine",
+    "label": "Forensic and legal medicine",
+    "it": "Forensic and legal medicine",
+    "items": [
+      {
+        "id": "forensic_and_legal_medicine",
+        "label": "Forensic and legal medicine",
+        "parent": "",
+        "query": "Forensic and legal medicine",
+        "aliases": "medico-legal; forensic medicine",
+        "legacyIds": [],
+        "kind": "specialty",
+        "needsReview": false
+      }
+    ]
+  },
+  {
+    "id": "clinical_pharmacology",
+    "label": "Clinical pharmacology",
+    "it": "Clinical pharmacology",
+    "items": [
+      {
+        "id": "clinical_pharmacology",
+        "label": "Clinical pharmacology",
+        "parent": "",
+        "query": "Clinical pharmacology",
+        "aliases": "medicines specialist",
+        "legacyIds": [],
+        "kind": "specialty",
+        "needsReview": false
+      }
+    ]
+  },
+  {
+    "id": "lifestyle_medicine",
+    "label": "Lifestyle medicine",
+    "it": "Lifestyle medicine",
+    "items": [
+      {
+        "id": "lifestyle_medicine",
+        "label": "Lifestyle medicine",
+        "parent": "",
+        "query": "Lifestyle medicine",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "specialty",
+        "needsReview": true
+      }
+    ]
+  },
+  {
+    "id": "longevity_and_preventive_health_clinics",
+    "label": "Longevity and preventive health clinics",
+    "it": "Longevity and preventive health clinics",
+    "items": [
+      {
+        "id": "longevity_and_preventive_health_clinics",
+        "label": "Longevity and preventive health clinics",
+        "parent": "",
+        "query": "Longevity and preventive health clinics",
+        "aliases": "anti-ageing; healthy ageing",
+        "legacyIds": [],
+        "kind": "specialty",
+        "needsReview": true
+      }
+    ]
+  },
+  {
+    "id": "environmental_and_toxicology_medicine",
+    "label": "Environmental and toxicology medicine",
+    "it": "Environmental and toxicology medicine",
+    "items": [
+      {
+        "id": "environmental_and_toxicology_medicine",
+        "label": "Environmental and toxicology medicine",
+        "parent": "",
+        "query": "Environmental and toxicology medicine",
+        "aliases": "environmental illness",
+        "legacyIds": [],
+        "kind": "specialty",
+        "needsReview": true
+      }
+    ]
+  },
+  {
+    "id": "disability_and_fitness_for_work_assessment",
+    "label": "Disability and fitness-for-work assessment",
+    "it": "Disability and fitness-for-work assessment",
+    "items": [
+      {
+        "id": "disability_and_fitness_for_work_assessment",
+        "label": "Disability and fitness-for-work assessment",
+        "parent": "",
+        "query": "Disability and fitness-for-work assessment",
+        "aliases": "independent medical examination",
+        "legacyIds": [],
+        "kind": "specialty",
+        "needsReview": true
+      }
+    ]
+  },
+  {
+    "id": "telemedicine_online_consultation",
+    "label": "Telemedicine / online consultation",
+    "it": "Telemedicine / online consultation",
+    "items": [
+      {
+        "id": "telemedicine_online_consultation",
+        "label": "Telemedicine / online consultation",
+        "parent": "",
+        "query": "Telemedicine / online consultation",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "specialty",
+        "needsReview": true
+      }
+    ]
+  },
+  {
+    "id": "physiotherapy",
+    "label": "Physiotherapy",
+    "it": "Physiotherapy",
+    "items": [
+      {
+        "id": "physiotherapy",
+        "label": "Physiotherapy",
+        "parent": "",
+        "query": "physiotherapist",
+        "aliases": "physical therapy; physio; physical therapist; kinesitherapy ",
+        "legacyIds": [
+          "physio"
+        ],
+        "kind": "allied",
+        "needsReview": false
+      },
+      {
+        "id": "musculoskeletal_physiotherapy",
+        "label": "Musculoskeletal physiotherapy",
+        "parent": "physiotherapy",
+        "query": "Musculoskeletal physiotherapy",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "neurological_physiotherapy",
+        "label": "Neurological physiotherapy",
+        "parent": "physiotherapy",
+        "query": "Neurological physiotherapy",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "respiratory_physiotherapy",
+        "label": "Respiratory physiotherapy",
+        "parent": "physiotherapy",
+        "query": "Respiratory physiotherapy",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "paediatric_physiotherapy",
+        "label": "Paediatric physiotherapy",
+        "parent": "physiotherapy",
+        "query": "Paediatric physiotherapy",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "sports_physiotherapy",
+        "label": "Sports physiotherapy",
+        "parent": "physiotherapy",
+        "query": "Sports physiotherapy",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "pelvic_floor_and_women_s_health_physiotherapy",
+        "label": "Pelvic floor and women's health physiotherapy",
+        "parent": "physiotherapy",
+        "query": "Pelvic floor and women's health physiotherapy",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "vestibular_rehabilitation",
+        "label": "Vestibular rehabilitation",
+        "parent": "physiotherapy",
+        "query": "Vestibular rehabilitation",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "lymphoedema_therapy",
+        "label": "Lymphoedema therapy",
+        "parent": "physiotherapy",
+        "query": "Lymphoedema therapy",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "cardiac_rehabilitation_physio",
+        "label": "Cardiac rehabilitation (physio)",
+        "parent": "physiotherapy",
+        "query": "Cardiac rehabilitation (physio)",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      }
+    ]
+  },
+  {
+    "id": "occupational_therapy",
+    "label": "Occupational therapy",
+    "it": "Occupational therapy",
+    "items": [
+      {
+        "id": "occupational_therapy",
+        "label": "Occupational therapy",
+        "parent": "",
+        "query": "occupational therapist",
+        "aliases": "OT; ergotherapy ",
+        "legacyIds": [
+          "occupational-therapy"
+        ],
+        "kind": "allied",
+        "needsReview": false
+      },
+      {
+        "id": "paediatric_ot",
+        "label": "Paediatric OT",
+        "parent": "occupational_therapy",
+        "query": "Paediatric OT clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "hand_therapy",
+        "label": "Hand therapy",
+        "parent": "occupational_therapy",
+        "query": "Hand therapy",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "neurological_ot",
+        "label": "Neurological OT",
+        "parent": "occupational_therapy",
+        "query": "Neurological OT clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "mental_health_ot",
+        "label": "Mental health OT",
+        "parent": "occupational_therapy",
+        "query": "Mental health OT clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      }
+    ]
+  },
+  {
+    "id": "speech_and_language_therapy",
+    "label": "Speech and language therapy",
+    "it": "Speech and language therapy",
+    "items": [
+      {
+        "id": "speech_and_language_therapy",
+        "label": "Speech and language therapy",
+        "parent": "",
+        "query": "speech language therapist",
+        "aliases": "logopedics; speech therapist; SLT; speech pathologist ",
+        "legacyIds": [
+          "speech"
+        ],
+        "kind": "allied",
+        "needsReview": false
+      },
+      {
+        "id": "paediatric_speech_and_language",
+        "label": "Paediatric speech and language",
+        "parent": "speech_and_language_therapy",
+        "query": "Paediatric speech and language clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "voice_therapy",
+        "label": "Voice therapy",
+        "parent": "speech_and_language_therapy",
+        "query": "Voice therapy",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "swallowing_therapy_dysphagia",
+        "label": "Swallowing therapy (dysphagia)",
+        "parent": "speech_and_language_therapy",
+        "query": "Swallowing therapy (dysphagia)",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "stuttering",
+        "label": "Stuttering",
+        "parent": "speech_and_language_therapy",
+        "query": "Stuttering clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "aphasia_therapy",
+        "label": "Aphasia therapy",
+        "parent": "speech_and_language_therapy",
+        "query": "Aphasia therapy",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      }
+    ]
+  },
+  {
+    "id": "clinical_psychology",
+    "label": "Clinical psychology",
+    "it": "Clinical psychology",
+    "items": [
+      {
+        "id": "clinical_psychology",
+        "label": "Clinical psychology",
+        "parent": "",
+        "query": "clinical psychologist",
+        "aliases": "psychologist ",
+        "legacyIds": [
+          "clinical-psych"
+        ],
+        "kind": "allied",
+        "needsReview": false
+      },
+      {
+        "id": "health_psychology",
+        "label": "Health psychology",
+        "parent": "clinical_psychology",
+        "query": "Health psychology clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "child_and_adolescent_psychology",
+        "label": "Child and adolescent psychology",
+        "parent": "clinical_psychology",
+        "query": "Child and adolescent psychology clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "trauma_and_ptsd_therapy",
+        "label": "Trauma and PTSD therapy",
+        "parent": "clinical_psychology",
+        "query": "Trauma and PTSD therapy",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "couples_and_family_therapy",
+        "label": "Couples and family therapy",
+        "parent": "clinical_psychology",
+        "query": "Couples and family therapy",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "sex_therapy",
+        "label": "Sex therapy",
+        "parent": "clinical_psychology",
+        "query": "Sex therapy",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": true
+      },
+      {
+        "id": "cognitive_behavioural_therapy_cbt",
+        "label": "Cognitive behavioural therapy (CBT)",
+        "parent": "clinical_psychology",
+        "query": "Cognitive behavioural therapy (CBT)",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "eating_disorder_therapy",
+        "label": "Eating disorder therapy",
+        "parent": "clinical_psychology",
+        "query": "Eating disorder therapy",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "neuropsychology_2",
+        "label": "Neuropsychology",
+        "parent": "clinical_psychology",
+        "query": "Neuropsychology clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "sport_and_performance_psychology",
+        "label": "Sport and performance psychology",
+        "parent": "clinical_psychology",
+        "query": "Sport and performance psychology clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      }
+    ]
+  },
+  {
+    "id": "counselling_and_psychotherapy",
+    "label": "Counselling and psychotherapy",
+    "it": "Counselling and psychotherapy",
+    "items": [
+      {
+        "id": "counselling_and_psychotherapy",
+        "label": "Counselling and psychotherapy",
+        "parent": "",
+        "query": "Counselling and psychotherapy",
+        "aliases": "therapist; counsellor; talking therapy",
+        "legacyIds": [],
+        "kind": "allied",
+        "needsReview": false
+      },
+      {
+        "id": "psychoanalysis",
+        "label": "Psychoanalysis",
+        "parent": "counselling_and_psychotherapy",
+        "query": "Psychoanalysis clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "emdr",
+        "label": "EMDR",
+        "parent": "counselling_and_psychotherapy",
+        "query": "EMDR clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "addiction_counselling",
+        "label": "Addiction counselling",
+        "parent": "counselling_and_psychotherapy",
+        "query": "Addiction counselling clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "bereavement_counselling",
+        "label": "Bereavement counselling",
+        "parent": "counselling_and_psychotherapy",
+        "query": "Bereavement counselling clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "child_play_therapy",
+        "label": "Child play therapy",
+        "parent": "counselling_and_psychotherapy",
+        "query": "Child play therapy",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": true
+      }
+    ]
+  },
+  {
+    "id": "dietetics_and_nutrition",
+    "label": "Dietetics and nutrition",
+    "it": "Dietetics and nutrition",
+    "items": [
+      {
+        "id": "dietetics_and_nutrition",
+        "label": "Dietetics and nutrition",
+        "parent": "",
+        "query": "Dietetics and nutrition",
+        "aliases": "dietitian; dietician; nutritionist; clinical nutrition",
+        "legacyIds": [],
+        "kind": "allied",
+        "needsReview": false
+      },
+      {
+        "id": "diabetes_dietetics",
+        "label": "Diabetes dietetics",
+        "parent": "dietetics_and_nutrition",
+        "query": "Diabetes dietetics clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "renal_dietetics",
+        "label": "Renal dietetics",
+        "parent": "dietetics_and_nutrition",
+        "query": "Renal dietetics clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "paediatric_dietetics",
+        "label": "Paediatric dietetics",
+        "parent": "dietetics_and_nutrition",
+        "query": "Paediatric dietetics clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "sports_nutrition",
+        "label": "Sports nutrition",
+        "parent": "dietetics_and_nutrition",
+        "query": "Sports nutrition clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "weight_management",
+        "label": "Weight management",
+        "parent": "dietetics_and_nutrition",
+        "query": "Weight management clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "eating_disorders_dietetics",
+        "label": "Eating disorders dietetics",
+        "parent": "dietetics_and_nutrition",
+        "query": "Eating disorders dietetics clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "oncology_dietetics",
+        "label": "Oncology dietetics",
+        "parent": "dietetics_and_nutrition",
+        "query": "Oncology dietetics clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      }
+    ]
+  },
+  {
+    "id": "podiatry_chiropody",
+    "label": "Podiatry / chiropody",
+    "it": "Podiatry / chiropody",
+    "items": [
+      {
+        "id": "podiatry_chiropody",
+        "label": "Podiatry / chiropody",
+        "parent": "",
+        "query": "Podiatry / chiropody",
+        "aliases": "foot care; chiropodist",
+        "legacyIds": [],
+        "kind": "allied",
+        "needsReview": false
+      },
+      {
+        "id": "diabetic_foot_2",
+        "label": "Diabetic foot",
+        "parent": "podiatry_chiropody",
+        "query": "Diabetic foot clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "biomechanics_and_orthotics",
+        "label": "Biomechanics and orthotics",
+        "parent": "podiatry_chiropody",
+        "query": "Biomechanics and orthotics clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "podiatric_surgery_2",
+        "label": "Podiatric surgery",
+        "parent": "podiatry_chiropody",
+        "query": "Podiatric surgery",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "sports_podiatry",
+        "label": "Sports podiatry",
+        "parent": "podiatry_chiropody",
+        "query": "Sports podiatry clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      }
+    ]
+  },
+  {
+    "id": "optometry_and_orthoptics",
+    "label": "Optometry and orthoptics",
+    "it": "Optometry and orthoptics",
+    "items": [
+      {
+        "id": "optometry_and_orthoptics",
+        "label": "Optometry and orthoptics",
+        "parent": "",
+        "query": "Optometry and orthoptics",
+        "aliases": "optician; eye test; vision therapy; orthoptist",
+        "legacyIds": [],
+        "kind": "allied",
+        "needsReview": false
+      },
+      {
+        "id": "contact_lens_specialist",
+        "label": "Contact lens specialist",
+        "parent": "optometry_and_orthoptics",
+        "query": "Contact lens specialist clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "low_vision_2",
+        "label": "Low vision",
+        "parent": "optometry_and_orthoptics",
+        "query": "Low vision clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "paediatric_optometry",
+        "label": "Paediatric optometry",
+        "parent": "optometry_and_orthoptics",
+        "query": "Paediatric optometry clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      },
+      {
+        "id": "orthoptics_squint_and_double_vision",
+        "label": "Orthoptics (squint and double vision)",
+        "parent": "optometry_and_orthoptics",
+        "query": "Orthoptics (squint and double vision) clinic",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "focus",
+        "needsReview": false
+      }
+    ]
+  },
+  {
+    "id": "prosthetics_and_orthotics",
+    "label": "Prosthetics and orthotics",
+    "it": "Prosthetics and orthotics",
+    "items": [
+      {
+        "id": "prosthetics_and_orthotics",
+        "label": "Prosthetics and orthotics",
+        "parent": "",
+        "query": "Prosthetics and orthotics",
+        "aliases": "orthotist; prosthetist",
+        "legacyIds": [],
+        "kind": "allied",
+        "needsReview": false
+      }
+    ]
+  },
+  {
+    "id": "chiropractic",
+    "label": "Chiropractic",
+    "it": "Chiropractic",
+    "items": [
+      {
+        "id": "chiropractic",
+        "label": "Chiropractic",
+        "parent": "",
+        "query": "Chiropractic",
+        "aliases": "chiropractor",
+        "legacyIds": [],
+        "kind": "allied",
+        "needsReview": false
+      }
+    ]
+  },
+  {
+    "id": "osteopathy",
+    "label": "Osteopathy",
+    "it": "Osteopathy",
+    "items": [
+      {
+        "id": "osteopathy",
+        "label": "Osteopathy",
+        "parent": "",
+        "query": "Osteopathy",
+        "aliases": "osteopath",
+        "legacyIds": [],
+        "kind": "allied",
+        "needsReview": false
+      }
+    ]
+  },
+  {
+    "id": "pharmacy_clinical_pharmacist",
+    "label": "Pharmacy / clinical pharmacist",
+    "it": "Pharmacy / clinical pharmacist",
+    "items": [
+      {
+        "id": "pharmacy_clinical_pharmacist",
+        "label": "Pharmacy / clinical pharmacist",
+        "parent": "",
+        "query": "Pharmacy / clinical pharmacist",
+        "aliases": "pharmacist; medication review",
+        "legacyIds": [],
+        "kind": "allied",
+        "needsReview": false
+      }
+    ]
+  },
+  {
+    "id": "radiography_and_sonography",
+    "label": "Radiography and sonography",
+    "it": "Radiography and sonography",
+    "items": [
+      {
+        "id": "radiography_and_sonography",
+        "label": "Radiography and sonography",
+        "parent": "",
+        "query": "Radiography and sonography",
+        "aliases": "radiographer; sonographer",
+        "legacyIds": [],
+        "kind": "allied",
+        "needsReview": false
+      }
+    ]
+  },
+  {
+    "id": "nursing_specialist_and_nurse_practitioner",
+    "label": "Nursing specialist and nurse practitioner",
+    "it": "Nursing specialist and nurse practitioner",
+    "items": [
+      {
+        "id": "nursing_specialist_and_nurse_practitioner",
+        "label": "Nursing specialist and nurse practitioner",
+        "parent": "",
+        "query": "Nursing specialist and nurse practitioner",
+        "aliases": "nurse specialist; advanced nurse practitioner",
+        "legacyIds": [],
+        "kind": "allied",
+        "needsReview": true
+      }
+    ]
+  },
+  {
+    "id": "lactation_consultant",
+    "label": "Lactation consultant",
+    "it": "Lactation consultant",
+    "items": [
+      {
+        "id": "lactation_consultant",
+        "label": "Lactation consultant",
+        "parent": "",
+        "query": "Lactation consultant",
+        "aliases": "breastfeeding support",
+        "legacyIds": [],
+        "kind": "allied",
+        "needsReview": true
+      }
+    ]
+  },
+  {
+    "id": "art_music_and_play_therapy",
+    "label": "Art, music and play therapy",
+    "it": "Art, music and play therapy",
+    "items": [
+      {
+        "id": "art_music_and_play_therapy",
+        "label": "Art, music and play therapy",
+        "parent": "",
+        "query": "Art, music and play therapy",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "allied",
+        "needsReview": true
+      }
+    ]
+  },
+  {
+    "id": "acupuncture",
+    "label": "Acupuncture",
+    "it": "Acupuncture",
+    "items": [
+      {
+        "id": "acupuncture",
+        "label": "Acupuncture",
+        "parent": "",
+        "query": "Acupuncture",
+        "aliases": "dry needling",
+        "legacyIds": [],
+        "kind": "complementary",
+        "needsReview": true
+      }
+    ]
+  },
+  {
+    "id": "traditional_chinese_medicine",
+    "label": "Traditional Chinese medicine",
+    "it": "Traditional Chinese medicine",
+    "items": [
+      {
+        "id": "traditional_chinese_medicine",
+        "label": "Traditional Chinese medicine",
+        "parent": "",
+        "query": "Traditional Chinese medicine",
+        "aliases": "TCM",
+        "legacyIds": [],
+        "kind": "complementary",
+        "needsReview": true
+      }
+    ]
+  },
+  {
+    "id": "ayurveda",
+    "label": "Ayurveda",
+    "it": "Ayurveda",
+    "items": [
+      {
+        "id": "ayurveda",
+        "label": "Ayurveda",
+        "parent": "",
+        "query": "Ayurveda",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "complementary",
+        "needsReview": true
+      }
+    ]
+  },
+  {
+    "id": "homeopathy",
+    "label": "Homeopathy",
+    "it": "Homeopathy",
+    "items": [
+      {
+        "id": "homeopathy",
+        "label": "Homeopathy",
+        "parent": "",
+        "query": "Homeopathy",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "complementary",
+        "needsReview": true
+      }
+    ]
+  },
+  {
+    "id": "naturopathy_and_herbal_medicine",
+    "label": "Naturopathy and herbal medicine",
+    "it": "Naturopathy and herbal medicine",
+    "items": [
+      {
+        "id": "naturopathy_and_herbal_medicine",
+        "label": "Naturopathy and herbal medicine",
+        "parent": "",
+        "query": "Naturopathy and herbal medicine",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "complementary",
+        "needsReview": true
+      }
+    ]
+  },
+  {
+    "id": "unani_and_siddha_medicine",
+    "label": "Unani and Siddha medicine",
+    "it": "Unani and Siddha medicine",
+    "items": [
+      {
+        "id": "unani_and_siddha_medicine",
+        "label": "Unani and Siddha medicine",
+        "parent": "",
+        "query": "Unani and Siddha medicine",
+        "aliases": "AYUSH",
+        "legacyIds": [],
+        "kind": "complementary",
+        "needsReview": true
+      }
+    ]
+  },
+  {
+    "id": "kampo_traditional_japanese_and_korean_medicine",
+    "label": "Kampo / traditional Japanese and Korean medicine",
+    "it": "Kampo / traditional Japanese and Korean medicine",
+    "items": [
+      {
+        "id": "kampo_traditional_japanese_and_korean_medicine",
+        "label": "Kampo / traditional Japanese and Korean medicine",
+        "parent": "",
+        "query": "Kampo / traditional Japanese and Korean medicine",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "complementary",
+        "needsReview": true
+      }
+    ]
+  },
+  {
+    "id": "integrative_medicine",
+    "label": "Integrative medicine",
+    "it": "Integrative medicine",
+    "items": [
+      {
+        "id": "integrative_medicine",
+        "label": "Integrative medicine",
+        "parent": "",
+        "query": "Integrative medicine",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "complementary",
+        "needsReview": true
+      }
+    ]
+  },
+  {
+    "id": "other_unlisted",
+    "label": "Other / not listed",
+    "it": "Other / not listed",
+    "items": [
+      {
+        "id": "other_unlisted",
+        "label": "Other / not listed",
+        "parent": "",
+        "query": "Other / not listed",
+        "aliases": "",
+        "legacyIds": [],
+        "kind": "fallback",
+        "needsReview": false
+      }
+    ]
+  }
+]

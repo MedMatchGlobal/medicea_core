@@ -3,11 +3,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const ts = require('typescript');
 const vm = require('node:vm');
-function load(file) {
- const module={exports:{}};
- const js=ts.transpileModule(fs.readFileSync(file,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2020}}).outputText;
- vm.runInNewContext(js,{module,exports:module.exports,URLSearchParams,require});return module.exports;
-}
+const load=require('./load-care.cjs');
 const emergency=load('app/lib/emergency.ts');
 const care=load('app/lib/care-search.ts');
 test('care categories stay distinct and bypass AI modes',()=>{
@@ -15,7 +11,7 @@ test('care categories stay distinct and bypass AI modes',()=>{
   assert.ok(care.isCareMode(mode));assert.equal(care.careSearchQuery(mode,'  Carrara  ','Cardiology'),query+' near Carrara');
  }
  for(const mode of ['international','pets','generic','condition','triage','unknown'])assert.equal(care.isCareMode(mode),false);
- assert.equal(care.careSearchQuery('doctor','Rome','Cardiology'),'Cardiology medical doctors near Rome');
+ assert.equal(care.careSearchQuery('doctor','Rome','Cardiology'),'cardiologist near Rome');
 });
 test('only curated countries return emergency numbers with an official source',()=>{
  for(const [country,number] of Object.entries({IT:'112',FR:'112',DE:'112',GB:'999',US:'911',CA:'911',AU:'000'})){

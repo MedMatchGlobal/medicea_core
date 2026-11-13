@@ -1,5 +1,5 @@
 const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm'),ts=require('typescript');
-function load(file){const m={exports:{}};vm.runInNewContext(ts.transpileModule(fs.readFileSync(file,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2020}}).outputText,{module:m,exports:m.exports,require});return m.exports;}
+const load=require('./load-care.cjs');
 const care=load('app/lib/care-search.ts'),{locateCare}=load('app/lib/care-location.ts');
 test('every care service anchors GPS searches to supplied coordinates without free-text near coordinates',()=>{
  for(const mode of ['pharmacy','gp','doctor','hospital','laboratory','imaging','physiotherapy']){
@@ -7,11 +7,11 @@ test('every care service anchors GPS searches to supplied coordinates without fr
   assert.equal(u.origin,'https://www.google.com');assert.ok(u.pathname.endsWith('/@41.9028,12.4964,14z'));assert.equal(u.search,'');
   assert.doesNotMatch(decodeURIComponent(u.pathname),/near 41|United Kingdom|Italy|medicine/);
  }
- assert.match(decodeURIComponent(care.careSearchUrl('doctor','41.9028,12.4964','Cardiology')),/Cardiology medical doctors/);
+ assert.match(decodeURIComponent(care.careSearchUrl('doctor','41.9028,12.4964','Cardiology')),/cardiologist/);
 });
 test('address searches preserve explicit destination, escape input, and retain service category',()=>{
  const u=new URL(care.careSearchUrl('pharmacy',' Rome, Italy & query=UK '));assert.equal(u.searchParams.get('query'),'pharmacies near Rome, Italy & query=UK');assert.equal(u.searchParams.getAll('query').length,1);
- assert.equal(new URL(care.careSearchUrl('gp','Brussels, Belgium')).searchParams.get('query'),'general practitioners family doctors near Brussels, Belgium');
+ assert.equal(new URL(care.careSearchUrl('gp','Brussels, Belgium')).searchParams.get('query'),'general practitioner near Brussels, Belgium');
 });
 test('blank, near-me fallback and invalid coordinate pairs cannot create a map link',()=>{
  for(const v of ['','  ','near me','91,10','44,181','1,2,3'])assert.equal(care.careSearchUrl('hospital',v),null);
