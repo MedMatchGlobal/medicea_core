@@ -81,8 +81,9 @@ function answerText(payload:any){
  const last=payload.content.reduce((last:number,b:any,i:number)=>b.type==='web_search_tool_result'?i:last,-1);
  return payload.content.slice(last+1).filter((b:any)=>b.type==='text').map((b:any)=>b.text).join('').trim().replace(/^```(?:json)?\s*/,'').replace(/\s*```$/,'').replace(/<\/?cite\b[^>]*>/g,'');
 }
-export async function claudeResearch(instruction:string,data:unknown,deadline:number){
- const payload=await claudeMessage(instruction+researchInstruction+' Report all supported variants you find, including less familiar brands and generics. Every product must include sources:[exact HTTPS URLs returned by web search supporting that product and composition]. Never fabricate a URL. Finish with only the requested JSON object, no introductory text, markdown or inline citation markers. No prices or treatment advice.',[{role:'user',content:typeof data==='string'?data:JSON.stringify(data)}],true,deadline);
+export async function claudeResearch(instruction:string,data:unknown,deadline:number,options?:{standaloneInstruction?:boolean}){
+ const instructionToSend=options?.standaloneInstruction?instruction:instruction+researchInstruction+' Report all supported variants you find, including less familiar brands and generics. Every product must include sources:[exact HTTPS URLs returned by web search supporting that product and composition]. Never fabricate a URL. Finish with only the requested JSON object, no introductory text, markdown or inline citation markers. No prices or treatment advice.';
+ const payload=await claudeMessage(instructionToSend,[{role:'user',content:typeof data==='string'?data:JSON.stringify(data)}],true,deadline);
  return readClaudeResearch(payload);
 }
 // Compatibility boundary for ALL existing AI routes. Keep their prompts and

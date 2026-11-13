@@ -17,6 +17,7 @@ test('historical research and matching instructions remain intact except owner-a
    // Only the owner-approved diagnostic classification changes parser code;
    // prompt text, successful parsing and source acceptance remain protected.
    let expected=name==='readClaudeResearch'?extract(old,name).replace('const reply=JSON.parse(text);',"let reply:any;\n try{reply=JSON.parse(text);}catch{throw Error('CLAUDE_RESEARCH_JSON_INVALID');}\n if(!reply||typeof reply!=='object'||Array.isArray(reply))throw Error('CLAUDE_RESEARCH_SHAPE_INVALID');"):extract(old,name);
+   if(name==='claudeResearch')expected=expected.replace('deadline:number){','deadline:number,options?:{standaloneInstruction?:boolean}){').replace('const payload=await claudeMessage(instruction+researchInstruction+','const instructionToSend=options?.standaloneInstruction?instruction:instruction+researchInstruction+').replace("No prices or treatment advice.',[{role:'user'", "No prices or treatment advice.';\n const payload=await claudeMessage(instructionToSend,[{role:'user'");
    if(name==='comparisonProfile')expected=expected.replace('function comparisonProfile(p:Product):Product {','function comparisonProfile(p:Product):Product {\n p=reviewedComparisonProfile(p);');
    // Explicit owner request: readable origin AND equivalent leaflets, with
    // proper strengths, collapsed references and a concise price field. Only
@@ -128,7 +129,7 @@ test('Co Efferalgan lookup uses reviewed chemical name and retains independently
  const wrongOpioid={...correct,name:'Co-codamol 30/500 Tablets',ingredients:[correct.ingredients[1],{name:'Dihydrocodeine tartrate',strength:'30 mg per tablet'}]};
  const read=loader(env,{'./openaiClient':{},'./claude-preview':{claudePreviewEnabled:()=>true,claudeResearch:async(instruction,data)=>{
   calls++;
-  if(calls===1){assert.match(data,/30 mg per tablet of Codeine phosphate hemihydrate/);return {candidates:[correct]};}
+  if(calls===1){assert.equal(data.source_product.actives_and_strengths[1].name,'Codeine phosphate');assert.equal(data.source_product.route,'oral');return {candidates:[correct]};}
   assert.deepEqual(data.query_names,['Co-codamol']);assert.equal(data.query_leads[0].product_name,correct.name);
   return {catalogues:[{query_name:'Co-codamol',variants_complete:false,products:[correct,wrongStrength,wrongForm,wrongOpioid]}]};
  }}});
@@ -162,7 +163,7 @@ test('four sourced presentations survive the independent catalogue lookup while 
  const wrongOpioid={...zentiva,ingredients:[ingredients[0],{name:'Dihydrocodeine tartrate',strength:'30 mg per tablet'}]};
  const candidates=[group,zentiva,cipla,accord,solpadol];let calls=0;
  const read=loader(env,{'./openaiClient':{},'./claude-preview':{claudePreviewEnabled:()=>true,claudeResearch:async(instruction,data)=>{
-  calls++;assert.match(instruction,/supplier presentation separately/);assert.match(instruction,/Never invent or copy/);
+  calls++;assert.match(instruction,/supplier-specific generic presentation separately/);assert.match(instruction,/Never invent or copy/);
   if(calls===1)return {candidates};
   assert.equal(data.country,'United Kingdom');assert.deepEqual(data.query_names,['Co-codamol','Co-codamol (Zentiva)','Co-codamol (Cipla EU Ltd)','Co-codamol (Accord-UK Ltd)','Solpadol (Phoenix Labs Ltd)']);
   assert.deepEqual(data.query_leads.map(p=>p.product_name),candidates.map(p=>p.name));
@@ -216,9 +217,9 @@ test('supplier-only generic discovery also researches the neutral generic family
  let calls=0;
  const read=loader(env,{'./openaiClient':{},'./claude-preview':{claudePreviewEnabled:()=>true,claudeResearch:async(instruction,data)=>{
   if(++calls===1){assert.doesNotMatch(instruction,/For each generic-name query, explicitly search/);return {candidates:[generic]};}
-  assert.match(instruction,/For each generic-name query, explicitly search destination-country medicine registers/);
-  assert.match(instruction,/Independently check each discovered brand's actual labelled ingredients, strengths, forms, route and release/);
-  assert.match(instruction,/Never infer a missing strength or formulation, fill a quota, or claim market-wide completeness/);
+  assert.match(instruction,/other branded and supplier presentations linked to each generic query/);
+  assert.match(instruction,/Report actual source facts even when they contradict a lead/);
+  assert.match(instruction,/fill a quota, or claim market-wide completeness/);
   assert.doesNotMatch(instruction,/Solpadol|Zapain|Co-Efferalgan/);
   assert.deepEqual(data.query_names,['Co-codamol (Zentiva)','Co-codamol']);
   return {catalogues:[{query_name:'Co-codamol (Zentiva)',variants_complete:false,products:[generic]},{query_name:'Co-codamol',variants_complete:false,products:[generic,solpadol,zapain,wrongStrength,wrongActive,{...generic,form:'effervescent tablet'},{...generic,form:'capsule'}]}]};
@@ -252,13 +253,13 @@ test('selected formulation and discovered product leads survive handoff without 
  const read=loader(env,{'./openaiClient':{},'./claude-preview':{claudePreviewEnabled:()=>true,claudeResearch:async(instruction,data)=>{
   calls++;
   if(calls===1){
-   assert.match(data,/List me all equivalents in United Kingdom to the Italy Origin 500 mg \+ 30 mg film-coated tablets/);
-   assert.match(data,/Selected formulation: film-coated tablet; route: oral; release: immediate-release/);
-   assert.doesNotMatch(data,/secret-origin-field|selection_token/);
+   assert.equal(data.source_product.name,origin.name);assert.equal(data.source_country,'Italy');assert.equal(data.target_country,'United Kingdom');
+   assert.equal(data.source_product.form,'film-coated tablet');assert.equal(data.source_product.route,'oral');assert.equal(data.source_product.release,'immediate-release');
+   assert.doesNotMatch(JSON.stringify(data),/secret-origin-field|selection_token/);
    return {candidates:[generic,brand,falseLead]};
   }
   assert.equal(calls,2,'no extra research calls');
-  assert.match(instruction,/unverified discovered product names and source URLs/);
+  assert.match(instruction,/unverified discovered names and source URLs/);
   assert.deepEqual(data.query_leads.map(p=>p.product_name),[generic.name,brand.name,falseLead.name]);
   assert.deepEqual(data.query_leads[0].sources,[source]);
   assert.doesNotMatch(JSON.stringify(data),/secret-candidate-field|secret-origin-field|selection_token|"ingredients"/);
@@ -280,7 +281,7 @@ test('one confirmed origin variant and a user-selected variant produce the same 
   const read=loader(env,{'./openaiClient':{},'./claude-preview':{claudePreviewEnabled:()=>true,claudeResearch:async(instruction,data)=>{
    requests++;
    if(instruction.startsWith('Identify the distinct labelled'))return {variants_complete:true,products:[origin]};
-   if(instruction.startsWith('Retrieve known HUMAN medicines')){query=data;return {candidates:[candidate]};}
+   if(instruction.startsWith('You find equivalents')){query=data;return {candidates:[candidate]};}
    return {catalogues:[{query_name:'Destination',variants_complete:true,products:[candidate]}]};
   }}});
   const token=selected?read('app/lib/sonnet-research-support.ts').issueOriginSelection(origin,'Origin'):undefined;
@@ -288,5 +289,5 @@ test('one confirmed origin variant and a user-selected variant produce the same 
   const body=await response.json();assert.equal(response.status,200);assert.equal(body.matches.length,1);
   assert.equal(requests,selected?2:3);return query;
  }
- assert.equal(await run(false),await run(true));
+ assert.equal(JSON.stringify(await run(false)),JSON.stringify(await run(true)));
 });

@@ -1509,6 +1509,10 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
                       <div style={{ fontWeight: 700, color: '#0f172a' }}>{medname}</div>
                       <button type="button" className="pill pill--blue" aria-expanded={selectedMedicine === medname} onClick={() => setSelectedMedicine(selectedMedicine === medname ? null : medname)}>{selectedMedicine === medname ? 'Selected medicine' : 'Choose this medicine'}</button>
                     </div>
+                    {mode==='international'&&m.marketStatus&&<p>
+                      Listing: {m.marketStatus==='listed_as_marketed'?'Listed as marketed':m.marketStatus==='discontinued'?'Discontinued':'Unverified'} · Supply status: {m.legalStatus==='prescription-only'?'Prescription-only':m.legalStatus==='pharmacy-only'?'Pharmacy-only':m.legalStatus==='general-sale'?'General sale':'Unverified'}. Listing status does not confirm pharmacy stock.
+                    </p>}
+                    {mode==='international'&&Array.isArray(m.labellingDifferences)&&m.labellingDifferences.length>0&&<details><summary>Labelling differences reported by sources</summary><ul>{m.labellingDifferences.map((text:string,index:number)=><li key={index}>{text}</li>)}</ul></details>}
                     {mode==='international'&&<ExcipientComparison comparison={m.excipientComparison} />}
                       <div className="leaflet-actions">
                         <button

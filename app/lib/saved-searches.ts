@@ -1,3 +1,4 @@
+import {equivalentResearchMetadata} from './equivalence-research-prompt';
 import type {VeterinarySection} from './veterinary-sections';
 import {restoreExcipientComparison,type ExcipientComparison} from './excipient-comparison';
 import {leafletIdentity,type MedicineIdentity} from './leaflet-identity';
@@ -31,7 +32,7 @@ export function normalizeSavedSearch(value:unknown): SavedSearch | null {
   return {id:text(v.id,100),savedAt:new Date(v.savedAt).toISOString(),lang:/^[a-z]{2}$/.test(v.lang)?v.lang:'en',mode:v.mode,
     originCode:text(v.originCode,100),targetCode:text(v.targetCode,100),selectedDrug:text(v.selectedDrug,300),selectedDosage:text(v.selectedDosage,300),
     result:text(v.result),leafletRaw:text(v.leafletRaw),leaflets,petInformation,...(typeof v.searchAccess==='string'?{searchAccess:text(v.searchAccess,24000)}:{}),
-    matches:Array.isArray(v.matches)?v.matches.slice(0,30).map((m:any)=>{const comparison=restoreExcipientComparison(m?.excipientComparison),name=text(m?.medicine_name ?? m?.Medicine_name,1000),country=['generic','pet-generic'].includes(v.mode)?v.originCode:v.targetCode||v.originCode,identity=leafletIdentity(m?.medicineIdentity,name,country);return {medicine_name:name,...(comparison?{excipientComparison:comparison}:{}),...(identity?{medicineIdentity:identity,ingredients:identity.ingredients,form:identity.form,route:identity.route,release:identity.release}:{})};}).filter((m:any)=>m.medicine_name):[],
+    matches:Array.isArray(v.matches)?v.matches.slice(0,30).map((m:any)=>{const comparison=restoreExcipientComparison(m?.excipientComparison),name=text(m?.medicine_name ?? m?.Medicine_name,1000),country=['generic','pet-generic'].includes(v.mode)?v.originCode:v.targetCode||v.originCode,identity=leafletIdentity(m?.medicineIdentity,name,country);return {medicine_name:name,...(m?.marketStatus?equivalentResearchMetadata({market_status:m.marketStatus,legal_status:m.legalStatus,labelling_differences:m.labellingDifferences}):{}),...(comparison?{excipientComparison:comparison}:{}),...(identity?{medicineIdentity:identity,ingredients:identity.ingredients,form:identity.form,route:identity.route,release:identity.release}:{})};}).filter((m:any)=>m.medicine_name):[],
     petOriginIngredients:Array.isArray(v.petOriginIngredients)?v.petOriginIngredients.slice(0,30).map((i:any)=>({name:text(i?.name,300),strength:text(i?.strength,300)})).filter((i:any)=>i.name):[]};
 }
 export function readSavedSearches(raw:string|null):SavedSearch[] {
