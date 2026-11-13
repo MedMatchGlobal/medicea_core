@@ -17,8 +17,8 @@ test('blank, near-me fallback and invalid coordinate pairs cannot create a map l
  for(const v of ['','  ','near me','91,10','44,181','1,2,3'])assert.equal(care.careSearchUrl('hospital',v),null);
  for(const v of ['0,0','-33.8,151.2','90,-180'])assert.ok(care.careSearchUrl('gp',v));
 });
-test('fresh GPS request uses accurate non-cached coordinates',async()=>{
- const controller=new AbortController();const result=await locateCare({getCurrentPosition(ok,fail,opts){assert.equal(opts.enableHighAccuracy,true);assert.equal(opts.maximumAge,0);assert.equal(opts.timeout,8000);ok({coords:{latitude:41.9028,longitude:12.4964}});}},controller.signal);assert.equal(result,'41.9028,12.4964');
+test('nearby search accepts a recent sufficiently accurate device fix',async()=>{
+ const controller=new AbortController();const result=await locateCare({getCurrentPosition(ok,fail,opts){assert.equal(opts.enableHighAccuracy,false);assert.equal(opts.maximumAge,30000);assert.equal(opts.timeout,5000);ok({coords:{latitude:41.9028,longitude:12.4964,accuracy:40}});}},controller.signal);assert.equal(result,'41.9028,12.4964');
 });
 test('denial, timeout and unavailable positions are explicit errors, never near me',async()=>{
  for(const [code,message]of [[1,'denied'],[2,'unavailable'],[3,'timeout']])await assert.rejects(locateCare({getCurrentPosition(ok,fail){fail({code});}},new AbortController().signal),new RegExp(message));
@@ -27,4 +27,26 @@ test('denial, timeout and unavailable positions are explicit errors, never near 
 test('toggling off or leaving the view invalidates late GPS completion',async()=>{
  const c=new AbortController();let done;const result=locateCare({getCurrentPosition(ok){done=ok;}},c.signal);c.abort();await assert.rejects(result,/cancelled/);done({coords:{latitude:1,longitude:2}});
  let calls=0;await assert.rejects(locateCare({getCurrentPosition(){calls++;}},c.signal),/cancelled/);assert.equal(calls,0);
+});
+
+test('a slow or coarse first fix gets one fresh high-accuracy attempt',async()=>{
+ for(const reason of ['timeout','coarse']){
+  let calls=0;const result=await locateCare({getCurrentPosition(ok,fail,options){calls++;if(calls===1){if(reason==='timeout')fail({code:3});else ok({coords:{latitude:41.9,longitude:12.4,accuracy:25000}});}else{assert.equal(options.enableHighAccuracy,true);assert.equal(options.maximumAge,0);assert.equal(options.timeout,15000);ok({coords:{latitude:41.9028,longitude:12.4964,accuracy:25}});}}},new AbortController().signal);
+  assert.equal(result,'41.9028,12.4964');assert.equal(calls,2);
+ }
+});
+test('permission denial never retries and excessively coarse final fixes are rejected',async()=>{
+ let calls=0;await assert.rejects(locateCare({getCurrentPosition(ok,fail){calls++;fail({code:1});}},new AbortController().signal),/denied/);assert.equal(calls,1);
+ calls=0;await assert.rejects(locateCare({getCurrentPosition(ok){calls++;ok({coords:{latitude:41.9,longitude:12.4,accuracy:25000}});}},new AbortController().signal),/unavailable/);assert.equal(calls,2);
+});
+test('aborting the first attempt prevents a second GPS request',async()=>{
+ const c=new AbortController();let fail,calls=0;
+ const promise=locateCare({getCurrentPosition(ok,error){calls++;fail=error;}},c.signal);
+ c.abort();fail({code:3});await assert.rejects(promise,/cancelled/);assert.equal(calls,1);
+});
+test('timeout status exposes a direct retry without a form submission',()=>{
+ const React=require('react'),{renderToStaticMarkup}=require('react-dom/server');
+ const Status=load('app/components/CareLocationStatus.tsx').default;
+ const html=renderToStaticMarkup(React.createElement(Status,{enabled:true,pending:false,error:'timeout',coordinates:'',lang:'en',onRetry(){}}));
+ assert.match(html,/role="alert"/);assert.match(html,/enter a town or address above/);assert.match(html,/<button type="button"[^>]*>Try again<\/button>/);
 });

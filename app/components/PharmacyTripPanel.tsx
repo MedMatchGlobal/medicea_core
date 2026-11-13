@@ -23,9 +23,9 @@ export default function PharmacyTripPanel({trip, lang, onBack, title, addressLab
     {onSave && <button type="button" className="clear-search" onClick={onSave}>{saveLabel}</button>}
     <h2>{title}</h2>
     <label>{addressLabel}<input type="text" maxLength={250} placeholder={addressPlaceholder}
-      value={address} disabled={useLocation} onChange={event=>setAddress(event.target.value)} /></label>
+      value={address} disabled={useLocation&&!geo.error} onChange={event=>{setAddress(event.target.value);setUseLocation(false);}} /></label>
     <label className="pharmacy-location-choice"><input type="checkbox" checked={useLocation} onChange={event=>setUseLocation(event.target.checked)} />{useLocationLabel}</label>
-    <CareLocationStatus enabled={useLocation} {...geo} lang={lang}/>
+    <CareLocationStatus enabled={useLocation} {...geo} lang={lang} onRetry={geo.retry}/>
     {mapsHref ? <a className="pill pill--blue pharmacy-map-link" href={mapsHref} target="_blank" rel="noopener noreferrer" onClick={event=>{const launch=careLaunchUrl(trip.service||'pharmacy',location,'',navigator.userAgent);if(launch?.startsWith('geo:')){event.preventDefault();window.location.assign(launch);}}}>{openLabel} ↗</a>
       : <button type="button" className="pill pill--blue" disabled aria-busy={useLocation&&geo.pending}>{useLocation&&geo.pending?careLocationCopy(lang).pending:openLabel}</button>}
     {useLocation&&mapsHref&&<p className="search-note"><a href={mapsHref} target="_blank" rel="noopener noreferrer">{lang==='it'?'Apri la mappa nel browser':'Open browser map'}</a></p>}

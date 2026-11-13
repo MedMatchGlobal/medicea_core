@@ -20,3 +20,11 @@ test('search retains the new umbrella and intermediate parent context',()=>{
  const nodes=specialtyPickerNodes({},'en','narcolepsy');assert.ok(find(nodes,'psychiatry'));
  const oncology=specialtyPickerNodes({},'en','cardio-oncology');assert.ok(find(oncology,'umbrella_oncology'));assert.ok(find(oncology,'cardio_oncology'));
 });
+
+test('umbrellas and all nested specialties follow alphabetical localized labels',()=>{
+ for(const lang of ['en','it']){
+  const collator=new Intl.Collator(lang,{sensitivity:'base',numeric:true});
+  function check(nodes){for(let i=1;i<nodes.length;i++)assert.ok(collator.compare(nodes[i-1].label,nodes[i].label)<=0,nodes[i-1].label+' before '+nodes[i].label);for(const node of nodes)check(node.children);}
+  check(specialtyPickerNodes({},lang));check(specialtyPickerNodes({},lang,'oncology'));
+ }
+});

@@ -1205,8 +1205,8 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
                 <input
                   type="text"
                   required={!useGeo} aria-label={F(ui, 'addressPrompt', 'Enter an address (or use device location)')} placeholder={F(ui, 'addressPH', 'Street, City, Country…')}
-                  value={userAddress} disabled={useGeo}
-                  onChange={(e) => setUserAddress(e.target.value)}
+                  value={userAddress} disabled={useGeo&&!geo.error}
+                  onChange={(e) => {setUserAddress(e.target.value);setUseGeo(false);}}
                   style={input}
                 />
               </div>
@@ -1222,7 +1222,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
                 <input type="checkbox" checked={useGeo} onChange={(e) => setUseGeo(e.target.checked)} />
                 {F(ui, 'useDeviceLocation', 'Use device location')}
               </label>
-              <CareLocationStatus enabled={useGeo} {...geo} lang={lang}/>
+              <CareLocationStatus enabled={useGeo} {...geo} lang={lang} onRetry={geo.retry}/>
             </>
           )}
 

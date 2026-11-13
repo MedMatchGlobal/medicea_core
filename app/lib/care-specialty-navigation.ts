@@ -23,5 +23,9 @@ export function specialtyPickerNodes(labels:Record<string,string>={},lang='en',f
  const needle=filter.trim().toLocaleLowerCase();
  function matches(node:SpecialtyNode){return `${node.label} ${node.item?.query||''} ${node.item?.aliases||''}`.toLocaleLowerCase().includes(needle);}
  function prune(list:SpecialtyNode[]):SpecialtyNode[]{return list.flatMap(node=>{if(!needle||matches(node))return [node];const children=prune(node.children);return children.length?[{...node,children}]:[];});}
- return prune(nodes);
+ const collator=new Intl.Collator(lang,{sensitivity:'base',numeric:true});
+ function alphabetize(list:SpecialtyNode[]):SpecialtyNode[]{return list.map(node=>({...node,children:alphabetize(node.children)})).sort((a,b)=>{
+  return collator.compare(a.label,b.label);
+ });}
+ return alphabetize(prune(nodes));
 }
