@@ -36,6 +36,12 @@ export async function resolveActivePlans(member:string,rows:ActivePurchase[],req
  return {activePlans:[...plans],activePlayPlans:[...playPlans],planDetailsUnavailable:unavailable||rows.length===0};
 }
 export async function membershipPlans(member:string){
+ // Management remains available even when provider plan metadata cannot be loaded.
+ let canManageStripe=false,canManageGooglePlay=false;
+ try{
+  const customers=await billingDb().$queryRaw<Array<{customer_id:string}>>`SELECT customer_id FROM medicea_billing.stripe_customer WHERE member_id=${member}::uuid`;
+  canManageStripe=customers.some(row=>/^cus_[a-zA-Z0-9]+$/.test(row.customer_id));
+ }catch{/* Do not guess a provider if its account binding is unavailable. */}
  try{
   const rows=await billingDb().$queryRaw<ActivePurchase[]>`
    SELECT e.provider,e.external_id,e.customer_id,p.plan AS play_plan
@@ -44,6 +50,7 @@ export async function membershipPlans(member:string){
     AND p.token=e.external_id AND p.member_id=e.member_id AND NOT p.superseded AND NOT p.revoked
    WHERE e.member_id=${member}::uuid AND e.active AND e.valid_until>now()
    ORDER BY e.valid_until DESC LIMIT 5`;
-  return await resolveActivePlans(member,rows);
- }catch{return {activePlans:[] as PersonalPlan[],activePlayPlans:[] as PersonalPlan[],planDetailsUnavailable:true};}
+  canManageGooglePlay=rows.some(row=>row.provider==='google_play'&&(row.play_plan==='monthly'||row.play_plan==='annual'));
+  return {...await resolveActivePlans(member,rows),canManageStripe,canManageGooglePlay};
+ }catch{return {activePlans:[] as PersonalPlan[],activePlayPlans:[] as PersonalPlan[],planDetailsUnavailable:true,canManageStripe,canManageGooglePlay};}
 }

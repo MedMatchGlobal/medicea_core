@@ -1,9 +1,9 @@
-import {membershipPreviewEnabled,membershipOrigin,sameOrigin} from '@/lib/membership/config';
+import {membershipAccountEnabled,membershipOrigin,sameOrigin} from '@/lib/membership/config';
 import {membershipUser} from '@/lib/membership/auth';
 import {billingDb} from '@/lib/membership/store';
 import {stripeRequest} from '@/lib/membership/stripe';
 export async function POST(req:Request){
- if(!membershipPreviewEnabled())return new Response(null,{status:404});
+ if(!membershipAccountEnabled())return new Response(null,{status:404});
  try{
   if(!sameOrigin(req))return Response.json({error:'INVALID_ORIGIN'},{status:403});
   const user=await membershipUser();if(!user)return Response.json({error:'SIGN_IN_REQUIRED'},{status:401});
