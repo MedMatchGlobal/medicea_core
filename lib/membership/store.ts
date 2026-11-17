@@ -3,8 +3,14 @@ import { PrismaClient } from '@prisma/client';
 // A separate billing database; never falls back to the medical-record database.
 let client: PrismaClient | undefined;
 export function billingDb() {
-  const url = process.env.MEDICEA_BILLING_DATABASE_URL;
+  let url = process.env.MEDICEA_BILLING_DATABASE_URL;
   if (!url) throw new Error('Billing database is not configured');
+  // Supabase transaction pooling cannot reuse Prisma's named prepared statements.
+  const connection = new URL(url);
+  if (connection.hostname.endsWith('.pooler.supabase.com') && connection.port === '6543') {
+    connection.searchParams.set('pgbouncer', 'true');
+    url = connection.toString();
+  }
   return client ||= new PrismaClient({datasources: {db: {url}}, log: ['error']});
 }
 export async function reserve(user: string, requestId: string, email?:string, module:Exclude<AccessModule,'portal'>='medicine') {
