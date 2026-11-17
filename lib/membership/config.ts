@@ -10,6 +10,12 @@ export function membershipPreviewEnabled() {
     (!process.env.VERCEL_ENV && process.env.NODE_ENV === 'development')
   );
 }
+// Account sign-in can be tested without enabling paid search metering.
+export function membershipAccountEnabled() {
+  return membershipPreviewEnabled() || (
+    membershipPageEnabled() && process.env.MEDICEA_ACCOUNT_PREVIEW === 'true'
+  );
+}
 export const TRIAL = {days:7, successfulSearches:5} as const;
 export const PERSONAL_PLANS = {
   pass7: {label:'7-day pass',amountMinor:149,currency:'GBP',kind:'pass',days:7,interval:null},

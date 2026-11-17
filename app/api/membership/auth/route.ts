@@ -1,7 +1,7 @@
-import {membershipPreviewEnabled, sameOrigin} from '@/lib/membership/config';
+import {membershipAccountEnabled, sameOrigin} from '@/lib/membership/config';
 import {membershipAuth} from '@/lib/membership/auth';
 export async function POST(req: Request) {
- if (!membershipPreviewEnabled()) return new Response(null,{status:404});
+ if (!membershipAccountEnabled()) return new Response(null,{status:404});
  try {
   if (!sameOrigin(req)) return Response.json({error:'INVALID_ORIGIN'},{status:403});
   const body=await req.json();

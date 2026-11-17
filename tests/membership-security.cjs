@@ -18,7 +18,7 @@ test('account presentation does not enable private billing',()=>{
 test('disabled billing status rejects requests before accessing account data',async()=>{
   const unexpected=()=>{throw new Error('Account data must not be accessed');};
   const route=load('app/api/membership/status/route.ts',{}, {
-    '@/lib/membership/config':{membershipPreviewEnabled:()=>false},
+    '@/lib/membership/config':{membershipAccountEnabled:()=>false},
     '@/lib/membership/auth':{membershipUser:unexpected},
     '@/lib/membership/store':{membershipStatus:unexpected},
     '@/lib/membership/active-plans':{membershipPlans:unexpected},

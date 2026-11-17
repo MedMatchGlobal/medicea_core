@@ -1,10 +1,10 @@
 import {isMembershipAdmin} from '@/lib/membership/complimentary';
-import {membershipPreviewEnabled} from '@/lib/membership/config';
+import {membershipAccountEnabled} from '@/lib/membership/config';
 import {membershipUser} from '@/lib/membership/auth';
 import {membershipStatus} from '@/lib/membership/store';
 import {membershipPlans} from '@/lib/membership/active-plans';
 export async function GET() {
- if(!membershipPreviewEnabled())return new Response(null,{status:404});
+ if(!membershipAccountEnabled())return new Response(null,{status:404});
  try {
   const user=await membershipUser();
   if(!user)return Response.json({signedIn:false},{headers:{'Cache-Control':'no-store'}});
