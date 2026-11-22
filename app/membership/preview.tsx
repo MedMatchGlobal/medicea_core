@@ -1,7 +1,7 @@
 "use client";
 import {useEffect,useRef,useState} from 'react';
 import {Capacitor} from '@capacitor/core';
-import {PERSONAL_PLANS,type PersonalPlan} from '@/lib/membership/config';
+import {PERSONAL_PLANS,planAmount,BILLING_CURRENCIES,type BillingCurrency,type PersonalPlan} from '@/lib/membership/config';
 import styles from './membership.module.css';
 import {useSearchReturn} from '../components/MembershipAccess';
 import MembershipFooter from '../components/MembershipFooter';
@@ -14,6 +14,7 @@ export default function MembershipPreview({billingEnabled=true}:{billingEnabled?
  const {t}=useLanguage();
  const [email,setEmail]=useState(''),[code,setCode]=useState(''),[status,setStatus]=useState<any>(null),[message,setMessage]=useState<MembershipKey|null>(null),[busy,setBusy]=useState(false),[native,setNative]=useState(true);
  const [android,setAndroid]=useState(false);
+ const [currency,setCurrency]=useState<BillingCurrency>('GBP');
  const [codeSent,setCodeSent]=useState(false);
  const [authFeedback,setAuthFeedback]=useState<MembershipKey|null>(null),[authError,setAuthError]=useState(false);
  const codeInput=useRef<HTMLInputElement>(null);
@@ -42,9 +43,9 @@ export default function MembershipPreview({billingEnabled=true}:{billingEnabled?
   const feedback=reason==='ACCOUNT_UNAVAILABLE'?'accountError':reason==='SIGN_IN_REQUIRED'?'errorSignIn':reason==='INVALID_CODE'?'errorCode':reason==='CODE_REQUEST_UNAVAILABLE'?'errorSend':reason==='ALREADY_SUBSCRIBED'?'errorPaid':path==='checkout'?'errorCheckout':path==='portal'?'errorPortal':path==='auth'?'errorAuth':'errorGeneric';
   if(path==='auth'){setAuthFeedback(feedback);setAuthError(true);if(body.action==='verify')requestAnimationFrame(()=>codeInput.current?.focus());}else setMessage(feedback);
  }finally{setBusy(false);}}
- const checkout=(plan:PersonalPlan)=>run('checkout',{plan});
+ const checkout=(plan:PersonalPlan)=>run('checkout',{plan,currency});
  const locale=lang==='en'?'en-GB':lang;
- const price=(plan:PersonalPlan)=>new Intl.NumberFormat(locale,{style:'currency',currency:'GBP'}).format(PERSONAL_PLANS[plan].amountMinor/100);
+ const price=(plan:PersonalPlan)=>new Intl.NumberFormat(locale,{style:'currency',currency}).format(planAmount(plan,currency)/100);
  const number=(value:number)=>new Intl.NumberFormat(locale).format(value);
  const date=(value:string,time=false)=>time?new Date(value).toLocaleString(locale):new Date(value).toLocaleDateString(locale);
  const signedIn=!!status?.signedIn;
@@ -71,6 +72,8 @@ export default function MembershipPreview({billingEnabled=true}:{billingEnabled?
  {signedIn&&!status.complimentary&&status.moduleAccess?.length>0&&<section className={`${styles.account} ${styles.complimentaryAccount}`} aria-label={copy.moduleAccessHeading}><div><h2>{copy.moduleAccessHeading}</h2>{status.moduleAccess.map((p:any)=><p key={p.module}><strong>{p.module==='medicine'?copy.moduleMedicine:p.module==='health'?copy.moduleHealth:copy.modulePortal}</strong> · {p.module==='portal'?copy.moduleAllFeatures:p.monthlyLimit===null?copy.moduleUnlimited:membershipText(copy.moduleAllowance,{remaining:number(p.remaining),limit:number(p.monthlyLimit)})} · {p.expiresAt?membershipText(copy.moduleUntil,{date:date(p.expiresAt,true)}):copy.moduleNoExpiry}</p>)}<p className={styles.small}>{copy.moduleNormalAccess}</p></div></section>}
  <div className={styles.feedback}><p role="status" aria-live="polite">{signedIn&&busy?copy.working:message?copy[message]:''}</p>{status===null&&message&&<button className={styles.secondary} disabled={busy} onClick={()=>refresh().then(()=>setMessage(null)).catch(()=>setMessage('accountError'))}>{copy.tryAgain}</button>}</div>
  {billingEnabled&&status!==null&&!native&&!status?.complimentary&&<section className={styles.options} aria-labelledby="personal-access"><h2 id="personal-access" ref={accessOptions} tabIndex={-1}>{copy.travelHeading}</h2><p className={styles.sectionIntro}>{copy.travelIntro}</p>
+ <label>Billing currency <select value={currency} onChange={event=>setCurrency(event.target.value as BillingCurrency)}>{BILLING_CURRENCIES.map(value=><option key={value} value={value}>{value}</option>)}</select></label>
+ <p className={styles.sectionIntro}>For other currencies, choose GBP. Your bank converts the GBP charge and may apply conversion fees.</p>
  <div className={styles.travelPlans}>{planCard('pass7',copy.pass7,copy.duration7,copy.ends7)}{planCard('pass14',copy.pass14,copy.duration14,copy.ends14)}{planCard('pass30',copy.pass30,copy.duration30,copy.ends30)}</div>
  <div className={styles.regularHeading}><h2>{copy.regularHeading}</h2><p className={styles.sectionIntro}>{copy.regularIntro}</p></div>
  <div className={styles.regularPlans}>{planCard('monthly',copy.monthly,copy.perMonth,copy.monthlyRenewal)}{planCard('annual',copy.annual,copy.perYear,copy.annualRenewal)}</div>

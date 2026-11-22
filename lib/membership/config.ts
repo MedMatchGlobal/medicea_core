@@ -21,10 +21,23 @@ export const PERSONAL_PLANS = {
   pass7: {label:'7-day pass',amountMinor:149,currency:'GBP',kind:'pass',days:7,interval:null},
   pass14: {label:'14-day pass',amountMinor:199,currency:'GBP',kind:'pass',days:14,interval:null},
   pass30: {label:'30-day pass',amountMinor:299,currency:'GBP',kind:'pass',days:30,interval:null},
-  monthly: {label:'Personal monthly',amountMinor:249,currency:'GBP',kind:'subscription',days:null,interval:'month'},
+  monthly: {label:'Personal monthly',amountMinor:299,currency:'GBP',kind:'subscription',days:null,interval:'month'},
   annual: {label:'Personal annual',amountMinor:1999,currency:'GBP',kind:'subscription',days:null,interval:'year'},
 } as const;
 export type PersonalPlan = keyof typeof PERSONAL_PLANS;
+export const BILLING_CURRENCIES = ['GBP', 'EUR', 'USD'] as const;
+export type BillingCurrency = typeof BILLING_CURRENCIES[number];
+export const PLAN_AMOUNTS: Record<BillingCurrency, Record<PersonalPlan, number>> = {
+  GBP: {pass7:149, pass14:199, pass30:299, monthly:299, annual:1999},
+  EUR: {pass7:179, pass14:249, pass30:359, monthly:359, annual:2399},
+  USD: {pass7:199, pass14:279, pass30:399, monthly:399, annual:2649},
+};
+export function isBillingCurrency(value: unknown): value is BillingCurrency {
+  return BILLING_CURRENCIES.some(currency => currency === value);
+}
+export function planAmount(plan: PersonalPlan, currency: BillingCurrency = 'GBP') {
+  return PLAN_AMOUNTS[currency][plan];
+}
 export function isPersonalPlan(value:unknown):value is PersonalPlan {
   return typeof value==='string'&&Object.prototype.hasOwnProperty.call(PERSONAL_PLANS,value);
 }

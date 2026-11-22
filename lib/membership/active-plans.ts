@@ -1,6 +1,6 @@
 import {billingDb} from './store';
 import {isPersonalPlan,type PersonalPlan} from './config';
-import {stripeRequest,passAccess,subscriptionAccess,planPriceId} from './stripe';
+import {stripeRequest,passAccess,subscriptionAccess,subscriptionPriceIds} from './stripe';
 
 type ActivePurchase={provider:string;external_id:string;customer_id:string|null;play_plan:string|null};
 // Display metadata only: access itself is always decided by the server ledger.
@@ -26,7 +26,7 @@ export async function resolveActivePlans(member:string,rows:ActivePurchase[],req
    }else{
     if(!subscriptionAccess(purchase).active)throw Error('Subscription inactive');
     const matches=(['monthly','annual'] as const).filter(plan=>{
-     try{return purchase.items.data.some((item:any)=>item.price?.id===planPriceId(plan));}catch{return false;}
+     try{return purchase.items.data.some((item:any)=>subscriptionPriceIds(plan).includes(item.price?.id));}catch{return false;}
     });
     if(matches.length!==1)throw Error('Ambiguous subscription');
     plans.add(matches[0]);
