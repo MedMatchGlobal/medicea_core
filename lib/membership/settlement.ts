@@ -14,7 +14,7 @@ async function intentSettled(intentId:string,customer:string,request:ProviderReq
  if(charge.amount_refunded===charge.amount_captured)return false;
  const disputeId=id(charge.dispute);
  if(disputeId){
-  if(!/^dp_[a-zA-Z0-9]+$/.test(disputeId))throw Error('Invalid dispute');
+  if(!/^du_[a-zA-Z0-9]+$/.test(disputeId))throw Error('Invalid dispute');
   const dispute=await request('/disputes/'+disputeId);
   if(dispute.livemode!==false||id(dispute.charge)!==charge.id)throw Error('Dispute ownership mismatch');
   return dispute.status==='won'||dispute.status==='warning_closed';
