@@ -2,6 +2,7 @@ import {membershipPreviewEnabled,sameOrigin,isPersonalPlan} from '@/lib/membersh
 import {membershipUser} from '@/lib/membership/auth';
 import {homeCountryCurrency} from '@/lib/membership/home-country';
 import {memberReservation,reserveCheckout,cancelReservation} from '@/lib/membership/future-access';
+import {stripeDiagnostic} from '@/lib/membership/stripe';
 export const maxDuration=60;
 const headers={'Cache-Control':'no-store'};
 export async function GET(){
@@ -23,5 +24,5 @@ export async function POST(req:Request){
     if(body.currency!==currency)return Response.json({error:'CURRENCY_CHANGED'},{status:409,headers});
     if(body.action==='confirm'&&typeof body.startsAt!=='string')return Response.json({error:'CONFIRMATION_REQUIRED'},{status:400,headers});
     return Response.json(await reserveCheckout(user.id,body.plan,currency,body.action==='confirm'?body.startsAt:undefined),{headers});
-  }catch{return Response.json({error:'RESERVATION_UNAVAILABLE'},{status:503,headers});}
+  }catch(error){const diagnostic=stripeDiagnostic(error);console.error('Membership reservation checkout failed',diagnostic);return Response.json({error:'RESERVATION_UNAVAILABLE',diagnostic},{status:503,headers});}
 }

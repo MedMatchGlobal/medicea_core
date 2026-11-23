@@ -7,7 +7,7 @@ const key='medicea_next_access';
 type Record={session:string;id?:string;kind:'invoice'|'schedule';plan:PersonalPlan;currency:BillingCurrency;start:number};
 type Request=typeof stripeRequest;
 // Future invoice finalization and phase duration use this explicit API contract only.
-const reservationRequest:Request=(path,params,idempotencyKey,timeoutMs,_version,query)=>stripeRequest(path,params,idempotencyKey,timeoutMs,'2026-11-18.endive',query);
+const reservationRequest:Request=(path,params,idempotencyKey,timeoutMs,version,query)=>stripeRequest(path,params,idempotencyKey,timeoutMs,version||'2026-11-18.endive',query);
 export type Reservation={plan:PersonalPlan;currency:BillingCurrency;amountMinor:number;startsAt:string;state:'preparing'|'reserved'|'payment_pending'};
 const iso=(seconds:number)=>new Date(seconds*1000).toISOString();
 function record(customer:any):Record|null {
@@ -110,7 +110,9 @@ export async function reserveCheckout(member:string,plan:PersonalPlan,currency:B
       'custom_text[submit][message]':`Reserve ${PERSONAL_PLANS[plan].label}. No charge now. You authorise ${amount} on or after ${date}, once your current pass ends.${PERSONAL_PLANS[plan].kind==='subscription'?' This subscription renews until cancelled.':' One payment only; no renewal.'}`,
       success_url:membershipOrigin()+'/membership?checkout=returned',cancel_url:membershipOrigin()+'/membership?checkout=cancelled'});
     const bucket=Math.floor(Date.now()/1800000);
-    const session=await request('/checkout/sessions',params,`reserve-${member}-${plan}-${currency}-${start}-${bucket}-${existing[0]?.session_id||'new'}`);
+    // Match ordinary card Checkout. Endive removed payment_method_types; future invoice/schedule APIs remain on Endive.
+    // A new key avoids replaying the rejected Endive request retained by Stripe.
+    const session=await request('/checkout/sessions',params,`reserve-v2-${member}-${plan}-${currency}-${start}-${bucket}-${existing[0]?.session_id||'new'}`,15000,'2025-03-31.basil');
     const url=new URL(session.url);
     if(session.livemode!==false||url.hostname!=='checkout.stripe.com'||url.protocol!=='https:')throw Error('Invalid setup checkout');
     await tx.$executeRaw`INSERT INTO medicea_billing.checkout(member_id,session_id,plan,url,expires_at) VALUES(${member}::uuid,${session.id},${plan},${session.url},${new Date(session.expires_at*1000)}) ON CONFLICT(member_id) DO UPDATE SET session_id=excluded.session_id,plan=excluded.plan,url=excluded.url,expires_at=excluded.expires_at`;

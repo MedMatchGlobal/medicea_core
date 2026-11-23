@@ -3,7 +3,7 @@ import type {PlanSummary} from '@/lib/membership/active-plans';
 import {useMembershipCopy} from '../i18n/membership';
 import styles from './membership.module.css';
 
-export default function AccountPlans({plans}:{plans:PlanSummary[]}){
+export default function AccountPlans({plans,onUpgrade,upgradeDisabled=false}:{plans:PlanSummary[];onUpgrade?:()=>void;upgradeDisabled?:boolean}){
   const {copy,lang}=useMembershipCopy();
   const locale=lang==='en'?'en-GB':lang;
   const date=(value:string)=>new Date(value).toLocaleDateString(locale,{day:'numeric',month:'long',year:'numeric'});
@@ -13,7 +13,7 @@ export default function AccountPlans({plans}:{plans:PlanSummary[]}){
     const next=plan.scheduledChange;
     return <div key={index}>
       <p className={styles.small}>CURRENT PLAN · ACTIVE NOW</p>
-      <p><strong>{name(plan.plan)}</strong>{price&&<> · <bdi>{price}</bdi>{plan.plan==='monthly'?` ${copy.perMonth}`:plan.plan==='annual'?` ${copy.perYear}`:''}</>}</p>
+      <div className={styles.activePlanHeading}><p><strong>{name(plan.plan)}</strong>{price&&<> · <bdi>{price}</bdi>{plan.plan==='monthly'?` ${copy.perMonth}`:plan.plan==='annual'?` ${copy.perYear}`:''}</>}</p>{onUpgrade&&plan.plan.startsWith('pass')&&<button type="button" className={styles.primary} disabled={upgradeDisabled} onClick={onUpgrade}>{copy.upgrade}</button>}</div>
       {plan.periodEndsAt&&<p className={styles.small}>{plan.plan.startsWith('pass')||plan.cancelAtPeriodEnd||next?'Paid access through':'Renews on'} {date(plan.periodEndsAt)}{plan.cancelAtPeriodEnd?' · Renewal cancelled':''}</p>}
       {next&&<div className={styles.scheduled}><p className={styles.small}>NEXT PLAN · SCHEDULED, NOT ACTIVE YET</p><p><strong>{name(next.plan)}</strong> · <bdi>{new Intl.NumberFormat(locale,{style:'currency',currency:next.currency}).format(next.amountMinor/100)}</bdi>{next.plan==='monthly'?` ${copy.perMonth}`:` ${copy.perYear}`}</p><p>Starts {date(next.startsAt)}, after your current plan ends.</p><p className={styles.small}>Your current plan stays active until then. This is the price on your existing scheduled change.</p></div>}
       {plan.scheduledChangeUnavailable&&<p className={styles.small}>Scheduled change details are unavailable. Check Stripe before making another change.</p>}

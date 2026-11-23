@@ -13,8 +13,9 @@ function fixture(){
   if(query.includes('FROM medicea_billing.stripe_customer'))return [{customer_id:'cus_test',member_id:member}];return [];
  },$executeRaw:async()=>1};
  const pass={id:'cs_test_pass',livemode:false,customer:'cus_test',mode:'payment',status:'complete',payment_status:'paid',created:now,client_reference_id:member,currency:'gbp',amount_total:149,metadata:{member_id:member,plan:'pass7',currency:'GBP'}};
- const request=async(path,params,idempotency)=>{
-  calls.push({path,params:params&&Object.fromEntries(params),idempotency});
+ const request=async(path,params,idempotency,_timeout,version)=>{
+  calls.push({path,params:params&&Object.fromEntries(params),idempotency,version});
+  if(path==='/checkout/sessions'&&params?.has('payment_method_types[0]')&&version==='2026-11-18.endive')throw Error('payment_method_types is no longer supported');
   if(path.startsWith('/prices/')){const found=Object.keys(config.PERSONAL_PLANS).flatMap(plan=>['GBP','EUR','USD'].map(currency=>price(plan,currency))).find(price=>path==='/prices/'+price.id);if(!found)throw Error('Unknown price');return found;}
   if(path==='/customers/cus_test'){if(params)Object.assign(customer.metadata,metadata(params));return structuredClone(customer);}
   if(path==='/checkout/sessions/cs_test_pass')return pass;
@@ -114,6 +115,7 @@ test('reservation API rejects disabled billing, foreign origins, anonymous reque
    '@/lib/membership/auth':{membershipUser:async()=>options.signedIn===false?null:{id:member}},
    '@/lib/membership/home-country':{homeCountryCurrency:()=> 'GBP'},
    '@/lib/membership/future-access':{reserveCheckout:async()=>{calls++;}},
+   '@/lib/membership/stripe':{stripeDiagnostic:()=>({code:'test'})},
   });
   const response=await route.POST(new Request('https://preview.example/api/membership/reservation',{method:'POST',body:JSON.stringify({action:'confirm',plan:'annual',currency:'GBP'})}));
   assert.equal(response.status,expected);assert.equal(calls,0);
@@ -209,4 +211,19 @@ test('all portal headlines satisfy the actual Stripe 60-character limit, includi
   };
   assert.equal(await policy.periodEndPortalConfiguration(currency,request),'bpc_test');
  }
+});
+test('reservation card checkout uses the working Basil contract and a fresh key instead of replaying the rejected Endive request',async()=>{
+ const f=fixture();await f.future.reserveCheckout(member,'pass14','GBP',new Date(start*1000).toISOString());
+ const session=f.calls.find(call=>call.path==='/checkout/sessions'&&call.params);
+ assert.equal(session.version,'2025-03-31.basil');assert.equal(session.params['payment_method_types[0]'],'card');assert.equal(session.params.mode,'setup');assert.match(session.idempotency,/^reserve-v2-/);
+ assert.equal(f.calls.find(call=>call.path==='/customers/cus_test').version,'2026-11-18.endive');
+});
+test('upgrade is discoverable beside the active pass and a failed checkout stays explained inside the dialog',()=>{
+ const React=require('react'),{renderToStaticMarkup}=require('react-dom/server'),copy=require('../app/i18n/membership/en.json');
+ const imports={'../i18n/membership':{useMembershipCopy:()=>({copy,lang:'en'})},'./membership.module.css':{default:{}}};
+ const Account=load('app/membership/account-plans.tsx',imports).default,Dialog=load('app/membership/reservation-dialog.tsx',imports).default;
+ const account=renderToStaticMarkup(React.createElement(Account,{plans:[{plan:'pass7',provider:'stripe',currency:'EUR',amountMinor:179,periodEndsAt:new Date(start*1000).toISOString(),cancelAtPeriodEnd:false}],onUpgrade:()=>{}}));
+ assert.match(account,/7-day pass/);assert.match(account,/>Upgrade<\/button>/);
+ const dialog=renderToStaticMarkup(React.createElement(Dialog,{quote:{plan:'pass14',currency:'GBP',amountMinor:199,startsAt:new Date(start*1000).toISOString()},busy:false,error:'Checkout failed. Please try again.',diagnostic:'session · 400 · invalid_request_error',onConfirm:()=>{},onClose:()=>{}}));
+ assert.match(dialog,/Upgrade to 14-day pass/);assert.match(dialog,/for="reservation-consent"/);assert.match(dialog,/id="reservation-consent"/);assert.match(dialog,/I authorise the £1.99 charge/);assert.match(dialog,/role="alert"/);assert.match(dialog,/Checkout failed/);assert.match(dialog,/£0\.00/);
 });

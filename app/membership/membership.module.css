@@ -15,14 +15,21 @@
 .account p:not(.eyebrow){margin-top:8px}
 .email{color:#506779;overflow-wrap:anywhere}
 .planSummary{margin-top:12px}
+.activePlanHeading{display:flex;align-items:center;flex-wrap:wrap;gap:10px 16px;margin-top:6px}
+.activePlanHeading p{margin:0!important}
+.page .activePlanHeading button{padding:7px 14px;min-height:40px}
 .scheduled{margin-top:12px;padding:12px 14px;border:1px solid #b8c8b0;border-radius:10px;background:#f0f4eb;font-size:14px;line-height:1.5}
 .scheduled button{margin-top:10px}
-.reservationDialog{width:min(480px,calc(100vw - 28px));max-height:calc(100dvh - 40px);overflow:auto;border:1px solid #d9ccba;border-radius:18px;padding:24px;background:#fffdf9;color:#233237;margin:auto}
+.reservationDialog{width:min(420px,calc(100vw - 32px));max-width:calc(100vw - 32px);max-height:calc(100dvh - 32px);overflow-y:auto;overflow-x:hidden;box-sizing:border-box;border:1px solid #d9ccba;border-radius:16px;padding:20px;background:#fffdf9;color:#233237;margin:auto;font-size:14px;line-height:1.45}
 .reservationDialog::backdrop{background:#15232a88}
-.reservationDialog p{margin-top:14px}
-.reservationDialog .reservationConsent{display:flex;flex-direction:row;align-items:start;gap:10px;margin-top:18px;font-weight:400}
-.reservationConsent input{width:auto;flex-shrink:0;margin-top:4px}
-.reservationActions{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px}
+.reservationDialog h2{font-size:22px;line-height:1.2;letter-spacing:-.3px}
+.reservationDialog p{margin-top:10px}
+.reservationAmounts{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px 16px;margin:14px 0;padding:12px 0;border-block:1px solid #e2dbce}
+.reservationAmounts dd{margin:0;text-align:end}
+.page .reservationDialog .reservationConsent{display:grid;grid-template-columns:18px minmax(0,1fr);align-items:start;gap:10px;margin-top:14px;padding:10px;border:1px solid #d9ccba;border-radius:9px;font-size:14px;font-weight:400;cursor:pointer}
+.page .reservationDialog .reservationConsent input[type=checkbox]{appearance:auto;width:18px;min-width:18px;max-width:18px;height:18px;min-height:18px;max-height:18px;flex:none;padding:0;margin:2px 0 0;accent-color:#2a383b}
+.reservationConsent span{min-width:0;white-space:normal;overflow-wrap:anywhere}
+.reservationActions{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
 .reservationCancel{position:fixed;bottom:24px;inset-inline:14px;max-width:600px;margin:auto;padding:20px;background:#fffdf9;border:1px solid #d9ccba;border-radius:16px;box-shadow:0 10px 40px #23323744;z-index:70}
 .reservationCancel button{margin:12px 8px 0 0}
 .homeCountry{border:1px solid #d9ccba;border-radius:16px;padding:20px 24px;margin:-16px 0 28px;background:#fffdf9;display:grid;grid-template-columns:minmax(0,1fr) minmax(260px,420px);align-items:center;gap:12px 24px}
