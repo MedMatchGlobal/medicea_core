@@ -1,0 +1,10 @@
+{
+ "date":"2026-11-23",
+ "deployment":"dpl_42qkEkTFApPJ6zrvG14EUo3rfim8",
+ "normalBuildDeployment":"dpl_6d1vRSLQa15kM6RuCdpqZLLbxUYr",
+ "source":"Two genuine Stripe sandbox checkout.session.completed events, latest bound provider objects and the actual hosted billing SQL connection",
+ "checks":[{"kind":"scheduled_upgrade","plan":"annual","amountMinor":1999,"currency":"GBP","expectedPriceSource":"Actual saved subscription-schedule price","duplicateDocumentCount":1},{"kind":"purchase","plan":"pass7","amountMinor":179,"currency":"EUR","expectedPriceSource":"Actual paid Checkout total and existing immutable entitlement expiry","duplicateDocumentCount":1}],
+ "results":{"passed":true,"stripeReads":10,"stripeWrites":0,"emailsSent":0,"persistentDocumentsCreated":0,"accountChanges":0,"mandatoryRollbackVerified":true,"verifiedRecipientBinding":true,"LondonTimeLabelVerified":true,"refundPolicyAndSupportIncluded":true},
+ "testCorrection":"The owner was checking the app and the currently saved upgrade was annual. The initial harness assumed the earlier monthly plan. Corrected the harness to compare actual provider price/currency and source metadata; no application change was required.",
+ "limits":["Read-only provider-event-to-snapshot acceptance with hosted SQL inside rollback-only transactions; not a newly charged purchase or HTTP webhook-signature test.","SMTP/inbox/attachment acceptance is recorded separately; this run cannot send emails.","Provider-backed initial recurring invoice and renewal confirmation cases, final policy-language review and Play device acceptance remain separate gates."]
+}

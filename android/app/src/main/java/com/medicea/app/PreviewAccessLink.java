@@ -7,7 +7,7 @@ import java.nio.charset.StandardCharsets;
 
 /** Validates a manually supplied, revocable Vercel sharing link for this preview only. */
 public final class PreviewAccessLink {
-    public static final String ORIGIN = "https://medicea-core-git-feature-google-17fe5b-medmatchglobals-projects.vercel.app";
+    public static final String ORIGIN = "https://medicea-core-git-design-riviera-601943-medmatchglobals-projects.vercel.app";
     private PreviewAccessLink() {}
 
     public static String validated(String input) {

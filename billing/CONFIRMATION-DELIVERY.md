@@ -111,3 +111,39 @@ subscription or access change occurred. See acceptance/confirmation-mail-2026112
 The normal build command was restored afterward. Automatic customer mail remains
 OFF. This test establishes one inbox/attachment delivery, not completion of every
 provider-purchase lifecycle, final contract-language review or public launch.
+
+## Real provider records -> retained snapshot acceptance
+
+Two genuine completed Checkout events and their latest bound Stripe sandbox
+records were verified against actual confirmation code and hosted billing SQL.
+The seven-day purchase retained its EUR 1.79 paid price and original expiry.
+The currently saved annual upgrade retained its GBP 19.99 schedule price, actual
+start date, zero charge-now wording and recurring terms. Duplicate event replay
+created one immutable snapshot per provider reference.
+
+Every temporary document insert was inside a mandatory rollback transaction;
+post-rollback absence was checked. Stripe mutations and SMTP invocation were
+explicitly forbidden by the harness. Zero emails or account changes occurred.
+See acceptance/real-confirmations-20261123.json for scope and test correction.
+This closes those real-record capture/replay checks, not every recurring-invoice
+or renewal scenario, final translations, or public launch.
+
+## Recurring invoice acceptance — 23 November 2026
+
+Dedicated email-less monthly and annual Stripe sandbox customers passed actual
+paid first invoices and test-clock renewals: GBP 2.99 including GBP 0.50 VAT,
+and GBP 19.99 including GBP 3.33 VAT. Actual event-processing and confirmation
+code updated access, retained the provider period/amount/renewal terms and
+created one immutable document on duplicate replay in hosted SQL.
+
+The verified QA recipient rows and documents existed only inside mandatory
+rollback transactions; no permanent Auth account or confirmation was created.
+No SMTP transport was invoked. Both temporary subscriptions were cancelled;
+all four test charges were fully refunded and QA access reconciled inactive.
+See acceptance/recurring-confirmations-20261123.json. These were test envelopes
+containing actual paid provider invoices, not signed HTTP webhook delivery,
+customer signup, browser Checkout or an additional inbox test.
+
+Automatic customer mail remains OFF. The previous single authorized delivery
+test does not authorize further emails. Final contract-language and retention
+decisions, production configuration and end-to-end launch acceptance remain open.

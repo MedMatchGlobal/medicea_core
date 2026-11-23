@@ -1,0 +1,10 @@
+{
+ "date":"2026-11-23",
+ "type":"Local debug QA build; not a release or Play upload",
+ "java":"Android Studio bundled OpenJDK 21.0.8",
+ "commands":["MEDICEA_ANDROID_TEST_PREVIEW=true npx cap sync android","gradlew.bat -p android testDebugUnitTest assembleDebug --console=plain"],
+ "results":{"gradle":"BUILD SUCCESSFUL","nativeTests":3,"failures":0,"errors":0,"googlePlayBackendTests":10,"promptPreservation":"passed"},
+ "apk":{"path":"android/app/build/outputs/apk/debug/app-debug.apk","bytes":5202255,"sha256":"2d93e4372b00c8fcd7c65aaaeff6044c8ff3351b453e23b2d7a9adc5fad7b5c9","appId":"global.medicea.app","serverUrl":"https://medicea-core-git-design-riviera-601943-medmatchglobals-projects.vercel.app","cleartext":false,"embeddedPreviewToken":false},
+ "defaultProductionOrigin":"https://medicea.global",
+ "limits":["Debug APK assembled and inspected; no phone connection, install or upload was performed.","Device sign-in, Play purchase/restore, cancellation, offline/error and lifecycle checks remain required.","QA profile now follows the current protected Riviera preview branch; production origin is unchanged."]
+}

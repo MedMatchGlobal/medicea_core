@@ -12,7 +12,9 @@ test('Android defaults to the public site; private device testing requires expli
  assert.equal(normal.server.cleartext,false);
  const preview=load('capacitor.config.ts',{}, {env:{MEDICEA_ANDROID_TEST_PREVIEW:'true'}}).default;
  assert.equal(preview.appId,'global.medicea.app');
- assert.equal(preview.server.url,'https://medicea-core-git-feature-google-17fe5b-medmatchglobals-projects.vercel.app');
+ assert.equal(preview.server.url,'https://medicea-core-git-design-riviera-601943-medmatchglobals-projects.vercel.app');
+ const nativeLink=fs.readFileSync('android/app/src/main/java/com/medicea/app/PreviewAccessLink.java','utf8');
+ assert.ok(nativeLink.includes('ORIGIN = \"'+preview.server.url+'\"'));
  assert.equal(new URL(preview.server.url).search,'');
  assert.equal(load('capacitor.config.ts',{}, {env:{MEDICEA_ANDROID_TEST_PREVIEW:'false'}}).default.server.url,normal.server.url);
 });

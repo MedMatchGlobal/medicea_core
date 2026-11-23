@@ -1,0 +1,79 @@
+{
+  "date": "2026-11-23",
+  "deployment": "dpl_GMfddCw1p9zVoVMEth8kA6wuGqpr",
+  "passed": true,
+  "run": "qa-75da367a-8c4a-4d70-8abd-d2ca2585cb4f",
+  "results": [
+    {
+      "plan": "monthly",
+      "kind": "purchase",
+      "invoice": "in_1Uf5adQqlRs4fksfby7h7Exa",
+      "amountMinor": 299,
+      "taxMinor": 50,
+      "currency": "GBP",
+      "startsAt": "2026-11-23T22:19:56.000Z",
+      "endsAt": "2026-12-23T22:19:56.000Z",
+      "duplicateDocumentCount": 1,
+      "bodyHash": "8f93cc5a6e26585126cc43bc1b3b371a16c1895f8bc4b269c4487913e1a01c29"
+    },
+    {
+      "plan": "monthly",
+      "kind": "renewal",
+      "invoice": "in_1Uf5amQqlRs4fksfkhfxJh1z",
+      "amountMinor": 299,
+      "taxMinor": 50,
+      "currency": "GBP",
+      "startsAt": "2026-12-23T22:19:56.000Z",
+      "endsAt": "2027-01-23T22:19:56.000Z",
+      "duplicateDocumentCount": 1,
+      "bodyHash": "d924e12223ecb2981b5ee2bbd7a137e924d199802fbed211b02aca000ee00940"
+    },
+    {
+      "plan": "annual",
+      "kind": "purchase",
+      "invoice": "in_1Uf5b5QqlRs4fksfwj90h19i",
+      "amountMinor": 1999,
+      "taxMinor": 333,
+      "currency": "GBP",
+      "startsAt": "2026-11-23T22:20:25.000Z",
+      "endsAt": "2027-11-23T22:20:25.000Z",
+      "duplicateDocumentCount": 1,
+      "bodyHash": "6dcf415f739d8f9dff32c29377e7d78d51a4d7bb3c1fd1bc8ddfe972ef1aa1fe"
+    },
+    {
+      "plan": "annual",
+      "kind": "renewal",
+      "invoice": "in_1Uf5bHQqlRs4fksfQOKfIWkW",
+      "amountMinor": 1999,
+      "taxMinor": 333,
+      "currency": "GBP",
+      "startsAt": "2027-11-23T22:20:25.000Z",
+      "endsAt": "2028-11-23T22:20:25.000Z",
+      "duplicateDocumentCount": 1,
+      "bodyHash": "8cd1e1a12326586a2fb828160a2998b45bdec27e5f1d3dcba37a500fa2793db3"
+    }
+  ],
+  "cleanups": [
+    {
+      "customer": "cus_VgSVzk34X4G0ED",
+      "plan": "monthly",
+      "subscriptionsCanceled": 1,
+      "chargesFullyRefunded": 2,
+      "refundedMinor": 598,
+      "activeAccess": 0
+    },
+    {
+      "customer": "cus_VgSW3OaXaJadMB",
+      "plan": "annual",
+      "subscriptionsCanceled": 1,
+      "chargesFullyRefunded": 2,
+      "refundedMinor": 3998,
+      "activeAccess": 0
+    }
+  ],
+  "emailsSent": 0,
+  "mailAttempts": 0,
+  "persistentAuthAccounts": 0,
+  "persistentConfirmationDocuments": 0,
+  "scope": "actual sandbox subscriptions, paid initial and test-clock renewal invoices; actual processor + snapshot + hosted SQL + duplicate replay; rollback-only synthetic verified recipient; not HTTP signature, signup, checkout UI or inbox acceptance"
+}

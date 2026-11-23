@@ -181,3 +181,35 @@ opened. See acceptance/confirmation-mail-20261123.json. Automatic customer mail
 is still OFF; actual purchase-to-confirmation lifecycle acceptance and policy
 translation/retention decisions remain pending. No additional test email is
 authorized by the single-message test approval.
+
+Real completed-pass and scheduled-upgrade provider records now passed confirmation
+snapshot/replay acceptance against hosted SQL in mandatory rollback transactions.
+No provider writes, emails or permanent document/account changes occurred. The
+currently saved upgrade was annual; the harness now reads the actual provider
+price rather than assuming the earlier monthly selection. See
+acceptance/real-confirmations-20261123.json. Development dependency exposure and
+its limitations are documented in DEPENDENCY-REVIEW.md.
+
+Android native verification now passed with the installed Android SDK and Android
+Studio Java 21: three native unit tests, debug APK assembly, ten Google Play
+backend tests and prompt preservation. Corrected the opt-in Android QA profile
+to the current protected Riviera preview origin; its Java access-link allowlist
+and Capacitor configuration match. Production still defaults to medicea.global.
+The actual QA APK configuration and hash were inspected. No phone install or
+Play upload occurred. Device-flow acceptance remains open. See
+acceptance/android-qa-build-20261123.json.
+
+Dedicated Stripe sandbox monthly/annual first-payment and test-clock renewal
+confirmation checks now passed, including actual paid VAT-inclusive invoices,
+access processing, provider periods, immutable snapshots and duplicate replay
+against hosted SQL. All four temporary charges were fully refunded, both test
+subscriptions cancelled and QA access reconciled inactive. No persistent Auth
+accounts/documents or emails were created. These use actual provider objects in
+test envelopes; signed HTTP delivery, browser checkout and signup are separate
+coverage. See acceptance/recurring-confirmations-20261123.json.
+
+One additional production integration review item remains explicit: the current
+webhook event list covers disputes and refunds but does not handle
+radar.early_fraud_warning.created. Decide and verify its operational/access
+response before production; successful renewal tests do not establish complete
+fraud handling. No provider settings or medical prompts were changed for QA.

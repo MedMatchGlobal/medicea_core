@@ -1,7 +1,10 @@
 # Google Play on-device acceptance — pending
 
-No adb/device connection was available in this session. Automated backend tests
-are not evidence of a Play Store-installed application completing these flows.
+The installed Android SDK and Android Studio Java 21 produced a debug QA APK;
+three native unit tests passed. ADB exists under the SDK but no phone connection
+or installation was performed. See acceptance/android-qa-build-20261123.json.
+Automated backend tests and APK assembly are not evidence of a Play
+Store-installed application completing these flows.
 Use the authorized test track and license-tester account, never a live payment.
 Record package version, tester, provider order/reference, expected and actual
 outcome, and evidence; do not put purchase tokens or credentials in Git.

@@ -9,7 +9,7 @@ const config: CapacitorConfig = {
   webDir: 'build', // value is ignored when `server.url` is set
   server: {
     url: previewTest
-      ? 'https://medicea-core-git-feature-google-17fe5b-medmatchglobals-projects.vercel.app'
+      ? 'https://medicea-core-git-design-riviera-601943-medmatchglobals-projects.vercel.app'
       : 'https://medicea.global',
     cleartext: false,
   },
