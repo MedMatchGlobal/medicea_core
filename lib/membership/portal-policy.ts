@@ -1,7 +1,7 @@
 import {type BillingCurrency,planAmount} from './config';
 import {stripeRequest,planPriceId,priceMatches} from './stripe';
 
-const policy = 'medicea-period-end-v3';
+const policy = 'medicea-period-end-v4';
 const conditions = ['decreasing_item_amount','shortening_interval'];
 type Request = typeof stripeRequest;
 
@@ -32,7 +32,7 @@ export async function periodEndPortalConfiguration(currency:BillingCurrency|null
   const params=new URLSearchParams({
     'metadata[medicea_policy]':signature,
     'expand[0]':'features.subscription_update.products',
-    'business_profile[headline]':currency?'Manage your billing. Plan changes start after your current paid period; no charge now.':'Manage invoices, payment methods and cancellation. Plan switching is unavailable in this session.',
+    'business_profile[headline]':currency?'Manage billing. Plan changes start after your paid period.':'Manage invoices, payment methods and cancellation.',
     'features[customer_update][enabled]':'true',
     'features[customer_update][allowed_updates][0]':'address',
     'features[payment_method_update][enabled]':'true',

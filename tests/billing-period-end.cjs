@@ -153,7 +153,7 @@ test('reservation webhooks grant no access for failed invoices and require the s
 test('portal reuses a safe configuration only after expanding the price settings Stripe omits by default',async()=>{
  const policy=load('lib/membership/portal-policy.ts',{'./config':config,'./stripe':stripe});let creates=0;
  const features={subscription_cancel:{enabled:true,mode:'at_period_end',proration_behavior:'none'},subscription_update:{enabled:true,proration_behavior:'none',default_allowed_updates:['price'],products:[{product:'prod_personal',prices:['price_monthlyGBP','price_annualGBP']}],schedule_at_period_end:{conditions:[{type:'decreasing_item_amount'},{type:'shortening_interval'}]}}};
- const signature='medicea-period-end-v3-GBP-price_monthlyGBP-price_annualGBP';
+ const signature='medicea-period-end-v4-GBP-price_monthlyGBP-price_annualGBP';
  const request=async(path,params,_key,_timeout,_version,query)=>{
   if(path.startsWith('/prices/'))return path.includes('monthly')?price('monthly'):price('annual');
   if(params){creates++;throw Error('Should reuse expanded configuration');}
@@ -197,4 +197,16 @@ test('account clearly distinguishes the active plan from the scheduled plan',()=
  const Account=load('app/membership/account-plans.tsx',{'../i18n/membership':{useMembershipCopy:()=>({copy,lang:'en'})},'./membership.module.css':{default:{}}}).default;
  const html=renderToStaticMarkup(React.createElement(Account,{plans:[{plan:'annual',provider:'stripe',currency:'GBP',amountMinor:1999,cancelAtPeriodEnd:false,periodEndsAt:new Date(start*1000).toISOString(),scheduledChange:{plan:'monthly',currency:'GBP',amountMinor:249,startsAt:new Date(start*1000).toISOString()}}]}));
  assert.match(html,/CURRENT PLAN · ACTIVE NOW/);assert.match(html,/NEXT PLAN · SCHEDULED, NOT ACTIVE YET/);assert.match(html,/Your current plan stays active until then/);assert.match(html,/£2\.49/);assert.doesNotMatch(html,/No immediate charge for this change/);
+});
+test('all portal headlines satisfy the actual Stripe 60-character limit, including the billing-only fallback',async()=>{
+ const policy=load('lib/membership/portal-policy.ts',{'./config':config,'./stripe':stripe});
+ for(const currency of ['GBP','EUR','USD',null]){
+  const request=async(path,params,key)=>{
+   if(path.startsWith('/prices/'))return path.includes('monthly')?price('monthly',currency):price('annual',currency);
+   if(!params)return {data:[]};
+   const headline=params.get('business_profile[headline]');assert.ok(headline.length>0&&headline.length<=60,`Stripe rejects this headline: ${headline}`);assert.match(key,/^medicea-period-end-v4-/,'Corrected parameters must not reuse the failed request idempotency key');
+   return {id:'bpc_test',active:true,livemode:false,features:{subscription_cancel:{enabled:true,mode:'at_period_end',proration_behavior:'none'},subscription_update:currency?{enabled:true,proration_behavior:'none',default_allowed_updates:['price'],products:[{product:'prod_personal',prices:['price_monthly'+currency,'price_annual'+currency]}],schedule_at_period_end:{conditions:[{type:'decreasing_item_amount'},{type:'shortening_interval'}]}}:{enabled:false}}};
+  };
+  assert.equal(await policy.periodEndPortalConfiguration(currency,request),'bpc_test');
+ }
 });
