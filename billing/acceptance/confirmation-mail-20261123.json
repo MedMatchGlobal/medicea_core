@@ -1,0 +1,8 @@
+{
+ "date":"2026-11-23",
+ "environment":"protected medicea-core Preview; automatic customer mail remains disabled",
+ "connectionVerification":{"deployment":"dpl_CzAQs7oCwggkJDL2iRcK7cQTgRpu","connection":true,"TLS":true,"authentication":true,"messagesSent":0},
+ "deliveryTest":{"deployment":"dpl_He8f8vqvAG6eydLi1B3B9YrDKrrR","id":"83a30d5a-d95c-4c77-822c-d67b03ccdd46","sender":"billing@medicea.global","recipient":"sergio@medicea.global","subject":"[TEST] medicéa billing delivery check","explicitlyAuthorized":true,"messagesAccepted":1,"acceptedAtLondon":"23 November 2026, 21:50:41 GMT","queueState":"sent","ownerConfirmedInboxReceipt":true,"ownerConfirmedAttachmentOpens":true,"textAttachment":true,"noPurchasePaymentOrAccessChange":true},
+ "normalBuildDeployment":"dpl_BZkDj1NYSJhveJQv9JWco6EeMyLz",
+ "limits":["This proves one SMTP/outbox delivery and a readable text attachment, not general deliverability or legal completion.","Real purchase -> event -> confirmation acceptance is still to be completed for each supported lifecycle before public billing.","Automatic customer email remains OFF; no retrospective purchase emails, live billing or vouchers were enabled.","Medical prompts, matching, model settings and provider routing remain unchanged."]
+}

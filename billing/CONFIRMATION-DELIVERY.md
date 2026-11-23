@@ -99,3 +99,15 @@ sergio@medicea.global through the actual outbox worker, with a retained text cop
 It refuses existing/uncertain test attempts or another pending queue, and never
 changes the runtime mail flag. Do not invoke without the owner's explicit approval
 to send that message. SMTP acceptance still needs recipient inbox confirmation.
+
+## One-message delivery acceptance — completed
+
+The owner explicitly authorized one labelled test from billing@medicea.global to
+sergio@medicea.global. The actual outbox worker obtained one SMTP acceptance at
+21:50:41 GMT (London time) on 23 November 2026. The owner then confirmed receipt
+and that the text attachment opened, with screenshots. No purchase, payment,
+subscription or access change occurred. See acceptance/confirmation-mail-20261123.json.
+
+The normal build command was restored afterward. Automatic customer mail remains
+OFF. This test establishes one inbox/attachment delivery, not completion of every
+provider-purchase lifecycle, final contract-language review or public launch.

@@ -174,3 +174,10 @@ Reviewed 52 Next.js server trace manifests: Prisma CLI/config, deepmerge-ts,
 effect, OpenAI SDK and Zod advisory packages were not present in those traces.
 This narrows deployed exposure; it does not erase development-tool advisories.
 SMTP remains OFF and no confirmation email was sent. Production stays disabled.
+
+SMTP connection/TLS/authentication acceptance and one explicitly authorized
+outbox-to-inbox test are now complete. The owner confirmed its text attachment
+opened. See acceptance/confirmation-mail-20261123.json. Automatic customer mail
+is still OFF; actual purchase-to-confirmation lifecycle acceptance and policy
+translation/retention decisions remain pending. No additional test email is
+authorized by the single-message test approval.
