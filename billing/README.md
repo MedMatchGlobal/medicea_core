@@ -1,5 +1,25 @@
 # mediceaGO Personal — test preparation
 
+## Launch review and separate owner console — 23 November 2026
+
+See [LAUNCH-REVIEW.md](LAUNCH-REVIEW.md) for resolved issues and remaining work.
+The monitored support inbox and owner-approved 14-day initial-purchase refund
+policy are recorded there. The app no longer loads optional Google Analytics;
+preview privacy disclosures identify Anthropic and Google Fonts accurately.
+Consumer confirmation delivery and the full privacy/regulatory work remain
+explicit launch gates, not completed checks.
+
+The independent [owner console](../admin-console/README.md) has its own protected
+preview, owner/MFA authorization, restricted database role and private audit trail.
+Its UI, replay handling and database privileges were tested, including synthetic
+browser tests. It still needs a dedicated restricted Stripe test key, owner MFA
+acceptance and actual console-to-provider financial tests. No live operations are
+enabled. Google Play refund handling remains through Play Console.
+
+The owner-supplied [new branding](../branding/README.md) is applied to the web app,
+owner console, browser icons and Android/iOS release assets. No native store binary
+or live Stripe/store-listing branding was published by this update.
+
 ## Current billing verification — 23 November 2026
 
 This section supersedes the older dated price and acceptance snapshots below. Current GBP monthly pricing is £2.99; passes remain £1.49/£1.99/£2.99 and annual £19.99. EUR and USD amounts are defined in `lib/membership/config.ts`; historical purchases retain their actual booked currency and price.

@@ -31,12 +31,23 @@ async function main(){const browser=await chromium.launch({channel:'chrome',head
    }else await render(relative,width,height,icon,Math.round(width*(name.includes('foreground')?.25:.16)),name.includes('foreground')?'transparent':'white',name.includes('round'));
   }
  }
+ for(const [directory,kind] of [['ios/App/App/Assets.xcassets/AppIcon.appiconset','icon'],['ios/App/App/Assets.xcassets/Splash.imageset','splash']]){
+  const folder=path.join(root,directory);if(!fs.existsSync(folder))continue;
+  for(const name of fs.readdirSync(folder).filter(name=>name.endsWith('.png'))){
+   const file=path.join(folder,name),[width,height]=dimensions(file);
+   if(kind==='icon')await render(path.relative(root,file),width,height,icon,Math.round(width*.16),'white');
+   else {
+    const targetWidth=Math.min(width*.64,height*1.5),targetHeight=targetWidth/2.79;
+    await page.setViewportSize({width,height});await page.setContent(`<style>html,body{margin:0;width:100%;height:100%;background:white}body{display:grid;place-items:center}svg{width:${targetWidth}px;height:${targetHeight}px}</style>`+full);await page.screenshot({path:file});
+   }
+  }
+ }
  const png=fs.readFileSync(path.join(root,'public/brand/medicea-icon-256.png')),head=Buffer.alloc(22);
  head.writeUInt16LE(1,2);head.writeUInt16LE(1,4);head[6]=0;head[7]=0;head.writeUInt16LE(1,10);head.writeUInt16LE(32,12);head.writeUInt32LE(png.length,14);head.writeUInt32LE(22,18);
  fs.writeFileSync(path.join(root,'public/favicon.ico'),Buffer.concat([head,png]));
  fs.mkdirSync(path.join(root,'admin-console/public/brand'),{recursive:true});
  for(const name of ['medicea-logo.svg','medicea-wordmark.svg','medicea-icon.svg','medicea-icon-256.png'])fs.copyFileSync(path.join(root,'public/brand',name),path.join(root,'admin-console/public/brand',name));
  fs.copyFileSync(path.join(root,'public/favicon.ico'),path.join(root,'admin-console/public/favicon.ico'));
- await browser.close();console.log('Rendered web, browser, Android launcher and splash branding from the supplied SVG.');
+ await browser.close();console.log('Rendered web, browser, Android and iOS launcher/splash branding from the supplied SVG.');
 }
 main().catch(()=>{console.error('Brand rendering failed.');process.exitCode=1;});

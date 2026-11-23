@@ -11,7 +11,7 @@ the design. Full lockup: `public/brand/medicea-logo.svg`; inline wordmark crop:
 `public/brand/medicea-wordmark.svg`; small app/browser icon crop:
 `public/brand/medicea-icon.svg` (the supplied capsule).
 
-`scripts/render-brand-assets.cjs` exports browser/native PNG and ICO assets by
+`scripts/render-brand-assets.cjs` exports browser, Android and iOS PNG/ICO assets by
 rendering these SVGs. It also copies the assets to the separate admin console.
 It requires Playwright and installed Chrome; set MEDICEA_PLAYWRIGHT_PATH if the
 runtime provides Playwright outside this repository.
