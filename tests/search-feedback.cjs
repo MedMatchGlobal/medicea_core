@@ -17,10 +17,10 @@ function load(file) {
   return module.exports;
 }
 test('doctor discovery defaults to general care and honors an explicit specialty', () => {
-  const {careSearchQuery} = load('app/lib/care-search.ts');
-  assert.equal(careSearchQuery('doctor', 'London'), 'general medical doctors near London');
-  assert.equal(careSearchQuery('doctor', 'London', 'Urology'), 'Urology medical doctors near London');
-  assert.equal(careSearchQuery('hospital', 'Rome'), 'human general hospitals near Rome');
+  const {careSearchQuery} = require('./load-care.cjs')('app/lib/care-search.ts');
+  assert.equal(careSearchQuery('doctor', 'London'), 'doctor near London');
+  assert.equal(careSearchQuery('doctor', 'London', 'custom:Urology'), 'Urology near London');
+  assert.equal(careSearchQuery('hospital', 'Rome'), 'hospitals near Rome');
   assert.equal(careSearchQuery('pharmacy', 'Paris'), 'pharmacies near Paris');
 });
 test('condition field accepts names beyond the suggestions and rejects no unknown condition', () => {

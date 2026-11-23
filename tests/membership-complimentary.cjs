@@ -54,10 +54,10 @@ test('unconfirmed Supabase email never authorises owner or complimentary access'
  assert.equal((await auth.membershipUser()).email,undefined);
  identity.email_confirmed_at=new Date().toISOString();assert.equal((await auth.membershipUser()).email,'owner@example.test');
 });
-test('complimentary-only status never labels a paid plan or queries a payment provider',async()=>{
+test('complimentary-only status hides paid plans but preserves billing management',async()=>{
  let lookedUp=false;
- const route=load('app/api/membership/status/route.ts',{'@/lib/membership/config':{membershipAccountEnabled:()=>true},'@/lib/membership/auth':{membershipUser:async()=>({id:A,email:'friend@example.test'})},'@/lib/membership/complimentary':{isMembershipAdmin:()=>false},'@/lib/membership/store':{membershipStatus:async(id,email)=>{assert.equal(email,'friend@example.test');return {premium:true,paidAccess:false,complimentary:true};}},'@/lib/membership/active-plans':{membershipPlans:async()=>{lookedUp=true;throw Error();}}});
- const body=await (await route.GET()).json();assert.equal(body.complimentary,true);assert.equal(lookedUp,false);assert.equal(body.activePlans.length,0);assert.equal(body.planDetailsUnavailable,false);
+ const route=load('app/api/membership/status/route.ts',{'@/lib/membership/config':{membershipAccountEnabled:()=>true},'@/lib/membership/auth':{membershipUser:async()=>({id:A,email:'friend@example.test'})},'@/lib/membership/complimentary':{isMembershipAdmin:()=>false},'@/lib/membership/store':{membershipStatus:async(id,email)=>{assert.equal(email,'friend@example.test');return {premium:true,paidAccess:false,complimentary:true};}},'@/lib/membership/active-plans':{membershipPlans:async()=>{lookedUp=true;return {activePlans:['monthly'],planSummaries:[{plan:'monthly'}],canManageStripe:true,canManageGooglePlay:false};}}});
+ const body=await (await route.GET()).json();assert.equal(body.complimentary,true);assert.equal(lookedUp,true);assert.equal(body.activePlans.length,0);assert.equal(body.planSummaries.length,0);assert.equal(body.planDetailsUnavailable,false);assert.equal(body.canManageStripe,true);
 });
 
 test('server page identity reads never write cookies; route identity refresh still persists cookies',async()=>{

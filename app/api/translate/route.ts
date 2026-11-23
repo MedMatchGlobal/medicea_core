@@ -2,6 +2,7 @@ export const maxDuration = 60;
 import { openaiFetch } from "@/app/lib/openaiClient";
 // app/api/translate/route.ts
 import { NextRequest, NextResponse } from "next/server";
+import {helperAccess} from '@/lib/membership/helper-access';
 
 const MODEL = process.env.OPENAI_MODEL || "gpt-4o-mini";
 
@@ -12,13 +13,14 @@ const MODEL = process.env.OPENAI_MODEL || "gpt-4o-mini";
  * Preserves formatting (HTML/Markdown, bullet points, line breaks).
  */
 export async function POST(req: NextRequest) {
+  const denied=await helperAccess(req);if(denied)return denied;
   try {
     const { text, target } = await req.json();
 
-    if (!text || typeof text !== "string") {
+    if (!text || typeof text !== "string" || text.length>4000) {
       return NextResponse.json({ error: "Missing 'text' string" }, { status: 400 });
     }
-    if (!target || typeof target !== "string") {
+    if (!target || typeof target !== "string" || target.length>80) {
       return NextResponse.json({ error: "Missing 'target' string" }, { status: 400 });
     }
 
@@ -44,8 +46,7 @@ export async function POST(req: NextRequest) {
     });
 
     if (!resp.ok) {
-      const errText = await resp.text();
-      return NextResponse.json({ error: `OpenAI error: ${errText}` }, { status: 500 });
+      return NextResponse.json({ error: 'TRANSLATION_UNAVAILABLE' }, { status: 503 });
     }
 
     const data = await resp.json();
@@ -57,7 +58,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ result: translated });
   } catch (err: any) {
     return NextResponse.json(
-      { error: err?.message || "Unknown translation error" },
+      { error: 'TRANSLATION_UNAVAILABLE' },
       { status: 500 }
     );
   }

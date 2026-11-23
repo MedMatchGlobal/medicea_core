@@ -2,6 +2,7 @@ export const maxDuration = 60;
 import { openaiFetch } from "@/app/lib/openaiClient";
 // app/api/translate-json/route.ts
 import { NextRequest, NextResponse } from "next/server";
+import {helperAccess} from '@/lib/membership/helper-access';
 
 const MODEL = process.env.OPENAI_MODEL || "gpt-4o-mini";
 
@@ -35,13 +36,14 @@ const LANGUAGE_NAME: Record<string, string> = {
 };
 
 export async function POST(req: NextRequest) {
+  const denied=await helperAccess(req);if(denied)return denied;
   try {
     const { data, lang } = await req.json();
 
     if (!data || typeof data !== "object") {
       return NextResponse.json({ error: "Missing or invalid 'data' object" }, { status: 400 });
     }
-    if (!lang || typeof lang !== "string") {
+    if (!lang || typeof lang !== "string" || lang.length>80) {
       return NextResponse.json({ error: "Missing 'lang' string" }, { status: 400 });
     }
 
@@ -50,6 +52,7 @@ export async function POST(req: NextRequest) {
       lang; // allow full names already
 
     const jsonStr = JSON.stringify(data);
+    if(jsonStr.length>64000)return NextResponse.json({error:'TRANSLATION_INPUT_TOO_LARGE'},{status:400});
 
     const system =
       "You translate JSON VALUES but must preserve all KEYS exactly as they are. " +
@@ -81,8 +84,7 @@ export async function POST(req: NextRequest) {
     });
 
     if (!resp.ok) {
-      const errText = await resp.text();
-      return NextResponse.json({ error: `OpenAI error: ${errText}` }, { status: 500 });
+      return NextResponse.json({ error: 'TRANSLATION_UNAVAILABLE' }, { status: 503 });
     }
 
     const dataOut = await resp.json();
@@ -111,7 +113,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ result: parsed });
   } catch (err: any) {
     return NextResponse.json(
-      { error: err?.message || "Unknown translation error" },
+      { error: 'TRANSLATION_UNAVAILABLE' },
       { status: 500 }
     );
   }
