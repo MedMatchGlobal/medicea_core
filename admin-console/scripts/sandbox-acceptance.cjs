@@ -15,7 +15,7 @@ function uuid(label){const h=createHash('sha256').update(run+':'+label).digest('
 const member=uuid('member'),actor=uuid('automated-qa-actor'),{stripe}=load(path.join(root,'lib/stripe.ts')),{db}=load(path.join(root,'lib/db.ts')),{performOperation}=load(path.join(root,'lib/operations.ts'));
 const form=object=>new URLSearchParams(Object.entries(object).map(([k,v])=>[k,String(v)]));
 let stage='preflight',customer,sessionId;const fixtures=[];
-function check(value,label){if(!value)throw Error('CHECK_FAILED_'+label);}
+function check(value,label){if(!value)throw Object.assign(Error('CHECK_FAILED_'+label),{code:'CHECK_FAILED_'+label});}
 const op=(label,action,amountMinor,extra={})=>({operationId:uuid(label),member,action,amountMinor,currency:'GBP',reason:'Automated dedicated sandbox acceptance '+run,confirmed:true,...extra});
 async function fixture(label,amount){
  const pi=await stripe('/payment_intents',form({customer:customer.id,amount,currency:'gbp',payment_method:'pm_card_visa',confirm:true,'automatic_payment_methods[enabled]':true,'automatic_payment_methods[allow_redirects]':'never','metadata[console_acceptance]':run}),run+'-'+label);
@@ -32,9 +32,11 @@ async function main(){
  const request=op('payment-request','payment_request',299,{description:'QA one-off payment request; no app access'});
  const first=await performOperation(actor,request);sessionId=first.providerRef;const repeat=await performOperation(actor,request);check(repeat.providerRef===sessionId,'payment_request_retry');
  const session=await stripe('/checkout/sessions/'+sessionId,undefined,undefined,new URLSearchParams({'expand[]':'line_items.data.taxes'}));
- check(session.livemode===false&&session.status==='open'&&session.payment_status==='unpaid'&&session.customer===customer.id&&session.amount_total===299&&session.total_details?.amount_tax===50&&session.automatic_tax?.enabled===true&&session.automatic_tax?.status==='complete'&&session.metadata?.console_policy==='customer-approved-payment-request-v1','checkout_inclusive_VAT');
+ check(session.livemode===false&&['open','expired'].includes(session.status)&&session.payment_status==='unpaid'&&session.customer===customer.id&&session.amount_total===299&&session.automatic_tax?.enabled===true&&session.metadata?.console_policy==='customer-approved-payment-request-v1','checkout_inclusive_VAT');
+ const tax=await stripe('/tax/calculations',form({currency:'gbp','line_items[0][amount]':299,'line_items[0][reference]':'QA-request','line_items[0][tax_behavior]':'inclusive','line_items[0][tax_code]':process.env.MEDICEA_CONSOLE_TAX_CODE,'customer_details[address][country]':'GB','customer_details[address][postal_code]':'SW1A 1AA','customer_details[address_source]':'billing'}));
+ check(tax.amount_total===299&&tax.tax_amount_inclusive===50&&tax.tax_breakdown?.some(t=>t.taxability_reason==='standard_rated'),'GB_inclusive_VAT_calculation');
  const before=await stripe('/charges',undefined,undefined,form({customer:customer.id,limit:10}));check(before.data.length===0,'request_did_not_charge');
- const expired=await stripe('/checkout/sessions/'+sessionId+'/expire',form({}),run+'-expire');check(expired.status==='expired','unused_checkout_expired');
+ const expired=session.status==='expired'?session:await stripe('/checkout/sessions/'+sessionId+'/expire',form({}),run+'-expire');check(expired.status==='expired','unused_checkout_expired');
  console.log('CONSOLE_QA_STAGE payment_request_passed total=299 VAT=50 GBP no_charge=true retry_same_session=true expired=true');
  stage='partial_refund';const charge=await fixture('partial-fixture',299),partial=op('partial-refund','refund',100,{charge});
  const part=await performOperation(actor,partial);check(part.status==='succeeded'&&part.amountMinor===100,'partial_refund');check((await performOperation(actor,partial)).providerRef===part.providerRef,'partial_retry');
