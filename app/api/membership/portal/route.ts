@@ -1,7 +1,7 @@
 import {membershipAccountEnabled,membershipOrigin,sameOrigin,isBillingCurrency,type BillingCurrency} from '@/lib/membership/config';
 import {membershipUser} from '@/lib/membership/auth';
 import {billingDb} from '@/lib/membership/store';
-import {stripeRequest,subscriptionAccess} from '@/lib/membership/stripe';
+import {stripeRequest,subscriptionAccess,stripeDiagnostic} from '@/lib/membership/stripe';
 import {periodEndPortalConfiguration} from '@/lib/membership/portal-policy';
 export const maxDuration=60;
 export async function POST(req:Request){
@@ -20,9 +20,22 @@ export async function POST(req:Request){
     const code=(purchase.currency||purchase.items?.data?.[0]?.price?.currency)?.toUpperCase();if(isBillingCurrency(code))currency=code;
    }
   }catch{/* Billing and end-of-period cancellation remain available; ambiguous plans cannot be changed. */}
-  const configuration=await periodEndPortalConfiguration(currency);
-  const session=await stripeRequest('/billing_portal/sessions',new URLSearchParams({customer:customers[0].customer_id,configuration,return_url:membershipOrigin()+'/membership'}));
-  const url=new URL(session.url);if(url.protocol!=='https:'||url.hostname!=='billing.stripe.com')throw new Error('Unexpected portal');
-  return Response.json({url:session.url},{headers:{'Cache-Control':'no-store'}});
+  let diagnostic:any=null;
+  // A plan-switch configuration failure must not remove access to invoices, payment methods and cancellation.
+  // The fallback explicitly disables switching; it never falls back to the unsafe default configuration.
+  for(const mode of currency?[currency,null]:[null]){
+   let stage='configuration';
+   try{
+    const configuration=await periodEndPortalConfiguration(mode);
+    stage='session';
+    const session=await stripeRequest('/billing_portal/sessions',new URLSearchParams({customer:customers[0].customer_id,configuration,return_url:membershipOrigin()+'/membership'}));
+    const url=new URL(session.url);if(url.protocol!=='https:'||url.hostname!=='billing.stripe.com')throw new Error('Unexpected portal');
+    return Response.json({url:session.url,limitedManagement:mode===null&&currency!==null},{headers:{'Cache-Control':'no-store'}});
+   }catch(error){
+    diagnostic={stage,...stripeDiagnostic(error)};
+    console.error('Membership portal request failed',diagnostic);
+   }
+  }
+  return Response.json({error:'PORTAL_UNAVAILABLE',diagnostic},{status:503,headers:{'Cache-Control':'no-store'}});
  }catch{return Response.json({error:'PORTAL_UNAVAILABLE'},{status:503});}
 }

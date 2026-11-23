@@ -2,7 +2,7 @@ const test=require('node:test'),assert=require('node:assert/strict'),fs=require(
 const member='11111111-1111-4111-8111-111111111111',now=Math.floor(Date.now()/1000),start=now+7*86400;
 const env={};
 for(const [plan,stem] of Object.entries({pass7:'7_DAY',pass14:'14_DAY',pass30:'30_DAY',monthly:'MONTHLY',annual:'ANNUAL'}))for(const currency of ['GBP','EUR','USD'])env['STRIPE_PERSONAL_'+stem+'_PRICE_ID'+(currency==='GBP'?'':'_'+currency)]='price_'+plan+currency;
-function load(file,imports={}){const module={exports:{}};vm.runInNewContext(ts.transpileModule(fs.readFileSync(file,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022,jsx:ts.JsxEmit.ReactJSX}}).outputText,{module,exports:module.exports,require:n=>imports[n]||require(n),process:{env},Response,Request,URL,URLSearchParams,Date,Set,Map,Intl});return module.exports;}
+function load(file,imports={},globals={}){const module={exports:{}};vm.runInNewContext(ts.transpileModule(fs.readFileSync(file,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022,jsx:ts.JsxEmit.ReactJSX}}).outputText,{module,exports:module.exports,require:n=>imports[n]||require(n),process:{env},Response,Request,URL,URLSearchParams,Date,Set,Map,Intl,...globals});return module.exports;}
 const config=load('lib/membership/config.ts'),stripe=load('lib/membership/stripe.ts',{'./config':config});
 function price(plan,currency='GBP'){return {id:'price_'+plan+currency,product:'prod_personal',active:true,livemode:false,currency:currency.toLowerCase(),unit_amount:config.planAmount(plan,currency),recurring:plan.startsWith('pass')?null:{interval:plan==='annual'?'year':'month',interval_count:1}};}
 function metadata(params){return Object.fromEntries([...params].filter(([key])=>/^metadata\[/.test(key)).map(([key,value])=>[key.slice(9,-1),value]));}
@@ -153,7 +153,7 @@ test('reservation webhooks grant no access for failed invoices and require the s
 test('portal reuses a safe configuration only after expanding the price settings Stripe omits by default',async()=>{
  const policy=load('lib/membership/portal-policy.ts',{'./config':config,'./stripe':stripe});let creates=0;
  const features={subscription_cancel:{enabled:true,mode:'at_period_end',proration_behavior:'none'},subscription_update:{enabled:true,proration_behavior:'none',default_allowed_updates:['price'],products:[{product:'prod_personal',prices:['price_monthlyGBP','price_annualGBP']}],schedule_at_period_end:{conditions:[{type:'decreasing_item_amount'},{type:'shortening_interval'}]}}};
- const signature='medicea-period-end-v2-GBP-price_monthlyGBP-price_annualGBP';
+ const signature='medicea-period-end-v3-GBP-price_monthlyGBP-price_annualGBP';
  const request=async(path,params,_key,_timeout,_version,query)=>{
   if(path.startsWith('/prices/'))return path.includes('monthly')?price('monthly'):price('annual');
   if(params){creates++;throw Error('Should reuse expanded configuration');}
@@ -173,4 +173,28 @@ test('historical scheduled prices display actual terms, nullable quantity and ex
  const rows=[{provider:'stripe',external_id:'sub_current',customer_id:'cus_test',play_plan:null}];
  const result=await plans.resolveActivePlans(member,rows,request);assert.equal(result.planSummaries[0].scheduledChange.plan,'monthly');assert.equal(result.planSummaries[0].scheduledChange.amountMinor,249);assert.deepEqual(Array.from(result.activePlans),['annual']);
  legacy.product='prod_unrelated';const rejected=await plans.resolveActivePlans(member,rows,request);assert.equal(rejected.planSummaries[0].scheduledChange,undefined);assert.equal(rejected.planSummaries[0].scheduledChangeUnavailable,true);assert.deepEqual(Array.from(rejected.activePlans),['annual']);
+});
+test('a switching configuration error falls back only to an explicitly billing-only portal',async()=>{
+ const modes=[],sent=[];
+ const route=load('app/api/membership/portal/route.ts',{
+  '@/lib/membership/config':{membershipAccountEnabled:()=>true,sameOrigin:()=>true,membershipOrigin:()=> 'https://preview.example',isBillingCurrency:config.isBillingCurrency},
+  '@/lib/membership/auth':{membershipUser:async()=>({id:member})},
+  '@/lib/membership/store':{billingDb:()=>({$queryRaw:async strings=>strings.join('').includes('stripe_customer')?[{customer_id:'cus_test'}]:[{external_id:'sub_test'}]})},
+  '@/lib/membership/portal-policy':{periodEndPortalConfiguration:async currency=>{modes.push(currency);if(currency)throw Error('Configuration unavailable');return 'bpc_billingOnly';}},
+  '@/lib/membership/stripe':{subscriptionAccess:()=>({active:true}),stripeDiagnostic:()=>({code:'parameter_unknown',status:400,parameter:'features',detail:'Unsupported setting'}),stripeRequest:async(path,params)=>{
+   if(path==='/subscriptions/sub_test')return {id:'sub_test',customer:'cus_test',metadata:{member_id:member},currency:'gbp'};
+   sent.push(Object.fromEntries(params));return {url:'https://billing.stripe.com/p/test'};
+  }},
+ });
+ const response=await route.POST(new Request('https://preview.example/api/membership/portal'));assert.equal(response.status,200);assert.equal((await response.json()).limitedManagement,true);assert.deepEqual(modes,['GBP',null]);assert.equal(sent[0].configuration,'bpc_billingOnly');
+});
+test('Stripe failures retain useful diagnostics without returning API keys or customer identifiers',async()=>{
+ const client=load('lib/membership/stripe.ts',{'./config':{...config,stripeTestKey:()=> 'sk_test_fixture'}},{AbortSignal,fetch:async()=>Response.json({error:{type:'invalid_request_error',code:'parameter_unknown',param:'features.subscription_update',message:'Unknown setting for cus_private with sk_test_private and private@example.test'}},{status:400})});
+ await assert.rejects(async()=>{try{await client.stripeRequest('/billing_portal/configurations',new URLSearchParams());}catch(error){const diagnostic=client.stripeDiagnostic(error);assert.equal(diagnostic.status,400);assert.equal(diagnostic.code,'parameter_unknown');assert.equal(diagnostic.parameter,'features.subscription_update');assert.doesNotMatch(JSON.stringify(diagnostic),/cus_private|sk_test_private|private@example/);throw error;}},/Stripe request unavailable/);
+});
+test('account clearly distinguishes the active plan from the scheduled plan',()=>{
+ const React=require('react'),{renderToStaticMarkup}=require('react-dom/server'),copy=require('../app/i18n/membership/en.json');
+ const Account=load('app/membership/account-plans.tsx',{'../i18n/membership':{useMembershipCopy:()=>({copy,lang:'en'})},'./membership.module.css':{default:{}}}).default;
+ const html=renderToStaticMarkup(React.createElement(Account,{plans:[{plan:'annual',provider:'stripe',currency:'GBP',amountMinor:1999,cancelAtPeriodEnd:false,periodEndsAt:new Date(start*1000).toISOString(),scheduledChange:{plan:'monthly',currency:'GBP',amountMinor:249,startsAt:new Date(start*1000).toISOString()}}]}));
+ assert.match(html,/CURRENT PLAN · ACTIVE NOW/);assert.match(html,/NEXT PLAN · SCHEDULED, NOT ACTIVE YET/);assert.match(html,/Your current plan stays active until then/);assert.match(html,/£2\.49/);assert.doesNotMatch(html,/No immediate charge for this change/);
 });

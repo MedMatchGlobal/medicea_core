@@ -1,10 +1,19 @@
 import {createHmac,timingSafeEqual} from 'node:crypto';
 import {stripeTestKey,PERSONAL_PLANS,isPersonalPlan,planAmount,isBillingCurrency,BILLING_CURRENCIES,type BillingCurrency,type PersonalPlan} from './config';
+function safeStripeMessage(value:unknown){
+ return typeof value==='string'?value.slice(0,600).replace(/\b(?:sk|rk|pk)_(?:test|live)_[A-Za-z0-9_]+/g,'[key]').replace(/\b(?:cus|sub|price|prod|bpc|cs|seti|pm)_[A-Za-z0-9_]+/g,'[id]').replace(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi,'[email]').replace(/https?:\/\/[^\s"']+/g,'[url]'):'';
+}
+export class StripeRequestError extends Error {
+ constructor(public status:number,public code:string,public parameter:string,public detail:string){super('Stripe request unavailable');}
+}
+export function stripeDiagnostic(error:unknown){
+ return error instanceof StripeRequestError?{status:error.status,code:error.code,parameter:error.parameter,detail:error.detail}:{status:0,code:'APP_VALIDATION_OR_STORAGE',parameter:'',detail:''};
+}
 export async function stripeRequest(path:string,params?:URLSearchParams,idempotencyKey?:string,timeoutMs=15000,apiVersion='2025-03-31.basil',query?:URLSearchParams) {
  if(!/^\/[a-z_]+(?:\/[a-zA-Z0-9_]+)*$/.test(path))throw new Error('Invalid Stripe path');
  if(params&&query)throw Error('Unexpected query on mutation');
  const response=await fetch('https://api.stripe.com/v1'+path+(query?'?'+query.toString():''),{method:params?'POST':'GET',headers:{Authorization:'Bearer '+stripeTestKey(),'Stripe-Version':apiVersion,...(params?{'Content-Type':'application/x-www-form-urlencoded'}:{}),...(idempotencyKey?{'Idempotency-Key':idempotencyKey}:{})},body:params?.toString(),cache:'no-store',signal:AbortSignal.timeout(timeoutMs)});
- if(!response.ok)throw new Error('Stripe request unavailable');
+ if(!response.ok){const body=await response.json().catch(()=>null),error=body?.error;throw new StripeRequestError(response.status,safeStripeMessage(error?.code||error?.type),safeStripeMessage(error?.param),safeStripeMessage(error?.message));}
  return response.json();
 }
 export function verifyStripeSignature(raw:string,header:string,secret:string,now=Math.floor(Date.now()/1000)) {

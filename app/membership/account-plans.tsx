@@ -12,9 +12,10 @@ export default function AccountPlans({plans}:{plans:PlanSummary[]}){
     const price=plan.currency&&plan.amountMinor!==null?new Intl.NumberFormat(locale,{style:'currency',currency:plan.currency}).format(plan.amountMinor/100):null;
     const next=plan.scheduledChange;
     return <div key={index}>
+      <p className={styles.small}>CURRENT PLAN · ACTIVE NOW</p>
       <p><strong>{name(plan.plan)}</strong>{price&&<> · <bdi>{price}</bdi>{plan.plan==='monthly'?` ${copy.perMonth}`:plan.plan==='annual'?` ${copy.perYear}`:''}</>}</p>
-      {plan.periodEndsAt&&<p className={styles.small}>{plan.plan.startsWith('pass')||plan.cancelAtPeriodEnd||next?'Access until':'Renews on'} {date(plan.periodEndsAt)}{plan.cancelAtPeriodEnd?' · Renewal cancelled':''}</p>}
-      {next&&<p className={styles.scheduled}><strong>{name(next.plan)}</strong> starts {date(next.startsAt)} · <bdi>{new Intl.NumberFormat(locale,{style:'currency',currency:next.currency}).format(next.amountMinor/100)}</bdi>{next.plan==='monthly'?` ${copy.perMonth}`:` ${copy.perYear}`}<br/>No immediate charge for this change.</p>}
+      {plan.periodEndsAt&&<p className={styles.small}>{plan.plan.startsWith('pass')||plan.cancelAtPeriodEnd||next?'Paid access through':'Renews on'} {date(plan.periodEndsAt)}{plan.cancelAtPeriodEnd?' · Renewal cancelled':''}</p>}
+      {next&&<div className={styles.scheduled}><p className={styles.small}>NEXT PLAN · SCHEDULED, NOT ACTIVE YET</p><p><strong>{name(next.plan)}</strong> · <bdi>{new Intl.NumberFormat(locale,{style:'currency',currency:next.currency}).format(next.amountMinor/100)}</bdi>{next.plan==='monthly'?` ${copy.perMonth}`:` ${copy.perYear}`}</p><p>Starts {date(next.startsAt)}, after your current plan ends.</p><p className={styles.small}>Your current plan stays active until then. This is the price on your existing scheduled change.</p></div>}
       {plan.scheduledChangeUnavailable&&<p className={styles.small}>Scheduled change details are unavailable. Check Stripe before making another change.</p>}
     </div>;
   })}</div>;
