@@ -38,7 +38,7 @@ export async function account(actor:string,member:string,after?:string){
   db().query('SELECT plan,fulfilled,revoked,superseded,verified_at,voided_order_id FROM medicea_billing.play_purchase WHERE member_id=$1 ORDER BY verified_at DESC LIMIT 100',[member]),
   db().query('SELECT id,action,amount_minor,currency,state,reason,result,payload,created_at FROM medicea_billing.console_operation WHERE member_id=$1 ORDER BY created_at DESC LIMIT 100',[member])
  ]);
- let provider:any={available:false,payments:[],hasMore:false,subscriptions:[],schedules:[],future:[],passes:[]};
+ let provider:any={available:false,state:'unavailable',payments:[],hasMore:false,subscriptions:[],schedules:[],future:[],passes:[]};
  try{
   const customer=await customerFor(member);
   const [history,subscriptions,schedules]=await Promise.all([charges(customer.id,after),stripe('/subscriptions',undefined,undefined,new URLSearchParams({customer:customer.id,status:'all',limit:'100'})),stripe('/subscription_schedules',undefined,undefined,new URLSearchParams({customer:customer.id,limit:'100'}))]);
@@ -68,10 +68,13 @@ export async function account(actor:string,member:string,after?:string){
     future.push({kind:'Scheduled subscription',plan:price.recurring?.interval==='month'?'Monthly subscription':price.recurring?.interval==='year'?'Annual subscription':s.metadata?.plan||'Scheduled plan',startsAt:phase.start_date,amountMinor:price.unit_amount,currency:price.currency?.toUpperCase(),status:s.status});
    }
   }
-  provider={available:true,...history,passes,future,name:customer.name||null,email:customer.email||null,address:customer.address||null,
+  provider={available:true,state:'ready',...history,passes,future,name:customer.name||null,email:customer.email||null,address:customer.address||null,
    subscriptions:subscriptions.data.map((s:any)=>{check(s);return {id:s.id,status:s.status,plan:s.metadata?.plan||s.items?.data?.[0]?.price?.recurring?.interval,amountMinor:s.items?.data?.[0]?.price?.unit_amount,currency:s.currency?.toUpperCase(),periodEndsAt:s.items?.data?.[0]?.current_period_end,cancelAtPeriodEnd:s.cancel_at_period_end};}),
    schedules:schedules.data.filter((s:any)=>s.status==='not_started'||s.status==='active').map((s:any)=>{check(s);return {id:s.id,status:s.status,phases:s.phases.map((p:any)=>({startsAt:p.start_date,endsAt:p.end_date,price:p.items?.[0]?.price}))};}),
    moreSubscriptions:subscriptions.has_more===true,moreSchedules:schedules.has_more===true};
- }catch(error){if(!(error instanceof ConsoleError)||error.code!=='NO_STRIPE_ACCOUNT')provider={...provider,error:'Stripe details unavailable. Refresh before taking action.'};}
+ }catch(error){
+  if(error instanceof ConsoleError&&error.code==='NO_STRIPE_ACCOUNT')provider={...provider,state:'not_linked'};
+  else provider={...provider,error:'Stripe details unavailable. Refresh before taking action.'};
+ }
  return {user:user.rows[0],entitlements:entitlements.rows.map(({purchase,...row})=>row),playPurchases:play.rows,operations:operations.rows,stripe:provider};
 }

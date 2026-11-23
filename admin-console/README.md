@@ -5,6 +5,9 @@ root. There is no customer-app admin link or shared customer-session privilege.
 Vercel protection is enabled for every deployment. APIs separately require the
 configured owner’s verified Supabase identity, validated `aal2` JWT, and a TOTP
 verification within 15 minutes. Email sign-in alone never grants billing access.
+The deployment-protected `/api/health` endpoint is an operational exception: it
+returns only sandbox/configuration status and checks the configured product.
+It exposes no account data or secrets and cannot create a payment or refund.
 
 ## Sandbox only
 

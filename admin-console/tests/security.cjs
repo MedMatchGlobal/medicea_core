@@ -56,3 +56,19 @@ test('all data and action routes require owner MFA; mutations reject forged orig
  assert.equal((await actions.POST(new Request('https://console.test/api/operations',{method:'POST',headers:{origin:'https://evil.test'}}))).status,403);
  assert.equal(calls,0);
 });
+test('unavailable provider data never claims that purchases or future plans do not exist',()=>{
+ const {providerEmptyText,providerState}=load('lib/provider-state.ts');
+ assert.equal(providerState({available:false}),'unavailable');
+ assert.equal(providerEmptyText({available:false},'future'),'Future plans could not be checked.');
+ assert.equal(providerEmptyText({available:false},'payments'),'Purchase history could not be loaded.');
+ assert.match(providerEmptyText({available:false,state:'not_linked'},'future'),/No Stripe billing account is linked/);
+ assert.equal(providerEmptyText({available:true},'future'),'No future Stripe plan found.');
+});
+test('operational health reveals only connection status, never keys or account identifiers',async()=>{
+ let configured=false,calls=0;
+ const route=load('app/api/health/route.ts',{'../../../lib/policy':policy,'../../../lib/http':load('lib/http.ts',{'./policy':policy}),'../../../lib/stripe':{testKeyConfigured:()=>configured,stripe:async()=>{calls++;return {id:'prod_fixture',livemode:false};}}},{MEDICEA_CONSOLE_PRODUCT:'prod_fixture'});
+ let result=await (await route.GET()).json();assert.equal(result.stripe,'test_key_required');assert.equal(calls,0);
+ configured=true;result=await (await route.GET()).json();assert.equal(result.stripe,'connected');assert.equal(calls,1);assert.doesNotMatch(JSON.stringify(result),/prod_fixture|rk_test|sk_test|customer|email/);
+ const disabled=load('app/api/health/route.ts',{'../../../lib/policy':{...policy,assertEnabled:()=>{throw new policy.ConsoleError('CONSOLE_DISABLED',404);}},'../../../lib/http':load('lib/http.ts',{'./policy':policy}),'../../../lib/stripe':{}});
+ assert.equal((await disabled.GET()).status,404);
+});
