@@ -8,6 +8,8 @@ export async function processStripeEvent(event:any){
  if(event.livemode!==false)return new Response(null,{status:400});
  if(!stripeEventTypes.includes(event.type))return Response.json({received:true});
  const object=event.data?.object;
+ // Separate owner-console requests are one-off payments, not access purchases.
+ if(event.type==='checkout.session.completed'&&object?.metadata?.console_policy==='customer-approved-payment-request-v1')return Response.json({received:true});
  if(event.type==='charge.refunded'||event.type.startsWith('charge.dispute.')){
   const chargeId=event.type==='charge.refunded'?object?.id:typeof object?.charge==='string'?object.charge:object?.charge?.id;
   if(typeof chargeId!=='string'||!/^ch_[a-zA-Z0-9]+$/.test(chargeId))return new Response(null,{status:400});

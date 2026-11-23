@@ -33,7 +33,7 @@ export default function ComplimentaryManager(){
   {value.duration==='keep'&&<small>Expires {new Date(value.date).toLocaleString('en-GB')}</small>}
  </>;}
  return <main className={`${styles.page} ${local.page}`}>
-  <header className={styles.header}><a href="/membership"><img src="/logo.png" alt="medicéa" width="180" height="60"/></a><a className={styles.back} href="/membership">← Your account</a></header>
+  <header className={styles.header}><a href="/membership"><img src="/brand/medicea-logo.svg" alt="medicéa" width="180" height="60"/></a><a className={styles.back} href="/membership">← Your account</a></header>
   <p className={styles.previewNotice}>Private preview · Owner only</p>
   <h1>Complimentary access</h1><p className={local.intro}>Choose what someone can use, how much, and for how long.</p>
   <section className={local.card}><h2>{editing?'Edit access':'Add someone'}</h2><form onSubmit={e=>{e.preventDefault();void save('grant',{email,note});}}>

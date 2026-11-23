@@ -14,5 +14,5 @@ test('all 25 membership languages cover every account, dialog, footer and inform
 });
 test('branding stays in a shared wordmark instead of being translated or inserted as raw HTML',()=>{
  const renderer=fs.readFileSync('app/i18n/membership.tsx','utf8');assert.match(renderer,/MediceaBrand/);assert.doesNotMatch(renderer,/dangerouslySetInnerHTML/);
- const brand=fs.readFileSync('app/components/MediceaBrand.tsx','utf8');assert.match(brand,/<span>medi<\/span><span>céa<\/span>/);assert.match(brand,/dir="ltr"/);
+ const brand=fs.readFileSync('app/components/MediceaBrand.tsx','utf8');assert.match(brand,/src="\/brand\/medicea-wordmark.svg"/);assert.match(brand,/alt="medicéa"/);assert.match(brand,/dir="ltr"/);
 });

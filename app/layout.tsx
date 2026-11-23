@@ -11,6 +11,7 @@ import {membershipPageEnabled, membershipPreviewEnabled} from '@/lib/membership/
 export const metadata = {
   title: "medicéa",
   description: "Global drug matching for safe travel and relocation.",
+  icons:{icon:[{url:'/brand/medicea-icon.svg',type:'image/svg+xml'},{url:'/favicon.ico',sizes:'any'}],apple:'/brand/medicea-icon-256.png'},
 };
 
 export const viewport = { width: 'device-width', initialScale: 1, viewportFit: 'cover' };

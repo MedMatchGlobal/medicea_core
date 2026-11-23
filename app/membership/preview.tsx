@@ -83,7 +83,7 @@ export default function MembershipPreview({billingEnabled=true,currency:detected
   <button className={active&&!canReserve?styles.activeButton:styles.primary} aria-label={canReserve?(active?'Extend ':'Upgrade to ')+title:active?activeLabel:membershipText(copy.choosePlan,{plan:title})} disabled={busy||!signedIn||!!reservation||reservationUnavailable||status?.premium&&!canReserve} onClick={()=>canReserve?beginReservation(plan):checkout(plan)}>{canReserve?(active?'Extend pass':copy.upgrade):active?activeLabel:plan.startsWith('pass')?copy.choosePass:plan==='annual'?copy.chooseAnnual:copy.chooseMonthly}</button>
  </article>;};
  return <main className={styles.page} dir={dir}>
- <header className={styles.header}><a href="/" aria-label={copy.backHome}><img src="/logo.png" alt="medicéa" width="180" height="60"/></a><div className={styles.headerActions}><a className={styles.back} href="/">{dir==='rtl'?'→':'←'} {copy.backHome}</a><LanguageButton/></div></header>
+ <header className={styles.header}><a href="/" aria-label={copy.backHome}><img src="/brand/medicea-logo.svg" alt="medicéa" width="180" height="60"/></a><div className={styles.headerActions}><a className={styles.back} href="/">{dir==='rtl'?'→':'←'} {copy.backHome}</a><LanguageButton/></div></header>
  <div className={styles.previewNotice}>{copy.previewNotice}</div>
 
 

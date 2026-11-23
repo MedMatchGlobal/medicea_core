@@ -12,7 +12,7 @@ export default function InformationContent(){
  useEffect(()=>{document.title=copy.informationHeading+' · medicéa';},[copy.informationHeading]);
  const paragraphs=(keys:MembershipKey[])=>keys.map(key=><p key={key}><MembershipText text={copy[key]}/></p>);
  return <main className={styles.page} dir={dir}>
-  <header><a href="/" aria-label={copy.backHome}><img src="/logo.png" alt="medicéa" width="160"/></a><div className={styles.headerActions}><a href="/membership">{copy.backAccount}</a><LanguageButton/></div></header>
+  <header><a href="/" aria-label={copy.backHome}><img src="/brand/medicea-logo.svg" alt="medicéa" width="160"/></a><div className={styles.headerActions}><a href="/membership">{copy.backAccount}</a><LanguageButton/></div></header>
   <h1>{copy.informationHeading}</h1><p className={styles.notice}>{copy.informationNotice}</p>
   <section id="business" aria-labelledby="business-heading"><h2 id="business-heading">{BILLING_BUSINESS.legalName}</h2><p>{labels[0]}: <a href={BILLING_BUSINESS.companyRecord} target="_blank" rel="noopener noreferrer"><bdi>{BILLING_BUSINESS.companyNumber}</bdi></a><br/>{labels[1]}: <bdi>{BILLING_BUSINESS.vatNumber}</bdi></p><p>{labels[2]}:<br/><bdi>{BILLING_BUSINESS.address.join(', ')}</bdi></p></section>
   <section id="terms"><h2>{copy.terms}</h2>{paragraphs(['termsPersonal','termsWelcome','termsTravel','termsSubscription','termsSearch','refundPolicy'])}</section>

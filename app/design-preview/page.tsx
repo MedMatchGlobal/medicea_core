@@ -32,7 +32,7 @@ export default function RivieraPreview(){
     <div className={styles.shell}>
       <header className={styles.header}>
         <a href="/membership" className={styles.account}><UserRound size={19}/><span>Account</span></a>
-        <a href="/" aria-label="Medicea home" className={styles.logo}><img src="/logo.png" alt="medicéa"/></a>
+        <a href="/" aria-label="Medicea home" className={styles.logo}><img src="/brand/medicea-logo.svg" alt="medicéa"/></a>
         <span className={styles.language}>EN <ChevronDown size={12}/></span>
       </header>
       <div className={styles.previewLabel}><span className={styles.dot}/> DESIGN PREVIEW <span>01 — Your medicine passport</span></div>
