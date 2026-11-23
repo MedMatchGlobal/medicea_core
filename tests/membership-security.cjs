@@ -37,13 +37,16 @@ test('webhooks reject forged and live events, validate customer ownership and re
  let reads=0,writes=0,owner=true;
  const provider=stripe({STRIPE_PERSONAL_MONTHLY_PRICE_ID:'price_monthly'});
  const mock={'@/lib/membership/config':{membershipPreviewEnabled:()=>true},'@/lib/membership/store':{billingDb:()=>({$transaction:async callback=>callback({$queryRaw:async(strings)=>strings.join('').includes('stripe_customer')?(owner?[{member_id:member}]:[]):[],$executeRaw:async()=>{writes++;return 1;}})})},'@/lib/membership/stripe':{...provider,stripeRequest:async()=>{reads++;return {livemode:false,status:'active',metadata:{member_id:member},customer:'cus_test',items:{data:[{price:{id:'price_monthly'},current_period_end:now+3600}]}};}}};
+ mock['@/lib/membership/settlement']={purchaseSettled:async()=>true};
+ mock['@/lib/membership/stripe-reconcile']={reconcileStripeCustomer:async()=>0};
+ mock['@/lib/membership/stripe-events']=load('lib/membership/stripe-events.ts',{STRIPE_WEBHOOK_SECRET:secret},mock);
  const route=load('app/api/membership/webhook/route.ts',{STRIPE_WEBHOOK_SECRET:secret},mock);
  const payload=JSON.stringify({livemode:false,type:'customer.subscription.updated',data:{object:{id:'sub_test'}}});
  const request=(raw=payload,signature=sig(raw,now,secret))=>new Request('https://example.test/api',{method:'POST',headers:{'stripe-signature':signature},body:raw});
  assert.equal((await route.POST(request(payload,'t=0,v1=bad'))).status,400);assert.equal(reads,0);
  const live=JSON.stringify({livemode:true});assert.equal((await route.POST(request(live))).status,400);assert.equal(reads,0);
  owner=false;assert.equal((await route.POST(request())).status,503);assert.equal(writes,0);
- owner=true;assert.equal((await route.POST(request())).status,200);assert.equal((await route.POST(request())).status,200);assert.equal(reads,3);assert.equal(writes,4);
+ owner=true;assert.equal((await route.POST(request())).status,200);assert.equal((await route.POST(request())).status,200);assert.equal(reads,6);assert.equal(writes,4);
 });
 
 test('one-off passes have launch prices, fixed expiry and no recurring price acceptance',()=>{
@@ -63,20 +66,23 @@ test('one-off passes have launch prices, fixed expiry and no recurring price acc
 test('checkout sends passes as one-time payments and subscriptions as recurring without card-based trials',async()=>{
  const member='11111111-1111-4111-8111-111111111111';
  for(const plan of ['pass7','pass14','pass30','monthly','annual']) {
-  let sent;
+  let sent,existing=[];
   const config=load('lib/membership/config.ts');
   const route=load('app/api/membership/checkout/route.ts',{}, {
    '@/lib/membership/config':{...config,membershipPreviewEnabled:()=>true,membershipOrigin:()=> 'https://preview.example',sameOrigin:()=>true},
    '@/lib/membership/home-country':{homeCountryCurrency:()=> 'GBP'},
    '@/lib/membership/auth':{membershipUser:async()=>({id:member,email:'fictional@example.test'})},
    '@/lib/membership/store':{membershipStatus:async()=>({premium:false}),billingDb:()=>({$transaction:async cb=>cb({$queryRaw:async(strings)=>strings.join('').includes('stripe_customer')?[{customer_id:'cus_test'}]:[],$executeRaw:async()=>1})})},
-   '@/lib/membership/stripe':{validatePrice:async()=> 'price_'+plan,stripeRequest:async(path,params)=>{sent=params;return {livemode:false,url:'https://checkout.stripe.com/test',id:'cs_test_fixture',expires_at:Math.floor(Date.now()/1000)+1800};}}
+   '@/lib/membership/stripe':{validatePrice:async()=> 'price_'+plan,stripeRequest:async(path,params)=>{if(path==='/subscriptions')return {data:existing,has_more:false};sent=params;return {livemode:false,url:'https://checkout.stripe.com/test',id:'cs_test_fixture',expires_at:Math.floor(Date.now()/1000)+1800};}}
   });
   const response=await route.POST(new Request('https://preview.example/api',{method:'POST',body:JSON.stringify({plan})}));
   assert.equal(response.status,200);
   assert.equal(sent.get('mode'),plan.startsWith('pass')?'payment':'subscription');
   assert.equal(sent.get('metadata[plan]'),plan);assert.equal(sent.get('metadata[member_id]'),member);
   assert.equal(sent.has('subscription_data[trial_period_days]'),false);
+  existing=[{livemode:false,customer:'cus_test',status:'active'}];
+  const duplicate=await route.POST(new Request('https://preview.example/api',{method:'POST',body:JSON.stringify({plan})}));
+  assert.equal(duplicate.status,409);assert.equal((await duplicate.json()).error,'ALREADY_SUBSCRIBED');
   assert.equal(sent.has('subscription_data[metadata][member_id]'),!plan.startsWith('pass'));
  }
 });

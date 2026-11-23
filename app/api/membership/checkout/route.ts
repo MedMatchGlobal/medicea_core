@@ -35,6 +35,13 @@ export async function POST(req:Request) {
     await tx.$executeRaw`INSERT INTO medicea_billing.stripe_customer(member_id,customer_id) VALUES(${user.id}::uuid,${customer.id})`;
     customers=[{customer_id:customer.id}];
    }
+   // A refund removes access to that payment; it does not cancel a recurring contract.
+   const subscriptions=await stripeRequest('/subscriptions',undefined,undefined,15000,undefined,new URLSearchParams({customer:customers[0].customer_id,status:'all',limit:'100'}));
+   if(!Array.isArray(subscriptions.data)||subscriptions.has_more)throw Error('Incomplete subscriptions');
+   for(const subscription of subscriptions.data){
+    if(subscription.livemode!==false||subscription.customer!==customers[0].customer_id)throw Error('Invalid subscription ownership');
+    if(!['canceled','incomplete_expired'].includes(subscription.status))throw Error('ACTIVE_SUBSCRIPTION');
+   }
    const origin=membershipOrigin();
    const bucket=Math.floor(Date.now()/1800000);
    const params=new URLSearchParams({mode:PERSONAL_PLANS[plan].kind==='pass'?'payment':'subscription',customer:customers[0].customer_id,'line_items[0][price]':price,'line_items[0][quantity]':'1',client_reference_id:user.id,'metadata[member_id]':user.id,'metadata[plan]':plan,'payment_method_types[0]':'card',success_url:origin+'/membership?checkout=returned',cancel_url:origin+'/membership?checkout=cancelled',expires_at:String((bucket+2)*1800)});
@@ -47,5 +54,5 @@ export async function POST(req:Request) {
    return session.url;
   },{timeout:60000});
   return Response.json({url},{headers:{'Cache-Control':'no-store'}});
- }catch{return Response.json({error:'TEST_CHECKOUT_UNAVAILABLE'},{status:503});}
+ }catch(error){return error instanceof Error&&error.message==='ACTIVE_SUBSCRIPTION'?Response.json({error:'ALREADY_SUBSCRIBED'},{status:409}):Response.json({error:'TEST_CHECKOUT_UNAVAILABLE'},{status:503});}
 }

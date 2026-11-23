@@ -141,12 +141,16 @@ test('failed future subscription payment stays visible until payment succeeds',a
 test('reservation webhooks grant no access for failed invoices and require the stored customer binding for paid invoices',async()=>{
  const f=fixture();let owner=true,writes=0;
  const invoice={id:'in_test',customer:'cus_test',livemode:false,status:'paid',currency:'gbp',total:149,metadata:{member_id:member,plan:'pass7',currency:'GBP',reservation_start:String(now-60),reservation_policy:'medicea-next-access-v1',reservation_price:'price_pass7GBP'},status_transitions:{paid_at:now},lines:{data:[{quantity:1,pricing:{price_details:{price:'price_pass7GBP'}}}],has_more:false}};
- const route=load('app/api/membership/webhook/route.ts',{
+ const webhookImports={
   '@/lib/membership/config':{membershipPreviewEnabled:()=>true},
   '@/lib/membership/store':{billingDb:()=>({$transaction:async fn=>fn({$queryRaw:async strings=>strings.join('').includes('stripe_customer')&&owner?[{member_id:member}]:[],$executeRaw:async()=>{writes++;}})})},
   '@/lib/membership/stripe':{...stripe,stripeRequest:async()=>invoice,verifyStripeSignature:raw=>JSON.parse(raw)},
   '@/lib/membership/future-access':f.future,
- });
+  '@/lib/membership/settlement':{purchaseSettled:async()=>true},
+  '@/lib/membership/stripe-reconcile':{reconcileStripeCustomer:async()=>0},
+ };
+ webhookImports['@/lib/membership/stripe-events']=load('lib/membership/stripe-events.ts',webhookImports);
+ const route=load('app/api/membership/webhook/route.ts',webhookImports);
  const request=type=>new Request('https://preview.example/api/membership/webhook',{method:'POST',body:JSON.stringify({livemode:false,type,data:{object:{id:'in_test',metadata:invoice.metadata}}})});
  assert.equal((await route.POST(request('invoice.payment_failed'))).status,200);assert.equal(writes,0);
  owner=false;assert.equal((await route.POST(request('invoice.paid'))).status,503);assert.equal(writes,0);
