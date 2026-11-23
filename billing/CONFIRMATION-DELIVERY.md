@@ -57,14 +57,19 @@ MEDICEA_CONFIRMATIONS_PREVIEW be enabled. Set MEDICEA_CONFIRMATIONS_FROM_EPOCH t
 the agreed activation instant then; older recovered purchases are excluded rather
 than causing surprise retrospective emails. Production remains disabled.
 
-## Acceptance still required
+## Acceptance status
 
-1. SMTP handshake using the stored secret, with no messages sent.
-2. An explicitly authorized test recipient receives a sample confirmation and
-   its text attachment; inspect sender, Reply-To, SPF/DKIM/DMARC and spam handling.
-3. A dedicated QA pass, scheduled upgrade, initial subscription and renewal
-   exercise verified provider event -> immutable queue -> SMTP -> download.
-4. Duplicate events yield one queue entry; temporary connection failures retain
+1. Passed: SMTP connection/TLS/authentication using the stored secret.
+2. Passed: one explicitly authorized test reached the recipient and its text
+   attachment opened. This is not evidence of full SPF/DKIM/DMARC header review
+   or broad spam/delivery acceptance.
+3. Passed: genuine pass/upgrade records and dedicated monthly/annual initial and
+   renewal invoices -> actual processing -> immutable snapshots and duplicate
+   replay against hosted SQL, with mandatory rollback. A combined purchase ->
+   queue -> SMTP -> signed-in download test remains separate and requires a
+   specifically authorized message; no further email is currently authorized.
+4. Passed: duplicate replay yielded one immutable queue entry. Still verify
+   temporary connection failures retain
    pending items; ambiguous delivery outcomes remain reviewable. Check a worker
    crash after SMTP acceptance without blindly resending.
 5. Verify cancellations/refunds separately. This first implementation does not

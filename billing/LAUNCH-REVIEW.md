@@ -74,13 +74,13 @@ purge, account deletion or deletion of the medical database was authorized here.
 
 ## Remaining technical and policy work before public billing
 
-- **Durable contract confirmation:** implement versioned purchase/reservation
-  confirmation containing seller details, plan, exact price/currency, VAT terms,
-  start/end or renewal terms, cancellation and refund information. Deliver it in
-  a form the customer can retain; verify initial purchases, reservations and
-  renewals, retries and duplicate events. The versioned English snapshot, immutable outbox, signed-in download and SMTP
-  worker are now implemented behind an OFF preview flag. Actual SMTP/inbox and
-  purchase-to-email acceptance remain pending. See CONFIRMATION-DELIVERY.md.
+- **Durable contract confirmation:** the versioned English snapshot, immutable
+  outbox, signed-in download and SMTP worker are implemented behind an OFF
+  preview flag. SMTP authentication and one authorized inbox/attachment test
+  passed. Real pass/upgrade snapshot capture and dedicated monthly/annual first
+  invoice and renewal processing/replay passed hosted SQL acceptance. Combined
+  purchase-to-email/download acceptance, failure recovery and final policy-language
+  and retention decisions remain open. See CONFIRMATION-DELIVERY.md.
   A generic Stripe receipt alone is not proof of a complete confirmation.
 - **Privacy completion:** confirm the lawful basis and special-category condition
   for identifiable health inputs, actual processor terms/retention, international
