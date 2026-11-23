@@ -63,10 +63,10 @@ export async function deliverConfirmations(){
  await billingDb().$executeRaw`UPDATE medicea_billing.purchase_confirmation SET state='needs_review',last_error='STALE_SMTP_OUTCOME_UNKNOWN' WHERE state='processing' AND claimed_at<now()-interval '15 minutes'`;
  let accepted=0;
  for(let n=0;n<10;n++){
-  const rows=await billingDb().$queryRaw<Array<{id:string;recipient:string;body:string}>>`UPDATE medicea_billing.purchase_confirmation SET state='processing',claimed_at=now() WHERE id=(SELECT id FROM medicea_billing.purchase_confirmation WHERE state='pending' ORDER BY created_at,id FOR UPDATE SKIP LOCKED LIMIT 1) RETURNING id::text,recipient,body`;
+  const rows=await billingDb().$queryRaw<Array<{id:string;recipient:string;body:string;provider_key:string}>>`UPDATE medicea_billing.purchase_confirmation SET state='processing',claimed_at=now() WHERE id=(SELECT id FROM medicea_billing.purchase_confirmation WHERE state='pending' ORDER BY created_at,id FOR UPDATE SKIP LOCKED LIMIT 1) RETURNING id::text,recipient,body,provider_key`;
   const item=rows[0];if(!item)break;
   try{
-   const sent=await transport.sendMail({from:{name:'medicéa Billing',address:'billing@medicea.global'},replyTo:'support@medicea.global',to:item.recipient,subject:'Your medicéa confirmation',messageId:`<medicea-confirmation-${item.id}@medicea.global>`,text:item.body,attachments:[{filename:'medicea-confirmation.txt',content:item.body,contentType:'text/plain; charset=utf-8'}]});
+   const sent=await transport.sendMail({from:{name:'medicéa Billing',address:'billing@medicea.global'},replyTo:'support@medicea.global',to:item.recipient,subject:item.provider_key?.startsWith('mail-delivery-test:')?'[TEST] medicéa billing delivery check':'Your medicéa confirmation',messageId:`<medicea-confirmation-${item.id}@medicea.global>`,text:item.body,attachments:[{filename:'medicea-confirmation.txt',content:item.body,contentType:'text/plain; charset=utf-8'}]});
    if(!sent.accepted?.some((address:any)=>(typeof address==='string'?address:address.address)?.toLowerCase()===item.recipient.toLowerCase()))throw Error('RECIPIENT_NOT_ACCEPTED');
    await billingDb().$executeRaw`UPDATE medicea_billing.purchase_confirmation SET state='sent',accepted_at=now(),last_error=NULL WHERE id=${item.id}::uuid AND state='processing'`;accepted++;
   }catch{

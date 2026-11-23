@@ -85,3 +85,17 @@ Sources:
 - https://www.namecheap.com/support/knowledgebase/article.aspx/1179/2175/general-private-email-configuration-for-mail-clients-and-mobile-devices/
 - https://nodemailer.com/smtp/
 - https://www.gov.uk/online-and-distance-selling-for-businesses/online-selling
+
+## SMTP connection acceptance — completed
+
+The stored Sensitive Preview credential passed Vercel-hosted connection, TLS and
+authentication verification in deployment dpl_CzAQs7oCwggkJDL2iRcK7cQTgRpu.
+The check sent zero messages. Password was neither read back nor exposed.
+An actual inbox-delivery test still needs an explicitly authorized recipient.
+
+The prepared build-only scripts/send-billing-mail-test.cjs is restricted to the
+exact app project and Preview. It sends only one explicitly labelled test to
+sergio@medicea.global through the actual outbox worker, with a retained text copy.
+It refuses existing/uncertain test attempts or another pending queue, and never
+changes the runtime mail flag. Do not invoke without the owner's explicit approval
+to send that message. SMTP acceptance still needs recipient inbox confirmation.

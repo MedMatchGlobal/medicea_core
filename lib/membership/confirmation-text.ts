@@ -18,6 +18,6 @@ export function confirmationText(value:Confirmation){
  '', 'Voluntary refund policy: Request a full refund within 14 days of an initial pass or subscription payment through support@medicea.global. Renewal refunds are considered individually. Statutory rights remain unchanged.',
  'A refund does not by itself cancel subscription renewal. Tell support if you want both.',
  '', 'Personal use only. Educational medicine information; not a diagnosis, prescription or substitute for a qualified healthcare professional. Do not change treatment without professional advice. For an emergency use local emergency services.',
- 'Keep this confirmation. It records the commercial terms captured for this transaction; it is not a VAT invoice and does not replace your Stripe invoice.'
+ 'Keep this confirmation. It records the commercial terms captured for this transaction. It is not a VAT invoice. Any separate payment receipt or invoice remains available through Billing · Stripe.'
  ].join('\n');
 }
