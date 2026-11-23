@@ -6,7 +6,7 @@ function load(file,imports={},globals={}){const module={exports:{}};vm.runInNewC
 const config=load('lib/membership/config.ts'),stripe=load('lib/membership/stripe.ts',{'./config':config});
 function price(plan,currency='GBP'){return {id:'price_'+plan+currency,product:'prod_personal',active:true,livemode:false,currency:currency.toLowerCase(),unit_amount:config.planAmount(plan,currency),recurring:plan.startsWith('pass')?null:{interval:plan==='annual'?'year':'month',interval_count:1}};}
 function metadata(params){return Object.fromEntries([...params].filter(([key])=>/^metadata\[/.test(key)).map(([key,value])=>[key.slice(9,-1),value]));}
-function fixture(){
+function fixture(taxed=false){
  const calls=[],objects={},customer={id:'cus_test',livemode:false,metadata:{member_id:member}};
  const tx={$queryRaw:async(strings)=>{
   const query=strings.join('');if(query.includes('FROM medicea_billing.entitlement'))return [{provider:'stripe',external_id:'cs_test_pass',customer_id:'cus_test',valid_until:new Date(start*1000)}];
@@ -23,18 +23,50 @@ function fixture(){
   if(path==='/checkout/sessions')return objects.session={id:'cs_test_reserve',livemode:false,mode:'setup',status:'open',customer:'cus_test',client_reference_id:member,metadata:metadata(params),setup_intent:'seti_test',url:'https://checkout.stripe.com/test',expires_at:now+1800};
   if(path==='/checkout/sessions/cs_test_reserve'){if(params)Object.assign(objects.session.metadata,metadata(params));return structuredClone(objects.session);}
   if(path==='/setup_intents/seti_test')return {livemode:false,status:'succeeded',customer:'cus_test',payment_method:'pm_test'};
-  if(path==='/invoices')return objects.invoice={id:'in_test',livemode:false,customer:'cus_test',status:'draft',metadata:metadata(params),currency:params.get('currency'),auto_advance:false,total:0,lines:{data:[],has_more:false}};
+  if(path==='/invoices')return objects.invoice={id:'in_test',livemode:false,customer:'cus_test',status:'draft',metadata:metadata(params),currency:params.get('currency'),automatic_tax:{enabled:params.get('automatic_tax[enabled]')==='true',status:'complete'},auto_advance:false,total:0,lines:{data:[],has_more:false}};
   if(path==='/invoiceitems'){const p=Object.keys(config.PERSONAL_PLANS).flatMap(plan=>['GBP','EUR','USD'].map(currency=>price(plan,currency))).find(price=>price.id===params.get('pricing[price]'));objects.invoice.lines.data.push({quantity:1,pricing:{price_details:{price:p.id}}});objects.invoice.total+=p.unit_amount;return {id:'ii_test'};}
   if(path==='/invoices/in_test'){if(params){if(params.has('auto_advance'))objects.invoice.auto_advance=params.get('auto_advance')==='true';if(params.has('automatically_finalizes_at'))objects.invoice.automatically_finalizes_at=Number(params.get('automatically_finalizes_at'));Object.assign(objects.invoice.metadata,metadata(params));}return structuredClone(objects.invoice);}
   if(path==='/subscription_schedules'&&!params)return {data:objects.schedule?[objects.schedule]:[],has_more:false};
-  if(path==='/subscription_schedules')return objects.schedule={id:'sub_sched_test',livemode:false,customer:'cus_test',status:'not_started',metadata:metadata(params),phases:[{start_date:Number(params.get('start_date')),items:[{price:params.get('phases[0][items][0][price]'),quantity:1}]}]};
+  if(path==='/subscription_schedules')return objects.schedule={id:'sub_sched_test',livemode:false,customer:'cus_test',status:'not_started',default_settings:{automatic_tax:{enabled:params.get('default_settings[automatic_tax][enabled]')==='true'}},metadata:metadata(params),phases:[{start_date:Number(params.get('start_date')),items:[{price:params.get('phases[0][items][0][price]'),quantity:1}]}]};
   if(path==='/subscription_schedules/sub_sched_test')return structuredClone(objects.schedule);
   if(path==='/subscription_schedules/sub_sched_test/cancel'){objects.schedule.status='canceled';return objects.schedule;}
   throw Error('Unexpected provider call '+path);
  };
- const future=load('lib/membership/future-access.ts',{'./config':{...config,membershipOrigin:()=> 'https://preview.example'},'./store':{billingDb:()=>({...tx,$transaction:async fn=>fn(tx)})},'./stripe':{...stripe,stripeRequest:request,validatePrice:async(plan,currency)=>config.isPersonalPlan(plan)?'price_'+plan+currency:Promise.reject(Error())}});
+ const future=load('lib/membership/future-access.ts',{'./config':{...config,stripeTaxPreviewEnabled:()=>taxed,membershipOrigin:()=> 'https://preview.example'},'./store':{billingDb:()=>({...tx,$transaction:async fn=>fn(tx)})},'./stripe':{...stripe,stripeRequest:request,validatePrice:async(plan,currency)=>config.isPersonalPlan(plan)?'price_'+plan+currency:Promise.reject(Error())}});
  return {future,request,calls,objects,customer,tx};
 }
+test('taxed setup saves a billing address without charging; future invoice and schedule inherit tax',async()=>{
+ for(const plan of ['pass14','monthly']){
+  const f=fixture(true);await f.future.reserveCheckout(member,plan,'GBP',new Date(start*1000).toISOString(),f.request);
+  const setup=f.calls.find(call=>call.path==='/checkout/sessions');
+  assert.equal(setup.params['automatic_tax[enabled]'],undefined);
+  assert.equal(setup.params.billing_address_collection,'required');assert.equal(setup.params['customer_update[address]'],'auto');
+  assert.equal(setup.params['metadata[tax_policy]'],'inclusive-v1');
+  f.objects.session.status='complete';await f.future.completeReservation('cs_test_reserve',f.request);
+  if(plan==='pass14'){
+   assert.equal(f.calls.find(call=>call.path==='/invoices').params['automatic_tax[enabled]'],'true');
+   assert.equal(f.objects.invoice.total,199);
+  }else assert.equal(f.calls.find(call=>call.path==='/subscription_schedules'&&call.params).params['default_settings[automatic_tax][enabled]'],'true');
+ }
+});
+test('pre-tax setup retains its original authorisation when tax is enabled later',async()=>{
+ const f=fixture(true);await f.future.reserveCheckout(member,'pass14','GBP',new Date(start*1000).toISOString(),f.request);
+ delete f.objects.session.metadata.tax_policy;f.objects.session.status='complete';
+ await f.future.completeReservation('cs_test_reserve',f.request);
+ assert.equal(f.calls.find(call=>call.path==='/invoices').params['automatic_tax[enabled]'],undefined);
+ assert.equal(f.objects.invoice.total,199);
+});
+test('unknown reservation tax policy cannot create a charge',async()=>{
+ const f=fixture(true);await f.future.reserveCheckout(member,'pass14','GBP',new Date(start*1000).toISOString(),f.request);
+ f.objects.session.metadata.tax_policy='unknown';f.objects.session.status='complete';
+ await assert.rejects(()=>f.future.completeReservation('cs_test_reserve',f.request),/Invalid reservation tax policy/);assert.equal(f.objects.invoice,undefined);
+});
+test('an incomplete future invoice tax calculation remains unarmed',async()=>{
+ const f=fixture(true);await f.future.reserveCheckout(member,'pass14','GBP',new Date(start*1000).toISOString(),f.request);f.objects.session.status='complete';
+ const request=async(...args)=>{const value=await f.request(...args);if(args[0]==='/invoices/in_test'&&!args[1])value.automatic_tax.status='requires_location_inputs';return value;};
+ await assert.rejects(()=>f.future.completeReservation('cs_test_reserve',request),/Unexpected reserved invoice/);
+ assert.equal(f.objects.invoice.auto_advance,false);assert.equal(f.calls.some(call=>call.params?.automatically_finalizes_at),false);
+});
 test('quote and reservation collect authorisation without charging or starting access early',async()=>{
  const f=fixture();const quote=await f.future.reserveCheckout(member,'pass14','GBP',undefined,f.request);
  assert.equal(quote.startsAt,new Date(start*1000).toISOString());assert.equal(quote.amountMinor,199);assert.equal(f.calls.some(call=>call.params),false);
@@ -216,10 +248,10 @@ test('all portal headlines satisfy the actual Stripe 60-character limit, includi
   assert.equal(await policy.periodEndPortalConfiguration(currency,request),'bpc_test');
  }
 });
-test('reservation card checkout uses the working Basil contract and a fresh key instead of replaying the rejected Endive request',async()=>{
+test('reservation card checkout uses the supported Endive allowlist and a fresh idempotency key',async()=>{
  const f=fixture();await f.future.reserveCheckout(member,'pass14','GBP',new Date(start*1000).toISOString());
  const session=f.calls.find(call=>call.path==='/checkout/sessions'&&call.params);
- assert.equal(session.version,'2025-03-31.basil');assert.equal(session.params['payment_method_types[0]'],'card');assert.equal(session.params.mode,'setup');assert.match(session.idempotency,/^reserve-v2-/);
+ assert.equal(session.version,'2026-11-18.endive');assert.equal(session.params['allowed_payment_method_types[0]'],'card');assert.equal(session.params['payment_method_types[0]'],undefined);assert.equal(session.params.mode,'setup');assert.match(session.idempotency,/^reserve-v3-/);
  assert.equal(f.calls.find(call=>call.path==='/customers/cus_test').version,'2026-11-18.endive');
 });
 test('upgrade is discoverable beside the active pass and a failed checkout stays explained inside the dialog',()=>{

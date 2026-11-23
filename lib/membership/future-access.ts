@@ -1,5 +1,5 @@
 import {billingDb} from './store';
-import {isPersonalPlan,isBillingCurrency,PERSONAL_PLANS,planAmount,membershipOrigin,type PersonalPlan,type BillingCurrency} from './config';
+import {isPersonalPlan,isBillingCurrency,stripeTaxPreviewEnabled,PERSONAL_PLANS,planAmount,membershipOrigin,type PersonalPlan,type BillingCurrency} from './config';
 import {stripeRequest,passAccess,validatePrice,planPriceId} from './stripe';
 
 const policy='medicea-next-access-v1';
@@ -95,24 +95,25 @@ export async function reserveCheckout(member:string,plan:PersonalPlan,currency:B
     const quote={plan,currency,amountMinor:planAmount(plan,currency),startsAt:iso(start)};
     if(!confirmedStart)return quote;
     if(confirmedStart!==quote.startsAt)throw Error('RESERVATION_CHANGED');
-    await validatePrice(plan,currency);
+    const taxed=stripeTaxPreviewEnabled(),taxPolicy=taxed?'inclusive-v1':'legacy';
+    await validatePrice(plan,currency,taxed);
     const existing=await tx.$queryRaw<Array<{session_id:string}>>`SELECT session_id FROM medicea_billing.checkout WHERE member_id=${member}::uuid AND expires_at>now()`;
     if(existing.length){
       const previous=await request('/checkout/sessions/'+existing[0].session_id);
-      if(previous.status==='open'&&previous.mode==='setup'&&previous.metadata?.plan===plan&&previous.metadata?.currency===currency&&previous.metadata?.reservation_start===String(start))return {...quote,url:previous.url};
+      if(previous.status==='open'&&previous.mode==='setup'&&previous.metadata?.plan===plan&&previous.metadata?.currency===currency&&previous.metadata?.reservation_start===String(start)&&(previous.metadata?.tax_policy??'legacy')===taxPolicy)return {...quote,url:previous.url};
       if(previous.status==='open')await request('/checkout/sessions/'+existing[0].session_id+'/expire',new URLSearchParams());
     }
     const amount=new Intl.NumberFormat('en-GB',{style:'currency',currency}).format(quote.amountMinor/100);
     const date=new Date(start*1000).toLocaleDateString('en-GB',{timeZone:'UTC'});
     const params=new URLSearchParams({mode:'setup',customer,currency:currency.toLowerCase(),client_reference_id:member,
-      'payment_method_types[0]':'card','metadata[member_id]':member,'metadata[plan]':plan,'metadata[currency]':currency,
+      'allowed_payment_method_types[0]':'card',integration_identifier:'medicea-reservation-azyvzlch','metadata[tax_policy]':taxPolicy,'metadata[member_id]':member,'metadata[plan]':plan,'metadata[currency]':currency,
       'metadata[reservation_policy]':policy,'metadata[reservation_start]':String(start),
       'custom_text[submit][message]':`Reserve ${PERSONAL_PLANS[plan].label}. No charge now. You authorise ${amount} on or after ${date}, once your current pass ends.${PERSONAL_PLANS[plan].kind==='subscription'?' This subscription renews until cancelled.':' One payment only; no renewal.'}`,
       success_url:membershipOrigin()+'/membership?checkout=returned',cancel_url:membershipOrigin()+'/membership?checkout=cancelled'});
     const bucket=Math.floor(Date.now()/1800000);
-    // Match ordinary card Checkout. Endive removed payment_method_types; future invoice/schedule APIs remain on Endive.
-    // A new key avoids replaying the rejected Endive request retained by Stripe.
-    const session=await request('/checkout/sessions',params,`reserve-v2-${member}-${plan}-${currency}-${start}-${bucket}-${existing[0]?.session_id||'new'}`,15000,'2025-03-31.basil');
+    // Setup saves the address for the future invoice; automatic_tax is invalid in setup mode.
+    if(taxed){params.set('billing_address_collection','required');params.set('customer_update[address]','auto');}
+    const session=await request('/checkout/sessions',params,`reserve-v3-${taxPolicy}-${member}-${plan}-${currency}-${start}-${bucket}-${existing[0]?.session_id||'new'}`,15000,'2026-11-18.endive');
     const url=new URL(session.url);
     if(session.livemode!==false||url.hostname!=='checkout.stripe.com'||url.protocol!=='https:')throw Error('Invalid setup checkout');
     await tx.$executeRaw`INSERT INTO medicea_billing.checkout(member_id,session_id,plan,url,expires_at) VALUES(${member}::uuid,${session.id},${plan},${session.url},${new Date(session.expires_at*1000)}) ON CONFLICT(member_id) DO UPDATE SET session_id=excluded.session_id,plan=excluded.plan,url=excluded.url,expires_at=excluded.expires_at`;
@@ -125,6 +126,9 @@ export async function completeReservation(sessionId:string,request:Request=reser
   if(session.metadata?.reservation_processed==='true')return;
   const member=session.metadata?.member_id,plan=session.metadata?.plan,currency=session.metadata?.currency;
   const start=Number(session.metadata?.reservation_start);
+  const taxPolicy=session.metadata?.tax_policy??'legacy';
+  if(!['legacy','inclusive-v1'].includes(taxPolicy))throw Error('Invalid reservation tax policy');
+  const taxed=taxPolicy==='inclusive-v1';
   if(session.livemode!==false||session.mode!=='setup'||session.status!=='complete'||session.metadata?.reservation_policy!==policy||!isPersonalPlan(plan)||!isBillingCurrency(currency)||!Number.isSafeInteger(start)||session.client_reference_id!==member||!/^[0-9a-f-]{36}$/i.test(member))throw Error('Invalid reservation setup');
   await billingDb().$transaction(async tx=>{
     await tx.$queryRaw`SELECT pg_advisory_xact_lock(hashtextextended(${member}::text,0))::text AS result`;
@@ -145,25 +149,26 @@ export async function completeReservation(sessionId:string,request:Request=reser
     if(!/^seti_[a-zA-Z0-9]+$/.test(intentId))throw Error('Missing setup intent');
     const intent=await request('/setup_intents/'+intentId);
     if(intent.livemode!==false||intent.status!=='succeeded'||intent.customer!==customer.id||!/^pm_[a-zA-Z0-9]+$/.test(intent.payment_method))throw Error('Invalid saved payment method');
-    const price=await validatePrice(plan,currency);
+    // Honour the policy captured at authorisation, including setups completed after a flag change.
+    const price=await validatePrice(plan,currency,taxed);
     const metadata={'metadata[member_id]':member,'metadata[reservation_policy]':policy,'metadata[reservation_session]':sessionId,'metadata[plan]':plan,'metadata[currency]':currency,'metadata[reservation_start]':String(start),'metadata[reservation_price]':price};
     if(!value.id){
       if(start<=Math.floor(Date.now()/1000))throw Error('RESERVATION_EXPIRED');
       if(value.kind==='invoice'){
         // Keep the invoice unarmed until its single, validated line and account pointer exist.
-        const invoice=await request('/invoices',new URLSearchParams({customer:customer.id,currency:currency.toLowerCase(),collection_method:'charge_automatically',auto_advance:'false',default_payment_method:intent.payment_method,pending_invoice_items_behavior:'exclude',...metadata}),'reserve-invoice-'+sessionId);
+        const invoice=await request('/invoices',new URLSearchParams({customer:customer.id,currency:currency.toLowerCase(),collection_method:'charge_automatically',auto_advance:'false',default_payment_method:intent.payment_method,pending_invoice_items_behavior:'exclude',...(taxed?{'automatic_tax[enabled]':'true'}:{}),...metadata}),'reserve-invoice-'+sessionId);
         binding(invoice,customer.id,member);
         if(!/^in_[a-zA-Z0-9]+$/.test(invoice.id))throw Error('Invalid invoice');
         await request('/invoiceitems',new URLSearchParams({customer:customer.id,invoice:invoice.id,'pricing[price]':price,quantity:'1'}),'reserve-line-'+sessionId);
         value.id=invoice.id;
       }else{
         const schedule=await previousSchedule(customer.id,sessionId,request)||await request('/subscription_schedules',new URLSearchParams({customer:customer.id,start_date:String(start),end_behavior:'release',
-          'default_settings[default_payment_method]':intent.payment_method,'phases[0][items][0][price]':price,'phases[0][items][0][quantity]':'1',
+          'default_settings[default_payment_method]':intent.payment_method,...(taxed?{'default_settings[automatic_tax][enabled]':'true'}:{}),'phases[0][items][0][price]':price,'phases[0][items][0][quantity]':'1',
           'phases[0][duration][interval]':PERSONAL_PLANS[plan].interval!,'phases[0][duration][interval_count]':'1','phases[0][proration_behavior]':'none',
           'phases[0][metadata][member_id]':member,...metadata}),'reserve-schedule-'+sessionId);
         binding(schedule,customer.id,member);value.id=schedule.id;
         if(!/^sub_sched_[a-zA-Z0-9]+$/.test(value.id!))throw Error('Invalid schedule');
-        if(schedule.status!=='not_started'||schedule.phases?.[0]?.start_date!==start){
+        if(schedule.status!=='not_started'||schedule.phases?.[0]?.start_date!==start||(taxed&&schedule.default_settings?.automatic_tax?.enabled!==true)){
           await request('/subscription_schedules/'+value.id+'/cancel',new URLSearchParams());throw Error('Unexpected scheduled start');
         }
       }
@@ -174,7 +179,7 @@ export async function completeReservation(sessionId:string,request:Request=reser
       binding(invoice,customer.id,member);
       if(invoice.status==='draft'&&invoice.metadata.reservation_cancelled!=='true'){
         const lines=invoice.lines?.data,priceId=lines?.[0]?.pricing?.price_details?.price||lines?.[0]?.price?.id;
-        if(invoice.total!==planAmount(plan,currency)||invoice.currency!==currency.toLowerCase()||invoice.lines?.has_more||lines?.length!==1||priceId!==price||lines[0].quantity!==1)throw Error('Unexpected reserved invoice');
+        if(invoice.total!==planAmount(plan,currency)||invoice.currency!==currency.toLowerCase()||invoice.lines?.has_more||lines?.length!==1||priceId!==price||lines[0].quantity!==1||(taxed&&(invoice.automatic_tax?.enabled!==true||invoice.automatic_tax?.status!=='complete')))throw Error('Unexpected reserved invoice');
         const armed=await request('/invoices/'+value.id,new URLSearchParams({auto_advance:'true',automatically_finalizes_at:String(start)}),'reserve-arm-'+sessionId);
         if(armed.auto_advance!==true||armed.automatically_finalizes_at!==start){await request('/invoices/'+value.id,new URLSearchParams({auto_advance:'false'}));throw Error('Unexpected invoice charge date');}
       }

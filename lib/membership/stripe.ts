@@ -1,5 +1,5 @@
 import {createHmac,timingSafeEqual} from 'node:crypto';
-import {stripeTestKey,PERSONAL_PLANS,isPersonalPlan,planAmount,isBillingCurrency,BILLING_CURRENCIES,type BillingCurrency,type PersonalPlan} from './config';
+import {stripeTestKey,stripeTaxPreviewEnabled,stripeProductTaxCode,PERSONAL_PLANS,isPersonalPlan,planAmount,isBillingCurrency,BILLING_CURRENCIES,type BillingCurrency,type PersonalPlan} from './config';
 function safeStripeMessage(value:unknown){
  return typeof value==='string'?value.slice(0,600).replace(/\b(?:sk|rk|pk)_(?:test|live)_[A-Za-z0-9_]+/g,'[key]').replace(/\b(?:cus|sub|price|prod|bpc|cs|seti|pm)_[A-Za-z0-9_]+/g,'[id]').replace(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi,'[email]').replace(/https?:\/\/[^\s"']+/g,'[url]'):'';
 }
@@ -38,9 +38,16 @@ export function priceMatches(plan:PersonalPlan,price:any,currency:BillingCurrenc
   expected.kind==='subscription'?price.recurring?.interval===expected.interval&&price.recurring?.interval_count===1:price.recurring==null
  );
 }
-export async function validatePrice(plan:PersonalPlan,currency:BillingCurrency='GBP') {
- const price=await stripeRequest('/prices/'+planPriceId(plan,currency));
+export async function validatePrice(plan:PersonalPlan,currency:BillingCurrency='GBP',requireTax=stripeTaxPreviewEnabled()) {
+ const price=await stripeRequest('/prices/'+planPriceId(plan,currency),undefined,undefined,15000,undefined,requireTax?new URLSearchParams({'expand[0]':'product'}):undefined);
  if(!priceMatches(plan,price,currency))throw new Error('Test price does not match the personal plan');
+ if(requireTax){
+  const code=price.product?.tax_code;
+  if(price.tax_behavior!=='inclusive'||price.product?.active!==true||price.product?.livemode!==false||(typeof code==='string'?code:code?.id)!==stripeProductTaxCode())throw Error('Inclusive product tax configuration unavailable');
+  const settings=await stripeRequest('/tax/settings');
+  const registrations=await stripeRequest('/tax/registrations',undefined,undefined,15000,undefined,new URLSearchParams({status:'active',limit:'100'}));
+  if(settings.livemode!==false||settings.status!=='active'||!Array.isArray(registrations.data)||registrations.has_more||!registrations.data.some((registration:any)=>registration.livemode===false&&registration.country==='GB'&&registration.status==='active'))throw Error('UK sandbox tax configuration unavailable');
+ }
  return price.id as string;
 }
 export function passAccess(session:any,items:any,eventTime:number,now=Date.now()) {

@@ -10,6 +10,15 @@ export function membershipPreviewEnabled() {
     (!process.env.VERCEL_ENV && process.env.NODE_ENV === 'development')
   );
 }
+// Enable only after the sandbox's tax category, registration and inclusive prices are verified.
+export function stripeTaxPreviewEnabled() {
+  return membershipPreviewEnabled() && process.env.MEDICEA_STRIPE_TAX_PREVIEW === 'true';
+}
+export function stripeProductTaxCode() {
+  const code = process.env.STRIPE_PERSONAL_TAX_CODE || '';
+  if (!/^txcd_[0-9]+$/.test(code)) throw Error('Confirmed product tax code missing');
+  return code;
+}
 // Account sign-in can be tested without enabling paid search metering.
 export function membershipAccountEnabled() {
   return membershipPreviewEnabled() || (
