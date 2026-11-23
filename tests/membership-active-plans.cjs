@@ -1,6 +1,6 @@
 const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm'),ts=require('typescript');
 const env={STRIPE_PERSONAL_MONTHLY_PRICE_ID:'price_monthly',STRIPE_PERSONAL_ANNUAL_PRICE_ID:'price_annual',STRIPE_PERSONAL_7_DAY_PRICE_ID:'price_pass7',STRIPE_PERSONAL_14_DAY_PRICE_ID:'price_pass14',STRIPE_PERSONAL_30_DAY_PRICE_ID:'price_pass30'};
-function load(file,imports={}){const module={exports:{}};vm.runInNewContext(ts.transpileModule(fs.readFileSync(file,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText,{module,exports:module.exports,require:n=>imports[n]||require(n),process:{env},Date,Set,Response,Request,Buffer,URLSearchParams,AbortSignal,fetch});return module.exports;}
+function load(file,imports={}){const module={exports:{}};vm.runInNewContext(ts.transpileModule(fs.readFileSync(file,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText,{module,exports:module.exports,require:n=>imports[n]||(n==='./future-access'?{}:null)||require(n),process:{env},Date,Set,Response,Request,Buffer,URLSearchParams,AbortSignal,fetch});return module.exports;}
 const config=load('lib/membership/config.ts'),stripe=load('lib/membership/stripe.ts',{'./config':config});
 const plans=load('lib/membership/active-plans.ts',{'./config':config,'./stripe':stripe,'./store':{}});
 const member='11111111-1111-4111-8111-111111111111',now=Math.floor(Date.now()/1000);
@@ -29,7 +29,7 @@ test('known Google plans are distinguished from Stripe access without querying S
 test('no specific card is claimed for older unidentified paid access',async()=>{const result=await plans.resolveActivePlans(member,[]);assert.equal(result.activePlans.length,0);assert.equal(result.planDetailsUnavailable,true);});
 test('status route never lets plan metadata create paid access or exposes purchase references',async()=>{
  let lookups=0;
- const route=load('app/api/membership/status/route.ts',{'@/lib/membership/complimentary':{isMembershipAdmin:()=>false},'@/lib/membership/config':{membershipPreviewEnabled:()=>true},'@/lib/membership/auth':{membershipUser:async()=>({id:member,email:'example@example.test'})},'@/lib/membership/store':{membershipStatus:async()=>({premium:false})},'@/lib/membership/active-plans':{membershipPlans:async()=>{lookups++;return {activePlans:['annual']};}}});
+ const route=load('app/api/membership/status/route.ts',{'@/lib/membership/complimentary':{isMembershipAdmin:()=>false},'@/lib/membership/config':{membershipAccountEnabled:()=>true},'@/lib/membership/auth':{membershipUser:async()=>({id:member,email:'example@example.test'})},'@/lib/membership/store':{membershipStatus:async()=>({premium:false})},'@/lib/membership/active-plans':{membershipPlans:async()=>{lookups++;return {activePlans:['annual']};}}});
  const response=await route.GET(),body=await response.json();assert.equal(body.premium,false);assert.deepEqual(body.activePlans,[]);assert.equal(lookups,0);assert.equal(body.external_id,undefined);assert.equal(response.headers.get('cache-control'),'no-store');
 });
 

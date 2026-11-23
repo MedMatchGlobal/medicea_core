@@ -3,6 +3,7 @@ import {membershipUser} from '@/lib/membership/auth';
 import {billingDb,membershipStatus} from '@/lib/membership/store';
 import {stripeRequest,validatePrice} from '@/lib/membership/stripe';
 import {homeCountryCurrency} from '@/lib/membership/home-country';
+import {memberReservation} from '@/lib/membership/future-access';
 export const maxDuration=60;
 export async function POST(req:Request) {
  if(!membershipPreviewEnabled())return new Response(null,{status:404});
@@ -10,6 +11,7 @@ export async function POST(req:Request) {
   if(!sameOrigin(req))return Response.json({error:'INVALID_ORIGIN'},{status:403});
   const user=await membershipUser();if(!user)return Response.json({error:'SIGN_IN_REQUIRED'},{status:401});
   if((await membershipStatus(user.id,user.email)).premium)return Response.json({error:'ALREADY_SUBSCRIBED'},{status:409});
+  if(await memberReservation(user.id))return Response.json({error:'RESERVATION_EXISTS'},{status:409});
   const body=await req.json();const requestedPlan:unknown=body?.plan;if(!isPersonalPlan(requestedPlan))return Response.json({error:'INVALID_PLAN'},{status:400});
   const plan=requestedPlan;
   if(body?.currency!==undefined&&!isBillingCurrency(body.currency))return Response.json({error:'INVALID_CURRENCY'},{status:400});

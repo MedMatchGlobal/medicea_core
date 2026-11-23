@@ -1,6 +1,7 @@
 import {membershipPreviewEnabled} from '@/lib/membership/config';
 import {billingDb} from '@/lib/membership/store';
 import {verifyStripeSignature,stripeRequest,subscriptionAccess,passAccess} from '@/lib/membership/stripe';
+import {completeReservation,reservedPassAccess} from '@/lib/membership/future-access';
 export const maxDuration=60;
 export async function POST(req:Request){
  if(!membershipPreviewEnabled())return new Response(null,{status:404});
@@ -9,6 +10,25 @@ export async function POST(req:Request){
  if(event.livemode!==false)return new Response(null,{status:400});
  if(!['customer.subscription.created','customer.subscription.updated','customer.subscription.deleted','checkout.session.completed','invoice.paid','invoice.payment_failed'].includes(event.type))return Response.json({received:true});
  const object=event.data?.object;
+ if(event.type==='checkout.session.completed'&&object?.mode==='setup'&&object.metadata?.reservation_policy==='medicea-next-access-v1'){
+  if(!/^cs_test_[a-zA-Z0-9]+$/.test(object.id))return new Response(null,{status:400});
+  try{await completeReservation(object.id);return Response.json({received:true});}catch{return new Response(null,{status:503});}
+ }
+ if(event.type.startsWith('invoice.')&&object?.metadata?.reservation_policy==='medicea-next-access-v1'){
+  if(event.type!=='invoice.paid')return Response.json({received:true});
+  if(!/^in_[a-zA-Z0-9]+$/.test(object.id))return new Response(null,{status:400});
+  try{
+   await billingDb().$transaction(async tx=>{
+    await tx.$queryRaw`SELECT pg_advisory_xact_lock(hashtextextended(${object.id}::text,1))::text AS result`;
+    const invoice=await stripeRequest('/invoices/'+object.id);
+    const access=reservedPassAccess(invoice),member=invoice.metadata?.member_id;
+    if(typeof member!=='string'||!/^[0-9a-f-]{36}$/i.test(member)||typeof invoice.customer!=='string')throw Error('Invalid reserved pass binding');
+    const owners=await tx.$queryRaw<Array<{member_id:string}>>`SELECT member_id::text FROM medicea_billing.stripe_customer WHERE member_id=${member}::uuid AND customer_id=${invoice.customer}`;
+    if(owners.length!==1)throw Error('Customer mismatch');
+    await tx.$executeRaw`INSERT INTO medicea_billing.entitlement(provider,external_id,member_id,active,valid_until,customer_id) VALUES('stripe',${invoice.id},${member}::uuid,${access.active},${access.until},${invoice.customer}) ON CONFLICT(provider,external_id) DO NOTHING`;
+   },{timeout:30000});return Response.json({received:true});
+  }catch{return new Response(null,{status:503});}
+ }
  if(event.type==='checkout.session.completed'&&object?.mode==='payment') {
   const sessionId=object.id;
   if(typeof sessionId!=='string'||!/^cs_test_[a-zA-Z0-9]+$/.test(sessionId))return new Response(null,{status:400});
