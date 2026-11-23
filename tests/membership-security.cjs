@@ -69,6 +69,7 @@ test('checkout sends passes as one-time payments and subscriptions as recurring 
   let sent,existing=[];
   const config=load('lib/membership/config.ts');
   const route=load('app/api/membership/checkout/route.ts',{}, {
+   '@/lib/membership/invoice-details':{ensureCustomerInvoiceDetails:async()=>{throw Error('Tax-disabled checkout must not mutate invoice defaults');}},
    '@/lib/membership/config':{...config,membershipPreviewEnabled:()=>true,membershipOrigin:()=> 'https://preview.example',sameOrigin:()=>true},
    '@/lib/membership/home-country':{homeCountryCurrency:()=> 'GBP'},
    '@/lib/membership/auth':{membershipUser:async()=>({id:member,email:'fictional@example.test'})},

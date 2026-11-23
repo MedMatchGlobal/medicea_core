@@ -53,6 +53,7 @@ test('checkout rejects stale or forged currency before contacting Stripe',async(
   '@/lib/membership/stripe':{validatePrice:async()=>{stripeCalls++;}},
   '@/lib/membership/home-country':home,
   '@/lib/membership/future-access':{memberReservation:async()=>null},
+  '@/lib/membership/invoice-details':{ensureCustomerInvoiceDetails:async()=>{throw Error('Supplier mutation must not precede currency validation');}},
  });
  const response=await route.POST(new Request('https://preview.example/api/membership/checkout',{method:'POST',headers:{'x-vercel-ip-country':'IT'},body:JSON.stringify({plan:'pass7',currency:'EUR'})}));
  assert.equal(response.status,409);assert.equal((await response.json()).error,'CURRENCY_CHANGED');assert.equal(stripeCalls,0);

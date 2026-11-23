@@ -4,6 +4,7 @@ const env={};
 for(const [plan,stem] of Object.entries({pass7:'7_DAY',pass14:'14_DAY',pass30:'30_DAY',monthly:'MONTHLY',annual:'ANNUAL'}))for(const currency of ['GBP','EUR','USD'])env['STRIPE_PERSONAL_'+stem+'_PRICE_ID'+(currency==='GBP'?'':'_'+currency)]='price_'+plan+currency;
 function load(file,imports={},globals={}){const module={exports:{}};vm.runInNewContext(ts.transpileModule(fs.readFileSync(file,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022,jsx:ts.JsxEmit.ReactJSX}}).outputText,{module,exports:module.exports,require:n=>imports[n]||require(n),process:{env},Response,Request,URL,URLSearchParams,Date,Set,Map,Intl,...globals});return module.exports;}
 const config=load('lib/membership/config.ts'),stripe=load('lib/membership/stripe.ts',{'./config':config});
+const invoiceDetails=load('lib/membership/invoice-details.ts',{'./business':load('lib/membership/business.ts')});
 function price(plan,currency='GBP'){return {id:'price_'+plan+currency,product:'prod_personal',active:true,livemode:false,currency:currency.toLowerCase(),unit_amount:config.planAmount(plan,currency),recurring:plan.startsWith('pass')?null:{interval:plan==='annual'?'year':'month',interval_count:1}};}
 function metadata(params){return Object.fromEntries([...params].filter(([key])=>/^metadata\[/.test(key)).map(([key,value])=>[key.slice(9,-1),value]));}
 function fixture(taxed=false){
@@ -17,7 +18,7 @@ function fixture(taxed=false){
   calls.push({path,params:params&&Object.fromEntries(params),idempotency,version});
   if(path==='/checkout/sessions'&&params?.has('payment_method_types[0]')&&version==='2026-11-18.endive')throw Error('payment_method_types is no longer supported');
   if(path.startsWith('/prices/')){const found=Object.keys(config.PERSONAL_PLANS).flatMap(plan=>['GBP','EUR','USD'].map(currency=>price(plan,currency))).find(price=>path==='/prices/'+price.id);if(!found)throw Error('Unknown price');return found;}
-  if(path==='/customers/cus_test'){if(params)Object.assign(customer.metadata,metadata(params));return structuredClone(customer);}
+  if(path==='/customers/cus_test'){if(params){Object.assign(customer.metadata,metadata(params));if(params.has('invoice_settings[footer]'))customer.invoice_settings={footer:params.get('invoice_settings[footer]')};}return structuredClone(customer);}
   if(path==='/checkout/sessions/cs_test_pass')return pass;
   if(path==='/checkout/sessions/cs_test_pass/line_items')return {data:[{quantity:1,price:price('pass7')}],has_more:false};
   if(path==='/checkout/sessions')return objects.session={id:'cs_test_reserve',livemode:false,mode:'setup',status:'open',customer:'cus_test',client_reference_id:member,metadata:metadata(params),setup_intent:'seti_test',url:'https://checkout.stripe.com/test',expires_at:now+1800};
@@ -32,7 +33,7 @@ function fixture(taxed=false){
   if(path==='/subscription_schedules/sub_sched_test/cancel'){objects.schedule.status='canceled';return objects.schedule;}
   throw Error('Unexpected provider call '+path);
  };
- const future=load('lib/membership/future-access.ts',{'./config':{...config,stripeTaxPreviewEnabled:()=>taxed,membershipOrigin:()=> 'https://preview.example'},'./store':{billingDb:()=>({...tx,$transaction:async fn=>fn(tx)})},'./stripe':{...stripe,stripeRequest:request,validatePrice:async(plan,currency)=>config.isPersonalPlan(plan)?'price_'+plan+currency:Promise.reject(Error())}});
+ const future=load('lib/membership/future-access.ts',{'./invoice-details':invoiceDetails,'./config':{...config,stripeTaxPreviewEnabled:()=>taxed,membershipOrigin:()=> 'https://preview.example'},'./store':{billingDb:()=>({...tx,$transaction:async fn=>fn(tx)})},'./stripe':{...stripe,stripeRequest:request,validatePrice:async(plan,currency)=>config.isPersonalPlan(plan)?'price_'+plan+currency:Promise.reject(Error())}});
  return {future,request,calls,objects,customer,tx};
 }
 test('taxed setup saves a billing address without charging; future invoice and schedule inherit tax',async()=>{
@@ -43,6 +44,7 @@ test('taxed setup saves a billing address without charging; future invoice and s
   assert.equal(setup.params.billing_address_collection,'required');assert.equal(setup.params['customer_update[address]'],'auto');
   assert.equal(setup.params['metadata[tax_policy]'],'inclusive-v1');
   f.objects.session.status='complete';await f.future.completeReservation('cs_test_reserve',f.request);
+  assert.match(f.customer.invoice_settings.footer,/VAT number: GB104912052/);
   if(plan==='pass14'){
    assert.equal(f.calls.find(call=>call.path==='/invoices').params['automatic_tax[enabled]'],'true');
    assert.equal(f.objects.invoice.total,199);

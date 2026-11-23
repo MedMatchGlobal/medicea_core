@@ -61,9 +61,13 @@ history. Reserved passes use invoices, and subscriptions generate invoices.
 
 Current advertised totals include applicable VAT. The UK sandbox check for a
 £2.99 total returned £2.49 excluding tax and £0.50 VAT, `standard_rated`.
-Existing settled invoices and subscriptions were not migrated. Supplier VAT-number
-display and the legally required invoice/credit-note particulars still need final
-verification before live billing.
+Existing settled invoices and subscriptions were not migrated. New taxed invoice
+flows set an owned-customer supplier footer containing the legal name, company
+number, supplied VAT number and registered address, preserving existing notes and
+payment settings. Display was verified on a Stripe-generated sandbox PDF and a
+monthly invoice preview. This does not register a structured Stripe account tax ID
+or independently validate the VAT number. The accountant still needs to review the
+legally required invoice/credit-note particulars before live billing.
 
 ## Webhook and recovery checks
 

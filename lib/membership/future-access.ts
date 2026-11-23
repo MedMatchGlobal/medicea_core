@@ -1,6 +1,7 @@
 import {billingDb} from './store';
 import {isPersonalPlan,isBillingCurrency,stripeTaxPreviewEnabled,PERSONAL_PLANS,planAmount,membershipOrigin,type PersonalPlan,type BillingCurrency} from './config';
 import {stripeRequest,passAccess,validatePrice,planPriceId} from './stripe';
+import {ensureCustomerInvoiceDetails} from './invoice-details';
 
 const policy='medicea-next-access-v1';
 const key='medicea_next_access';
@@ -151,6 +152,7 @@ export async function completeReservation(sessionId:string,request:Request=reser
     if(intent.livemode!==false||intent.status!=='succeeded'||intent.customer!==customer.id||!/^pm_[a-zA-Z0-9]+$/.test(intent.payment_method))throw Error('Invalid saved payment method');
     // Honour the policy captured at authorisation, including setups completed after a flag change.
     const price=await validatePrice(plan,currency,taxed);
+    if(taxed)await ensureCustomerInvoiceDetails(customer,member,request);
     const metadata={'metadata[member_id]':member,'metadata[reservation_policy]':policy,'metadata[reservation_session]':sessionId,'metadata[plan]':plan,'metadata[currency]':currency,'metadata[reservation_start]':String(start),'metadata[reservation_price]':price};
     if(!value.id){
       if(start<=Math.floor(Date.now()/1000))throw Error('RESERVATION_EXPIRED');
