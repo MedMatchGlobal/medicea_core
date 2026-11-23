@@ -30,8 +30,6 @@
 .page .reservationDialog .reservationConsent input[type=checkbox]{appearance:auto;width:18px;min-width:18px;max-width:18px;height:18px;min-height:18px;max-height:18px;flex:none;padding:0;margin:2px 0 0;accent-color:#2a383b}
 .reservationConsent span{min-width:0;white-space:normal;overflow-wrap:anywhere}
 .reservationActions{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
-.reservationCancel{position:fixed;bottom:24px;inset-inline:14px;max-width:600px;margin:auto;padding:20px;background:#fffdf9;border:1px solid #d9ccba;border-radius:16px;box-shadow:0 10px 40px #23323744;z-index:70}
-.reservationCancel button{margin:12px 8px 0 0}
 .homeCountry{border:1px solid #d9ccba;border-radius:16px;padding:20px 24px;margin:-16px 0 28px;background:#fffdf9;display:grid;grid-template-columns:minmax(0,1fr) minmax(260px,420px);align-items:center;gap:12px 24px}
 .homeCountry h2{font-size:18px}
 .homeCountry fieldset{border:0;margin:0;padding:0;min-width:0;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:10px}
@@ -158,3 +156,14 @@
 .paymentHistory{margin:0 0 16px;padding:16px 20px;border:1px solid #ded6c9;border-radius:14px;background:#fffdf9}.paymentHistory summary{cursor:pointer;font-weight:600;color:#233237}.paymentRow{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;padding:14px 0;border-bottom:1px solid #ded6c9;min-width:0}.paymentRow p{margin:4px 0 0}.paymentRow a{color:#166777;overflow-wrap:anywhere}.paymentHistory button{margin-top:12px}
 .ownerTools{padding:14px 20px}.ownerTools>span{color:#826956}.ownerTools>a{color:#49685d;font-weight:500}
 @media(max-width:700px){.page{padding:0 18px 90px;font-size:14px}.header{min-height:76px;gap:8px}.header img{width:124px}.hero{min-height:132px;padding:23px 12px}.hero h1{font-size:clamp(14px,4.1vw,27px);margin-top:10px}.productName{font-size:8px}.account{padding:17px;gap:16px}.account h2{font-size:25px}.welcome{padding:14px 16px}.plan{padding:16px}.page h2{font-size:21px}}
+
+.cancelPlanDialog{position:fixed;inset:0;margin:auto;width:min(520px,calc(100% - 32px));max-height:calc(100dvh - 48px);overflow:auto;padding:28px;border:2px solid #26383d;border-radius:18px;background:#fffdf9;color:#233237;box-shadow:0 24px 80px #0006;font-family:Inter,Arial,sans-serif}
+.cancelPlanDialog::backdrop{background:rgba(15,28,34,.72)}
+.cancelPlanDialog h2{margin:0 0 16px;font-size:25px;line-height:1.25}
+.cancelPlanDialog p{font-size:16px;line-height:1.65;margin:0 0 20px}
+.cancelPlanActions{display:flex;flex-direction:column;gap:12px}
+.cancelPlanActions button{width:100%;min-height:48px;padding:12px 16px;font-size:16px;line-height:1.4;cursor:pointer}
+.cancelPlanConfirm{border:2px solid #a33429;border-radius:24px;background:#fffdf9;color:#92291f;font-weight:600}
+.cancelPlanConfirm:hover:not(:disabled){background:#fff0ed}
+.cancelPlanActions button:focus-visible{outline:3px solid #1e73be;outline-offset:3px}
+@media(max-width:600px){.cancelPlanDialog{padding:24px 20px}.cancelPlanDialog h2{font-size:23px}}
