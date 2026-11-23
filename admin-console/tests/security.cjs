@@ -30,14 +30,14 @@ function fixture(failAfterProvider=false){
  const request=async(url,params,key)=>{
   if(url==='/refunds'&&!params)return {data:refunds,has_more:false};
   if(url==='/charges/ch_example')return charge;
-  if(url==='/refunds'){posts++;const value={id:'re_example',charge:'ch_example',livemode:false,amount:Number(params.get('amount')),currency:'gbp',status:'succeeded',metadata:{console_operation:ID}};refunds.push(value);charge.amount_refunded+=value.amount;return value;}
+  if(url==='/refunds'){posts++;const value={id:'re_example',charge:'ch_example',amount:Number(params.get('amount')),currency:'gbp',status:'succeeded',metadata:{console_operation:ID}};refunds.push(value);charge.amount_refunded+=value.amount;return value;}
   throw Error('Unexpected provider path');
  };
  const operations=load('lib/operations.ts',{'./policy':policy,'./db':{db:()=>database,audit:async(...v)=>audit.push(v)},'./accounts':{customerFor:async()=>customer},'./stripe':{stripe:request,paymentUrl:()=>null}});
  return {operations,getPosts:()=>posts,getStored:()=>stored,charge,audit};
 }
 const body={operationId:ID,member:B,action:'refund',amountMinor:299,currency:'GBP',reason:'Customer request',charge:'ch_example',confirmed:true};
-test('refunds validate ownership and remaining balance; duplicate operations return one provider refund',async()=>{
+test('Stripe refunds without livemode validate the owning sandbox charge; refunds validate ownership and remaining balance; duplicate operations return one provider refund',async()=>{
  const f=fixture();for(const change of [{customer:'cus_other'},{currency:'eur'},{disputed:true},{amount_refunded:1}])assert.throws(()=>f.operations.validateRefund({...f.charge,...change},'cus_example',policy.operationInput(body)));
  const first=await f.operations.performOperation(A,body),second=await f.operations.performOperation(A,body);assert.equal(first.providerRef,second.providerRef);assert.equal(f.getPosts(),1);
  await assert.rejects(()=>f.operations.performOperation(A,{...body,amountMinor:100}),/OPERATION_ID_REUSED/);

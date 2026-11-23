@@ -4,27 +4,33 @@ import {customerFor} from './accounts';
 import {stripe,paymentUrl} from './stripe';
 import {ConsoleError,operationInput} from './policy';
 type Operation=ReturnType<typeof operationInput>;
-export function validateRefund(charge:any,customer:string,op:Operation){
+function validateChargeBinding(charge:any,customer:string,op:Operation){
  if(charge.id!==op.charge||charge.livemode!==false||charge.customer!==customer||charge.paid!==true||charge.status!=='succeeded'||charge.currency?.toUpperCase()!==op.currency)throw new ConsoleError('PURCHASE_BINDING_INVALID',409);
  if(charge.disputed===true)throw new ConsoleError('DISPUTED_PURCHASE_REQUIRES_REVIEW',409);
+}
+export function validateRefund(charge:any,customer:string,op:Operation){
+ validateChargeBinding(charge,customer,op);
  if(!Number.isSafeInteger(charge.amount)||!Number.isSafeInteger(charge.amount_refunded)||charge.amount_refunded<0||op.amountMinor>charge.amount-charge.amount_refunded)throw new ConsoleError('REFUND_EXCEEDS_BALANCE',409);
 }
 async function refund(customer:any,op:Operation){
+ // Refund objects do not carry livemode. Verify the owning charge before any
+ // refund lookup, recovery or mutation; do not require a missing Refund field.
+ const charge=await stripe('/charges/'+op.charge);validateChargeBinding(charge,customer.id,op);
  const query=new URLSearchParams({charge:op.charge!,limit:'100'});
  for(let page=0;page<20;page++){
   const previous=await stripe('/refunds',undefined,undefined,query);
   const existing=previous.data?.find((r:any)=>r.metadata?.console_operation===op.id);
   if(existing){
-   if(existing.livemode!==false||existing.charge!==op.charge||existing.amount!==op.amountMinor||existing.currency?.toUpperCase()!==op.currency)throw new ConsoleError('REFUND_BINDING_INVALID',409);
+   if(existing.livemode===true||existing.charge!==op.charge||existing.amount!==op.amountMinor||existing.currency?.toUpperCase()!==op.currency)throw new ConsoleError('REFUND_BINDING_INVALID',409);
    return {providerRef:existing.id,status:existing.status,amountMinor:existing.amount,currency:op.currency,message:'Recovered the existing refund. Subscription renewal is unchanged.'};
   }
   if(!previous.has_more)break;
   if(page===19||!previous.data?.at(-1)?.id)throw new ConsoleError('REFUND_HISTORY_REQUIRES_REVIEW',409);
   query.set('starting_after',previous.data.at(-1).id);
  }
- const charge=await stripe('/charges/'+op.charge);validateRefund(charge,customer.id,op);
+ validateRefund(charge,customer.id,op);
  const result=await stripe('/refunds',new URLSearchParams({charge:op.charge!,amount:String(op.amountMinor),'metadata[console_operation]':op.id}), 'medicea-console-refund-'+op.id);
- if(result.livemode!==false||result.charge!==op.charge||result.amount!==op.amountMinor||result.currency?.toUpperCase()!==op.currency||!/^re_[A-Za-z0-9]+$/.test(result.id))throw new ConsoleError('REFUND_RESULT_REQUIRES_REVIEW',502);
+ if(result.livemode===true||result.charge!==op.charge||result.amount!==op.amountMinor||result.currency?.toUpperCase()!==op.currency||!/^re_[A-Za-z0-9]+$/.test(result.id))throw new ConsoleError('REFUND_RESULT_REQUIRES_REVIEW',502);
  return {providerRef:result.id,status:result.status,amountMinor:result.amount,currency:op.currency,message:'Check the final provider outcome. Subscription renewal is unchanged. Invoiced purchases may also require a linked credit note.'};
 }
 async function paymentRequest(customer:any,op:Operation){
@@ -35,7 +41,8 @@ async function paymentRequest(customer:any,op:Operation){
  const settings=await stripe('/tax/settings'),registration=await stripe('/tax/registrations',undefined,undefined,new URLSearchParams({status:'active',limit:'100'}));
  if(settings.status!=='active'||!registration.data?.some((r:any)=>r.country==='GB'&&r.active_from<=Date.now()/1000&&(!r.expires_at||r.expires_at>Date.now()/1000)))throw new ConsoleError('TAX_CONFIGURATION_REQUIRED',503);
  const origin=process.env.MEDICEA_CONSOLE_ORIGIN;if(!origin)throw new ConsoleError('CONSOLE_UNAVAILABLE',503);
- const session=await stripe('/checkout/sessions',new URLSearchParams({mode:'payment',customer:customer.id,client_reference_id:op.member,
+ const integration='medicea_owner_console_'+createHash('sha256').update(op.id).digest('hex').slice(0,8).replace(/[0-9a-f]/g,c=>String.fromCharCode(97+parseInt(c,16)));
+ const session=await stripe('/checkout/sessions',new URLSearchParams({mode:'payment',integration_identifier:integration,customer:customer.id,client_reference_id:op.member,
   'line_items[0][price_data][currency]':op.currency.toLowerCase(),'line_items[0][price_data][product]':productId,'line_items[0][price_data][unit_amount]':String(op.amountMinor),'line_items[0][price_data][tax_behavior]':'inclusive','line_items[0][quantity]':'1',
   'automatic_tax[enabled]':'true',billing_address_collection:'required','customer_update[address]':'auto',
   'invoice_creation[enabled]':'true','invoice_creation[invoice_data][footer]':'G.E.S. Consultancy Limited · Company 07467951 · VAT GB104912052 · 87 Arlington Gardens, Romford, RM3 0EB, United Kingdom. Contact support@medicea.global.',
