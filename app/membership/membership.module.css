@@ -155,5 +155,6 @@
 .page button:disabled{background:#e8e2d8;color:#766f64;border-color:#ddd4c6}
 .page .activeButton:disabled{background:#dfeade;color:#345b43;border-color:#a7bfa1}
 .page :is(button,a,input,summary):focus-visible{outline-color:#a6533e}
+.paymentHistory{margin:0 0 16px;padding:16px 20px;border:1px solid #ded6c9;border-radius:14px;background:#fffdf9}.paymentHistory summary{cursor:pointer;font-weight:600;color:#233237}.paymentRow{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;padding:14px 0;border-bottom:1px solid #ded6c9;min-width:0}.paymentRow p{margin:4px 0 0}.paymentRow a{color:#166777;overflow-wrap:anywhere}.paymentHistory button{margin-top:12px}
 .ownerTools{padding:14px 20px}.ownerTools>span{color:#826956}.ownerTools>a{color:#49685d;font-weight:500}
 @media(max-width:700px){.page{padding:0 18px 90px;font-size:14px}.header{min-height:76px;gap:8px}.header img{width:124px}.hero{min-height:132px;padding:23px 12px}.hero h1{font-size:clamp(14px,4.1vw,27px);margin-top:10px}.productName{font-size:8px}.account{padding:17px;gap:16px}.account h2{font-size:25px}.welcome{padding:14px 16px}.plan{padding:16px}.page h2{font-size:21px}}

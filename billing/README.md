@@ -1,5 +1,15 @@
 # mediceaGO Personal — test preparation
 
+## Current billing verification — 23 November 2026
+
+This section supersedes the older dated price and acceptance snapshots below. Current GBP monthly pricing is £2.99; passes remain £1.49/£1.99/£2.99 and annual £19.99. EUR and USD amounts are defined in `lib/membership/config.ts`; historical purchases retain their actual booked currency and price.
+
+Two isolated sandbox identities in the dedicated `medicea-billing-test` project were used to verify the deployed Riviera webhook, without altering existing users. Before payment, both had `paidAccess:false`. The successful scheduled £1.99 invoice was automatically paid once, and the deployed webhook created one entitlement for the correct identity, expiring exactly 14 days after Stripe's paid timestamp. The declined invoice remained unpaid and created no entitlement; its retries were disabled after verification. Earlier provider-only checks and local activation/replay tests remain separate evidence, not substitutes for this deployed check.
+
+The account now provides a collapsed Payments and receipts section with customer-scoped Stripe receipt links, including existing one-time pass purchases, actual purchase currencies, refund amounts, pagination, and no additional invoice-creation fees. Receipt URLs are returned only to the authenticated account with no-store caching; live-mode and foreign-customer records are rejected. Receipt history does not grant access.
+
+Production remains unconditionally disabled by the current configuration and test-mode validations. Enabling it requires a reviewed code/configuration change, separate live credentials and price IDs, production webhook verification, final tax/consumer/fair-use decisions, Google Play device/provider acceptance, and explicit launch approval. Full-refund/dispute access handling and durable Stripe reconciliation are still outstanding; do not describe this branch as launch-ready. The sandbox no-added-tax choice does not decide live tax treatment. Medicine prompts, model settings and provider routing remain unchanged.
+
 Google Play test implementation and current release gates: [GOOGLE-PLAY-IMPLEMENTATION.md](GOOGLE-PLAY-IMPLEMENTATION.md). Earlier dated validation below describes the original Stripe preparation.
 
 Approved launch prices: 7-day pass £1.49, 14-day pass £1.99, 30-day pass £2.99, monthly £2.49 and annual £19.99, all GBP. Passes end automatically; subscriptions renew with explicit disclosure. Annual saves £9.89 (33.1%) against twelve monthly payments. Paid monthly search allowance is uncapped; personal fair-use terms still need approval. Professional/team plans are not offered by this preparation. Concurrent new searches are capped at three as a technical safeguard, not a hidden monthly paid allowance.
