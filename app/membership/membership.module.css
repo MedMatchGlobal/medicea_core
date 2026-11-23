@@ -14,6 +14,13 @@
 .account{background:#fff;border:1px solid #e1e9f3;border-radius:16px;padding:24px;display:flex;justify-content:space-between;align-items:center;gap:24px;margin:24px 0 36px}
 .account p:not(.eyebrow){margin-top:8px}
 .email{color:#506779;overflow-wrap:anywhere}
+.homeCountry{border:1px solid #d9ccba;border-radius:16px;padding:20px 24px;margin:-16px 0 28px;background:#fffdf9;display:grid;grid-template-columns:minmax(0,1fr) minmax(260px,420px);align-items:center;gap:12px 24px}
+.homeCountry h2{font-size:18px}
+.homeCountry fieldset{border:0;margin:0;padding:0;min-width:0;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:10px}
+.homeCountry :global(.country-trigger){border-color:#d9ccba;background:#fffdf9;color:#233237}
+.homeCountry :global(.country-options){z-index:60}
+.homeCountry>p{grid-column:1/-1}
+@media(max-width:800px){.homeCountry{grid-template-columns:1fr}.homeCountry fieldset{grid-template-columns:1fr}.homeCountry fieldset>button{justify-self:start}}
 .actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;align-self:center;justify-content:flex-end;max-width:380px}
 .continueLink{padding:10px 0;font-size:14px;font-weight:650;text-decoration:none}
 .page button{font:inherit;font-size:14px;font-weight:650;border-radius:9px;padding:11px 16px;cursor:pointer;line-height:1.4;transition:background .15s}

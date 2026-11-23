@@ -8,8 +8,10 @@ import MembershipFooter from '../components/MembershipFooter';
 import {useLanguage} from '../LanguageProvider';
 import PlayOptions from './play-options';
 import LanguageButton from '../components/LanguageButton';
+import HomeCountrySettings from './home-country-settings';
+import {homeCountryCurrency} from '@/lib/membership/home-country';
 import {useMembershipCopy,MembershipText,membershipText,type MembershipKey} from '../i18n/membership';
-export default function MembershipPreview({billingEnabled=true,currency='GBP'}:{billingEnabled?:boolean;currency?:BillingCurrency}){
+export default function MembershipPreview({billingEnabled=true,currency:detectedCurrency='GBP'}:{billingEnabled?:boolean;currency?:BillingCurrency}){
  const {copy,lang,dir}=useMembershipCopy();
  const {t}=useLanguage();
  const [email,setEmail]=useState(''),[code,setCode]=useState(''),[status,setStatus]=useState<any>(null),[message,setMessage]=useState<MembershipKey|null>(null),[busy,setBusy]=useState(false),[native,setNative]=useState(true);
@@ -35,7 +37,7 @@ export default function MembershipPreview({billingEnabled=true,currency='GBP'}:{
  if(path==='auth'&&body.action==='verify'){body={...body,code:body.code.trim()};if(!/^\d{6,8}$/.test(body.code)){setAuthFeedback('errorCode');setAuthError(true);setBusy(false);codeInput.current?.focus();return;}}
  try{
   const response=await fetch('/api/membership/'+path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});const data=await response.json();
-  if(!response.ok)throw Error(data.error||'UNAVAILABLE');if(data.url){window.location.assign(data.url);return;}
+  if(!response.ok){if(data.error==='CURRENCY_CHANGED')await refresh();throw Error(data.error||'UNAVAILABLE');}if(data.url){window.location.assign(data.url);return;}
   if(body.action==='send'){setCodeSent(true);requestAnimationFrame(()=>codeInput.current?.focus());}
   if(body.action==='signout'){setCodeSent(false);setCode('');}
   if(path==='auth'){setAuthFeedback(body.action==='send'?'checkEmail':null);}else setMessage('done');await refresh();
@@ -43,6 +45,7 @@ export default function MembershipPreview({billingEnabled=true,currency='GBP'}:{
   const feedback=reason==='ACCOUNT_UNAVAILABLE'?'accountError':reason==='SIGN_IN_REQUIRED'?'errorSignIn':reason==='INVALID_CODE'?'errorCode':reason==='CODE_REQUEST_UNAVAILABLE'?'errorSend':reason==='ALREADY_SUBSCRIBED'?'errorPaid':path==='checkout'?'errorCheckout':path==='portal'?'errorPortal':path==='auth'?'errorAuth':'errorGeneric';
   if(path==='auth'){setAuthFeedback(feedback);setAuthError(true);if(body.action==='verify')requestAnimationFrame(()=>codeInput.current?.focus());}else setMessage(feedback);
  }finally{setBusy(false);}}
+ const currency=status?.homeCountry?homeCountryCurrency(status.homeCountry):detectedCurrency;
  const checkout=(plan:PersonalPlan)=>run('checkout',{plan,currency});
  const locale=lang==='en'?'en-GB':lang;
  const price=(plan:PersonalPlan)=>new Intl.NumberFormat(locale,{style:'currency',currency}).format(planAmount(plan,currency)/100);
@@ -69,6 +72,7 @@ export default function MembershipPreview({billingEnabled=true,currency='GBP'}:{
  {status.reserved>0&&<p><MembershipText text={copy.inProgress} params={{count:number(status.reserved)}}/></p>}</>:<p>{copy.signInIntro}</p>}</div>
  {signedIn?<div className={styles.actions}>{status.canManageStripe&&<button className={styles.primary} disabled={busy} onClick={()=>run('portal',{})}>{copy.manage} · Stripe</button>}{status.canManageGooglePlay&&<a className={styles.secondary} href="https://play.google.com/store/account/subscriptions?package=global.medicea.app">{copy.manage} · Google Play</a>}{billingEnabled&&!native&&!status.premium&&!status.complimentary&&<button className={styles.primary} disabled={busy} onClick={upgrade}>{copy.upgrade}</button>}{returnHref&&<a className={styles.continueLink} href={returnHref}>{copy.continueSearch} {dir==='rtl'?'←':'→'}</a>}<button className={styles.secondary} disabled={busy} onClick={()=>run('auth',{action:'signout'})}>{copy.signOut}</button></div>:status===null?<p role="status">{message?copy.accountUnavailable:copy.loadingAccount}</p>:<div className={styles.auth}><form onSubmit={e=>{e.preventDefault();run('auth',{action:'send',email});}}><label>{copy.email}<input type="email" required value={email} onChange={e=>{setEmail(e.target.value);setCodeSent(false);setCode('');setAuthFeedback(null);setAuthError(false);}} autoComplete="email" placeholder={copy.emailPlaceholder}/></label><button className={styles.primary} disabled={busy||!email}>{copy.emailCode}</button></form>{codeSent&&<form onSubmit={e=>{e.preventDefault();run('auth',{action:'verify',email,code});}}><label>{copy.code}<input ref={codeInput} required value={code} aria-invalid={authError&&authFeedback==='errorCode'} aria-describedby={authFeedback?'signin-feedback':undefined} onChange={e=>{setCode(e.target.value);setAuthFeedback(null);setAuthError(false);}} inputMode="numeric" autoComplete="one-time-code" placeholder={copy.codePlaceholder}/></label><button className={styles.secondary} disabled={busy||!email||!code}>{copy.verify}</button></form>}{(busy||authFeedback)&&<p id="signin-feedback" role={authError?'alert':'status'} aria-live={authError?'assertive':'polite'} className={authError?styles.authError:styles.authHint}>{busy?copy.working:authFeedback?copy[authFeedback]:''}</p>}</div>}
  </section>
+ {signedIn&&<HomeCountrySettings key={status.email} country={status.homeCountry} onSaved={homeCountry=>setStatus((previous:any)=>({...previous,homeCountry}))}/>}
  {signedIn&&!status.complimentary&&status.moduleAccess?.length>0&&<section className={`${styles.account} ${styles.complimentaryAccount}`} aria-label={copy.moduleAccessHeading}><div><h2>{copy.moduleAccessHeading}</h2>{status.moduleAccess.map((p:any)=><p key={p.module}><strong>{p.module==='medicine'?copy.moduleMedicine:p.module==='health'?copy.moduleHealth:copy.modulePortal}</strong> · {p.module==='portal'?copy.moduleAllFeatures:p.monthlyLimit===null?copy.moduleUnlimited:membershipText(copy.moduleAllowance,{remaining:number(p.remaining),limit:number(p.monthlyLimit)})} · {p.expiresAt?membershipText(copy.moduleUntil,{date:date(p.expiresAt,true)}):copy.moduleNoExpiry}</p>)}<p className={styles.small}>{copy.moduleNormalAccess}</p></div></section>}
  <div className={styles.feedback}><p role="status" aria-live="polite">{signedIn&&busy?copy.working:message?copy[message]:''}</p>{status===null&&message&&<button className={styles.secondary} disabled={busy} onClick={()=>refresh().then(()=>setMessage(null)).catch(()=>setMessage('accountError'))}>{copy.tryAgain}</button>}</div>
  {billingEnabled&&status!==null&&!native&&!status?.complimentary&&<section className={styles.options} aria-labelledby="personal-access"><h2 id="personal-access" ref={accessOptions} tabIndex={-1}>{copy.travelHeading}</h2><p className={styles.sectionIntro}>{copy.travelIntro}</p>

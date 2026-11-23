@@ -67,6 +67,7 @@ test('checkout sends passes as one-time payments and subscriptions as recurring 
   const config=load('lib/membership/config.ts');
   const route=load('app/api/membership/checkout/route.ts',{}, {
    '@/lib/membership/config':{...config,membershipPreviewEnabled:()=>true,membershipOrigin:()=> 'https://preview.example',sameOrigin:()=>true},
+   '@/lib/membership/home-country':{homeCountryCurrency:()=> 'GBP'},
    '@/lib/membership/auth':{membershipUser:async()=>({id:member,email:'fictional@example.test'})},
    '@/lib/membership/store':{membershipStatus:async()=>({premium:false}),billingDb:()=>({$transaction:async cb=>cb({$queryRaw:async(strings)=>strings.join('').includes('stripe_customer')?[{customer_id:'cus_test'}]:[],$executeRaw:async()=>1})})},
    '@/lib/membership/stripe':{validatePrice:async()=> 'price_'+plan,stripeRequest:async(path,params)=>{sent=params;return {livemode:false,url:'https://checkout.stripe.com/test',id:'cs_test_fixture',expires_at:Math.floor(Date.now()/1000)+1800};}}

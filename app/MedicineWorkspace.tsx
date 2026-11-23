@@ -37,6 +37,7 @@ import countriesByRegion from '../data/countries';
 import { useLanguage } from './LanguageProvider';
 import LanguageButton from './components/LanguageButton';
 import CountryPicker from './components/CountryPicker';
+import {defaultSourceCountry} from '@/lib/membership/home-country';
 import ConditionPicker from './components/ConditionPicker';
 import VeterinaryCare from './components/VeterinaryCare';
 import PharmacyTripPanel from './components/PharmacyTripPanel';
@@ -519,6 +520,19 @@ function Home({ petMode = false, originVariantSelectionEnabled=false }: { petMod
   type PaywallReason = 'equivalentSearch' | 'leaflet' | 'pets' | 'generics' | 'triage';
 
   const [originCode, setOriginCode] = useState('');
+  const savedHomeCountry = useRef('');
+  useEffect(() => {
+    if (!membershipEnabled) return;
+    const controller = new AbortController();
+    fetch('/api/membership/preferences', {cache:'no-store',signal:controller.signal})
+      .then(response => response.ok ? response.json() : null)
+      .then(data => {
+        if (controller.signal.aborted) return;
+        savedHomeCountry.current = defaultSourceCountry('',data?.homeCountry);
+        setOriginCode(current => defaultSourceCountry(current,data?.homeCountry));
+      }).catch(() => {/* A preference failure must not prevent a search. */});
+    return () => controller.abort();
+  }, [membershipEnabled]);
   const [targetCode, setTargetCode] = useState('');
   const [selectedDrug, setSelectedDrug] = useState('');
   const [selectedDosage, setSelectedDosage] = useState('');
@@ -627,7 +641,7 @@ function Home({ petMode = false, originVariantSelectionEnabled=false }: { petMod
   function clearSearch() {
     setOriginVariants([]);setOriginProduct(null);originChoiceHistory.current=[];
     resetFieldsForMode(mode);
-    setOriginCode(''); setTargetCode(''); setSearched(false);
+    setOriginCode(savedHomeCountry.current); setTargetCode(''); setSearched(false);
     showScreen('search');
   }
   const [visits, setVisits] = useState<number | null>(null);

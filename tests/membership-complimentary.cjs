@@ -1,7 +1,7 @@
 const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm'),ts=require('typescript');
 const {PGlite}=require('@electric-sql/pglite');
 const A='11111111-1111-4111-8111-111111111111',B='22222222-2222-4222-8222-222222222222';
-function load(file,imports={},env={}){const module={exports:{}};vm.runInNewContext(ts.transpileModule(fs.readFileSync(file,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText,{module,exports:module.exports,require:n=>imports[n]||(n==='@/lib/membership/access-policy'?load('lib/membership/access-policy.ts'):require(n)),process:{env},Date,Response,Request});return module.exports;}
+function load(file,imports={},env={}){const module={exports:{}};vm.runInNewContext(ts.transpileModule(fs.readFileSync(file,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText,{module,exports:module.exports,require:n=>imports[n]||(n==='./home-country'?{validHomeCountry:value=>typeof value==='string'?value:null}:null)||(n==='@/lib/membership/access-policy'?load('lib/membership/access-policy.ts'):require(n)),process:{env},Date,Response,Request});return module.exports;}
 const access=load('lib/membership/complimentary.ts',{'./store':{}},{MEDICEA_MEMBERSHIP_ADMIN_EMAIL:'Owner@example.test'});
 test('owner access fails closed; email matching is exact, case insensitive and never accepts metadata',()=>{
  assert.equal(access.isMembershipAdmin({email:'OWNER@example.test'}),true);
@@ -56,7 +56,7 @@ test('unconfirmed Supabase email never authorises owner or complimentary access'
 });
 test('complimentary-only status never labels a paid plan or queries a payment provider',async()=>{
  let lookedUp=false;
- const route=load('app/api/membership/status/route.ts',{'@/lib/membership/config':{membershipPreviewEnabled:()=>true},'@/lib/membership/auth':{membershipUser:async()=>({id:A,email:'friend@example.test'})},'@/lib/membership/complimentary':{isMembershipAdmin:()=>false},'@/lib/membership/store':{membershipStatus:async(id,email)=>{assert.equal(email,'friend@example.test');return {premium:true,paidAccess:false,complimentary:true};}},'@/lib/membership/active-plans':{membershipPlans:async()=>{lookedUp=true;throw Error();}}});
+ const route=load('app/api/membership/status/route.ts',{'@/lib/membership/config':{membershipAccountEnabled:()=>true},'@/lib/membership/auth':{membershipUser:async()=>({id:A,email:'friend@example.test'})},'@/lib/membership/complimentary':{isMembershipAdmin:()=>false},'@/lib/membership/store':{membershipStatus:async(id,email)=>{assert.equal(email,'friend@example.test');return {premium:true,paidAccess:false,complimentary:true};}},'@/lib/membership/active-plans':{membershipPlans:async()=>{lookedUp=true;throw Error();}}});
  const body=await (await route.GET()).json();assert.equal(body.complimentary,true);assert.equal(lookedUp,false);assert.equal(body.activePlans.length,0);assert.equal(body.planDetailsUnavailable,false);
 });
 

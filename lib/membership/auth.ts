@@ -1,5 +1,6 @@
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
+import {validHomeCountry} from './home-country';
 export async function membershipAuth(readOnly = false) {
   const jar = await cookies();
   const url = process.env.MEDICEA_MEMBERSHIP_AUTH_URL;
@@ -15,5 +16,6 @@ export async function membershipUser(readOnly = false) {
   const client = await membershipAuth(readOnly);
   const {data, error} = await client.auth.getUser();
   if (error || !data.user) return null;
-  return {id: data.user.id, email: data.user.email_confirmed_at ? data.user.email : undefined};
+  return {id: data.user.id, email: data.user.email_confirmed_at ? data.user.email : undefined,
+    homeCountry: validHomeCountry(data.user.user_metadata?.medicea_home_country)};
 }

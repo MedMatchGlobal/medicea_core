@@ -2,6 +2,7 @@ import {membershipPreviewEnabled,membershipOrigin,sameOrigin,isPersonalPlan,isBi
 import {membershipUser} from '@/lib/membership/auth';
 import {billingDb,membershipStatus} from '@/lib/membership/store';
 import {stripeRequest,validatePrice} from '@/lib/membership/stripe';
+import {homeCountryCurrency} from '@/lib/membership/home-country';
 export const maxDuration=60;
 export async function POST(req:Request) {
  if(!membershipPreviewEnabled())return new Response(null,{status:404});
@@ -11,8 +12,10 @@ export async function POST(req:Request) {
   if((await membershipStatus(user.id,user.email)).premium)return Response.json({error:'ALREADY_SUBSCRIBED'},{status:409});
   const body=await req.json();const requestedPlan:unknown=body?.plan;if(!isPersonalPlan(requestedPlan))return Response.json({error:'INVALID_PLAN'},{status:400});
   const plan=requestedPlan;
-  const currency=body?.currency??'GBP';
-  if(!isBillingCurrency(currency))return Response.json({error:'INVALID_CURRENCY'},{status:400});
+  if(body?.currency!==undefined&&!isBillingCurrency(body.currency))return Response.json({error:'INVALID_CURRENCY'},{status:400});
+  const currency=homeCountryCurrency(user.homeCountry,req.headers.get('x-vercel-ip-country'));
+  // Do not silently charge a different currency from the one the customer saw.
+  if(body?.currency!==undefined&&body.currency!==currency)return Response.json({error:'CURRENCY_CHANGED'},{status:409});
   const price=await validatePrice(plan,currency);
   const url=await billingDb().$transaction(async tx=>{
    await tx.$queryRaw`SELECT pg_advisory_xact_lock(hashtextextended(${user.id}::text,0))::text AS result`;

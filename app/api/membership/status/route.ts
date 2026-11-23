@@ -10,6 +10,6 @@ export async function GET() {
   if(!user)return Response.json({signedIn:false},{headers:{'Cache-Control':'no-store'}});
   const status=await membershipStatus(user.id,user.email);
   const plans=(status.paidAccess??status.premium)?await membershipPlans(user.id):{activePlans:[],activePlayPlans:[],planDetailsUnavailable:false};
-  return Response.json({signedIn:true,email:user.email,canManageComplimentary:isMembershipAdmin(user),...status,...plans},{headers:{'Cache-Control':'no-store'}});
+  return Response.json({signedIn:true,email:user.email,homeCountry:user.homeCountry,canManageComplimentary:isMembershipAdmin(user),...status,...plans},{headers:{'Cache-Control':'no-store'}});
  } catch {return Response.json({error:'MEMBERSHIP_UNAVAILABLE'},{status:503,headers:{'Cache-Control':'no-store'}});}
 }
