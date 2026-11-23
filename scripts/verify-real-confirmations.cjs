@@ -4,6 +4,7 @@ if(process.argv[2]!=='--rollback-only'||process.env.VERCEL_ENV!=='preview'||proc
 const root=path.resolve(__dirname,'..'),cache=new Map();
 function load(file){file=path.resolve(file);if(cache.has(file))return cache.get(file).exports;const module={exports:{}};cache.set(file,module);const native=createRequire(file),local=name=>name.startsWith('.')?load(path.resolve(path.dirname(file),name)+'.ts'):native(name);vm.runInNewContext(ts.transpileModule(fs.readFileSync(file,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022,esModuleInterop:true}}).outputText,{module,exports:module.exports,require:local,process,fetch,URL,URLSearchParams,Date,Intl,Buffer,Response,AbortSignal,setTimeout,clearTimeout});return module.exports;}
 const store=load(path.join(root,'lib/membership/store.ts')),actualDb=store.billingDb(),stripe=load(path.join(root,'lib/membership/stripe.ts')),originalStripe=stripe.stripeRequest;
+const config=load(path.join(root,'lib/membership/config.ts'));
 const member='7636baf1-b0f5-4713-ae1a-60ffc4ea0e7b';
 let stage='preflight',stripeReads=0,attemptedMail=0,activeTx=null;
 function check(value,code){if(!value)throw Object.assign(Error(code),{acceptanceCode:code});}
@@ -53,10 +54,14 @@ const rollback=Error('EXPECTED_ROLLBACK_ONLY');
     check(first[0].recipient==='sergio@medicea.global','VERIFIED_ACCOUNT_RECIPIENT_REQUIRED');
     check(first[0].body.includes('GMT (London time)')&&first[0].body.includes('14 days')&&first[0].body.includes('support@medicea.global'),'RETAINABLE_TERMS_AND_LONDON_TIME_REQUIRED');
     if(source.mode==='setup'){
-     check(snapshot.kind==='scheduled_upgrade'&&snapshot.plan==='monthly'&&snapshot.currency==='GBP'&&snapshot.amountMinor===299&&first[0].body.includes('Charge now: £0.00'),'SCHEDULED_UPGRADE_TERMS_MISMATCH');
+     const scheduled=await stripe.stripeRequest((upgrade.kind==='schedule'?'/subscription_schedules/':'/invoices/')+upgrade.id);
+     const savedPrice=upgrade.kind==='schedule'?scheduled.phases?.[0]?.items?.[0]?.price:scheduled.lines?.data?.[0]?.pricing?.price_details?.price||scheduled.lines?.data?.[0]?.price?.id;
+     const price=await stripe.stripeRequest('/prices/'+(typeof savedPrice==='string'?savedPrice:savedPrice?.id));
+     const zero=new Intl.NumberFormat('en-GB',{style:'currency',currency:source.metadata.currency}).format(0);
+     check(price.livemode===false&&snapshot.kind==='scheduled_upgrade'&&snapshot.plan===source.metadata.plan&&snapshot.currency===source.metadata.currency&&snapshot.currency===price.currency.toUpperCase()&&snapshot.amountMinor===price.unit_amount&&first[0].body.includes('Charge now: '+zero),'SCHEDULED_UPGRADE_TERMS_MISMATCH');
      check(snapshot.startsAt===new Date(Number(source.metadata.reservation_start)*1000).toISOString(),'ACTUAL_UPGRADE_DATE_MISMATCH');
     }else{
-     check(snapshot.kind==='purchase'&&snapshot.plan==='pass7'&&snapshot.amountMinor===source.amount_total&&snapshot.currency===source.currency.toUpperCase(),'ACTUAL_PASS_PRICE_MISMATCH');
+     check(snapshot.kind==='purchase'&&snapshot.plan===source.metadata.plan&&snapshot.amountMinor===source.amount_total&&snapshot.currency===source.currency.toUpperCase(),'ACTUAL_PASS_PRICE_MISMATCH');
      check(snapshot.endsAt===new Date(passes[0].valid_until).toISOString(),'IMMUTABLE_PASS_EXPIRY_MISMATCH');
     }
     results.push({kind:snapshot.kind,plan:snapshot.plan,amountMinor:snapshot.amountMinor,currency:snapshot.currency,duplicateDocumentCount:1,bodyHash:createHash('sha256').update(first[0].body).digest('hex')});
