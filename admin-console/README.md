@@ -80,3 +80,26 @@ Before enabling financial actions, configure the dedicated restricted key, compl
 owner sign-in/MFA, and exercise a dedicated QA payment request, partial refund,
 full refund and duplicate retry. UI fixture tests alone do not prove a real
 provider refund. No production account was charged or refunded during this build.
+
+## Provider acceptance — 23 November 2026
+
+The actual operation functions passed dedicated sandbox payment-request, partial
+refund, full refund, duplicate retry, over-refund and wrong-currency tests. A real
+provider refund followed by a simulated database-result write failure was recovered
+without a second refund. Restricted database audit and absence of new entitlements
+were checked. Independent Stripe reads confirmed all QA payments fully refunded.
+See billing/acceptance/owner-console-20261123.json for scope and references.
+
+This found and fixed the absent-livemode Refund schema bug. Ownership and sandbox
+status are now verified from the original charge before refund recovery/mutation.
+
+The CLI-only scripts/sandbox-acceptance.cjs requires an explicit QA run identifier,
+the exact private console project, Preview and sandbox mode. It is never invoked
+by ordinary builds or exposed through an HTTP route. A one-deployment build-command
+override exercised Vercel's stored credentials without reading/exporting them; a
+normal build was deployed afterward. Fixtures and append-only audit remain labelled
+QA. Do not rerun a completed or cleaned-up run as a new financial acceptance.
+
+This does not establish a customer-completed Checkout payment or Google Play
+acceptance. The saved broad test key should still be replaced by a dedicated
+restricted test key before the console is used more widely.

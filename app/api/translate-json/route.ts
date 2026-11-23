@@ -54,6 +54,8 @@ export async function POST(req: NextRequest) {
     const jsonStr = JSON.stringify(data);
     if(jsonStr.length>64000)return NextResponse.json({error:'TRANSLATION_INPUT_TOO_LARGE'},{status:400});
 
+    const limited=await helperAccess(req,jsonStr.length);if(limited)return limited;
+
     const system =
       "You translate JSON VALUES but must preserve all KEYS exactly as they are. " +
       "Return ONLY valid JSON (no code fences, no explanations). " +

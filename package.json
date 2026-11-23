@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "prisma generate && next build",
     "start": "next start",
     "lint": "next lint"
   },
@@ -18,7 +18,6 @@
     "@supabase/ssr": "^0.12.7",
     "@supabase/supabase-js": "^2.117.2",
     "@tanstack/react-virtual": "^3.13.12",
-    "ai": "^5.0.8",
     "axios": "^1.11.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -26,10 +25,9 @@
     "dompurify": "^3.2.6",
     "lucide-react": "^0.536.0",
     "marked": "^16.1.2",
-    "next": "15.5.27",
+    "next": "15.5.29",
     "next-intl": "^4.3.4",
-    "openai": "^5.12.1",
-    "prisma": "^6.18.0",
+    "nodemailer": "10.6.1",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "tailwind-merge": "^3.3.1",
@@ -37,19 +35,26 @@
     "xml2js": "^0.6.2"
   },
   "devDependencies": {
-    "@capacitor/assets": "^3.0.5",
     "@capacitor/cli": "^7.4.4",
     "@electric-sql/pglite": "^0.3.14",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
+    "@types/nodemailer": "8.0.2",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@types/xml2js": "^0.4.14",
     "eslint": "9.39.1",
     "eslint-config-next": "16.0.3",
+    "openai": "5.23.2",
+    "prisma": "6.19.3",
     "tailwindcss": "^4",
     "ts-node": "^10.9.2",
     "tw-animate-css": "^1.3.6",
     "typescript": "^5.9.2"
+  },
+  "overrides": {
+    "next": {
+      "postcss": "8.5.33"
+    }
   }
 }

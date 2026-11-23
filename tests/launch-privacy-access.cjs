@@ -2,11 +2,12 @@ const test=require('node:test'),assert=require('node:assert/strict'),fs=require(
 function load(file,imports){const module={exports:{}};vm.runInNewContext(ts.transpileModule(fs.readFileSync(file,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText,{module,exports:module.exports,require:name=>imports[name],Response,Request,JSON,process:{env:{}}});return module.exports;}
 const request=(body,origin='https://preview.test')=>new Request('https://preview.test/api/translate',{method:'POST',headers:{origin,'content-type':'application/json'},body:JSON.stringify(body)});
 test('supporting translations reject unsigned and cross-origin callers before generation',async()=>{
- let preview=true,user=null,lookups=0;
- const helper=load('lib/membership/helper-access.ts',{'./config':{membershipPreviewEnabled:()=>preview,sameOrigin:req=>req.headers.get('origin')==='https://preview.test'},'./auth':{membershipUser:async()=>{lookups++;return user;}}});
+ let preview=true,user=null,lookups=0,budgetCalls=0,allowed=true;
+ const helper=load('lib/membership/helper-access.ts',{'./config':{membershipPreviewEnabled:()=>preview,sameOrigin:req=>req.headers.get('origin')==='https://preview.test'},'./helper-budget':{consumeHelperBudget:async()=>{budgetCalls++;return {allowed,retryAfter:60};}},'./auth':{membershipUser:async()=>{lookups++;return user;}}});
  assert.equal((await helper.helperAccess(request({},'https://evil.test'))).status,403);assert.equal(lookups,0);
  assert.equal((await helper.helperAccess(request({}))).status,401);
- user={id:'member'};assert.equal(await helper.helperAccess(request({})),null);
+ user={id:'member'};assert.equal(await helper.helperAccess(request({})),null);assert.equal(budgetCalls,0);
+ assert.equal(await helper.helperAccess(request({}),20),null);assert.equal(budgetCalls,1);allowed=false;const denied=await helper.helperAccess(request({}),20);assert.equal(denied.status,429);assert.equal(denied.headers.get('Retry-After'),'60');
  preview=false;user=null;assert.equal(await helper.helperAccess(request({})),null);
 });
 test('both translation routes apply guards, bound input and conceal upstream errors',async()=>{

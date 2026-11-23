@@ -1,0 +1,15 @@
+{
+ "date":"2026-11-23",
+ "environment":"GES Consultancy Ltd sandbox; dedicated medicea-billing-test database",
+ "run":"console-qa-e260c44a-5df4-4130-a5f5-f2552c9b5966",
+ "deployment":"dpl_2mGmksUE6JWPYNufS5wuDiomFkib",
+ "normalBuildDeployment":"dpl_26A2AzFSyE4y4SzfUcK4bfPDdVYY",
+ "member":"49327980-8087-4986-ae9a-e4ca88846b67",
+ "customer":"cus_VgRSO4NAimmFNG",
+ "paymentRequest":{"amountMinor":299,"currency":"GBP","ukInclusiveTaxCalculationMinor":50,"checkoutCustomerAddressCollection":"required; final Checkout tax determined after customer input","chargedOnCreation":false,"duplicateCreatesNewSession":false,"unusedSessionExpired":true},
+ "refunds":[{"charge":"ch_3Uf4ZyQqlRs4fksf1uZD7IjA","originalMinor":299,"partialMinor":100,"remainderMinor":199,"providerRefundCount":2,"finalRefundedMinor":299},{"charge":"ch_3Uf4a4QqlRs4fksf1SwU6Awd","originalMinor":149,"fullMinor":149,"providerRefundCount":1,"finalRefundedMinor":149}],
+ "checks":{"duplicateRetries":true,"overRefundRejected":true,"wrongCurrencyRejected":true,"operationIdPayloadChangeRejected":true,"recoveredAfterInjectedDatabaseResultWriteFailure":true,"auditVerified":true,"noEntitlementsCreated":true,"independentStripeReadConfirmedFullyRefunded":true},
+ "issueFoundAndFixed":"Stripe Refund objects have no livemode field. Establish sandbox and customer ownership from the original charge before refund lookup/recovery/mutation; do not reject a valid refund for its absent field.",
+ "earlierRun":{"customer":"cus_VgRQdgeXZZpc0p","charge":"ch_3Uf4YdQqlRs4fksf0XHsb9lU","originalMinor":299,"finalRefundedMinor":299,"oldFailedAttemptRetainedForAudit":true},
+ "limits":["Actual internal console operation code, Stripe and restricted hosted database exercised. Owner HTTP/MFA controls tested separately; this was not an owner browser click test.","No Checkout payment was completed by a customer. The test-card refund fixtures used separate PaymentIntents solely to fund QA refund balances.","No real owner/customer purchase or schedule was changed; no live money; no customer emails.","Public-launch, live-mode, Google Play device, contract-email delivery and regulatory gates remain separate."]
+}

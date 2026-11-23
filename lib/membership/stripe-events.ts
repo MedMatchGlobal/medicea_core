@@ -1,10 +1,11 @@
+import {queueStripeConfirmation} from './confirmations';
 import {billingDb} from '@/lib/membership/store';
 import {stripeRequest,subscriptionAccess,passAccess} from '@/lib/membership/stripe';
 import {completeReservation,reservedPassAccess} from '@/lib/membership/future-access';
 import {purchaseSettled} from '@/lib/membership/settlement';
 import {reconcileStripeCustomer} from '@/lib/membership/stripe-reconcile';
 export const stripeEventTypes=['customer.subscription.created','customer.subscription.updated','customer.subscription.deleted','checkout.session.completed','invoice.paid','invoice.payment_failed','charge.refunded','charge.dispute.created','charge.dispute.updated','charge.dispute.closed'];
-export async function processStripeEvent(event:any){
+async function processStripeEventCore(event:any){
  if(event.livemode!==false)return new Response(null,{status:400});
  if(!stripeEventTypes.includes(event.type))return Response.json({received:true});
  const object=event.data?.object;
@@ -84,4 +85,12 @@ export async function processStripeEvent(event:any){
   },{timeout:30000});
   return Response.json({received:true});
  }catch{return new Response(null,{status:503});}
+}
+
+export async function processStripeEvent(event:any){
+ const response=await processStripeEventCore(event);
+ if(response.ok&&process.env.MEDICEA_CONFIRMATIONS_PREVIEW==='true'){
+  try{await queueStripeConfirmation(event);}catch{return new Response(null,{status:503});}
+ }
+ return response;
 }

@@ -78,10 +78,10 @@ purge, account deletion or deletion of the medical database was authorized here.
   confirmation containing seller details, plan, exact price/currency, VAT terms,
   start/end or renewal terms, cancellation and refund information. Deliver it in
   a form the customer can retain; verify initial purchases, reservations and
-  renewals, retries and duplicate events. No transactional-mail delivery service
-  is currently integrated. A generic Stripe receipt has not been accepted as
-  proof of this complete confirmation. This is an implementation gap, not an
-  accountant dependency.
+  renewals, retries and duplicate events. The versioned English snapshot, immutable outbox, signed-in download and SMTP
+  worker are now implemented behind an OFF preview flag. Actual SMTP/inbox and
+  purchase-to-email acceptance remain pending. See CONFIRMATION-DELIVERY.md.
+  A generic Stripe receipt alone is not proof of a complete confirmation.
 - **Privacy completion:** confirm the lawful basis and special-category condition
   for identifiable health inputs, actual processor terms/retention, international
   transfers and safeguards. Complete a product-wide data inventory, including
@@ -91,10 +91,12 @@ purge, account deletion or deletion of the medical database was authorized here.
   English. Review and translate the final public policy and reservation screens
   before advertising those contract languages. Do not silently substitute the
   misleading legacy public terms.
-- **Abuse controls:** translation authentication and input bounds do not impose a
-  distributed per-account translation budget. Decide and implement appropriate
-  supporting-tool rate limits before public use without changing protected
-  medical generation behaviour.
+- **Abuse controls:** the billing preview now has an atomic per-account supporting-
+  translation budget shared by both translation endpoints and all server instances:
+  12 calls/minute, 120/hour, 600/UTC day, 128,000 input characters/hour and
+  512,000/day. Valid upstream attempts count even if the provider fails. No medical
+  text is stored; medicine-search quota and protected generation are unchanged.
+  Production enablement remains a separate release gate.
 - **Provider/device acceptance:** complete Google Play purchase, restore,
   cancellation, renewal, refund and notification tests on-device. Provider
   approval alone is not evidence of this flow.
@@ -137,3 +139,38 @@ sandbox build after discussing the design; no live refund or charge is authorize
   — purposes, lawful basis, recipients, transfers, retention criteria and rights.
 
 These sources guide the checks; they do not establish the app's regulatory status.
+
+## Additional verification — 23 November 2026
+
+Owner console actual-provider financial acceptance passed; see
+acceptance/owner-console-20261123.json. All dedicated QA charges were fully refunded,
+unused Checkout links expired, audit verified and normal build command restored.
+This included a real refund response-schema bug fix. Owner MFA/HTTP controls remain
+covered separately from the internal operation/provider/database harness.
+
+The owner selected billing@medicea.global as purchase-confirmation sender. Public
+MX/SPF currently point to Private Email. Mailbox authentication and end-to-end
+confirmation delivery remain unverified; an address alone is not SMTP credentials.
+
+The separate privacy decision register is PRIVACY-INVENTORY.md; the explicit
+not-yet-passed on-device matrix is PLAY-DEVICE-ACCEPTANCE.md. The owner confirmed
+billing@medicea.global is a mailbox they can sign into. Its SMTP password must be
+provided through a Sensitive Vercel variable, never this repository or chat.
+
+Security scan: patched Next.js to 15.5.29 in both apps and its PostCSS parser to
+8.5.33; removed the unused vulnerable legacy Capacitor asset generator and unused
+AI SDK. The actual plain-fetch generation transport/prompts were not changed.
+Moved type-only OpenAI SDK and Prisma CLI into development tooling; retained
+Prisma Client at runtime. The private console dependency audit is clear. Residual
+Prisma/OpenAI development/optional-peer advisories need a documented toolchain
+assessment; do not interpret the patched runtime framework as full security
+clearance. No force/major Prisma or provider SDK migration was applied.
+
+Final local verification after these changes: 307/307 root regression tests and
+7/7 console tests passed; both builds passed; protected prompt comparison passed.
+Mobile fixture check confirmed one payment-history section with the authenticated
+confirmation-download link and no horizontal overflow or browser runtime errors.
+Reviewed 52 Next.js server trace manifests: Prisma CLI/config, deepmerge-ts,
+effect, OpenAI SDK and Zod advisory packages were not present in those traces.
+This narrows deployed exposure; it does not erase development-tool advisories.
+SMTP remains OFF and no confirmation email was sent. Production stays disabled.

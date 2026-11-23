@@ -24,6 +24,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Missing 'target' string" }, { status: 400 });
     }
 
+    const limited=await helperAccess(req,text.length);if(limited)return limited;
+
     const system =
       "You are a precise technical translator. Preserve all HTML/Markdown, bullets, line breaks, punctuation, numbers, and units. Do not add commentary—return translated text only.";
 

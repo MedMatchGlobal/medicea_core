@@ -1,4 +1,5 @@
 'use client';
+import ConfirmationHistory from './confirmation-history';
 import {useRef,useState} from 'react';
 import {useMembershipCopy} from '../i18n/membership';
 import type {PaymentReceipt} from '@/lib/membership/receipts';
@@ -41,5 +42,6 @@ export default function PaymentHistory(){
  return <details className={styles.paymentHistory} onToggle={event=>{if(event.currentTarget.open&&!loaded&&!pending.current)void load();}}><summary>{text[0]} · Stripe</summary>
  {payments.map(payment=><div className={styles.paymentRow} key={payment.id}><div><time dateTime={new Date(payment.created*1000).toISOString()}>{new Intl.DateTimeFormat(lang,{dateStyle:'medium'}).format(payment.created*1000)}</time><p><bdi>{money(payment.amountMinor,payment.currency)}</bdi>{payment.refundedMinor>0&&<> · {text[4]}: <bdi>{money(payment.refundedMinor,payment.currency)}</bdi></>}</p></div>{payment.receiptUrl&&<a href={payment.receiptUrl} target="_blank" rel="noopener noreferrer">{text[2]} ↗</a>}</div>)}
  {loaded&&!payments.length&&!error&&<p>{text[1]}</p>}{busy&&<p role="status">{copy.working}</p>}{error&&<p role="alert">{text[5]} <button className={styles.secondary} onClick={()=>void load(payments.length>0)} disabled={busy}>{copy.tryAgain}</button></p>}{next&&!error&&<button className={styles.secondary} disabled={busy} onClick={()=>void load(true)}>{text[3]}</button>}
+ {loaded&&<ConfirmationHistory/>}
  </details>;
 }
