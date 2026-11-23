@@ -68,10 +68,11 @@ test('reserved passes grant their full duration only after validated payment; re
 });
 test('portal explicitly schedules both switch directions, with no prorations or immediate charges',async()=>{
  const policy=load('lib/membership/portal-policy.ts',{'./config':config,'./stripe':stripe});let sent;
- const request=async(path,params)=>{
+ const request=async(path,params,_key,_timeout,_version,query)=>{
   if(path.startsWith('/prices/'))return path.includes('monthly')?price('monthly'):price('annual');
-  if(!params)return {data:[{active:true,livemode:false,metadata:{medicea_policy:'old'},features:{subscription_update:{enabled:true}}}]};
+  if(!params){assert.equal(query.get('expand[0]'),'data.features.subscription_update.products');return {data:[{active:true,livemode:false,metadata:{medicea_policy:'old'},features:{subscription_update:{enabled:true}}}]};}
   sent=Object.fromEntries(params);
+  assert.equal(params.get('expand[0]'),'features.subscription_update.products','Stripe omits products unless explicitly expanded');
   return {id:'bpc_test',active:true,livemode:false,features:{subscription_cancel:{enabled:true,mode:'at_period_end',proration_behavior:'none'},subscription_update:{enabled:true,proration_behavior:'none',default_allowed_updates:['price'],products:[{product:'prod_personal',prices:['price_monthlyGBP','price_annualGBP']}],schedule_at_period_end:{conditions:[{type:'decreasing_item_amount'},{type:'shortening_interval'}]}}}};
  };
  assert.equal(await policy.periodEndPortalConfiguration('GBP',request),'bpc_test');
@@ -84,7 +85,7 @@ test('account summary returns current terms and scheduled start rather than gues
  const end=now+30*86400;
  const subscription={id:'sub_current',livemode:false,customer:'cus_test',metadata:{member_id:member},status:'active',currency:'gbp',schedule:'sub_sched_change',items:{data:[{price:price('monthly'),current_period_end:end}]}};
  const schedule={id:'sub_sched_change',livemode:false,customer:'cus_test',subscription:'sub_current',phases:[{start_date:end,items:[{price:'price_annualGBP',quantity:1}]}]};
- const result=await plans.resolveActivePlans(member,[{provider:'stripe',external_id:'sub_current',customer_id:'cus_test',play_plan:null}],async path=>path.startsWith('/subscription_schedules/')?schedule:subscription);
+ const result=await plans.resolveActivePlans(member,[{provider:'stripe',external_id:'sub_current',customer_id:'cus_test',play_plan:null}],async path=>path.startsWith('/prices/')?price('annual'):path.startsWith('/subscription_schedules/')?schedule:subscription);
  const summary=result.planSummaries[0];assert.equal(summary.plan,'monthly');assert.equal(summary.amountMinor,299);assert.equal(summary.periodEndsAt,new Date(end*1000).toISOString());assert.equal(summary.scheduledChange.plan,'annual');assert.equal(summary.scheduledChange.startsAt,summary.periodEndsAt);assert.equal(summary.scheduledChange.amountMinor,1999);assert.equal(summary.customer_id,undefined);
 });
 test('a retry recovers the same schedule even if the account pointer update was interrupted',async()=>{
@@ -148,4 +149,28 @@ test('reservation webhooks grant no access for failed invoices and require the s
  assert.equal((await route.POST(request('invoice.payment_failed'))).status,200);assert.equal(writes,0);
  owner=false;assert.equal((await route.POST(request('invoice.paid'))).status,503);assert.equal(writes,0);
  owner=true;assert.equal((await route.POST(request('invoice.paid'))).status,200);assert.equal(writes,1);
+});
+test('portal reuses a safe configuration only after expanding the price settings Stripe omits by default',async()=>{
+ const policy=load('lib/membership/portal-policy.ts',{'./config':config,'./stripe':stripe});let creates=0;
+ const features={subscription_cancel:{enabled:true,mode:'at_period_end',proration_behavior:'none'},subscription_update:{enabled:true,proration_behavior:'none',default_allowed_updates:['price'],products:[{product:'prod_personal',prices:['price_monthlyGBP','price_annualGBP']}],schedule_at_period_end:{conditions:[{type:'decreasing_item_amount'},{type:'shortening_interval'}]}}};
+ const signature='medicea-period-end-v2-GBP-price_monthlyGBP-price_annualGBP';
+ const request=async(path,params,_key,_timeout,_version,query)=>{
+  if(path.startsWith('/prices/'))return path.includes('monthly')?price('monthly'):price('annual');
+  if(params){creates++;throw Error('Should reuse expanded configuration');}
+  const returned=structuredClone(features);if(query?.get('expand[0]')!=='data.features.subscription_update.products')delete returned.subscription_update.products;
+  return {data:[{id:'bpc_existing',active:true,livemode:false,metadata:{medicea_policy:signature},features:returned}]};
+ };
+ assert.equal(await policy.periodEndPortalConfiguration('GBP',request),'bpc_existing');assert.equal(creates,0);
+ const omitted=structuredClone(features);delete omitted.subscription_update.products;
+ assert.equal(policy.safePortalPolicy({active:true,livemode:false,features:omitted},['price_monthlyGBP','price_annualGBP']),false);
+});
+test('historical scheduled prices display actual terms, nullable quantity and expanded parent binding without changing active access',async()=>{
+ const f=fixture(),plans=load('lib/membership/active-plans.ts',{'./config':config,'./stripe':stripe,'./store':{},'./future-access':f.future});const end=now+365*86400;
+ const subscription={id:'sub_current',livemode:false,customer:'cus_test',metadata:{member_id:member},status:'active',currency:'gbp',schedule:'sub_sched_change',items:{data:[{price:price('annual'),current_period_end:end}]}};
+ const schedule={id:'sub_sched_change',livemode:false,customer:'cus_test',subscription:{id:'sub_current'},phases:[{start_date:end,items:[{price:'price_oldMonthly',quantity:null}]}]};
+ const legacy={...price('monthly'),id:'price_oldMonthly',unit_amount:249};
+ const request=async path=>path.startsWith('/prices/')?legacy:path.startsWith('/subscription_schedules/')?schedule:subscription;
+ const rows=[{provider:'stripe',external_id:'sub_current',customer_id:'cus_test',play_plan:null}];
+ const result=await plans.resolveActivePlans(member,rows,request);assert.equal(result.planSummaries[0].scheduledChange.plan,'monthly');assert.equal(result.planSummaries[0].scheduledChange.amountMinor,249);assert.deepEqual(Array.from(result.activePlans),['annual']);
+ legacy.product='prod_unrelated';const rejected=await plans.resolveActivePlans(member,rows,request);assert.equal(rejected.planSummaries[0].scheduledChange,undefined);assert.equal(rejected.planSummaries[0].scheduledChangeUnavailable,true);assert.deepEqual(Array.from(rejected.activePlans),['annual']);
 });

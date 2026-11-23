@@ -1,6 +1,6 @@
 import {billingDb} from './store';
-import {isPersonalPlan,isBillingCurrency,planAmount,BILLING_CURRENCIES,type BillingCurrency,type PersonalPlan} from './config';
-import {stripeRequest,passAccess,subscriptionAccess,subscriptionPriceIds,planPriceId} from './stripe';
+import {isPersonalPlan,isBillingCurrency,planAmount,type BillingCurrency,type PersonalPlan} from './config';
+import {stripeRequest,passAccess,subscriptionAccess,subscriptionPriceIds} from './stripe';
 import {reservedPassAccess} from './future-access';
 
 type ActivePurchase={provider:string;external_id:string;customer_id:string|null;play_plan:string|null;valid_until?:string|Date};
@@ -42,15 +42,21 @@ export async function resolveActivePlans(member:string,rows:ActivePurchase[],req
       const id=typeof purchase.schedule==='string'?purchase.schedule:purchase.schedule.id;
       if(!/^sub_sched_[a-zA-Z0-9]+$/.test(id))throw Error('Unknown schedule');
       const schedule=await request('/subscription_schedules/'+id);
-      if(schedule.id!==id||schedule.livemode!==false||schedule.customer!==row.customer_id||schedule.subscription!==purchase.id)throw Error('Schedule binding mismatch');
+      if(schedule.id!==id||schedule.livemode!==false||schedule.customer!==row.customer_id||(typeof schedule.subscription==='string'?schedule.subscription:schedule.subscription?.id)!==purchase.id)throw Error('Schedule binding mismatch');
       const next=schedule.phases?.find((phase:any)=>phase.start_date>=item.current_period_end&&phase.items?.length===1);
       if(next){
        const price=typeof next.items[0].price==='string'?next.items[0].price:next.items[0].price?.id;
-       const nextPlan=(['monthly','annual'] as const).find(plan=>subscriptionPriceIds(plan).includes(price));
-       if(!nextPlan||next.items[0].quantity!==1)throw Error('Unknown scheduled plan');
-       const currency=BILLING_CURRENCIES.find(currency=>{try{return planPriceId(nextPlan,currency)===price;}catch{return false;}});
-       if(!currency)throw Error('Unknown scheduled price');
-       summary.scheduledChange={plan:nextPlan,startsAt:new Date(next.start_date*1000).toISOString(),currency,amountMinor:planAmount(nextPlan,currency)};
+       if(typeof price!=='string'||!/^price_[a-zA-Z0-9]+$/.test(price)||(next.items[0].quantity??1)!==1)throw Error('Unknown scheduled plan');
+       const nextPrice=await request('/prices/'+price);
+       const currency=nextPrice.currency?.toUpperCase();
+       let nextPlan=(['monthly','annual'] as const).find(plan=>subscriptionPriceIds(plan).includes(price));
+       // Historical portal configurations can reference an older price for the same product.
+       // These are display terms only; the ledger and subscriptionAccess still control paid access.
+       if(!nextPlan&&typeof item.price.product==='string'&&nextPrice.product===item.price.product){
+        nextPlan=nextPrice.recurring?.interval==='month'?'monthly':nextPrice.recurring?.interval==='year'?'annual':undefined;
+       }
+       if(!nextPlan||nextPrice.id!==price||nextPrice.livemode!==false||!isBillingCurrency(currency)||!Number.isSafeInteger(nextPrice.unit_amount)||nextPrice.unit_amount<0||nextPrice.recurring?.interval!==(nextPlan==='monthly'?'month':'year')||nextPrice.recurring?.interval_count!==1)throw Error('Unknown scheduled price');
+       summary.scheduledChange={plan:nextPlan,startsAt:new Date(next.start_date*1000).toISOString(),currency,amountMinor:nextPrice.unit_amount};
       }
      }catch{summary.scheduledChangeUnavailable=true;}
     }
