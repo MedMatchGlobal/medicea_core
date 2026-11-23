@@ -21,4 +21,4 @@ const {billingDb}=load(path.join(root,'lib/membership/store.ts')),{deliverConfir
  const result=await billingDb().$queryRaw`SELECT state,accepted_at FROM medicea_billing.purchase_confirmation WHERE provider_key=${key}`;
  if(result[0]?.state!=='sent')throw Error('TEST_MAIL_REQUIRES_REVIEW');
  console.log('MEDICEA_TEST_MAIL_ACCEPTED '+JSON.stringify({test:id,accepted:1,automaticCustomerMailEnabled:false,inboxDelivery:'awaiting owner confirmation'}));
-})().catch(error=>{console.error('MEDICEA_TEST_MAIL_UNVERIFIED '+String(error.message||'ERROR').replace(/[^A-Z_]/g,'').slice(0,100));process.exitCode=1;}).finally(async()=>{await billingDb().$disconnect();});
+})().catch(error=>{console.error('MEDICEA_TEST_MAIL_UNVERIFIED '+(['EXISTING_TEST_OUTCOME_REQUIRES_REVIEW','OTHER_PENDING_MAIL_TEST_ABORTED','UNEXPECTED_PENDING_MAIL_TEST_ABORTED','TEST_MAIL_REQUIRES_REVIEW'].includes(error.message)?error.message:['EAUTH','ESOCKET','ETIMEDOUT','ECONNECTION'].includes(error.code)?error.code:'TEST_DELIVERY_ERROR'));process.exitCode=1;}).finally(async()=>{await billingDb().$disconnect();});
