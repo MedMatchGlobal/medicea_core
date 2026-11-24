@@ -43,6 +43,14 @@ export function exactComposition(origin:Profile,candidate:Profile,animal=false,g
  }
  return true;
 }
+// Owner-approved international-search core: route/release are compared separately
+// when known. The original exactComposition remains unchanged for other modes.
+export function exactMedicineCore(origin:Profile,candidate:Profile):boolean {
+ const a=ingredientSet(origin.ingredients),b=ingredientSet(candidate.ingredients);
+ return origin.complete===true&&candidate.complete===true&&!!a&&!!b&&JSON.stringify(a)===JSON.stringify(b)&&
+  !!norm(origin.form)&&norm(origin.form)===norm(candidate.form)&&
+  Array.isArray(origin.species)&&Array.isArray(candidate.species)&&!origin.species.length&&!candidate.species.length;
+}
 export type OriginProduct={name:string;country:string;form:string;route:string;species:string[];complete:true;generic:boolean;ingredients:{name:string;strength:string}[];sources:string[];lookup?:'original';identification?:'origin-v1';release?:string;excipients?:string[];excipientStatus?:'complete'|'partial'|'unknown'};
 export function sourceHintAgrees(hint:unknown,ingredients:OriginProduct['ingredients']){
  const strict=selectedCombinationAgrees(hint,ingredients);if(strict!==false)return strict;
@@ -84,3 +92,4 @@ export function isMedicineName(value:unknown):value is string {
  const name=value.trim();
  return !isEmptyMatchText(name)&&!isSearchSummary(name)&&!/^(?:i(?:['’]m| am) sorry\b|sorry\b|i (?:cannot|can['’]t|am unable|do not have)\b|unable to\b|there (?:are|is) no\b|no (?:exact )?(?:matching )?(?:results?|match(?:es)?|equivalents?|products?)\b|not found\b)/i.test(name)&&!/[<>]/.test(name);
 }
+

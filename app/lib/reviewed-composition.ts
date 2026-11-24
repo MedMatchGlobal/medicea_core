@@ -12,7 +12,7 @@ type LabelProfile={name:string;country:string;form:string;route:string;release?:
 const norm=(value:string)=>value.normalize('NFKC').trim().toLowerCase().replace(/\s+/g,' ');
 const amount=(value:string,mg:number)=>new RegExp('^'+mg+'(?:\\.0+)?\\s*mg(?:\\s*(?:per|/)\\s*(?:1\\s*)?tablet)?$','i').test(value.trim());
 export function reviewedCompositionEvidence(p:LabelProfile):string[]{
- if(p.complete!==true||!Array.isArray(p.species)||p.species.length||!Array.isArray(p.sources)||!p.sources.length||norm(p.route)!=='oral'||!['immediate','immediate release','conventional release'].includes(norm(p.release||'').replace(/-/g,' ')))return [];
+ if(p.complete!==true||!Array.isArray(p.species)||p.species.length||!Array.isArray(p.sources)||!p.sources.length||(p.route&&!/unknown|unconfirmed|unspecified/i.test(p.route)&&norm(p.route)!=='oral')||(p.release&&!/unknown|unconfirmed|unspecified/i.test(p.release)&&!['immediate','immediate release','conventional release'].includes(norm(p.release).replace(/-/g,' '))))return [];
  if(!Array.isArray(p.ingredients)||p.ingredients.length!==2)return [];
  const paracetamol=p.ingredients.filter(i=>norm(i.name)==='paracetamol'&&amount(i.strength,500));
  const codeine=p.ingredients.filter(i=>norm(i.name)==='codeine phosphate'&&amount(i.strength,30));
@@ -42,3 +42,4 @@ export function reviewedComparisonProfile<T extends LabelProfile>(p:T):T{
  if(!reviewedCompositionEvidence(p).length)return p;
  return {...p,ingredients:p.ingredients.map(i=>norm(i.name)==='codeine phosphate'?{...i,name:'Codeine phosphate hemihydrate'}:{...i})};
 }
+
