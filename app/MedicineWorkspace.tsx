@@ -641,7 +641,7 @@ function Home({ petMode = false, originVariantSelectionEnabled=false }: { petMod
     } else revealWorkspace();
   }
   function clearSearch() {
-    setOriginVariants([]);setOriginProduct(null);setOriginIdentificationStopped(false);setOriginUnconfirmedCount(0);setOriginCoverageComplete(true);originChoiceHistory.current=[];
+    setOriginVariants([]);setOriginProduct(null);setOriginIdentificationStopped(false);setOriginUnconfirmedCount(0);setOriginPartialProfiles([]);setOriginCoverageComplete(true);originChoiceHistory.current=[];
     resetFieldsForMode(mode);
     setOriginCode(savedHomeCountry.current); setTargetCode(''); setSearched(false);
     showScreen('search');
@@ -651,6 +651,7 @@ function Home({ petMode = false, originVariantSelectionEnabled=false }: { petMod
   const [originLeafletPending,setOriginLeafletPending]=useState(false);
   const [originLeafletError,setOriginLeafletError]=useState(false);
   const [originUnconfirmedCount,setOriginUnconfirmedCount]=useState(0);
+  const [originPartialProfiles,setOriginPartialProfiles]=useState<any[]>([]);
   const [originCoverageComplete,setOriginCoverageComplete]=useState(true);
   const [originIdentificationStopped,setOriginIdentificationStopped]=useState(false);
   const [originLeafletVisible, setOriginLeafletVisible] = useState(true);
@@ -861,6 +862,7 @@ if (!membershipEnabled && !BETA_TESTING && isPremiumMode(mode)) {
         setOriginIdentificationStopped(false);
         originChoiceHistory.current=payload.variants;
         setOriginUnconfirmedCount(Array.isArray(payload.unconfirmedVariants)?payload.unconfirmedVariants.length:0);
+        setOriginPartialProfiles(Array.isArray(payload.unconfirmedVariants)?payload.unconfirmedVariants:[]);
         setOriginCoverageComplete(payload.coverageComplete!==false);
         { // Always ask for confirmation, even for one source-confirmed product.
           setOriginVariants(payload.variants);setOriginProduct(null);setLeafletRaw('');setMatches([]);setResult('');setSearchFailed(false);setRestoredSearch(null);setSaveMessage('');completedSearchContext.current=null;
@@ -1386,7 +1388,13 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
           {!loading&&originVariants.length>0&&<section aria-labelledby="origin-choice-title">
             <h3 id="origin-choice-title">{originChoiceCopy(lang).title}</h3><p>{originChoiceCopy(lang).body}</p>
             {!originCoverageComplete&&<p>We confirmed these presentations from sources, but could not confirm that we found every available strength and formulation. The list may be incomplete.</p>}
-            {originUnconfirmedCount>0&&<p>Some other presentations were not offered because their complete active ingredients, individual strengths or formulation could not be confirmed.</p>}
+            {originUnconfirmedCount>0&&<p>Some source-backed profiles are shown below as unconfirmed because one or more of the four selection details are missing.</p>}
+            {originPartialProfiles.map((profile,index)=><article className="medicine-result-card" key={profile.sources?.[0]||index}>
+              <h4>{profile.name}</h4>
+              <p>{profile.form} · {['not confirmed','unknown'].includes(profile.route?.toLowerCase())?'route not confirmed':profile.route}</p>
+              {profile.ingredients?.length>0&&<ul>{profile.ingredients.map((ingredient:any,i:number)=><li key={ingredient.name+i}>{ingredient.name}: <strong>{ingredient.strength}</strong></li>)}</ul>}
+              {profile.missingFields?.length>0&&<p>Not confirmed: {profile.missingFields.join(', ')}</p>}
+            </article>)}
             {originVariants.map(variant=><article className="medicine-result-card" key={variant.token}>
               <h4>{variant.name}</h4><p>{variant.form} · {variant.route?.toLowerCase()==='unknown'?'route not confirmed':variant.route}</p>
               <ul>{variant.ingredients.map(i=><li key={i.name}>{i.name}: <strong>{i.strength}</strong></li>)}</ul>
