@@ -6,7 +6,7 @@ import {compareExcipients} from './excipient-comparison';
 import {leafletIdentity} from './leaflet-identity';
 import {originIdentificationInstruction,equivalenceDiscoveryInstruction,equivalenceCatalogueInstruction,equivalentResearchMetadata} from './equivalence-research-prompt';
 const productionFrontendEnabled=claudePreviewEnabled;
-import {exactComposition,exactMedicineCore,identificationHintAgrees,issueOriginSelection,readOriginSelection,type OriginProduct,isMedicineName} from './sonnet-research-support';
+import {exactComposition,exactMedicineCore,issueOriginSelection,readOriginSelection,type OriginProduct,isMedicineName} from './sonnet-research-support';
 
 // The gated preview uses sourced Sonnet research. Deterministic comparison
 // checks the returned profiles; it is not independent clinical verification.
@@ -138,22 +138,29 @@ export async function productionStrengthSearch(input:{drugName:unknown;originCou
  try {
   let origin:Product;
   if(input.originSelection){
-   const selected=readOriginSelection(input.originSelection,drugName,originCountry,drugDosage);
-   if(!selected||selected.lookup!=='original'||!valid(selected,originCountry)||identificationHintAgrees(drugDosage,selected.ingredients)===false)return Response.json({error:'ORIGIN_SELECTION_EXPIRED'},{status:422});
+   const selected=readOriginSelection(input.originSelection,drugName,originCountry,'');
+   if(!selected||selected.lookup!=='original'||!valid(selected,originCountry))return Response.json({error:'ORIGIN_SELECTION_EXPIRED'},{status:422});
    origin=selected;
   } else {
    // Enumerate before narrowing. A blank hint must never silently default to a
    // popular strength. A partial hint can leave several forms/strengths to choose.
    if(debug)debug.stage='origin_identification';
-   const reply=await ask(originIdentificationInstruction,{drugName,originCountry},true,false,undefined,{maxTokens:3000,effort:'low'});
+   const reply=await ask(originIdentificationInstruction,{drugName,originCountry},true,false,undefined,{maxTokens:6000,effort:'low'});
    // Catalogue exhaustiveness and a complete individual product are different.
    // A source-confirmed variant remains selectable when more variants may exist.
-   if((claude?typeof reply.variants_complete!=='boolean':reply.variants_complete!==true)||!Array.isArray(reply.products)||reply.products.length>24)throw Error('UNRESOLVED_VARIANTS');
+   if((claude?typeof reply.variants_complete!=='boolean':reply.variants_complete!==true)||!Array.isArray(reply.products)||reply.products.length>80)throw Error('UNRESOLVED_VARIANTS');
    const all:Product[]=reply.products.filter((p:any)=>validOriginChoice(p,originCountry)).map((p:Product)=>({...p,sources:claude?p.sources:[],release:'unknown',lookup:'original'}));
-   const unconfirmed=reply.products.filter((p:any)=>!validOriginChoice(p,originCountry)).map((p:any)=>({name:plain(p?.name,250)?p.name:'Unconfirmed presentation',reason:'API, strength, form or route could not be confirmed from a source.',codes:['INCOMPLETE_SELECTION_PROFILE']}));
+   const unconfirmed=reply.products.filter((p:any)=>!validOriginChoice(p,originCountry)).filter((p:any)=>Array.isArray(p?.sources)&&p.sources.some((url:any)=>typeof url==='string'&&/^https:\/\//i.test(url))).map((p:any)=>({
+    name:Array.isArray(p?.ingredients)&&p.ingredients.length?p.ingredients.filter((i:any)=>plain(i?.name)).map((i:any)=>i.name).join(' + '):'Unconfirmed medicine profile',
+    form:plain(p?.form,100)?p.form:'Not confirmed',
+    route:plain(p?.route,100)?p.route:'Not confirmed',
+    ingredients:Array.isArray(p?.ingredients)?p.ingredients.filter((i:any)=>plain(i?.name)&&plain(i?.strength,100)).slice(0,20):[],
+    missingFields:Array.isArray(p?.missing_fields)?p.missing_fields.map((field:any)=>String(field).toLowerCase()).filter((field:string)=>/ingredient|\bapi\b/.test(field)?true:/strength|form|route/.test(field)).map((field:string)=>/ingredient|\bapi\b/.test(field)?'active ingredients':/strength/.test(field)?'strength':/form/.test(field)?'form':'route').filter((field:string,index:number,all:string[])=>all.indexOf(field)===index).slice(0,4):['API, strength, form or route'],
+    sources:p.sources.filter((url:any)=>typeof url==='string'&&/^https:\/\//i.test(url)).slice(0,3)
+   }));
    if(unconfirmed.length)console.info('[Medicine origin rejected]',{count:unconfirmed.length,reasons:['INCOMPLETE_SELECTION_PROFILE']});
    // One selectable option represents each distinct API, strength, form and route profile.
-   const profileKey=(p:Product)=>p.ingredients.map(i=>norm(i.name)+'|'+norm(i.strength).replace(/\s+/g,'')).sort().join(';')+'|'+formKey(p.form)+'|'+norm(p.route);
+   const profileKey=(p:Product)=>p.ingredients.map(i=>norm(i.name).replace(/\b(?:hemi|mono|di|tri|tetra)?hydrate\b/g,'').trim()+'|'+norm(i.strength).replace(/\s+(?:per|\/)\s*(?:effervescent\s+)?tablet$/i,'').replace(/\s+/g,'')).sort().join(';')+'|'+norm(p.form).replace(/-/g,' ').replace(/\btablets\b/g,'tablet').replace(/\bcapsules\b/g,'capsule')+'|'+norm(p.route);
    const grouped=new Map<string,Product>();
    for(const product of all){
     const key=profileKey(product),prior=grouped.get(key);
@@ -161,7 +168,7 @@ export async function productionStrengthSearch(input:{drugName:unknown;originCou
     else prior.sources=Array.from(new Set([...(prior.sources||[]),...(product.sources||[])]));
    }
    const unique=Array.from(grouped.values());
-   const products=unique.filter(p=>identificationHintAgrees(drugDosage,p.ingredients)!==false);
+   const products=unique;
    if(!products.length&&unconfirmed.length)return Response.json({error:'ORIGIN_DETAILS_UNCONFIRMED',unconfirmedVariants:unconfirmed},{status:422});
    if(claude&&reply.variants_complete===false&&!products.length)throw Error('UNRESOLVED_VARIANTS');
    if(!products.length)return Response.json({error:unique.length?'ORIGIN_STRENGTH_MISMATCH':'NOT_FOUND_ORIGIN'},{status:422});
