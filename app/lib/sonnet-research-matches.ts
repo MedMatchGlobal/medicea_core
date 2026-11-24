@@ -118,8 +118,8 @@ export async function productionStrengthSearch(input:{drugName:unknown;originCou
  const debugResponse=()=>debug?{equivalentDebug:{...debug,elapsedMs:Date.now()-started}}:{};
  const {drugName,originCountry,targetCountry,drugDosage}=input;
  if(!plain(drugName,250)||!plain(originCountry)||!plain(targetCountry)||(drugDosage!=null&&(typeof drugDosage!=='string'||drugDosage.length>100)))return Response.json({error:'INVALID_INPUT'},{status:400});
- async function ask(instruction:string,data:unknown,standaloneInstruction=false,fullDocuments=standaloneInstruction,documentBudget?:{maxFetches?:number;maxContentTokens?:number}){
-  if(claude&&standaloneInstruction)return normaliseOptionalDetails(await claudeResearch(instruction,data,deadline,{standaloneInstruction:true,fullDocuments,...documentBudget}));
+ async function ask(instruction:string,data:unknown,standaloneInstruction=false,fullDocuments=standaloneInstruction,documentBudget?:{maxFetches?:number;maxContentTokens?:number},researchOptions?:{maxTokens?:number;effort?:'low'|'medium'|'high'}){
+  if(claude&&standaloneInstruction)return normaliseOptionalDetails(await claudeResearch(instruction,data,deadline,{standaloneInstruction:true,fullDocuments,...documentBudget,...researchOptions}));
   // Collect evidence in origin identification and the independent catalogue,
   // not twice during destination discovery. No additional provider call.
   if(claude)return claudeResearch(instruction.replace('from your knowledge','from the retrieved product sources')+' '+shape+presentationInstruction+(!instruction.startsWith('Retrieve known HUMAN medicines')?excipientInstruction:''),data,deadline);
@@ -138,7 +138,7 @@ export async function productionStrengthSearch(input:{drugName:unknown;originCou
    // Enumerate before narrowing. A blank hint must never silently default to a
    // popular strength. A partial hint can leave several forms/strengths to choose.
    if(debug)debug.stage='origin_identification';
-   const reply=await ask(originIdentificationInstruction,{drugName,originCountry},true,true);
+   const reply=await ask(originIdentificationInstruction,{drugName,originCountry},true,false,undefined,{maxTokens:3000,effort:'low'});
    // Catalogue exhaustiveness and a complete individual product are different.
    // A source-confirmed variant remains selectable when more variants may exist.
    if((claude?typeof reply.variants_complete!=='boolean':reply.variants_complete!==true)||!Array.isArray(reply.products)||reply.products.length>24)throw Error('UNRESOLVED_VARIANTS');
@@ -146,13 +146,20 @@ export async function productionStrengthSearch(input:{drugName:unknown;originCou
    if(unconfirmed.length)console.info('[Medicine origin rejected]',{count:unconfirmed.length,reasons:[...new Set(unconfirmed.flatMap((p:any)=>p.codes))]});
    const all:Product[]=reply.products.filter((p:any)=>valid(p,originCountry)).map((p:Product)=>({...p,sources:claude?p.sources:[],lookup:'original'}));
    // Same APIs/form do not identify the same manufacturer's excipient list.
-   const unique=deduplicatePresentations(all,identity,candidateIdentity);
+   const profileKey=(p:Product)=>p.ingredients.map(i=>norm(i.name)+'|'+norm(i.strength).replace(/\s+/g,'')).sort().join(';')+'|'+formKey(p.form)+'|'+norm(p.route);
+   const grouped=new Map<string,Product>();
+   for(const product of all){
+    const key=profileKey(product),prior=grouped.get(key);
+    if(!prior)grouped.set(key,{...product,name:product.ingredients.map(i=>i.name).join(' + '),generic:true,supplier:undefined,product_identifier:undefined,release:'unknown'});
+    else prior.sources=Array.from(new Set([...(prior.sources||[]),...(product.sources||[])]));
+   }
+   const unique=Array.from(grouped.values());
    const products=unique.filter(p=>identificationHintAgrees(drugDosage,p.ingredients)!==false);
    if(!products.length&&unconfirmed.length)return Response.json({error:'ORIGIN_DETAILS_UNCONFIRMED',unconfirmedVariants:unconfirmed},{status:422});
    if(claude&&reply.variants_complete===false&&!products.length)throw Error('UNRESOLVED_VARIANTS');
    if(!products.length)return Response.json({error:unique.length?'ORIGIN_STRENGTH_MISMATCH':'NOT_FOUND_ORIGIN'},{status:422});
-   if(identifyOnly)return Response.json({variants:products.map(p=>({...p,token:issueOriginSelection(p,drugName)})),requiresChoice:true,coverageComplete:reply.variants_complete===true,...(unconfirmed.length?{unconfirmedVariants:unconfirmed}:{})},{headers:{'Cache-Control':'no-store'}});
-   return Response.json({error:'CHOOSE_ORIGIN_VARIANT',variants:products.map(p=>({name:displayName(p),form:p.form,ingredients:p.ingredients,sources:p.sources,token:issueOriginSelection(p,drugName)}))},{status:409,headers:{'Cache-Control':'no-store'}});
+   if(identifyOnly)return Response.json({variants:products.map(p=>({name:p.ingredients.map(i=>i.name).join(' + '),country:p.country,form:p.form,route:p.route,release:'unknown',ingredients:p.ingredients,sources:p.sources,token:issueOriginSelection(p,drugName)})),requiresChoice:true,coverageComplete:reply.variants_complete===true,...(unconfirmed.length?{unconfirmedVariants:unconfirmed}:{})},{headers:{'Cache-Control':'no-store'}});
+   return Response.json({error:'CHOOSE_ORIGIN_VARIANT',variants:products.map(p=>({name:p.ingredients.map(i=>i.name).join(' + '),form:p.form,route:p.route,ingredients:p.ingredients,sources:p.sources,token:issueOriginSelection(p,drugName)}))},{status:409,headers:{'Cache-Control':'no-store'}});
    // Every supported presentation requires explicit selection, including a single result.
   }
   // Preserve the user's selected product and form during discovery. The former
