@@ -1388,8 +1388,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
             {!originCoverageComplete&&<p>We confirmed these presentations from sources, but could not confirm that we found every available strength and formulation. The list may be incomplete.</p>}
             {originUnconfirmedCount>0&&<p>Some other presentations were not offered because their complete active ingredients, individual strengths or formulation could not be confirmed.</p>}
             {originVariants.map(variant=><article className="medicine-result-card" key={variant.token}>
-              <h4>{variant.name}</h4><p>{variant.form} · {variant.route?.toLowerCase()==='unknown'?'route not confirmed':variant.route} · {variant.release?.toLowerCase()==='unknown'?'release not confirmed':variant.release}</p>
-              {typeof variant.supplier==='string'&&<p><strong>Manufacturer / supplier:</strong> {variant.supplier}</p>}
+              <h4>{variant.name}</h4><p>{variant.form} · {variant.route?.toLowerCase()==='unknown'?'route not confirmed':variant.route}</p>
               <ul>{variant.ingredients.map(i=><li key={i.name}>{i.name}: <strong>{i.strength}</strong></li>)}</ul>
               <button className="pill pill--blue" disabled={checkingAccess} onClick={()=>handleSearch(variant)}>{originChoiceCopy(lang).choose}</button>
             </article>)}
