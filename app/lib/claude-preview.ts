@@ -86,14 +86,14 @@ export function readClaudeResearch(payload:any){
  // This is not a claim of regulator approval or exhaustive market coverage.
  return reply;
 }
-export async function claudeMessage(system:string,messages:any[],research:boolean,deadline:number,maxTokens=8000,parentSignal?:AbortSignal|null,fullDocuments=false,documentBudget?:{maxFetches?:number;maxContentTokens?:number}){
+export async function claudeMessage(system:string,messages:any[],research:boolean,deadline:number,maxTokens=8000,parentSignal?:AbortSignal|null,fullDocuments=false,documentBudget?:{maxFetches?:number;maxContentTokens?:number},effort:'low'|'medium'|'high'='medium'){
  if(!claudePreviewEnabled()||typeof window!=='undefined')throw Error('CLAUDE_PREVIEW_DISABLED');
  const key=process.env.ANTHROPIC_API_KEY?.trim();if(!key)throw Error('CLAUDE_KEY_MISSING');
  const remaining=Math.min(50_000,deadline-Date.now());if(remaining<=0)throw Error('CLAUDE_TIMEOUT');
  const controller=new AbortController(),cancel=()=>controller.abort(),timer=setTimeout(cancel,remaining);
  parentSignal?.addEventListener('abort',cancel,{once:true});if(parentSignal?.aborted)cancel();
  const started=Date.now();try{
-  const response=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+key,'anthropic-version':'2023-06-01'},cache:'no-store',signal:controller.signal,body:JSON.stringify({model:'claude-sonnet-5-5',max_tokens:Math.max(2048,maxTokens),output_config:{effort:'medium'},
+  const response=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+key,'anthropic-version':'2023-06-01'},cache:'no-store',signal:controller.signal,body:JSON.stringify({model:'claude-sonnet-5-5',max_tokens:Math.max(2048,maxTokens),output_config:{effort},
    ...(system?{system}:{}),messages,...(research?{tools:[{type:'web_search_20250305',name:'web_search'},...(fullDocuments?[{type:'web_fetch_20250910',name:'web_fetch',max_uses:documentBudget?.maxFetches??4,max_content_tokens:documentBudget?.maxContentTokens??24000}]:[])]}:{})})}).catch(()=>{throw Error(controller.signal.aborted?'CLAUDE_TIMEOUT':'CLAUDE_NETWORK_ERROR');});
   const payload=await response.json().catch(()=>{throw Error(controller.signal.aborted?'CLAUDE_TIMEOUT':'CLAUDE_PROVIDER_JSON_INVALID');});
   if(!response.ok){
@@ -118,9 +118,9 @@ function answerText(payload:any){
  const last=payload.content.reduce((last:number,b:any,i:number)=>['web_search_tool_result','web_fetch_tool_result'].includes(b.type)?i:last,-1);
  return payload.content.slice(last+1).filter((b:any)=>b.type==='text').map((b:any)=>b.text).join('').trim().replace(/^```(?:json)?\s*/,'').replace(/\s*```$/,'').replace(/<\/?cite\b[^>]*>/g,'');
 }
-export async function claudeResearch(instruction:string,data:unknown,deadline:number,options?:{standaloneInstruction?:boolean;fullDocuments?:boolean;maxFetches?:number;maxContentTokens?:number}){
+export async function claudeResearch(instruction:string,data:unknown,deadline:number,options?:{standaloneInstruction?:boolean;fullDocuments?:boolean;maxFetches?:number;maxContentTokens?:number;maxTokens?:number;effort?:'low'|'medium'|'high'}){
  const instructionToSend=options?.standaloneInstruction?instruction:instruction+researchInstruction+' Report all supported variants you find, including less familiar brands and generics. Every product must include sources:[exact HTTPS URLs returned by web search supporting that product and composition]. Never fabricate a URL. Finish with only the requested JSON object, no introductory text, markdown or inline citation markers. No prices or treatment advice.';
- const payload=await claudeMessage(instructionToSend,[{role:'user',content:typeof data==='string'?data:JSON.stringify(data)}],true,deadline,8000,undefined,options?.fullDocuments??!!options?.standaloneInstruction,options);
+ const payload=await claudeMessage(instructionToSend,[{role:'user',content:typeof data==='string'?data:JSON.stringify(data)}],true,deadline,options?.maxTokens??8000,undefined,options?.fullDocuments??!!options?.standaloneInstruction,options,options?.effort??'medium');
  return readClaudeResearch(payload);
 }
 // Compatibility boundary for ALL existing AI routes. Keep their prompts and
