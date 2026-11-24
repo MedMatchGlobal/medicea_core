@@ -61,7 +61,7 @@ function valid(p:any,country:string):p is Product {
 }
 function validOriginChoice(p:any,country:string):p is Product {
  return !!p&&isMedicineName(p.name)&&p.name.length<=250&&plain(p.country)&&norm(p.country)===norm(country)&&
-  plain(p.form,100)&&!/(?:unknown|unspecified|varies|various)/i.test(p.form)&&plain(p.route,100)&&
+  p.complete===true&&plain(p.form,100)&&!/(?:unknown|unspecified|varies|various|inferred|not stated|unconfirmed)/i.test(p.form)&&plain(p.route,100)&&!/(?:unknown|unspecified|varies|various|inferred|not stated|unconfirmed)/i.test(p.route)&&
   Array.isArray(p.ingredients)&&p.ingredients.length>0&&p.ingredients.length<=20&&
   p.ingredients.every((i:any)=>i&&plain(i.name)&&plain(i.strength,100)&&amount.test(i.strength.trim()))&&
   Array.isArray(p.sources)&&p.sources.length>0&&p.sources.every((s:any)=>typeof s==='string'&&/^https:\/\//i.test(s));
@@ -148,18 +148,22 @@ export async function productionStrengthSearch(input:{drugName:unknown;originCou
    const reply=await ask(originIdentificationInstruction,{drugName,originCountry},true,false,undefined,{maxTokens:6000,effort:'low'});
    // Adapt the requested profile-oriented JSON to the existing internal product
    // contract. Partial profiles remain in the response as unconfirmed choices.
-   if(!Array.isArray(reply.products)&&Array.isArray(reply.profiles)){
-    reply.products=reply.profiles.map((profile:any)=>({
+   if(!Array.isArray(reply.products)&&(Array.isArray(reply.profiles)||Array.isArray(reply.unverified))){
+    const toProduct=(profile:any,confirmed:boolean)=>({
      name:Array.isArray(profile?.apis)?profile.apis.filter((api:any)=>api&&plain(api.name)).map((api:any)=>api.name).join(' + '):'Unconfirmed medicine profile',
      country:originCountry,
      form:plain(profile?.form,100)?profile.form:'unknown',
      route:plain(profile?.route,100)?profile.route:'unknown',
-     release:'unknown',species:[],complete:profile?.status==='confirmed',generic:true,
+     release:'unknown',species:[],complete:confirmed&&profile?.status==='confirmed',generic:true,
      ingredients:Array.isArray(profile?.apis)?profile.apis.filter((api:any)=>api&&plain(api.name)&&plain(api.strength,100)).map((api:any)=>({name:api.name,strength:api.strength})):[],
      sources:Array.isArray(profile?.sources)?profile.sources:[],
-     status:profile?.status,
+     status:confirmed?'confirmed':'partial',
      missing_fields:Array.isArray(profile?.missing_fields)?profile.missing_fields:[]
-    }));
+    });
+    reply.products=[
+     ...(Array.isArray(reply.profiles)?reply.profiles.map((profile:any)=>toProduct(profile,true)):[]),
+     ...(Array.isArray(reply.unverified)?reply.unverified.map((profile:any)=>toProduct(profile,false)):[]
+    ];
    }
    // Catalogue exhaustiveness and a complete individual product are different.
    // A source-confirmed variant remains selectable when more variants may exist.
