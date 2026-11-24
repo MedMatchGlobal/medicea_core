@@ -64,7 +64,7 @@ export function readClaudeResearch(payload:any){
  let reply:any;
  reply=parseResearchJson(text);
  if(!reply||typeof reply!=='object'||Array.isArray(reply))throw Error('CLAUDE_RESEARCH_SHAPE_INVALID');
- const products=reply.products??reply.candidates??(Array.isArray(reply.catalogues)?reply.catalogues.flatMap((c:any)=>c.products||[]):null);
+ const products=reply.products??reply.profiles??reply.candidates??(Array.isArray(reply.catalogues)?reply.catalogues.flatMap((c:any)=>c.products||[]):null);
  if(!Array.isArray(products))throw Error('CLAUDE_INVALID_PRODUCTS');
  for(const product of products){
   if(!Array.isArray(product?.sources)||!product.sources.length||!product.sources.every((s:unknown)=>{const url=sourceUrl(s);return url&&retrieved.has(url);}))throw Error('CLAUDE_UNSUPPORTED_PRODUCT');
