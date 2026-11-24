@@ -85,6 +85,11 @@ export async function claudeMessage(system:string,messages:any[],research:boolea
    throw Error('CLAUDE_HTTP_'+response.status);
   }
   if(payload?.stop_reason!=='end_turn'||!Array.isArray(payload.content))throw Error('CLAUDE_INCOMPLETE');
+  if(fullDocuments){
+   // Diagnostic counts only: never log URLs, queries, medicines or document text.
+   const documents=payload.content.filter((b:any)=>b.type==='web_fetch_tool_result');
+   console.info('[Medicine document retrieval]',{attempts:documents.length,read:documents.filter((b:any)=>b.content?.type==='web_fetch_result'&&b.content?.content?.type==='document').length,failed:documents.filter((b:any)=>b.content?.type==='web_fetch_tool_result_error').length});
+  }
   evaluation.getStore()?.push({model:payload.model,ms:Date.now()-started,usage:payload.usage,text:answerText(payload)});
   return payload;
  }finally{clearTimeout(timer);parentSignal?.removeEventListener('abort',cancel);}

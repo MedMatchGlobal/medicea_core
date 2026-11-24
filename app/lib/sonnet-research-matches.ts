@@ -130,7 +130,8 @@ export async function productionStrengthSearch(input:{drugName:unknown;originCou
    // Catalogue exhaustiveness and a complete individual product are different.
    // A source-confirmed variant remains selectable when more variants may exist.
    if((claude?typeof reply.variants_complete!=='boolean':reply.variants_complete!==true)||!Array.isArray(reply.products)||reply.products.length>24)throw Error('UNRESOLVED_VARIANTS');
-   const unconfirmed=reply.products.filter((p:any)=>!valid(p,originCountry)).map((p:any)=>({name:plain(p?.name,250)?p.name:'Unconfirmed presentation',reason:'Complete ingredients, strength, form, route or release could not be confirmed.'}));
+   const unconfirmed=reply.products.filter((p:any)=>!valid(p,originCountry)).map((p:any)=>({name:plain(p?.name,250)?p.name:'Unconfirmed presentation',reason:'Complete ingredients, strength, form, route or release could not be confirmed.',codes:explainCandidate(p,p,originCountry).reasons}));
+   if(unconfirmed.length)console.info('[Medicine origin rejected]',{count:unconfirmed.length,reasons:[...new Set(unconfirmed.flatMap((p:any)=>p.codes))]});
    const all:Product[]=reply.products.filter((p:any)=>valid(p,originCountry)).map((p:Product)=>({...p,sources:claude?p.sources:[],lookup:'original'}));
    // Same APIs/form do not identify the same manufacturer's excipient list.
    const unique=deduplicatePresentations(all,identity,candidateIdentity);
