@@ -1,5 +1,5 @@
 import {isAccessModule} from '@/lib/membership/access-policy';
-import {membershipPreviewEnabled,sameOrigin} from '@/lib/membership/config';
+import {membershipOrigin,membershipPreviewEnabled,sameOrigin} from '@/lib/membership/config';
 import {membershipUser} from '@/lib/membership/auth';
 import {membershipStatus} from '@/lib/membership/store';
 // A UX preflight only. Every generation endpoint still reserves server-side.
@@ -7,7 +7,16 @@ export async function POST(req:Request) {
  if(!membershipPreviewEnabled())return Response.json({enabled:false});
  const reply=(error:string,status:number)=>Response.json({error,membershipAccess:true},{status,headers:{'Cache-Control':'no-store'}});
  try {
-  if(!sameOrigin(req))return reply('INVALID_ORIGIN',403);
+  if(!sameOrigin(req)){
+   const host=(value:string|null)=>{try{return value?new URL(value).host:null;}catch{return null;}};
+   console.warn('[Membership access origin rejected]',{
+    hasOrigin:!!req.headers.get('origin'),
+    originHost:host(req.headers.get('origin')),
+    requestHost:host(req.url),
+    expectedHost:host(membershipOrigin()),
+   });
+   return reply('INVALID_ORIGIN',403);
+  }
   const user=await membershipUser();if(!user)return reply('SIGN_IN_REQUIRED',401);
   const input=await req.json().catch(()=>null);const module=input?.module??'medicine';
   if(!isAccessModule(module)||module==='portal')return reply('INVALID_MODULE',400);
