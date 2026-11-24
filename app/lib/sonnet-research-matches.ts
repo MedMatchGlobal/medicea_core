@@ -138,7 +138,7 @@ export async function productionStrengthSearch(input:{drugName:unknown;originCou
    // Enumerate before narrowing. A blank hint must never silently default to a
    // popular strength. A partial hint can leave several forms/strengths to choose.
    if(debug)debug.stage='origin_identification';
-   const reply=await ask(originIdentificationInstruction,{drugName,originCountry},true,true,{maxFetches:2,maxContentTokens:12000});
+   const reply=await ask(originIdentificationInstruction,{drugName,originCountry},true,true);
    // Catalogue exhaustiveness and a complete individual product are different.
    // A source-confirmed variant remains selectable when more variants may exist.
    if((claude?typeof reply.variants_complete!=='boolean':reply.variants_complete!==true)||!Array.isArray(reply.products)||reply.products.length>24)throw Error('UNRESOLVED_VARIANTS');
