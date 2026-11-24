@@ -653,6 +653,7 @@ function Home({ petMode = false, originVariantSelectionEnabled=false }: { petMod
   const [originUnconfirmedCount,setOriginUnconfirmedCount]=useState(0);
   const [originPartialProfiles,setOriginPartialProfiles]=useState<any[]>([]);
   const [originCoverageComplete,setOriginCoverageComplete]=useState(true);
+  const [originUnchecked,setOriginUnchecked]=useState<string[]>([]);
   const [originIdentificationStopped,setOriginIdentificationStopped]=useState(false);
   const [originLeafletVisible, setOriginLeafletVisible] = useState(true);
   const [matches, setMatches] = useState<any[]>([]);
@@ -863,7 +864,7 @@ if (!membershipEnabled && !BETA_TESTING && isPremiumMode(mode)) {
         originChoiceHistory.current=payload.variants;
         setOriginUnconfirmedCount(Array.isArray(payload.unconfirmedVariants)?payload.unconfirmedVariants.length:0);
         setOriginPartialProfiles(Array.isArray(payload.unconfirmedVariants)?payload.unconfirmedVariants:[]);
-        setOriginCoverageComplete(payload.coverageComplete!==false);
+        setOriginCoverageComplete(payload.coverageComplete!==false);setOriginUnchecked(Array.isArray(payload.unchecked)?payload.unchecked.filter((item:any)=>typeof item==='string'):[]);
         { // Always ask for confirmation, even for one source-confirmed product.
           setOriginVariants(payload.variants);setOriginProduct(null);setLeafletRaw('');setMatches([]);setResult('');setSearchFailed(false);setRestoredSearch(null);setSaveMessage('');completedSearchContext.current=null;
           setSearched(true);showScreen('results');return;
@@ -1388,6 +1389,7 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
           {!loading&&originVariants.length>0&&<section aria-labelledby="origin-choice-title">
             <h3 id="origin-choice-title">{originChoiceCopy(lang).title}</h3><p>{originChoiceCopy(lang).body}</p>
             {!originCoverageComplete&&<p>We confirmed these presentations from sources, but could not confirm that we found every available strength and formulation. The list may be incomplete.</p>}
+            {originUnchecked.length>0&&<div className="search-note"><p>Not checked in this search:</p><ul>{originUnchecked.map((item,index)=><li key={index}>{item}</li>)}</ul></div>}
             {originUnconfirmedCount>0&&<p>Some source-backed profiles are shown below as unconfirmed because one or more of the four selection details are missing.</p>}
             {originPartialProfiles.map((profile,index)=><article className="medicine-result-card" key={profile.sources?.[0]||index}>
               <h4>{profile.name}</h4>
