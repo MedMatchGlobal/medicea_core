@@ -37,13 +37,31 @@ function researchEvidence(payload:any){
  }
  return {retrieved,lastResult};
 }
+function parseResearchJson(text:string){
+ const candidate=text.trim().replace(/^```(?:json)?\\s*/i,'').replace(/\\s*```$/,'');
+ try{return JSON.parse(candidate);}catch{}
+ for(let start=0;start<candidate.length;start++){
+  if(candidate[start]!=='{')continue;
+  let depth=0,inString=false,escaped=false;
+  for(let end=start;end<candidate.length;end++){
+   const char=candidate[end];
+   if(inString){if(escaped)escaped=false;else if(char==='\\\\')escaped=true;else if(char==='\"')inString=false;continue;}
+   if(char==='\"'){inString=true;continue;}
+   if(char==='{')depth++;else if(char==='}'&&--depth===0){
+    try{const value=JSON.parse(candidate.slice(start,end+1));if(value&&typeof value==='object'&&!Array.isArray(value))return value;}catch{}
+    break;
+   }
+  }
+ }
+ throw Error('CLAUDE_RESEARCH_JSON_INVALID');
+}
 export function readClaudeResearch(payload:any){
  if(payload?.stop_reason!=='end_turn'||!Array.isArray(payload.content))throw Error('CLAUDE_INCOMPLETE');
  const {retrieved,lastResult}=researchEvidence(payload);
  if(!retrieved.size)throw Error('CLAUDE_NO_RESEARCH');
  const text=payload.content.slice(lastResult+1).filter((b:any)=>b.type==='text').map((b:any)=>b.text).join('').trim().replace(/^```(?:json)?\s*/,'').replace(/\s*```$/,'');
  let reply:any;
- try{reply=JSON.parse(text);}catch{throw Error('CLAUDE_RESEARCH_JSON_INVALID');}
+ reply=parseResearchJson(text);
  if(!reply||typeof reply!=='object'||Array.isArray(reply))throw Error('CLAUDE_RESEARCH_SHAPE_INVALID');
  const products=reply.products??reply.candidates??(Array.isArray(reply.catalogues)?reply.catalogues.flatMap((c:any)=>c.products||[]):null);
  if(!Array.isArray(products))throw Error('CLAUDE_INVALID_PRODUCTS');
