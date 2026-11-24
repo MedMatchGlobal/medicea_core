@@ -17,6 +17,14 @@ test('strength narrows choices without losing forms; unknown strength never sile
  const choice=await (await search(input,true)).json();assert.equal(choice.variants.length,2);assert.deepEqual([...choice.variants.map(p=>p.form)],['tablet','capsule']);
  const mismatch=await search({...input,drugDosage:'2 mg'},true);assert.equal(mismatch.status,422);assert.equal((await mismatch.json()).error,'ORIGIN_STRENGTH_MISMATCH');
 });
+test('unconfirmed release never becomes selectable and does not hide another fully supported presentation',async()=>{
+ let products=[{...product(),release:'unknown'}];
+ const read=loader({'./openaiClient':{},'./claude-preview':{claudePreviewEnabled:()=>true,claudeResearch:async()=>({variants_complete:false,products})}});
+ const search=read('app/lib/sonnet-research-matches.ts').productionStrengthSearch,input={drugName:'Fictional origin',originCountry:'Italy',targetCountry:'Japan'};
+ const stopped=await search(input,true);assert.equal(stopped.status,422);assert.equal((await stopped.json()).error,'ORIGIN_DETAILS_UNCONFIRMED');
+ products=[product(),{...product('125 mg'),release:'unknown'}];
+ const choice=await (await search(input,true)).json();assert.equal(choice.variants.length,1);assert.equal(choice.requiresChoice,true);assert.equal(choice.unconfirmedVariants.length,1);assert.equal(choice.variants[0].release,'immediate-release');
+});
 function deferred(){let resolve;const promise=new Promise(r=>resolve=r);return {promise,resolve};}
 function streamRuntime(allowed=true){const log=[];let read;
  const overrides={

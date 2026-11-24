@@ -129,14 +129,16 @@ export async function productionStrengthSearch(input:{drugName:unknown;originCou
    const reply=await ask(originIdentificationInstruction,{drugName,originCountry},true);
    // Catalogue exhaustiveness and a complete individual product are different.
    // A source-confirmed variant remains selectable when more variants may exist.
-   if((claude?typeof reply.variants_complete!=='boolean':reply.variants_complete!==true)||!Array.isArray(reply.products)||reply.products.length>24||reply.products.some((p:any)=>!valid(p,originCountry)))throw Error('UNRESOLVED_VARIANTS');
-   const all:Product[]=reply.products.map((p:Product)=>({...p,sources:claude?p.sources:[],lookup:'original'}));
+   if((claude?typeof reply.variants_complete!=='boolean':reply.variants_complete!==true)||!Array.isArray(reply.products)||reply.products.length>24)throw Error('UNRESOLVED_VARIANTS');
+   const unconfirmed=reply.products.filter((p:any)=>!valid(p,originCountry)).map((p:any)=>({name:plain(p?.name,250)?p.name:'Unconfirmed presentation',reason:'Complete ingredients, strength, form, route or release could not be confirmed.'}));
+   const all:Product[]=reply.products.filter((p:any)=>valid(p,originCountry)).map((p:Product)=>({...p,sources:claude?p.sources:[],lookup:'original'}));
    // Same APIs/form do not identify the same manufacturer's excipient list.
    const unique=deduplicatePresentations(all,identity,candidateIdentity);
    const products=unique.filter(p=>identificationHintAgrees(drugDosage,p.ingredients)!==false);
+   if(!products.length&&unconfirmed.length)return Response.json({error:'ORIGIN_DETAILS_UNCONFIRMED',unconfirmedVariants:unconfirmed},{status:422});
    if(claude&&reply.variants_complete===false&&!products.length)throw Error('UNRESOLVED_VARIANTS');
    if(!products.length)return Response.json({error:unique.length?'ORIGIN_STRENGTH_MISMATCH':'NOT_FOUND_ORIGIN'},{status:422});
-   if(identifyOnly)return Response.json({variants:products.map(p=>({...p,token:issueOriginSelection(p,drugName)})),requiresChoice:true},{headers:{'Cache-Control':'no-store'}});
+   if(identifyOnly)return Response.json({variants:products.map(p=>({...p,token:issueOriginSelection(p,drugName)})),requiresChoice:true,...(unconfirmed.length?{unconfirmedVariants:unconfirmed}:{})},{headers:{'Cache-Control':'no-store'}});
    return Response.json({error:'CHOOSE_ORIGIN_VARIANT',variants:products.map(p=>({name:displayName(p),form:p.form,ingredients:p.ingredients,sources:p.sources,token:issueOriginSelection(p,drugName)}))},{status:409,headers:{'Cache-Control':'no-store'}});
    // Every supported presentation requires explicit selection, including a single result.
   }

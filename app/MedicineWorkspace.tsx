@@ -843,6 +843,10 @@ if (!membershipEnabled && !BETA_TESTING && isPremiumMode(mode)) {
             setOriginVariants([]);setOriginProduct(null);setLeafletRaw('');setMatches([]);setSearchFailed(false);
             setResult('The entered strength was not found for this medicine in the checked sources. Check the strength and units, or leave strength blank to choose a product.');setSearched(true);showScreen('results');return;
           }
+          if(failure?.error==='ORIGIN_DETAILS_UNCONFIRMED'){
+            setOriginVariants([]);setOriginProduct(null);setLeafletRaw('');setMatches([]);setSearchFailed(false);
+            setResult('We found product information, but could not confirm the full ingredients, strength, form, route and release. No matching search was started. Check the exact product leaflet with a pharmacist.');setSearched(true);showScreen('results');return;
+          }
           throw Error('Origin identification unavailable');
         }
         const payload=await response.json();
