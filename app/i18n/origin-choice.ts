@@ -1,5 +1,5 @@
 const copy:Record<string,[string,string,string]>={
-en:['Choose your exact product','These products have different formulations or strengths. Choose the one shown on your pack.',"Find medicines equivalent to this one"],
+en:['Choose your exact product','Confirm the name, strength, form and route against your pack before continuing.',"Find medicines equivalent to this one"],
 af:['Kies jou presiese produk','Hierdie produkte het verskillende formulerings of sterktes. Kies die een op jou verpakking.',"Vind medisyne wat aan hierdie een gelykwaardig is"],
 ar:['اختر منتجك بالتحديد','تختلف هذه المنتجات في التركيبة أو التركيز. اختر المنتج الموضح على عبوتك.',"ابحث عن أدوية مكافئة لهذا الدواء"],
 cs:['Vyberte přesný přípravek','Tyto přípravky se liší lékovou formou nebo silou. Vyberte přípravek uvedený na svém balení.',"Najít léčivé přípravky ekvivalentní tomuto"],

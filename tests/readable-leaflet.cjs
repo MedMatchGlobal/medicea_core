@@ -72,5 +72,5 @@ test('owner-authorised format addition reaches human leaflet requests but not tr
  assert.doesNotMatch(requests[1].system,/focused price lookup|EVERY active ingredient/);assert.equal(requests[0].model,'claude-sonnet-5-5');assert.equal(requests[0].output_config.effort,'medium');
 });
 test('both leaflet views use the same renderer, chosen origin button is removed, equivalent hint uses its own strengths',()=>{
- const code=fs.readFileSync('app/MedicineWorkspace.tsx','utf8');assert.match(code,/renderLeafletPretty\(extractLeafletText\(leafletRaw\), t, originProduct\|\|undefined\)/);assert.match(code,/renderLeafletPretty\(extractLeafletText\(leafletText\), t,m\)/);assert.doesNotMatch(code,/originChoiceHistory.current.length>1&&<button/);assert.match(code,/drugDosage: profile\?\.ingredients\?\.map/);
+ const code=fs.readFileSync('app/MedicineWorkspace.tsx','utf8');assert.match(code,/renderLeafletPretty\(extractLeafletText\(leafletRaw\), t, originProduct\|\|undefined,officialMedicineLeafletSearch/);assert.match(code,/renderLeafletPretty\(extractLeafletText\(leafletText\), t,m,officialMedicineLeafletSearch/);assert.doesNotMatch(code,/originChoiceHistory.current.length>1&&<button/);assert.match(code,/drugDosage: profile\?\.ingredients\?\.map/);
 });

@@ -1,10 +1,33 @@
 import {meteredSearch} from '@/lib/membership/meter';
 import {readVariant} from '@/app/lib/origin-variants';
 import {leafletIdentity} from '@/app/lib/leaflet-identity';
+import {progressiveSearch} from '@/lib/membership/progressive-search';
+import {claudePreviewEnabled} from '@/app/lib/claude-preview';
 // The existing leaflet and matching handlers run sequentially inside one operation.
 export const maxDuration = 180;
 // One reservation for a normal medicine search, including its origin leaflet.
 export async function POST(req: Request) {
+ const previewInput=claudePreviewEnabled()?await req.clone().json().catch(()=>null):null;
+ if(previewInput?.mode==='international'&&previewInput.stream===true){
+  return progressiveSearch(req,(request,emit)=>{
+   let pendingLeaflet:Promise<unknown>=Promise.resolve();
+   const result=(async()=>{
+    const body=await request.json();
+    const selected=body.originSelection?readVariant(body.originSelection,body.drugName,body.originCountry,body.drugDosage||''):null;
+    // Verify selected identity before starting either provider operation.
+    if(!selected)return Response.json({error:'ORIGIN_SELECTION_EXPIRED'},{status:422});
+    const providerRequest=(data:unknown)=>new Request(request.url,{method:'POST',headers:{'Content-Type':'application/json',...(request.headers.get('x-medicea-equivalent-debug')==='1'?{'x-medicea-equivalent-debug':'1'}:{})},body:JSON.stringify(data),signal:request.signal});
+    const {POST:leaflet}=await import('@/app/api/openai/leaflet/route');
+    pendingLeaflet=leaflet(providerRequest({...body,drugName:selected.name,drugDosage:selected.ingredients.map(i=>i.strength).join(' + '),selectedProduct:leafletIdentity(selected,selected.name,body.originCountry)}))
+     .then(async response=>emit({type:'leaflet',status:response.status,data:await response.json()}))
+     .catch(()=>emit({type:'leaflet',status:503,data:{error:'LEAFLET_UNAVAILABLE'}}));
+    const {POST:matches}=await import('@/app/api/openai/equivalent-search/route');
+    return matches(providerRequest(body));
+   })();
+   // The tail keeps the function alive whichever branch finishes first.
+   return {result,completed:result.then(()=>pendingLeaflet,()=>pendingLeaflet)};
+  });
+ }
  return meteredSearch(req,async request=>{
   const body=await request.json();
   const mode=body.mode||'international';

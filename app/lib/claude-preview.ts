@@ -100,7 +100,7 @@ export async function claudeCompletion(endpoint:string,init:RequestInit){
  const json=!!format||/return[^.\n]*\bjson\b/i.test(original);
  const schema=format?.json_schema?.schema||format?.schema;
  const leafletFormat=/leaflet_text/.test(original)&&!/precise medical translator/i.test(original)?humanLeafletFormat:'';
- const system=original+(research?researchInstruction:'')+leafletFormat+(json?' Return only valid JSON, no markdown or introductory prose.':'')+(schema?' Follow this exact JSON schema: '+JSON.stringify(schema):'');
+ const system=(leafletFormat||original)+(research&&!leafletFormat?researchInstruction:'')+(json?' Return only valid JSON, no markdown or introductory prose.':'')+(schema?' Follow this exact JSON schema: '+JSON.stringify(schema):'');
  const payload=await claudeMessage(system,messages,research,Date.now()+50_000,body.max_tokens||body.max_completion_tokens||body.max_output_tokens||8000,init.signal);
  const text=answerText(payload);if(!text)throw Error('CLAUDE_EMPTY_RESPONSE');if(json)JSON.parse(text);
  const sources=payload.content.filter((b:any)=>b.type==='web_search_tool_result'&&Array.isArray(b.content)).flatMap((b:any)=>b.content).filter((r:any)=>r.type==='web_search_result'&&sourceUrl(r.url)).map((r:any)=>({url:sourceUrl(r.url)}));

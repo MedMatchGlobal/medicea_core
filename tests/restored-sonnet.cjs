@@ -22,7 +22,7 @@ test('historical research and matching instructions remain intact except owner-a
    // Explicit owner request: readable origin AND equivalent leaflets, with
    // proper strengths, collapsed references and a concise price field. Only
    // this presentation addition changes; transport and clinical gates do not.
-   if(name==='claudeCompletion')expected=expected.replace(/const leafletFormat=[^\r\n]*/,"const leafletFormat=/leaflet_text/.test(original)&&!/precise medical translator/i.test(original)?humanLeafletFormat:'';");
+   if(name==='claudeCompletion')expected=expected.replace(/const leafletFormat=[^\r\n]*/,"const leafletFormat=/leaflet_text/.test(original)&&!/precise medical translator/i.test(original)?humanLeafletFormat:'';").replace("const system=original+(research?researchInstruction:'')+leafletFormat+","const system=(leafletFormat||original)+(research&&!leafletFormat?researchInstruction:'')+");
    assert.equal(extract(current,name),expected,name);
   }
  }
@@ -163,7 +163,7 @@ test('four sourced presentations survive the independent catalogue lookup while 
  const wrongOpioid={...zentiva,ingredients:[ingredients[0],{name:'Dihydrocodeine tartrate',strength:'30 mg per tablet'}]};
  const candidates=[group,zentiva,cipla,accord,solpadol];let calls=0;
  const read=loader(env,{'./openaiClient':{},'./claude-preview':{claudePreviewEnabled:()=>true,claudeResearch:async(instruction,data)=>{
-  calls++;assert.match(instruction,/supplier-specific generic presentation separately/);assert.match(instruction,/Never invent or copy/);
+  calls++;assert.match(instruction,/Keep each supplier presentation separate/);assert.match(instruction,/Never invent products or facts/);
   if(calls===1)return {candidates};
   assert.equal(data.country,'United Kingdom');assert.deepEqual(data.query_names,['Co-codamol','Co-codamol (Zentiva)','Co-codamol (Cipla EU Ltd)','Co-codamol (Accord-UK Ltd)','Solpadol (Phoenix Labs Ltd)']);
   assert.deepEqual(data.query_leads.map(p=>p.product_name),candidates.map(p=>p.name));
@@ -217,9 +217,9 @@ test('supplier-only generic discovery also researches the neutral generic family
  let calls=0;
  const read=loader(env,{'./openaiClient':{},'./claude-preview':{claudePreviewEnabled:()=>true,claudeResearch:async(instruction,data)=>{
   if(++calls===1){assert.doesNotMatch(instruction,/For each generic-name query, explicitly search/);return {candidates:[generic]};}
-  assert.match(instruction,/other branded and supplier presentations linked to each generic query/);
-  assert.match(instruction,/Report actual source facts even when they contradict a lead/);
-  assert.match(instruction,/fill a quota, or claim market-wide completeness/);
+  assert.match(instruction,/supported branded and supplier presentations/);
+  assert.match(instruction,/Report source facts even when they contradict a lead/);
+  assert.match(instruction,/fill a quota, claim exhaustive coverage/);
   assert.doesNotMatch(instruction,/Solpadol|Zapain|Co-Efferalgan/);
   assert.deepEqual(data.query_names,['Co-codamol (Zentiva)','Co-codamol']);
   return {catalogues:[{query_name:'Co-codamol (Zentiva)',variants_complete:false,products:[generic]},{query_name:'Co-codamol',variants_complete:false,products:[generic,solpadol,zapain,wrongStrength,wrongActive,{...generic,form:'effervescent tablet'},{...generic,form:'capsule'}]}]};
@@ -234,7 +234,7 @@ test('supplier-only generic discovery also researches the neutral generic family
 test('generic-to-brand expansion is absent from origin identification',async()=>{
  let calls=0;
  const read=loader(env,{'./openaiClient':{},'./claude-preview':{claudePreviewEnabled:()=>true,claudeResearch:async(instruction,data)=>{
-  calls++;assert.match(instruction,/Identify the distinct labelled HUMAN product variants/);
+  calls++;assert.match(instruction,/Identify the distinct labelled HUMAN product presentations/);
   assert.doesNotMatch(instruction,/For each generic-name query, explicitly search/);
   assert.equal(data.drugName,'Example');return {variants_complete:true,products:[product()]};
  }}});
@@ -259,7 +259,7 @@ test('selected formulation and discovered product leads survive handoff without 
    return {candidates:[generic,brand,falseLead]};
   }
   assert.equal(calls,2,'no extra research calls');
-  assert.match(instruction,/unverified discovered names and source URLs/);
+  assert.match(instruction,/Leads are unverified names and URLs/);
   assert.deepEqual(data.query_leads.map(p=>p.product_name),[generic.name,brand.name,falseLead.name]);
   assert.deepEqual(data.query_leads[0].sources,[source]);
   assert.doesNotMatch(JSON.stringify(data),/secret-candidate-field|secret-origin-field|selection_token|"ingredients"/);
@@ -273,7 +273,7 @@ test('selected formulation and discovered product leads survive handoff without 
  assert.ok(body.equivalentDebug.decisions.some(d=>d.reasons.includes('STRENGTH_OR_UNIT_TEXT_DIFFERS')));
 });
 
-test('one confirmed origin variant and a user-selected variant produce the same direct equivalent query',async()=>{
+test('even one origin variant needs confirmation before the same selected-product equivalent query',async()=>{
  const origin={...product(),name:'Origin 500 mg + 30 mg film-coated tablets',form:'film-coated tablet'};
  const candidate={...origin,name:'Destination 30/500 tablets',country:'United Kingdom'};
  async function run(selected){
@@ -281,11 +281,12 @@ test('one confirmed origin variant and a user-selected variant produce the same 
   const read=loader(env,{'./openaiClient':{},'./claude-preview':{claudePreviewEnabled:()=>true,claudeResearch:async(instruction,data)=>{
    requests++;
    if(instruction.startsWith('Identify the distinct labelled'))return {variants_complete:true,products:[origin]};
-   if(instruction.startsWith('You find equivalents')){query=data;return {candidates:[candidate]};}
+   if(instruction.startsWith('Find licensed medicine presentations')){query=data;return {candidates:[candidate]};}
    return {catalogues:[{query_name:'Destination',variants_complete:true,products:[candidate]}]};
   }}});
   const token=selected?read('app/lib/sonnet-research-support.ts').issueOriginSelection(origin,'Origin'):undefined;
-  const response=await read('app/lib/sonnet-research-matches.ts').productionStrengthSearch({drugName:'Origin',originCountry:'Italy',targetCountry:'United Kingdom',originSelection:token});
+  let response=await read('app/lib/sonnet-research-matches.ts').productionStrengthSearch({drugName:'Origin',originCountry:'Italy',targetCountry:'United Kingdom',originSelection:token});
+  if(!selected){const choice=await response.json();assert.equal(response.status,409);assert.equal(requests,1);response=await read('app/lib/sonnet-research-matches.ts').productionStrengthSearch({drugName:'Origin',originCountry:'Italy',targetCountry:'United Kingdom',originSelection:choice.variants[0].token});}
   const body=await response.json();assert.equal(response.status,200);assert.equal(body.matches.length,1);
   assert.equal(requests,selected?2:3);return query;
  }

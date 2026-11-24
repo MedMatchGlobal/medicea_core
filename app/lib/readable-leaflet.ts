@@ -1,8 +1,8 @@
 export type LeafletProfile={ingredients?:{name:string;strength:string}[];form?:string;route?:string;release?:string};
 export type LeafletSection={key:string;text:string};
 export type ReadableLeaflet={sections:LeafletSection[];notes:LeafletSection[];sources:{label:string;url:string}[];profile:LeafletProfile|null;price:string};
-const headings=['Active Ingredients','Active Ingredient','Average Selling Price','Typical Selling Price','Mechanism of Action','Legal Classification','How it Works','Side Effects','Contraindications','Precautions','Interactions','Manufacturer','Formulation','Pack Size','Description','Overview','What it is','Indications','Posology','Strength','Dosage','Warnings','Summary','Uses','Storage','Sources','References','Note','Notes','Disclaimer'];
-const canonical=(s:string)=>/^active ingredients?$/i.test(s)?'Active Ingredients':/^(?:average|typical) selling price$/i.test(s)?'Typical selling price':/^(?:notes?|disclaimer)$/i.test(s)?'Note':/^(?:sources|references)$/i.test(s)?'Sources':headings.find(h=>h.toLowerCase()===s.toLowerCase())||s;
+const headings=['Active Ingredients','Active Ingredient','Average Selling Price','Typical Selling Price','Indicative Retail Price','How to Use','Mechanism of Action','Legal Classification','How it Works','Side Effects','Contraindications','Precautions','Interactions','Manufacturer','Formulation','Pack Size','Description','Overview','What it is','Indications','Posology','Strength','Dosage','Warnings','Summary','Uses','Storage','Sources','References','Note','Notes','Disclaimer'];
+const canonical=(s:string)=>/^active ingredients?$/i.test(s)?'Active Ingredients':/^(?:(?:average|typical) selling price|indicative retail price)$/i.test(s)?'Typical selling price':/^(?:notes?|disclaimer)$/i.test(s)?'Note':/^(?:sources|references)$/i.test(s)?'Sources':headings.find(h=>h.toLowerCase()===s.toLowerCase())||s;
 const safeUrl=(s:string)=>{try{const u=new URL(s);return /^https?:$/.test(u.protocol)&&!u.username&&!u.password&&!u.port?u.href:null;}catch{return null;}};
 function trimUrl(s:string){
  let value=s.replace(/[.,;:!?]+$/,'');

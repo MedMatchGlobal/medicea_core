@@ -35,17 +35,17 @@ test('duplicate presentations preserve evidence and flag conflicting declaration
  assert.equal(merged.excipientEvidence.status,'partial');assert.equal(lib.compareExcipients(product('Origin',['Lactose']),merged).status,'incomplete');
  const [kept]=deduplicatePresentations([product('Candidate'),a],()=> 'same clinical identity',()=> 'Candidate');assert.equal(kept.excipientEvidence.status,'complete');
 });
-test('matching ranks only accepted complete-API products and does not add research calls',async()=>{
+test('matching retains candidates irrespective of excipients and does not add research calls',async()=>{
  const origin=product('Origin',['Starch']);const same=product('Same',['Starch']),different=product('Different',['Lactose']),unknown=product('Unknown');
  const negatives=[{...same,name:'Missing API',ingredients:same.ingredients.slice(0,2)},{...same,name:'Extra API',ingredients:[...same.ingredients,{name:'Ibuprofen',strength:'200 mg'}]},{...same,name:'Wrong API',ingredients:[same.ingredients[0],{name:'Dihydrocodeine tartrate',strength:'8 mg'},same.ingredients[2]]},{...same,name:'Wrong strength',ingredients:[same.ingredients[0],{name:'Codeine phosphate hemihydrate',strength:'30 mg'},same.ingredients[2]]},{...same,name:'Wrong form',form:'capsule'},{...same,name:'Wrong route',route:'rectal'},{...same,name:'Wrong release',release:'modified-release'}].map(p=>({...p,excipientEvidence:evidence(p.name,['Starch'])}));
  let calls=0;const runtime=loader({'./openaiClient':{},'./claude-preview':{claudePreviewEnabled:()=>true,claudeResearch:async(instruction,data)=>{
   calls++;
-  if(calls===1){assert.match(instruction,/excipientEvidence/);return {variants_complete:true,products:[origin]};}
-  if(calls===2){assert.doesNotMatch(instruction,/Also return excipientEvidence/);return {candidates:[unknown,different,same]};}
+  if(calls===1){assert.doesNotMatch(instruction,/Also return excipientEvidence/);return {candidates:[unknown,different,same]};}
   assert.match(instruction,/excipientEvidence/);return {catalogues:data.query_names.map(name=>({query_name:name,variants_complete:true,products:name==='Same'?[same,...negatives]:name==='Different'?[different]:[unknown]}))};
  }}});
- const response=await runtime('app/lib/sonnet-research-matches.ts').productionStrengthSearch({drugName:'Origin',originCountry:'Italy',targetCountry:'Italy'});
- const body=await response.json();assert.equal(response.status,200);assert.equal(calls,3);assert.equal(body.matches.length,3);assert.deepEqual(body.matches.map(p=>p.excipientComparison.status),['listed_match','different','incomplete']);assert.equal(body.matches[0].excipientComparison.origin.productName,'Origin');
+ const token=runtime('app/lib/sonnet-research-support.ts').issueOriginSelection({...origin,lookup:'original'},'Origin');
+ const response=await runtime('app/lib/sonnet-research-matches.ts').productionStrengthSearch({drugName:'Origin',originCountry:'Italy',targetCountry:'Italy',originSelection:token});
+ const body=await response.json();assert.equal(response.status,200);assert.equal(calls,2);assert.equal(body.matches.length,3);assert.deepEqual(body.matches.map(p=>p.excipientComparison.status),['incomplete','different','listed_match']);assert.equal(body.matches[0].excipientComparison.origin.productName,'Origin');
 });
 test('origin chooser retains suppliers with the same APIs but different excipient lists',async()=>{
  const a={...product('Origin',['Starch']),supplier:'A'},b={...product('Origin',['Lactose']),supplier:'B'};

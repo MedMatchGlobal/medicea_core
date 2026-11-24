@@ -13,9 +13,9 @@ test('actual request replaces destination prompt layers, preserves selected rout
   assert.equal(url,'https://api.anthropic.com/v1/messages');
   const body=JSON.parse(init.body),data=JSON.parse(body.messages[0].content);calls++;
   assert.equal(body.model,'claude-sonnet-5-5');assert.equal(body.output_config.effort,'medium');assert.equal(body.tools[0].name,'web_search');
-  assert.match(body.system,/Search before answering; never answer from memory/);
-  assert.match(body.system,/Prioritize official destination-country medicines registries/);
-  assert.match(body.system,/do not claim stock availability/);
+  assert.match(body.system,/Search product-specific regulator or manufacturer/);
+  assert.match(body.system,/requested country before answering/);
+  assert.match(body.system,/claim exhaustive coverage or pharmacy stock/);
   assert.match(body.system,/Unknown form, route or release must remain unknown/);
   for(const old of ['A product has name (include labelled strength and formulation)','Retrieve known HUMAN medicines','For each generic-name query, explicitly search','Use release "immediate-release" for known conventional release','For price requests'])assert.ok(!body.system.includes(old),old);
   if(calls===1){
