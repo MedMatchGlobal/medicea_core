@@ -641,7 +641,7 @@ function Home({ petMode = false, originVariantSelectionEnabled=false }: { petMod
     } else revealWorkspace();
   }
   function clearSearch() {
-    setOriginVariants([]);setOriginProduct(null);originChoiceHistory.current=[];
+    setOriginVariants([]);setOriginProduct(null);setOriginIdentificationStopped(false);setOriginUnconfirmedCount(0);originChoiceHistory.current=[];
     resetFieldsForMode(mode);
     setOriginCode(savedHomeCountry.current); setTargetCode(''); setSearched(false);
     showScreen('search');
@@ -650,6 +650,8 @@ function Home({ petMode = false, originVariantSelectionEnabled=false }: { petMod
   const [leafletRaw, setLeafletRaw] = useState('');
   const [originLeafletPending,setOriginLeafletPending]=useState(false);
   const [originLeafletError,setOriginLeafletError]=useState(false);
+  const [originUnconfirmedCount,setOriginUnconfirmedCount]=useState(0);
+  const [originIdentificationStopped,setOriginIdentificationStopped]=useState(false);
   const [originLeafletVisible, setOriginLeafletVisible] = useState(true);
   const [matches, setMatches] = useState<any[]>([]);
   const [originVariants,setOriginVariants]=useState<OriginVariant[]>([]);
@@ -689,7 +691,7 @@ function Home({ petMode = false, originVariantSelectionEnabled=false }: { petMod
     } catch {setSaveMessage(savedSearchCopy(lang).error);}
   }
   function applySavedSearch(saved:SavedSearch) {
-    setOriginVariants([]);setOriginProduct(null);originChoiceHistory.current=[];
+    setOriginVariants([]);setOriginProduct(null);setOriginIdentificationStopped(false);setOriginUnconfirmedCount(0);originChoiceHistory.current=[];
     resetFieldsForMode(saved.mode);
     completedSearchContext.current=saved;
     setOriginCode(saved.originCode);setTargetCode(saved.targetCode);setSelectedDrug(saved.selectedDrug);setSelectedDosage(saved.selectedDosage);
@@ -723,7 +725,7 @@ function Home({ petMode = false, originVariantSelectionEnabled=false }: { petMod
   }, []);
 
   function resetFieldsForMode(m: Mode) {
-    setOriginVariants([]);setOriginProduct(null);originChoiceHistory.current=[];
+    setOriginVariants([]);setOriginProduct(null);setOriginIdentificationStopped(false);setOriginUnconfirmedCount(0);originChoiceHistory.current=[];
     setSearchAccess(undefined);
     abandonPharmacyTrip();
     searchVersion.current += 1;
@@ -789,6 +791,7 @@ function Home({ petMode = false, originVariantSelectionEnabled=false }: { petMod
   const handleSearch = async (selection?:OriginVariant) => {
     if(loading||checkingAccess)return;
     const version = ++searchVersion.current;
+    setOriginIdentificationStopped(false);setOriginUnconfirmedCount(0);
     if (mode === 'triage') return;
 
     /* ---------------- LOCAL SEARCH BRANCH: open Google Maps ---------------- */
@@ -840,10 +843,12 @@ if (!membershipEnabled && !BETA_TESTING && isPremiumMode(mode)) {
           const failure=await response.json().catch(()=>null);
           if(version!==searchVersion.current)return;
           if(failure?.error==='ORIGIN_STRENGTH_MISMATCH'){
+            setOriginIdentificationStopped(true);
             setOriginVariants([]);setOriginProduct(null);setLeafletRaw('');setMatches([]);setSearchFailed(false);
             setResult('The entered strength was not found for this medicine in the checked sources. Check the strength and units, or leave strength blank to choose a product.');setSearched(true);showScreen('results');return;
           }
           if(failure?.error==='ORIGIN_DETAILS_UNCONFIRMED'){
+            setOriginIdentificationStopped(true);
             setOriginVariants([]);setOriginProduct(null);setLeafletRaw('');setMatches([]);setSearchFailed(false);
             setResult('We found product information, but could not confirm the full ingredients, strength, form, route and release. No matching search was started. Check the exact product leaflet with a pharmacist.');setSearched(true);showScreen('results');return;
           }
@@ -852,7 +857,9 @@ if (!membershipEnabled && !BETA_TESTING && isPremiumMode(mode)) {
         const payload=await response.json();
         if(version!==searchVersion.current)return;
         if(!Array.isArray(payload.variants)||!payload.variants.length)throw Error('Origin identification unavailable');
+        setOriginIdentificationStopped(false);
         originChoiceHistory.current=payload.variants;
+        setOriginUnconfirmedCount(Array.isArray(payload.unconfirmedVariants)?payload.unconfirmedVariants.length:0);
         { // Always ask for confirmation, even for one source-confirmed product.
           setOriginVariants(payload.variants);setOriginProduct(null);setLeafletRaw('');setMatches([]);setResult('');setSearchFailed(false);setRestoredSearch(null);setSaveMessage('');completedSearchContext.current=null;
           setSearched(true);showScreen('results');return;
@@ -1370,12 +1377,13 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
       {mode !== 'triage' && searched && (
         <section id="search-results" className="results-view" tabIndex={-1} aria-label={F(ui, 'searchResults', 'Search results')}>
           <div className="results-heading">
-            <div><h2>{F(ui, 'searchResults', 'Search results')}</h2><p role="status" aria-live="polite">{originVariants.length ? originChoiceCopy(lang).title : loading ? F(ui, 'searching', 'Searching…') : searchFailed ? F(ui, 'medicineServiceError', 'Medicine information is temporarily unavailable. Please try again shortly.') : F(ui, 'searchComplete', 'Search complete')}</p></div>
+            <div><h2>{F(ui, 'searchResults', 'Search results')}</h2><p role="status" aria-live="polite">{originVariants.length ? originChoiceCopy(lang).title : originIdentificationStopped ? 'Product identification needs review' : loading ? F(ui, 'searching', 'Searching…') : searchFailed ? F(ui, 'medicineServiceError', 'Medicine information is temporarily unavailable. Please try again shortly.') : F(ui, 'searchComplete', 'Search complete')}</p></div>
             <div className="results-actions">{isSavedMode(mode) && <button disabled={loading || searchFailed || originVariants.length>0} onClick={saveCurrentSearch}>{savedSearchCopy(lang).save}</button>}<button disabled={loading} onClick={() => showScreen('search')}>{F(ui, 'editSearch', 'Edit search')}</button><button disabled={loading} onClick={clearSearch}>{F(ui, 'newSearch', 'New search')}</button></div>
           </div>
           {restoredSearch && <p className="search-note">{savedSearchCopy(lang).historical} · {new Date(restoredSearch.savedAt).toLocaleString(lang)}</p>}
           {!loading&&originVariants.length>0&&<section aria-labelledby="origin-choice-title">
             <h3 id="origin-choice-title">{originChoiceCopy(lang).title}</h3><p>{originChoiceCopy(lang).body}</p>
+            {originUnconfirmedCount>0&&<p>Some other presentations were not offered because their complete ingredients, strength, form, route or release could not be confirmed.</p>}
             {originVariants.map(variant=><article className="medicine-result-card" key={variant.token}>
               <h4>{variant.name}</h4><p>{variant.form} · {variant.route} · {variant.release}</p>
               {typeof variant.supplier==='string'&&<p><strong>Manufacturer / supplier:</strong> {variant.supplier}</p>}

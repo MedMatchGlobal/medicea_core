@@ -23,6 +23,11 @@ test('historical research and matching instructions remain intact except owner-a
    // proper strengths, collapsed references and a concise price field. Only
    // this presentation addition changes; transport and clinical gates do not.
    if(name==='claudeCompletion')expected=expected.replace(/const leafletFormat=[^\r\n]*/,"const leafletFormat=/leaflet_text/.test(original)&&!/precise medical translator/i.test(original)?humanLeafletFormat:'';").replace("const system=original+(research?researchInstruction:'')+leafletFormat+","const system=(leafletFormat||original)+(research&&!leafletFormat?researchInstruction:'')+");
+   // Owner-approved full-document retrieval for the international/leaflet
+   // trial. Preserve all product validation and historical matching gates.
+   if(name==='readClaudeResearch')expected=expected.replace(/ const retrieved=new Set<string>\(\);let searched=false;let lastResult=-1;[\s\S]*? if\(!searched\|\|!retrieved.size\)throw Error\('CLAUDE_NO_RESEARCH'\);/," const {retrieved,lastResult}=researchEvidence(payload);\n if(!retrieved.size)throw Error('CLAUDE_NO_RESEARCH');").replace('// URLs have search provenance;','// URLs have retrieval provenance;');
+   if(name==='claudeResearch')expected=expected.replace('],true,deadline);','],true,deadline,8000,undefined,!!options?.standaloneInstruction);');
+   if(name==='claudeCompletion')expected=expected.replace('8000,init.signal);','8000,init.signal,!!leafletFormat);').replace(/const sources=payload.content.filter[^\n]+/,"const sources=Array.from(researchEvidence(payload).retrieved,url=>({url}));");
    assert.equal(extract(current,name),expected,name);
   }
  }
@@ -291,4 +296,30 @@ test('even one origin variant needs confirmation before the same selected-produc
   assert.equal(requests,selected?2:3);return query;
  }
  assert.equal(JSON.stringify(await run(false)),JSON.stringify(await run(true)));
+});
+
+
+test('full document results support research without accepting failed or empty fetches',()=>{
+ const research=loader(env)('app/lib/claude-preview.ts').readClaudeResearch;
+ const doc={type:'web_fetch_tool_result',content:{type:'web_fetch_result',url:source,content:{type:'document',source:{type:'text',data:'Product-specific full composition and pharmaceutical information.'}}}};
+ const answer={type:'text',text:JSON.stringify({products:[product()]})};
+ assert.equal(research({stop_reason:'end_turn',content:[{type:'text',text:'Opening the full product document'},doc,answer]}).products.length,1);
+ for(const content of [{type:'web_fetch_tool_result_error',url:source,error_code:'url_not_accessible'},{...doc.content,content:{type:'document',source:{type:'text',data:' '}}}]){
+  assert.throws(()=>research({stop_reason:'end_turn',content:[{type:'web_fetch_tool_result',content},answer]}),/CLAUDE_NO_RESEARCH/);
+ }
+ assert.throws(()=>research({stop_reason:'end_turn',content:[doc,{type:'text',text:JSON.stringify({products:[{...product(),sources:['https://invented.example/product']}]})}]}),/CLAUDE_UNSUPPORTED_PRODUCT/);
+ const pdf={...doc,content:{...doc.content,content:{type:'document',source:{type:'base64',media_type:'application/pdf',data:'JVBERi0x'}}}};
+ assert.equal(research({stop_reason:'end_turn',content:[pdf,answer]}).products.length,1);
+});
+
+test('document fetch is bounded and restricted to approved standalone medicine research and human leaflets',async()=>{
+ const requests=[];
+ const read=loader(env,{},async(url,init)=>{const request=JSON.parse(init.body);requests.push(request);return Response.json({stop_reason:'end_turn',content:[{type:'web_fetch_tool_result',content:{type:'web_fetch_result',url:source,content:{type:'document',source:{type:'text',data:'Public product information'}}}},{type:'text',text:JSON.stringify(request.system.includes('leaflet_text')?{leaflet_text:'Summary: Example'}:{products:[product()]})}]});});
+ const transport=read('app/lib/claude-preview.ts');
+ await transport.claudeResearch('Approved international product identification','Public product',Date.now()+5000,{standaloneInstruction:true});
+ await transport.claudeResearch('Legacy research','Public product',Date.now()+5000);
+ await transport.claudeCompletion('https://api.openai.com/v1/chat/completions',{body:JSON.stringify({messages:[{role:'system',content:'Create human medicine leaflet_text JSON'},{role:'user',content:'Public medicine'}]})});
+ await transport.claudeMessage('Other route',[{role:'user',content:'Public fixture'}],true,Date.now()+5000);
+ assert.deepEqual(requests.map(r=>r.tools.some(t=>t.name==='web_fetch')),[true,false,true,false]);
+ for(const r of [requests[0],requests[2]]){const tool=r.tools.find(t=>t.name==='web_fetch');assert.equal(tool.max_uses,4);assert.equal(tool.max_content_tokens,24000);assert.equal(r.model,'claude-sonnet-5-5');assert.equal(r.output_config.effort,'medium');}
 });
