@@ -160,11 +160,12 @@ export async function productionStrengthSearch(input:{drugName:unknown;originCou
    }));
    if(unconfirmed.length)console.info('[Medicine origin rejected]',{count:unconfirmed.length,reasons:['INCOMPLETE_SELECTION_PROFILE']});
    // One selectable option represents each distinct API, strength, form and route profile.
-   const profileKey=(p:Product)=>p.ingredients.map(i=>norm(i.name).replace(/\b(?:hemi|mono|di|tri|tetra)?hydrate\b/g,'').trim()+'|'+norm(i.strength).replace(/\s+(?:per|\/)\s*(?:effervescent\s+)?tablet$/i,'').replace(/\s+/g,'')).sort().join(';')+'|'+norm(p.form).replace(/-/g,' ').replace(/\btablets\b/g,'tablet').replace(/\bcapsules\b/g,'capsule')+'|'+norm(p.route);
+   const originFormKey=(value:string)=>{const form=norm(value).replace(/-/g,' ').replace(/\btablets\b/g,'tablet').replace(/\bcapsules\b/g,'capsule');return /^(?:soluble|effervescent) tablet$/.test(form)?'effervescent/soluble tablet':form;};
+   const profileKey=(p:Product)=>p.ingredients.map(i=>norm(i.name).replace(/\b(?:hemi|mono|di|tri|tetra)?hydrate\b/g,'').trim()+'|'+norm(i.strength).replace(/\s+(?:per|\/)\s*(?:effervescent\s+)?tablet$/i,'').replace(/\s+/g,'')).sort().join(';')+'|'+originFormKey(p.form)+'|'+norm(p.route);
    const grouped=new Map<string,Product>();
    for(const product of all){
     const key=profileKey(product),prior=grouped.get(key);
-    if(!prior)grouped.set(key,{...product,name:product.ingredients.map(i=>i.name).join(' + '),generic:true,supplier:undefined,product_identifier:undefined,release:'unknown'});
+    if(!prior)grouped.set(key,{...product,name:product.ingredients.map(i=>i.name).join(' + '),form:originFormKey(product.form),generic:true,supplier:undefined,product_identifier:undefined,release:'unknown'});
     else prior.sources=Array.from(new Set([...(prior.sources||[]),...(product.sources||[])]));
    }
    const unique=Array.from(grouped.values());
