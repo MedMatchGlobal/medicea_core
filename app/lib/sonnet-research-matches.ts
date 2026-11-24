@@ -162,7 +162,7 @@ export async function productionStrengthSearch(input:{drugName:unknown;originCou
     });
     reply.products=[
      ...(Array.isArray(reply.profiles)?reply.profiles.map((profile:any)=>toProduct(profile,true)):[]),
-     ...(Array.isArray(reply.unverified)?reply.unverified.map((profile:any)=>toProduct(profile,false)):[]
+     ...(Array.isArray(reply.unverified)?reply.unverified.map((profile:any)=>toProduct(profile,false)):[])
     ];
    }
    // Catalogue exhaustiveness and a complete individual product are different.
