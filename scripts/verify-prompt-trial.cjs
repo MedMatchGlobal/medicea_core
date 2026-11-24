@@ -7,6 +7,12 @@ function check(value,code){if(!value)throw Object.assign(Error(code),{trialCode:
 let stage='origin_identification';
 (async()=>{
  const transport=load(path.join(root,'app/lib/claude-preview.ts')),search=load(path.join(root,'app/lib/sonnet-research-matches.ts')).productionStrengthSearch;
+ const actualResearch=transport.claudeResearch;
+ transport.claudeResearch=async(...args)=>{
+  const reply=await actualResearch(...args);
+  if(Array.isArray(reply.products))console.log('MEDICEA_PUBLIC_ORIGIN_SHAPE '+JSON.stringify({variants_complete:reply.variants_complete,products:reply.products.map(p=>({name:p.name,country:p.country,form:p.form,route:p.route,release:p.release,complete:p.complete,generic:p.generic,species:p.species,ingredients:p.ingredients}))}));
+  return reply;
+ };
  const input={drugName:'Panadol Advance',drugDosage:'500 mg',originCountry:'United Kingdom',targetCountry:'Italy'};
  const started=Date.now();const trial=await transport.withClaudeEvaluation(async()=>{
   const choice=await search(input,true),body=await choice.json();check(choice.ok&&body.requiresChoice===true&&body.variants?.length>0,'CONFIRMABLE_ORIGIN_REQUIRED');
