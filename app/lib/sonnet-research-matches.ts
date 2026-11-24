@@ -56,7 +56,7 @@ function valid(p:any,country:string):p is Product {
   plain(p.form,100)&&!/(?:unknown|unspecified|varies|various)/i.test(p.form)&&plain(p.route,100)&&
   (!/\beffervescent\b/i.test(p.name)||/\beffervescent\b/i.test(p.form))&&(!/\benteric[- ]coated\b/i.test(p.name)||/\benteric[- ]coated\b/i.test(p.form))&&
   p.complete===true&&typeof p.generic==='boolean'&&Array.isArray(p.species)&&p.species.length===0&&
-  Array.isArray(p.ingredients)&&p.ingredients.length>0&&p.ingredients.length<=20&&
+  p.complete===true&&Array.isArray(p.ingredients)&&p.ingredients.length>0&&p.ingredients.length<=20&&
   p.ingredients.every((i:any)=>i&&plain(i.name)&&plain(i.strength,100)&&amount.test(i.strength.trim()))&&exactComposition(p,p);
 }
 function validOriginChoice(p:any,country:string):p is Product {
@@ -146,9 +146,24 @@ export async function productionStrengthSearch(input:{drugName:unknown;originCou
    // popular strength. A partial hint can leave several forms/strengths to choose.
    if(debug)debug.stage='origin_identification';
    const reply=await ask(originIdentificationInstruction,{drugName,originCountry},true,false,undefined,{maxTokens:6000,effort:'low'});
+   // Adapt the requested profile-oriented JSON to the existing internal product
+   // contract. Partial profiles remain in the response as unconfirmed choices.
+   if(!Array.isArray(reply.products)&&Array.isArray(reply.profiles)){
+    reply.products=reply.profiles.map((profile:any)=>({
+     name:Array.isArray(profile?.apis)?profile.apis.filter((api:any)=>api&&plain(api.name)).map((api:any)=>api.name).join(' + '):'Unconfirmed medicine profile',
+     country:originCountry,
+     form:plain(profile?.form,100)?profile.form:'unknown',
+     route:plain(profile?.route,100)?profile.route:'unknown',
+     release:'unknown',species:[],complete:profile?.status==='confirmed',generic:true,
+     ingredients:Array.isArray(profile?.apis)?profile.apis.filter((api:any)=>api&&plain(api.name)&&plain(api.strength,100)).map((api:any)=>({name:api.name,strength:api.strength})):[],
+     sources:Array.isArray(profile?.sources)?profile.sources:[],
+     status:profile?.status,
+     missing_fields:Array.isArray(profile?.missing_fields)?profile.missing_fields:[]
+    }));
+   }
    // Catalogue exhaustiveness and a complete individual product are different.
    // A source-confirmed variant remains selectable when more variants may exist.
-   if((claude?typeof reply.variants_complete!=='boolean':reply.variants_complete!==true)||!Array.isArray(reply.products)||reply.products.length>80)throw Error('UNRESOLVED_VARIANTS');
+   if((claude?typeof reply.variants_complete!=='boolean':reply.variants_complete!==true)||!Array.isArray(reply.products))throw Error('UNRESOLVED_VARIANTS');
    const all:Product[]=reply.products.filter((p:any)=>validOriginChoice(p,originCountry)).map((p:Product)=>({...p,sources:claude?p.sources:[],release:'unknown',lookup:'original'}));
    const unconfirmed=reply.products.filter((p:any)=>!validOriginChoice(p,originCountry)).filter((p:any)=>Array.isArray(p?.sources)&&p.sources.some((url:any)=>typeof url==='string'&&/^https:\/\//i.test(url))).map((p:any)=>({
     name:Array.isArray(p?.ingredients)&&p.ingredients.length?p.ingredients.filter((i:any)=>plain(i?.name)).map((i:any)=>i.name).join(' + '):'Unconfirmed medicine profile',
@@ -173,7 +188,7 @@ export async function productionStrengthSearch(input:{drugName:unknown;originCou
    if(!products.length&&unconfirmed.length)return Response.json({error:'ORIGIN_DETAILS_UNCONFIRMED',unconfirmedVariants:unconfirmed},{status:422});
    if(claude&&reply.variants_complete===false&&!products.length)throw Error('UNRESOLVED_VARIANTS');
    if(!products.length)return Response.json({error:unique.length?'ORIGIN_STRENGTH_MISMATCH':'NOT_FOUND_ORIGIN'},{status:422});
-   if(identifyOnly)return Response.json({variants:products.map(p=>({name:p.ingredients.map(i=>i.name).join(' + '),country:p.country,form:p.form,route:p.route,release:'unknown',ingredients:p.ingredients,sources:p.sources,token:issueOriginSelection(p,drugName)})),requiresChoice:true,coverageComplete:reply.variants_complete===true,...(unconfirmed.length?{unconfirmedVariants:unconfirmed}:{})},{headers:{'Cache-Control':'no-store'}});
+   if(identifyOnly)return Response.json({variants:products.map(p=>({name:p.ingredients.map(i=>i.name).join(' + '),country:p.country,form:p.form,route:p.route,release:'unknown',ingredients:p.ingredients,sources:p.sources,token:issueOriginSelection(p,drugName)})),requiresChoice:true,coverageComplete:reply.variants_complete===true,unchecked:Array.isArray(reply.unchecked)?reply.unchecked.filter((item:any)=>typeof item==='string').slice(0,100):[],...(unconfirmed.length?{unconfirmedVariants:unconfirmed}:{})},{headers:{'Cache-Control':'no-store'}});
    return Response.json({error:'CHOOSE_ORIGIN_VARIANT',variants:products.map(p=>({name:p.ingredients.map(i=>i.name).join(' + '),form:p.form,route:p.route,ingredients:p.ingredients,sources:p.sources,token:issueOriginSelection(p,drugName)}))},{status:409,headers:{'Cache-Control':'no-store'}});
    // Every supported presentation requires explicit selection, including a single result.
   }
