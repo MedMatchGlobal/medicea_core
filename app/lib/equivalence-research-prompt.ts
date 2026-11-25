@@ -32,13 +32,13 @@ Process:
 2. Search by active ingredient combination, then separately by pharmaceutical
    form (tablet, capsule, effervescent/dispersible, oral liquid, suppository,
    injection, etc.). Use several searches, not one.
-3. You may search brand names to find records, but do not return brand names.
+3. In active_ingredient mode, you may search brand names to find records, but do not return them as profile names. In brand_product mode, return only the requested brand/product name.
 4. For every strength found, check whether other forms exist at that strength,
    and whether other strengths exist in each form.
 5. Cite exact product URLs that you actually checked.
 
 Output JSON only:
-{"query_type":"brand_product"|"active_ingredient","variants_complete":boolean,"sources_checked":[{"name":string,"url":string}],"unchecked":[string],"profiles":[{"product_name"?:string,"apis":[{"name":string,"strength":string}],"form":string,"route":string,"sources":[string],"status":"confirmed"}],"unverified":[{"apis":[{"name":string,"strength":string}],"form":string|null,"route":string|null,"sources":[string],"missing_fields":[string]}]}.
+{"query_type":"brand_product"|"active_ingredient","variants_complete":boolean,"sources_checked":[{"name":string,"url":string}],"unchecked":[string],"profiles":[{"product_name"?:string,"apis":[{"name":string,"strength":string}],"form":string,"route":string,"sources":[string],"status":"confirmed"}],"unverified":[{"product_name"?:string,"apis":[{"name":string,"strength":string}],"form":string|null,"route":string|null,"sources":[string],"missing_fields":[string]}]}.
 Put only fully source-confirmed profiles in "profiles". Put every incomplete or uncertain candidate in "unverified", naming each missing field; do not turn it into a confirmed profile or drop it. Set variants_complete=false when you cannot rule out further profiles and list unchecked form/strength combinations in "unchecked". Keep each API strength tied to its ingredient.`;
 
 export function equivalenceDiscoveryInstruction(sourceCountry:string,targetCountry:string){
