@@ -5,6 +5,12 @@ const productContract=`Return products with name, country, supplier?, product_id
 export const originIdentificationInstruction=`Task: enumerate every distinct medicine profile authorised or listed in the requested country
 for the requested active ingredient(s) or search term.
 
+Query intent:
+First classify the user's search term as either "brand_product" or "active_ingredient". A named medicine brand or exact product name (for example, "Noxarem Melatonin Forte") is a brand_product query; an ingredient or combination name is an active_ingredient query.
+For brand_product, identify only authorised/listed presentations of that exact named brand/product in the requested country. Return the source-stated product name as product_name and use it as the display name; do not substitute the active ingredient as the product name, and do not include other brands that share the ingredient. Keep the active ingredients and strengths in the profile fields.
+For active_ingredient, enumerate distinct profiles as below, merge identical profiles across brands/manufacturers, and use the generic ingredient name as the display name. Do not return brand names in this mode.
+Return query_type as "brand_product" or "active_ingredient". If intent is ambiguous, do not guess a brand; use "active_ingredient" and report the ambiguity.
+
 Source discovery:
 Identify the current authoritative medicines sources for the requested country
 (regulator register, official product information, national formulary or official
@@ -32,7 +38,7 @@ Process:
 5. Cite exact product URLs that you actually checked.
 
 Output JSON only:
-{"variants_complete":boolean,"sources_checked":[{"name":string,"url":string}],"unchecked":[string],"profiles":[{"apis":[{"name":string,"strength":string}],"form":string,"route":string,"sources":[string],"status":"confirmed"}],"unverified":[{"apis":[{"name":string,"strength":string}],"form":string|null,"route":string|null,"sources":[string],"missing_fields":[string]}]}.
+{"query_type":"brand_product"|"active_ingredient","variants_complete":boolean,"sources_checked":[{"name":string,"url":string}],"unchecked":[string],"profiles":[{"product_name"?:string,"apis":[{"name":string,"strength":string}],"form":string,"route":string,"sources":[string],"status":"confirmed"}],"unverified":[{"apis":[{"name":string,"strength":string}],"form":string|null,"route":string|null,"sources":[string],"missing_fields":[string]}]}.
 Put only fully source-confirmed profiles in "profiles". Put every incomplete or uncertain candidate in "unverified", naming each missing field; do not turn it into a confirmed profile or drop it. Set variants_complete=false when you cannot rule out further profiles and list unchecked form/strength combinations in "unchecked". Keep each API strength tied to its ingredient.`;
 
 export function equivalenceDiscoveryInstruction(sourceCountry:string,targetCountry:string){
