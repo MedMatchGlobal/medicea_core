@@ -1,11 +1,12 @@
-import {claudeMessage,claudePreviewEnabled} from './claude-preview';
+import {claudeMessage} from './claude-preview';
+import {previewToolsEnabled} from './ai-config';
 
 // Owner-requested comparison fixture. One public query, no arbitrary prompt
 // endpoint and no connection to the validated medicine-result pipeline.
 export const bareEquivalentPrompt='List me all equivalents in the UK to the Italian Co-Efferalgan 500mg + 30mg compresse rivestite con film';
 
 export async function bareEquivalentSearch(req:Request):Promise<Response>{
- if(!claudePreviewEnabled())return Response.json({error:'NOT_FOUND'},{status:404});
+ if(!previewToolsEnabled())return Response.json({error:'NOT_FOUND'},{status:404});
  if(req.headers.get('origin')!==new URL(req.url).origin)return Response.json({error:'INVALID_ORIGIN'},{status:403});
  const started=Date.now();
  try{

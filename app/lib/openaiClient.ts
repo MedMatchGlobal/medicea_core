@@ -1,5 +1,6 @@
 import type OpenAI from "openai";
 import {sonnetPreviewEnabled,sonnetCompletion} from './sonnet-client';
+import {refreshAiConfig} from './ai-config';
 
 const ENDPOINT = "https://api.openai.com/v1/chat/completions";
 const ATTEMPT_TIMEOUT_MS = 10_000;
@@ -35,6 +36,7 @@ function canFailOver(status: number, code: unknown): boolean {
  */
 export async function openaiFetch(url: string, init: RequestInit): Promise<Response> {
   if (url !== ENDPOINT) throw new Error("Unsupported OpenAI endpoint.");
+  await refreshAiConfig();
   if (sonnetPreviewEnabled()) return sonnetCompletion(init);
   const keys = configuredKeys();
   if (!keys.length) throw new Error("No OpenAI API keys configured.");

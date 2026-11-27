@@ -3,10 +3,12 @@ import {readVariant} from '@/app/lib/origin-variants';
 import {leafletIdentity} from '@/app/lib/leaflet-identity';
 import {progressiveSearch} from '@/lib/membership/progressive-search';
 import {claudePreviewEnabled} from '@/app/lib/claude-preview';
+import {refreshAiConfig} from '@/app/lib/ai-config';
 // The existing leaflet and matching handlers run sequentially inside one operation.
 export const maxDuration = 180;
 // One reservation for a normal medicine search, including its origin leaflet.
 export async function POST(req: Request) {
+ await refreshAiConfig();
  const previewInput=claudePreviewEnabled()?await req.clone().json().catch(()=>null):null;
  if(previewInput?.mode==='international'&&previewInput.stream===true){
   return progressiveSearch(req,(request,emit)=>{

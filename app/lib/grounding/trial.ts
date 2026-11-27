@@ -1,4 +1,4 @@
-import {claudePreviewEnabled} from '../claude-preview';
+import {previewToolsEnabled,claudeModel} from '../ai-config';
 import {auditResearch} from './medicea-grounding-kit';
 import {evaluateGroundedProducts,isProduct} from './evaluate-grounded-products';
 import config from './trial-config.json';
@@ -12,7 +12,7 @@ const product=obj({country:str,name_as_written:str,registry:obj({name:nullable,i
 export const extractionSchema=obj({source:product,candidates:{type:'array',maxItems:20,items:product},evidence:{type:'array',items:obj({id:str,url:str,source_type:str,supports_text:{type:'string',maxLength:150}})},not_found_notes:{type:'array',items:str}});
 export const trialPrompt=config.researchPrompt.replaceAll('{{source_country}}',config.sourceCountry).replaceAll('{{target_country}}',config.targetCountry).replaceAll('{{target_languages}}',config.targetLanguages.join(', ')).replaceAll('{{source_product}}',JSON.stringify(config.sourceProduct,null,2));
 export async function groundingTrial(req:Request):Promise<Response>{
- if(!claudePreviewEnabled())return Response.json({error:'NOT_FOUND'},{status:404});
+ if(!previewToolsEnabled())return Response.json({error:'NOT_FOUND'},{status:404});
  if(req.headers.get('origin')!==new URL(req.url).origin)return Response.json({error:'INVALID_ORIGIN'},{status:403});
  const started=Date.now(),deadline=started+config.limits.totalMs,usage:unknown[]=[];
  const key=process.env.ANTHROPIC_API_KEY?.trim();if(!key)return Response.json({error:'KEY_UNAVAILABLE'},{status:503});
@@ -20,7 +20,7 @@ export async function groundingTrial(req:Request):Promise<Response>{
   const controller=new AbortController(),cancel=()=>controller.abort(),timer=setTimeout(cancel,Math.max(1,deadline-Date.now()));
   req.signal.addEventListener('abort',cancel,{once:true});if(req.signal.aborted)cancel();
   try{
-   const response=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+key,'anthropic-version':'2023-06-01'},cache:'no-store',signal:controller.signal,body:JSON.stringify({model:'claude-sonnet-5-5',output_config:{effort:'medium'},...body})});
+   const response=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+key,'anthropic-version':'2023-06-01'},cache:'no-store',signal:controller.signal,body:JSON.stringify({model:claudeModel(),output_config:{effort:'medium'},...body})});
    const payload=await response.json();if(!response.ok)throw Error('PROVIDER_HTTP_'+response.status);
    usage.push(payload.usage);return payload;
   }finally{clearTimeout(timer);req.signal.removeEventListener('abort',cancel);}

@@ -1,9 +1,9 @@
 import {notFound} from 'next/navigation';
-import {claudePreviewEnabled} from '@/app/lib/claude-preview';
+import {previewToolsEnabled} from '@/app/lib/ai-config';
 import {bareEquivalentPrompt} from '@/app/lib/bare-equivalent-search';
 import BareEquivalentTest from './test';
 export const dynamic='force-dynamic';
 export default function Page(){
- if(!claudePreviewEnabled())notFound();
+ if(!previewToolsEnabled())notFound();
  return <BareEquivalentTest prompt={bareEquivalentPrompt}/>;
 }

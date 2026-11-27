@@ -1,3 +1,4 @@
+const sysText=r=>typeof r.system==='string'?r.system:[].concat(r.system).map(b=>b.text).join('');
 const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),ts=require('typescript');
 const env={VERCEL_ENV:'preview',VERCEL_GIT_COMMIT_REF:'design/riviera-one-page',ANTHROPIC_API_KEY:'test-key'};
 function loader(fetch){const cache={};return function read(file){if(cache[file])return cache[file];const module={exports:{}};const code=ts.transpileModule(fs.readFileSync(file,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText;
@@ -13,18 +14,18 @@ test('actual request replaces destination prompt layers, preserves selected rout
   assert.equal(url,'https://api.anthropic.com/v1/messages');
   const body=JSON.parse(init.body),data=JSON.parse(body.messages[0].content);calls++;
   assert.equal(body.model,'claude-sonnet-5-5');assert.equal(body.output_config.effort,'medium');assert.equal(body.tools[0].name,'web_search');
-  assert.match(body.system,/Search product-specific regulator or manufacturer/);
-  assert.match(body.system,/requested country before answering/);
-  assert.match(body.system,/claim exhaustive coverage or pharmacy stock/);
-  assert.match(body.system,/Unknown form, route or release must remain unknown/);
-  for(const old of ['A product has name (include labelled strength and formulation)','Retrieve known HUMAN medicines','For each generic-name query, explicitly search','Use release "immediate-release" for known conventional release','For price requests'])assert.ok(!body.system.includes(old),old);
+  assert.match(sysText(body),/Search product-specific regulator or manufacturer/);
+  assert.match(sysText(body),/requested country before answering/);
+  assert.match(sysText(body),/claim exhaustive coverage or pharmacy stock/);
+  assert.match(sysText(body),/Unknown form, route or release must remain unknown/);
+  for(const old of ['A product has name (include labelled strength and formulation)','Retrieve known HUMAN medicines','For each generic-name query, explicitly search','Use release "immediate-release" for known conventional release','For price requests'])assert.ok(!sysText(body).includes(old),old);
   if(calls===1){
-   assert.equal(body.system,read('app/lib/equivalence-research-prompt.ts').equivalenceDiscoveryInstruction('Italy','Belgium'));
+   assert.equal(sysText(body),read('app/lib/equivalence-research-prompt.ts').equivalenceDiscoveryInstruction('Italy','Belgium'));
    assert.deepEqual(data.source_product,{name:origin.name,country:'Italy',actives_and_strengths:origin.ingredients,form:'film-coated tablet',route:'oral',release:'immediate-release',sources:[source]});
    assert.equal(data.target_country,'Belgium');assert.doesNotMatch(JSON.stringify(data),/secret-context|selection_token/);
    return reply({candidates:[candidate]});
   }
-  assert.equal(body.system,read('app/lib/equivalence-research-prompt.ts').equivalenceCatalogueInstruction);
+  assert.equal(sysText(body),read('app/lib/equivalence-research-prompt.ts').equivalenceCatalogueInstruction);
   const wrongStrength={...candidate,ingredients:[candidate.ingredients[0],{...candidate.ingredients[1],strength:'8 mg per tablet'}]};
   return reply({catalogues:[{query_name:data.query_names[0],variants_complete:false,products:[candidate,wrongStrength,{...candidate,form:'effervescent tablet'},{...candidate,route:'rectal'},{...candidate,release:'modified-release'},{...candidate,ingredients:[candidate.ingredients[0]]}]}]});
  });

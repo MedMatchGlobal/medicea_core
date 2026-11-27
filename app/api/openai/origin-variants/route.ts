@@ -3,6 +3,7 @@ import {variantChoices} from '@/app/lib/origin-variants';
 import {membershipPreviewEnabled} from '@/lib/membership/config';
 import {membershipUser} from '@/lib/membership/auth';
 import {claudePreviewEnabled} from '@/app/lib/claude-preview';
+import {refreshAiConfig} from '@/app/lib/ai-config';
 import {productionStrengthSearch} from '@/app/lib/sonnet-research-matches';
 export const maxDuration=60;
 export async function POST(req:Request) {
@@ -12,6 +13,7 @@ export async function POST(req:Request) {
     if(membershipPreviewEnabled()&&!await membershipUser()) return Response.json({error:'SIGN_IN_REQUIRED',membershipAccess:true},{status:401});
     const {drugName,originCountry,drugDosage=''}=await req.json();
     if(typeof drugName!=='string'||!drugName.trim()||drugName.length>250||typeof originCountry!=='string'||!originCountry.trim()||originCountry.length>100||typeof drugDosage!=='string'||drugDosage.length>100) return Response.json({error:'INVALID_INPUT'},{status:400});
+    await refreshAiConfig();
     if(claudePreviewEnabled())return productionStrengthSearch({drugName,originCountry,drugDosage,targetCountry:originCountry},true);
     // Separate identification step. Existing leaflet and equivalent prompts stay intact.
     const response=await openaiFetch('https://api.openai.com/v1/chat/completions',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'gpt-4o',temperature:0,seed:12345,response_format:{type:'json_object'},messages:[

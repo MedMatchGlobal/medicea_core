@@ -1,4 +1,5 @@
-import {claudePreviewEnabled,withClaudeEvaluation} from '@/app/lib/claude-preview';
+import {withClaudeEvaluation} from '@/app/lib/claude-preview';
+import {previewToolsEnabled} from '@/app/lib/ai-config';
 import {productionStrengthSearch} from '@/app/lib/sonnet-research-matches';
 export const dynamic='force-dynamic';
 export const maxDuration=60;
@@ -18,7 +19,7 @@ async function check(input:{drugName:string;originCountry:string;targetCountry:s
  }),calls:trial.calls.map(call=>({model:call.model,ms:call.ms,usage:call.usage})),fixture:'Fixed public product identification; no customer data'};
 }
 export async function GET(){
- if(!claudePreviewEnabled()||process.env.VERCEL_PROJECT_ID!=='prj_zIesaaTzLOzNm32TYoEfcv7DQklE'||process.env.MEDICEA_PUBLIC_PRODUCT_DIAGNOSTIC!=='true')return new Response(null,{status:404});
+ if(!previewToolsEnabled()||process.env.VERCEL_PROJECT_ID!=='prj_zIesaaTzLOzNm32TYoEfcv7DQklE'||process.env.MEDICEA_PUBLIC_PRODUCT_DIAGNOSTIC!=='true')return new Response(null,{status:404});
  pending??=Promise.all([{drugName:'Co Efferalgan',originCountry:'Italy',targetCountry:'Italy'},{drugName:'Solpadeine Max',originCountry:'United Kingdom',targetCountry:'United Kingdom'}].map(input=>check(input).catch(()=>({publicInput:input,error:'PUBLIC_DIAGNOSTIC_UNAVAILABLE'}))));
  return Response.json(await pending,{headers:{'Cache-Control':'private, no-store'}});
 }

@@ -1,3 +1,4 @@
+const sysText=r=>typeof r.system==='string'?r.system:[].concat(r.system).map(b=>b.text).join('');
 const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm'),path=require('node:path'),ts=require('typescript'),cp=require('node:child_process');
 function loader(env={},overrides={},fetch=()=>{throw Error('Unexpected network');}){
  const cache={};return function read(file){if(cache[file])return cache[file];const module={exports:{}};const code=ts.transpileModule(fs.readFileSync(file,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText;
@@ -34,7 +35,7 @@ test('historical research and matching instructions remain intact except owner-a
 });
 test('Sonnet medium researches the web and joins citation-separated answer blocks',async()=>{
  let calls=0;
- const read=loader(env,{},async(url,init)=>{calls++;assert.equal(url,'https://api.anthropic.com/v1/messages');const body=JSON.parse(init.body);assert.equal(body.model,'claude-sonnet-5-5');assert.equal(body.output_config.effort,'medium');assert.equal(body.tools[0].name,'web_search');assert.match(body.system,/Search the web before answering/);assert.match(body.system,/exact HTTPS URLs returned by web search/);assert.deepEqual(body.messages,[{role:'user',content:'Original input'}]);return Response.json({stop_reason:'end_turn',content:[{type:'web_search_tool_result',content:[{type:'web_search_result',url:source}]},{type:'text',text:'{"products":['},{type:'text',text:JSON.stringify(product())+']}'}]});});
+ const read=loader(env,{},async(url,init)=>{calls++;assert.equal(url,'https://api.anthropic.com/v1/messages');const body=JSON.parse(init.body);assert.equal(body.model,'claude-sonnet-5-5');assert.equal(body.output_config.effort,'medium');assert.equal(body.tools[0].name,'web_search');assert.match(sysText(body),/Search the web before answering/);assert.match(sysText(body),/exact HTTPS URLs returned by web search/);assert.deepEqual(body.messages,[{role:'user',content:'Original input'}]);return Response.json({stop_reason:'end_turn',content:[{type:'web_search_tool_result',content:[{type:'web_search_result',url:source}]},{type:'text',text:'{"products":['},{type:'text',text:JSON.stringify(product())+']}'}]});});
  const reply=await read('app/lib/claude-preview.ts').claudeResearch('Original instruction','Original input',Date.now()+100_000);assert.equal(calls,1);assert.equal(reply.products[0].sources[0],source);
 });
 test('unsupported source URLs cannot qualify a medicine as sourced',()=>{
@@ -314,7 +315,7 @@ test('full document results support research without accepting failed or empty f
 
 test('document fetch is bounded and restricted to approved standalone medicine research and human leaflets',async()=>{
  const requests=[];
- const read=loader(env,{},async(url,init)=>{const request=JSON.parse(init.body);requests.push(request);return Response.json({stop_reason:'end_turn',content:[{type:'web_fetch_tool_result',content:{type:'web_fetch_result',url:source,content:{type:'document',source:{type:'text',data:'Public product information'}}}},{type:'text',text:JSON.stringify(request.system.includes('leaflet_text')?{leaflet_text:'Summary: Example'}:{products:[product()]})}]});});
+ const read=loader(env,{},async(url,init)=>{const request=JSON.parse(init.body);requests.push(request);return Response.json({stop_reason:'end_turn',content:[{type:'web_fetch_tool_result',content:{type:'web_fetch_result',url:source,content:{type:'document',source:{type:'text',data:'Public product information'}}}},{type:'text',text:JSON.stringify(sysText(request).includes('leaflet_text')?{leaflet_text:'Summary: Example'}:{products:[product()]})}]});});
  const transport=read('app/lib/claude-preview.ts');
  await transport.claudeResearch('Approved international product identification','Public product',Date.now()+5000,{standaloneInstruction:true});
  await transport.claudeResearch('Legacy research','Public product',Date.now()+5000);

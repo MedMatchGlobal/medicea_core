@@ -85,7 +85,7 @@ test('actual compound route shares one authorization across parallel handlers an
   './config':{membershipPreviewEnabled:()=>true,sameOrigin:()=>true},'./auth':{membershipUser:async()=>({id:'member',email:'fixture@example.test'})},
   './store':{reserve:async()=>{log.push('reserve');return {allowed:true};},finish:async(member,id,successful)=>log.push('finish:'+successful)},
   './access-policy':{operationModule:async()=> 'medicine'},'./search-grant':{searchGrantConfigured(){},issueSearchGrant:()=> 'fixture-grant'},
-  '@/app/lib/claude-preview':{claudePreviewEnabled:()=>true},'@/app/lib/origin-variants':{readVariant:token=>token==='selected-fixture'?selected:null},
+  '@/app/lib/claude-preview':{claudePreviewEnabled:()=>true},'@/app/lib/ai-config':{refreshAiConfig:async()=>{}},'@/app/lib/origin-variants':{readVariant:token=>token==='selected-fixture'?selected:null},
   '@/app/api/openai/leaflet/route':{POST:request=>read('lib/membership/meter.ts').withMembership(async()=>{leafletCalls++;return Response.json({leaflet:{leaflet_text:'Fictional selected summary'}});},'leaflet')(request)},
   '@/app/api/openai/equivalent-search/route':{POST:request=>read('lib/membership/meter.ts').withMembership(async()=>{matchingCalls++;await gate.promise;return Response.json(successfulMatches());},'matches')(request)},
  };read=loader(overrides);

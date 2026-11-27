@@ -1,17 +1,20 @@
 import {humanLeafletFormat} from './human-leaflet-format';
+import {aiProvider,claudeModel,previewToolsEnabled} from './ai-config';
 import {AsyncLocalStorage} from 'node:async_hooks';
 type EvaluationCall={model:string;ms:number;usage:unknown;text:string};
 const evaluation=new AsyncLocalStorage<EvaluationCall[]>();
 // Used only by the gated, fixed-public-fixture diagnostic route. Never enable
 // output capture from ordinary searches or through a client-supplied flag.
 export async function withClaudeEvaluation<T>(run:()=>Promise<T>){
- if(!claudePreviewEnabled())throw Error('CLAUDE_PREVIEW_DISABLED');
+ if(!previewToolsEnabled())throw Error('CLAUDE_PREVIEW_DISABLED');
  const calls:EvaluationCall[]=[];const value=await evaluation.run(calls,run);return {value,calls};
 }
 // Owner-authorised full Claude experiment only. Never opt in another
 // deployment because an API key happens to exist in its environment.
+// True when the configured provider is Anthropic (see ai-config.ts). Name kept
+// for the many existing call sites; it no longer implies a Preview deployment.
 export function claudePreviewEnabled(){
- return process.env.VERCEL_ENV==='preview'&&process.env.VERCEL_GIT_COMMIT_REF==='design/riviera-one-page'&&process.env.MEDICEA_CLAUDE_PREVIEW!=='false';
+ return aiProvider()==='anthropic';
 }
 function sourceUrl(value:unknown){
  try{if(typeof value!=='string'||value.length>2048)return null;const u=new URL(value);return u.protocol==='https:'&&!u.username&&!u.password&&!u.port?u.href:null;}catch{return null;}
@@ -93,8 +96,8 @@ export async function claudeMessage(system:string,messages:any[],research:boolea
  const controller=new AbortController(),cancel=()=>controller.abort(),timer=setTimeout(cancel,remaining);
  parentSignal?.addEventListener('abort',cancel,{once:true});if(parentSignal?.aborted)cancel();
  const started=Date.now();try{
-  const response=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+key,'anthropic-version':'2023-06-01'},cache:'no-store',signal:controller.signal,body:JSON.stringify({model:'claude-sonnet-5-5',max_tokens:Math.max(2048,maxTokens),output_config:{effort},
-   ...(system?{system}:{}),messages,...(research?{tools:[{type:'web_search_20250305',name:'web_search'},...(fullDocuments?[{type:'web_fetch_20250910',name:'web_fetch',max_uses:documentBudget?.maxFetches??4,max_content_tokens:documentBudget?.maxContentTokens??24000}]:[])]}:{})})}).catch(()=>{throw Error(controller.signal.aborted?'CLAUDE_TIMEOUT':'CLAUDE_NETWORK_ERROR');});
+  const response=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+key,'anthropic-version':'2023-06-01'},cache:'no-store',signal:controller.signal,body:JSON.stringify({model:claudeModel(),max_tokens:Math.max(2048,maxTokens),output_config:{effort},
+   ...(system?{system:[{type:'text',text:system,cache_control:{type:'ephemeral'}}]}:{}),messages,...(research?{tools:[{type:'web_search_20250305',name:'web_search'},...(fullDocuments?[{type:'web_fetch_20250910',name:'web_fetch',max_uses:documentBudget?.maxFetches??4,max_content_tokens:documentBudget?.maxContentTokens??24000}]:[])]}:{})})}).catch(()=>{throw Error(controller.signal.aborted?'CLAUDE_TIMEOUT':'CLAUDE_NETWORK_ERROR');});
   const payload=await response.json().catch(()=>{throw Error(controller.signal.aborted?'CLAUDE_TIMEOUT':'CLAUDE_PROVIDER_JSON_INVALID');});
   if(!response.ok){
    // Enumerated diagnostics only; upstream messages may echo private input.

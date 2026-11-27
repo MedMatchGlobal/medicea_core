@@ -1,6 +1,5 @@
 // Restored verbatim helpers from origin/experiment/claude-sonnet-preview. No country/source allowlists are imported.
 import {createHmac,timingSafeEqual} from 'node:crypto';
-import {claudePreviewEnabled} from './claude-preview';
 const norm=(value:unknown)=>typeof value==='string'?value.normalize('NFKC').trim().toLowerCase().replace(/\s+/g,' '):'';
 const country=(value:unknown)=>({uk:'united kingdom',gb:'united kingdom',us:'united states',usa:'united states'}[norm(value)]||norm(value));
 type Ingredient={name:string;strength:string};
@@ -61,7 +60,7 @@ export function sourceHintAgrees(hint:unknown,ingredients:OriginProduct['ingredi
  const remaining=values.map(v=>Number(v![1]));
  return parts.every(p=>{const index=remaining.indexOf(Number.parseFloat(p));if(index<0)return false;remaining.splice(index,1);return true;});
 }
-function signingKey(){const secret=claudePreviewEnabled()?process.env.ANTHROPIC_API_KEY:process.env.OPENAI_API_KEY_1||process.env.OPENAI_API_KEY||process.env.OPENAI_API_KEY_2||process.env.OPENAI_API_KEY_3||process.env.OPENAI_API_KEY_4;if(!secret)throw Error('ORIGIN_SELECTION_UNAVAILABLE');return createHmac('sha256',secret).update('medicea-origin-selection-v1').digest();}
+function signingKey(){const secret=process.env.MEDICEA_SIGNING_SECRET||process.env.OPENAI_API_KEY_1||process.env.OPENAI_API_KEY||process.env.OPENAI_API_KEY_2||process.env.OPENAI_API_KEY_3||process.env.OPENAI_API_KEY_4||process.env.ANTHROPIC_API_KEY;if(!secret)throw Error('ORIGIN_SELECTION_UNAVAILABLE');return createHmac('sha256',secret).update('medicea-origin-selection-v1').digest();}
 export function issueOriginSelection(profile:OriginProduct,drugName:string){const payload=Buffer.from(JSON.stringify({v:1,expires:Date.now()+15*60_000,drugName,profile})).toString('base64url');return payload+'.'+createHmac('sha256',signingKey()).update(payload).digest('base64url');}
 export function readOriginSelection(token:unknown,drugName:string,country:string,dosage:unknown):OriginProduct|null{
  try{if(typeof token!=='string'||token.length>24000)return null;const parts=token.split('.');if(parts.length!==2)return null;const expected=createHmac('sha256',signingKey()).update(parts[0]).digest(),actual=Buffer.from(parts[1],'base64url');if(actual.length!==expected.length||!timingSafeEqual(actual,expected))return null;
