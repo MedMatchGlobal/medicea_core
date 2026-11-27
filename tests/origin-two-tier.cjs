@@ -51,7 +51,7 @@ test('unstated fields, mismatches, expired or non-pending tokens and provider er
 test('approved prompt wording: sub-brands kept apart, record_url requested, verification never infers',()=>{
  const text=fs.readFileSync('app/lib/equivalence-research-prompt.ts','utf8');
  assert.match(text,/return one entry per sub-brand and presentation/);assert.match(text,/record_url/);assert.match(text,/brand family name \(for example "Solpadeine"\) that is registered as a product name/);assert.match(text,/If intent is genuinely ambiguous/);assert.match(text,/never guess it/);
- assert.match(text,/verify ONE medicine presentation/);assert.match(text,/never infer it from another product, strength, country or general knowledge/);assert.match(text,/set mismatch:true/);
+ assert.match(text,/verify ONE medicine presentation/);assert.match(text,/Never infer any field from another product, strength, country or general knowledge/);assert.match(text,/set mismatch:true/);
 });
 test('every supported app language has every two-tier message',()=>{
  const langs=ts.transpileModule(fs.readFileSync('app/i18n/i18n.ts','utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS}}).outputText.match(/SUPPORTED_LANGS[^=]*=\s*\[([^\]]+)\]/)[1].match(/'(\w+)'/g).map(s=>s.slice(1,-1));
