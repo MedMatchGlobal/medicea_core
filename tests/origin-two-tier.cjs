@@ -31,7 +31,7 @@ test('verification reads the official document and returns a normal verified sel
  // Same signing secret across runtimes: tokens are provider-independent.
  const response=await verify('app/lib/sonnet-research-matches.ts').verifyOriginSelection({drugName:'Solpadeine Max',originCountry:'United Kingdom',originSelection:body.variants[1].token});
  const result=await response.json();assert.equal(response.status,200);assert.equal(result.verified,true);
- assert.equal(sent.options.fullDocuments,true);assert.equal(JSON.stringify(sent.data.candidate_sources),JSON.stringify([src]));
+ assert.equal(sent.options.fullDocuments,true);assert.equal(typeof sent.data,'string');assert.ok(sent.data.includes('- '+src),'candidate URLs are plain text lines');
  assert.equal(result.variant.route,'oral');assert.equal(result.variant.name,'Solpadeine Max Soluble Tablets');assert.equal(result.legalStatus,'pharmacy-only');assert.equal(result.marketed,'yes');assert.equal(result.marketingAuthorisationHolder,'Omega Pharma Ltd');
  const support=verify('app/lib/sonnet-research-support.ts');const profile=support.readOriginSelection(result.variant.token,'Solpadeine Max','United Kingdom','');
  assert.equal(profile.complete,true);assert.notEqual(profile.pending,true);
@@ -50,7 +50,7 @@ test('unstated fields, mismatches, expired or non-pending tokens and provider er
 });
 test('approved prompt wording: sub-brands kept apart, record_url requested, verification never infers',()=>{
  const text=fs.readFileSync('app/lib/equivalence-research-prompt.ts','utf8');
- assert.match(text,/return one entry per sub-brand and presentation/);assert.match(text,/record_url/);assert.match(text,/never guess it/);
+ assert.match(text,/return one entry per sub-brand and presentation/);assert.match(text,/record_url/);assert.match(text,/brand family name \(for example "Solpadeine"\) that is registered as a product name/);assert.match(text,/If intent is genuinely ambiguous/);assert.match(text,/never guess it/);
  assert.match(text,/verify ONE medicine presentation/);assert.match(text,/never infer it from another product, strength, country or general knowledge/);assert.match(text,/set mismatch:true/);
 });
 test('every supported app language has every two-tier message',()=>{

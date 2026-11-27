@@ -9,7 +9,7 @@ Query intent:
 First classify the user's search term as either "brand_product" or "active_ingredient". A named medicine brand or exact product name (for example, "Noxarem Melatonin Forte") is a brand_product query; an ingredient or combination name is an active_ingredient query.
 For brand_product, identify only authorised/listed presentations of that exact named brand/product in the requested country. Return the source-stated product name as product_name and use it as the display name; do not substitute the active ingredient as the product name, and do not include other brands that share the ingredient. Keep the active ingredients and strengths in the profile fields.
 For active_ingredient, enumerate distinct profiles as below, merge identical profiles across brands/manufacturers, and use the generic ingredient name as the display name. Do not return brand names in this mode.
-Return query_type as "brand_product" or "active_ingredient". If intent is ambiguous, do not guess a brand; use "active_ingredient" and report the ambiguity.
+Return query_type as "brand_product" or "active_ingredient". A brand family name (for example "Solpadeine") that is registered as a product name in the requested country is a brand_product query, even when it covers several sub-brands; use "active_ingredient" only when the term is an ingredient or combination name. If intent is genuinely ambiguous, use "active_ingredient" and report the ambiguity.
 
 Source discovery:
 Identify the current authoritative medicines sources for the requested country

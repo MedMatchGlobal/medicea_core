@@ -158,7 +158,7 @@ export async function productionStrengthSearch(input:{drugName:unknown;originCou
      route:plain(profile?.route,100)?profile.route:'unknown',
      release:'unknown',species:[],complete:confirmed&&profile?.status==='confirmed',generic:!brandQuery,
      ingredients:Array.isArray(profile?.apis)?profile.apis.filter((api:any)=>api&&plain(api.name)&&plain(api.strength,100)).map((api:any)=>({name:api.name,strength:api.strength})):[],
-     sources:Array.isArray(profile?.sources)?profile.sources:[],
+     sources:Array.isArray(profile?.sources)?(!confirmed&&typeof profile?.record_url==='string'&&/^https:\/\//i.test(profile.record_url)?Array.from(new Set([profile.record_url,...profile.sources])):profile.sources):[],
      status:confirmed?'confirmed':'partial',
      missing_fields:Array.isArray(profile?.missing_fields)?profile.missing_fields:[]
     });
@@ -293,21 +293,25 @@ export async function verifyOriginSelection(input:{drugName:unknown;originCountr
  if(!pendingSelection||pendingSelection.lookup!=='original'||pendingSelection.pending!==true)return Response.json({error:'ORIGIN_SELECTION_EXPIRED'},{status:422});
  const deadline=Date.now()+80_000;
  try{
-  const reply=await claudeResearch(originVerificationInstruction,{country:originCountry,product_name:pendingSelection.name,candidate_sources:pendingSelection.sources,candidate_fields:{form:pendingSelection.form,route:pendingSelection.route,ingredients:pendingSelection.ingredients}},deadline,{standaloneInstruction:true,fullDocuments:true,maxFetches:4,maxContentTokens:24000,maxTokens:4000,effort:'medium'});
+  // URLs are given as plain text lines so the fetch tool sees them exactly as written.
+  const lead=`Country: ${originCountry}\nProduct: ${pendingSelection.name}\nCandidate source URLs:\n${(pendingSelection.sources||[]).map((u:string)=>'- '+u).join('\n')}\nCandidate fields (unverified): ${JSON.stringify({form:pendingSelection.form,route:pendingSelection.route,ingredients:pendingSelection.ingredients})}`;
+  const reply=await claudeResearch(originVerificationInstruction,lead,deadline,{standaloneInstruction:true,fullDocuments:true,maxFetches:4,maxContentTokens:24000,maxTokens:4000,effort:'medium'});
   const profile:any=Array.isArray(reply.profiles)?reply.profiles[0]:null;
   const status=profile?.field_status||{};
   const stated=['apis','strength','form','route'].every(k=>status[k]==='stated');
-  if(!profile||profile.mismatch===true)return Response.json({error:'ORIGIN_VERIFICATION_MISMATCH'},{status:422,headers:{'Cache-Control':'no-store'}});
+  const outcome=(code:string)=>console.info('[Origin verification]',{outcome:code,fields:status,mismatch:profile?.mismatch===true,sources:Array.isArray(profile?.sources)?profile.sources.length:0});
+  if(!profile||profile.mismatch===true){outcome('mismatch');return Response.json({error:'ORIGIN_VERIFICATION_MISMATCH'},{status:422,headers:{'Cache-Control':'no-store'}});}
   const verified:Product={
    name:pendingSelection.generic?pendingSelection.name:(plain(profile.product_name,250)?profile.product_name:pendingSelection.name),
    country:originCountry,form:plain(profile.form,100)?profile.form:'unknown',route:plain(profile.route,100)?profile.route:'unknown',release:'unknown',species:[],complete:true,generic:pendingSelection.generic===true,
    ingredients:Array.isArray(profile.apis)?profile.apis.filter((api:any)=>api&&plain(api.name)&&plain(api.strength,100)).map((api:any)=>({name:api.name,strength:api.strength})):[],
    sources:Array.isArray(profile.sources)?profile.sources:[],lookup:'original'
   };
-  if(!stated||!validOriginChoice(verified,originCountry))return Response.json({error:'ORIGIN_VERIFICATION_INCOMPLETE'},{status:422,headers:{'Cache-Control':'no-store'}});
+  if(!stated||!validOriginChoice(verified,originCountry)){outcome('incomplete');return Response.json({error:'ORIGIN_VERIFICATION_INCOMPLETE'},{status:422,headers:{'Cache-Control':'no-store'}});}
   // A document that disagrees with fields already known for the candidate is a mismatch, not a correction.
   const known=(pendingSelection.ingredients||[]).filter((i:any)=>plain(i?.name)&&plain(i?.strength,100));
-  if(known.length&&!known.every((i:any)=>verified.ingredients.some(v=>norm(v.name).includes(norm(i.name).split(' ')[0])&&norm(v.strength).replace(/\s+/g,'').startsWith(norm(i.strength).replace(/\s+/g,'').replace(/(?:per|\/).*$/,'')))))return Response.json({error:'ORIGIN_VERIFICATION_MISMATCH'},{status:422,headers:{'Cache-Control':'no-store'}});
+  if(known.length&&!known.every((i:any)=>verified.ingredients.some(v=>norm(v.name).includes(norm(i.name).split(' ')[0])&&norm(v.strength).replace(/\s+/g,'').startsWith(norm(i.strength).replace(/\s+/g,'').replace(/(?:per|\/).*$/,''))))){outcome('mismatch_strength');return Response.json({error:'ORIGIN_VERIFICATION_MISMATCH'},{status:422,headers:{'Cache-Control':'no-store'}});}
+  outcome('verified');
   const meta=equivalentResearchMetadata({market_status:profile.marketed==='yes'?'listed_as_marketed':profile.marketed==='no'?'discontinued':'unverified',legal_status:profile.legal_status});
   return Response.json({verified:true,variant:{name:verified.name,country:verified.country,form:verified.form,route:verified.route,release:'unknown',ingredients:verified.ingredients,sources:verified.sources,token:issueOriginSelection(verified,drugName)},marketed:profile.marketed==='yes'||profile.marketed==='no'?profile.marketed:'unknown',legalStatus:meta.legalStatus,marketingAuthorisationHolder:plain(profile.marketing_authorisation_holder,200)?profile.marketing_authorisation_holder:null},{headers:{'Cache-Control':'no-store'}});
  }catch{return Response.json({error:'ORIGIN_VERIFICATION_UNAVAILABLE'},{status:503,headers:{'Cache-Control':'no-store'}});}
