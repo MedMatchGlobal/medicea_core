@@ -59,9 +59,9 @@ function valid(p:any,country:string):p is Product {
   p.complete===true&&Array.isArray(p.ingredients)&&p.ingredients.length>0&&p.ingredients.length<=20&&
   p.ingredients.every((i:any)=>i&&plain(i.name)&&plain(i.strength,100)&&amount.test(i.strength.trim()))&&exactComposition(p,p);
 }
-function validOriginChoice(p:any,country:string):p is Product {
+function validOriginChoice(p:any,country:string,routeOptional=false):p is Product {
  return !!p&&isMedicineName(p.name)&&p.name.length<=250&&plain(p.country)&&norm(p.country)===norm(country)&&
-  p.complete===true&&plain(p.form,100)&&!/(?:unknown|unspecified|varies|various|inferred|not stated|unconfirmed)/i.test(p.form)&&plain(p.route,100)&&!/(?:unknown|unspecified|varies|various|inferred|not stated|unconfirmed)/i.test(p.route)&&
+  p.complete===true&&plain(p.form,100)&&!/(?:unknown|unspecified|varies|various|inferred|not stated|unconfirmed)/i.test(p.form)&&plain(p.route,100)&&(routeOptional||!/(?:unknown|unspecified|varies|various|inferred|not stated|unconfirmed)/i.test(p.route))&&
   Array.isArray(p.ingredients)&&p.ingredients.length>0&&p.ingredients.length<=20&&
   p.ingredients.every((i:any)=>i&&plain(i.name)&&plain(i.strength,100)&&amount.test(i.strength.trim()))&&
   Array.isArray(p.sources)&&p.sources.length>0&&p.sources.every((s:any)=>typeof s==='string'&&/^https:\/\//i.test(s));
@@ -298,16 +298,17 @@ export async function verifyOriginSelection(input:{drugName:unknown;originCountr
   const reply=await claudeResearch(originVerificationInstruction,lead,deadline,{standaloneInstruction:true,fullDocuments:true,maxFetches:4,maxContentTokens:24000,maxTokens:4000,effort:'medium'});
   const profile:any=Array.isArray(reply.profiles)?reply.profiles[0]:null;
   const status=profile?.field_status||{};
-  const stated=['apis','strength','form','route'].every(k=>status[k]==='stated');
+  // Route is optional evidence: a route the documents do not state stays 'unknown' and never blocks the search.
+  const stated=['apis','strength','form'].every(k=>status[k]==='stated');const routeStated=status.route==='stated'&&plain(profile?.route,100);
   const outcome=(code:string)=>console.info('[Origin verification]',{outcome:code,fields:status,mismatch:profile?.mismatch===true,sources:Array.isArray(profile?.sources)?profile.sources.length:0});
   if(!profile||profile.mismatch===true){outcome('mismatch');return Response.json({error:'ORIGIN_VERIFICATION_MISMATCH'},{status:422,headers:{'Cache-Control':'no-store'}});}
   const verified:Product={
    name:pendingSelection.generic?pendingSelection.name:(plain(profile.product_name,250)?profile.product_name:pendingSelection.name),
-   country:originCountry,form:plain(profile.form,100)?profile.form:'unknown',route:plain(profile.route,100)?profile.route:'unknown',release:'unknown',species:[],complete:true,generic:pendingSelection.generic===true,
+   country:originCountry,form:plain(profile.form,100)?profile.form:'unknown',route:routeStated?profile.route:'unknown',release:'unknown',species:[],complete:true,generic:pendingSelection.generic===true,
    ingredients:Array.isArray(profile.apis)?profile.apis.filter((api:any)=>api&&plain(api.name)&&plain(api.strength,100)).map((api:any)=>({name:api.name,strength:api.strength})):[],
    sources:Array.isArray(profile.sources)?profile.sources:[],lookup:'original'
   };
-  if(!stated||!validOriginChoice(verified,originCountry)){outcome('incomplete');return Response.json({error:'ORIGIN_VERIFICATION_INCOMPLETE'},{status:422,headers:{'Cache-Control':'no-store'}});}
+  if(!stated||!validOriginChoice(verified,originCountry,true)){outcome('incomplete');return Response.json({error:'ORIGIN_VERIFICATION_INCOMPLETE'},{status:422,headers:{'Cache-Control':'no-store'}});}
   // A document that disagrees with fields already known for the candidate is a mismatch, not a correction.
   const known=(pendingSelection.ingredients||[]).filter((i:any)=>plain(i?.name)&&plain(i?.strength,100)&&amount.test(String(i.strength).trim()));
   if(known.length&&!known.every((i:any)=>verified.ingredients.some(v=>norm(v.name).includes(norm(i.name).split(' ')[0])&&norm(v.strength).replace(/\s+/g,'').startsWith(norm(i.strength).replace(/\s+/g,'').replace(/(?:per|\/).*$/,''))))){outcome('mismatch_strength');return Response.json({error:'ORIGIN_VERIFICATION_MISMATCH'},{status:422,headers:{'Cache-Control':'no-store'}});}

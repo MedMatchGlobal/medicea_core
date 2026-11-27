@@ -47,7 +47,11 @@ test('unstated fields, mismatches, expired or non-pending tokens and provider er
  const {body}=await identify();const token=body.variants[1].token;const input={drugName:'Solpadeine Max',originCountry:'United Kingdom',originSelection:token};
  const call=async(reply,over={})=>{const r=runtime(typeof reply==='function'?reply:async()=>reply);const res=await r('app/lib/sonnet-research-matches.ts').verifyOriginSelection({...input,...over});return {status:res.status,body:await res.json()};};
  const notStated={profiles:[{...verified.profiles[0],route:null,field_status:{...verified.profiles[0].field_status,route:'not_stated'}}]};
- assert.deepEqual(await call(notStated),{status:422,body:{error:'ORIGIN_VERIFICATION_INCOMPLETE'}});
+ const noRoute=await call(notStated);assert.equal(noRoute.status,200);assert.equal(noRoute.body.variant.route,'unknown','a route the documents do not state never blocks verification and is never invented');
+ const noForm={profiles:[{...verified.profiles[0],form:null,field_status:{...verified.profiles[0].field_status,form:'not_stated'}}]};
+ assert.deepEqual(await call(noForm),{status:422,body:{error:'ORIGIN_VERIFICATION_INCOMPLETE'}});
+ const noStrength={profiles:[{...verified.profiles[0],field_status:{...verified.profiles[0].field_status,strength:'not_stated'}}]};
+ assert.deepEqual(await call(noStrength),{status:422,body:{error:'ORIGIN_VERIFICATION_INCOMPLETE'}});
  assert.deepEqual(await call({profiles:[{...verified.profiles[0],mismatch:true}]}),{status:422,body:{error:'ORIGIN_VERIFICATION_MISMATCH'}});
  const wrongStrength={profiles:[{...verified.profiles[0],apis:[{name:'Paracetamol',strength:'1000 mg'},...verified.profiles[0].apis.slice(1)]}]};
  assert.equal((await call(wrongStrength)).body.error,'ORIGIN_VERIFICATION_MISMATCH');
