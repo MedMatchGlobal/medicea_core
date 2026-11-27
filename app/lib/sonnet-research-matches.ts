@@ -314,5 +314,5 @@ export async function verifyOriginSelection(input:{drugName:unknown;originCountr
   outcome('verified');
   const meta=equivalentResearchMetadata({market_status:profile.marketed==='yes'?'listed_as_marketed':profile.marketed==='no'?'discontinued':'unverified',legal_status:profile.legal_status});
   return Response.json({verified:true,variant:{name:verified.name,country:verified.country,form:verified.form,route:verified.route,release:'unknown',ingredients:verified.ingredients,sources:verified.sources,token:issueOriginSelection(verified,drugName)},marketed:profile.marketed==='yes'||profile.marketed==='no'?profile.marketed:'unknown',legalStatus:meta.legalStatus,marketingAuthorisationHolder:plain(profile.marketing_authorisation_holder,200)?profile.marketing_authorisation_holder:null},{headers:{'Cache-Control':'no-store'}});
- }catch{return Response.json({error:'ORIGIN_VERIFICATION_UNAVAILABLE'},{status:503,headers:{'Cache-Control':'no-store'}});}
+ }catch(error:any){console.error('[Origin verification failed]',{name:String(error?.name||'Error').slice(0,60),message:String(error?.message||'').replace(/https?:\/\/\S+/g,'<url>').slice(0,200),status:typeof error?.status==='number'?error.status:undefined});return Response.json({error:'ORIGIN_VERIFICATION_UNAVAILABLE'},{status:503,headers:{'Cache-Control':'no-store'}});}
 }

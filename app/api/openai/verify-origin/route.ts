@@ -14,5 +14,5 @@ export async function POST(req:Request) {
     await refreshAiConfig();
     if(!claudePreviewEnabled()) return Response.json({error:'NOT_FOUND'},{status:404});
     return await verifyOriginSelection({drugName,originCountry,originSelection});
-  } catch {return Response.json({error:'ORIGIN_VERIFICATION_UNAVAILABLE'},{status:503,headers:{'Cache-Control':'no-store'}});}
+  } catch(error:any) {console.error('[Origin verification route failed]',{name:String(error?.name||'Error').slice(0,60),message:String(error?.message||'').slice(0,200)});return Response.json({error:'ORIGIN_VERIFICATION_UNAVAILABLE'},{status:503,headers:{'Cache-Control':'no-store'}});}
 }
