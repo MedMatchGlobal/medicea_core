@@ -111,7 +111,13 @@ export async function claudeMessage(system:string,messages:any[],research:boolea
    // Diagnostic counts only: never log URLs, queries, medicines or document text.
    const documents=payload.content.filter((b:any)=>b.type==='web_fetch_tool_result');
    console.info('[Medicine document retrieval]',{attempts:documents.length,read:documents.filter((b:any)=>b.content?.type==='web_fetch_result'&&b.content?.content?.type==='document').length,failed:documents.filter((b:any)=>b.content?.type==='web_fetch_tool_result_error').length});
+   // Failed fetches: public site hostname and error code only (no path, query or content).
+   const urls=new Map<string,string>(payload.content.filter((b:any)=>b.type==='server_tool_use'&&b.name==='web_fetch').map((b:any)=>[b.id,String(b.input?.url||'')]));
+   const host=(u:string)=>{try{return new URL(u).hostname;}catch{return 'unknown';}};
+   const failures=documents.filter((b:any)=>b.content?.type==='web_fetch_tool_result_error').map((b:any)=>({host:host(urls.get(b.tool_use_id)||''),code:String(b.content?.error_code||'unknown')}));
+   if(failures.length)console.info('[Medicine document failures]',failures);
   }
+  const u:any=payload.usage||{};console.info('[Claude usage]',{model:payload.model,input:u.input_tokens,cache_read:u.cache_read_input_tokens,cache_write:u.cache_creation_input_tokens,output:u.output_tokens});
   evaluation.getStore()?.push({model:payload.model,ms:Date.now()-started,usage:payload.usage,text:answerText(payload)});
   return payload;
  }finally{clearTimeout(timer);parentSignal?.removeEventListener('abort',cancel);}
