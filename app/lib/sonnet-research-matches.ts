@@ -309,7 +309,7 @@ export async function verifyOriginSelection(input:{drugName:unknown;originCountr
   };
   if(!stated||!validOriginChoice(verified,originCountry)){outcome('incomplete');return Response.json({error:'ORIGIN_VERIFICATION_INCOMPLETE'},{status:422,headers:{'Cache-Control':'no-store'}});}
   // A document that disagrees with fields already known for the candidate is a mismatch, not a correction.
-  const known=(pendingSelection.ingredients||[]).filter((i:any)=>plain(i?.name)&&plain(i?.strength,100));
+  const known=(pendingSelection.ingredients||[]).filter((i:any)=>plain(i?.name)&&plain(i?.strength,100)&&amount.test(String(i.strength).trim()));
   if(known.length&&!known.every((i:any)=>verified.ingredients.some(v=>norm(v.name).includes(norm(i.name).split(' ')[0])&&norm(v.strength).replace(/\s+/g,'').startsWith(norm(i.strength).replace(/\s+/g,'').replace(/(?:per|\/).*$/,''))))){outcome('mismatch_strength');return Response.json({error:'ORIGIN_VERIFICATION_MISMATCH'},{status:422,headers:{'Cache-Control':'no-store'}});}
   outcome('verified');
   const meta=equivalentResearchMetadata({market_status:profile.marketed==='yes'?'listed_as_marketed':profile.marketed==='no'?'discontinued':'unverified',legal_status:profile.legal_status});

@@ -36,6 +36,13 @@ test('verification reads the official document and returns a normal verified sel
  const support=verify('app/lib/sonnet-research-support.ts');const profile=support.readOriginSelection(result.variant.token,'Solpadeine Max','United Kingdom','');
  assert.equal(profile.complete,true);assert.notEqual(profile.pending,true);
 });
+test('placeholder strengths on a pending candidate ("not stated") are not treated as known strengths',async()=>{
+ const r=runtime(async()=>({profiles:[{...verified.profiles[0],product_name:'Solpadeine Max Tablets',apis,form:'tablet'}]}));
+ const support=r('app/lib/sonnet-research-support.ts');
+ const token=support.issueOriginSelection({name:'Solpadeine Max Tablets',country:'United Kingdom',form:'tablet',route:'Not confirmed',release:'unknown',species:[],complete:false,generic:false,ingredients:[{name:'Paracetamol',strength:'not stated'},{name:'Codeine phosphate hemihydrate',strength:'not stated'}],sources:[src],lookup:'original',pending:true},'Solpadeine Max');
+ const res=await r('app/lib/sonnet-research-matches.ts').verifyOriginSelection({drugName:'Solpadeine Max',originCountry:'United Kingdom',originSelection:token});
+ const out=await res.json();assert.equal(res.status,200,JSON.stringify(out));assert.equal(out.verified,true);
+});
 test('unstated fields, mismatches, expired or non-pending tokens and provider errors never produce a verified product',async()=>{
  const {body}=await identify();const token=body.variants[1].token;const input={drugName:'Solpadeine Max',originCountry:'United Kingdom',originSelection:token};
  const call=async(reply,over={})=>{const r=runtime(typeof reply==='function'?reply:async()=>reply);const res=await r('app/lib/sonnet-research-matches.ts').verifyOriginSelection({...input,...over});return {status:res.status,body:await res.json()};};
