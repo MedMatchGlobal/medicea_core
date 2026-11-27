@@ -89,7 +89,7 @@ export function readClaudeResearch(payload:any){
  // This is not a claim of regulator approval or exhaustive market coverage.
  return reply;
 }
-export async function claudeMessage(system:string,messages:any[],research:boolean,deadline:number,maxTokens=8000,parentSignal?:AbortSignal|null,fullDocuments=false,documentBudget?:{maxFetches?:number;maxContentTokens?:number},effort:'low'|'medium'|'high'='medium'){
+export async function claudeMessage(system:string,messages:any[],research:boolean,deadline:number,maxTokens=8000,parentSignal?:AbortSignal|null,fullDocuments=false,documentBudget?:{maxFetches?:number;maxContentTokens?:number},effort:'low'|'medium'|'high'='medium',continuation=0){
  if(!claudePreviewEnabled()||typeof window!=='undefined')throw Error('CLAUDE_PREVIEW_DISABLED');
  const key=process.env.ANTHROPIC_API_KEY?.trim();if(!key)throw Error('CLAUDE_KEY_MISSING');
  const remaining=Math.min(85_000,deadline-Date.now());if(remaining<=0)throw Error('CLAUDE_TIMEOUT');
@@ -106,7 +106,13 @@ export async function claudeMessage(system:string,messages:any[],research:boolea
    console.warn('[Claude Preview provider]',{status:response.status,field});
    throw Error('CLAUDE_HTTP_'+response.status);
   }
-  if(payload?.stop_reason!=='end_turn'||!Array.isArray(payload.content))throw Error('CLAUDE_INCOMPLETE');
+  // A long server-side search/fetch turn can pause; continue it (bounded) instead of failing.
+  if(payload?.stop_reason==='pause_turn'&&Array.isArray(payload.content)&&continuation<3){
+   console.info('[Claude continuation]',{n:continuation+1});
+   clearTimeout(timer);
+   return claudeMessage(system,[...messages,{role:'assistant',content:payload.content}],research,deadline,maxTokens,parentSignal,fullDocuments,documentBudget,effort,continuation+1);
+  }
+  if(payload?.stop_reason!=='end_turn'||!Array.isArray(payload.content)){console.warn('[Claude incomplete]',{stop_reason:String(payload?.stop_reason||'none').slice(0,30)});throw Error('CLAUDE_INCOMPLETE');}
   if(fullDocuments){
    // Diagnostic counts only: never log URLs, queries, medicines or document text.
    const documents=payload.content.filter((b:any)=>b.type==='web_fetch_tool_result');
