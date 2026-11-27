@@ -239,7 +239,12 @@ export async function productionStrengthSearch(input:{drugName:unknown;originCou
    // Independently retrieve label facts for the destination product leads.
    // Never copy a strength from a lead into the verified ingredients. The
    // deterministic clinical checks below remain unchanged.
-   const checked=await ask(equivalenceCatalogueInstruction,{country:targetCountry,query_names:queries,query_leads:queryLeads},true);
+   // One call for every lead overran the output limit and took ~50s. Same instruction, same
+   // data shape, smaller groups run concurrently: time is the slowest group, not the sum.
+   const groups:string[][]=[];for(let i=0;i<queries.length;i+=3)groups.push(queries.slice(i,i+3));
+   const parts=await Promise.all(groups.map(group=>ask(equivalenceCatalogueInstruction,{country:targetCountry,query_names:group,query_leads:queryLeads},true)));
+   if(parts.some((part:any)=>!Array.isArray(part?.catalogues)))throw Error('INCOMPLETE_CATALOGUES');
+   const checked={catalogues:parts.flatMap((part:any)=>part.catalogues)};
    if(!Array.isArray(checked.catalogues)||checked.catalogues.length!==queries.length)throw Error('INCOMPLETE_CATALOGUES');
    for(const query of queries){
     const entries=checked.catalogues.filter((entry:any)=>entry&&typeof entry.query_name==='string'&&catalogueKey(entry.query_name)===catalogueKey(query));
