@@ -290,6 +290,17 @@ export async function productionStrengthSearch(input:{drugName:unknown;originCou
 // Second tier: verify the ONE presentation the patient selected from its official
 // documents. Only a presentation with all four fields explicitly stated returns a
 // normal (verified) selection token; anything else stops with a plain reason.
+// Documents state the route in free words ("Swallow 2 tablets every 4 hours"); matching compares
+// a standard route name. Only a clear route wording maps; anything else stays 'unknown' (never blocks).
+export function standardRoute(text:unknown):string{
+ const t=typeof text==='string'?text.toLowerCase():'';
+ if(/\b(oral|orally|by mouth|swallow|swallowed|dissolve in water|drink|chew|sublingual|buccal)\b/.test(t))return /\b(sublingual|buccal)\b/.test(t)?(t.includes('sublingual')?'sublingual':'buccal'):'oral';
+ if(/\b(topical|cutaneous|apply to (?:the )?skin|rub (?:in|into))\b/.test(t))return 'topical';
+ if(/\b(inhal|nasal|intranasal)/.test(t))return /nasal/.test(t)?'nasal':'inhalation';
+ if(/\b(rectal|vaginal|ophthalmic|ocular|eye|ear|otic)\b/.test(t))return (t.match(/\b(rectal|vaginal|ophthalmic|ocular|eye|ear|otic)\b/)||[''])[0].replace(/^eye$/,'ophthalmic').replace(/^ocular$/,'ophthalmic').replace(/^ear$/,'otic');
+ if(/\b(inject|intravenous|intramuscular|subcutaneous)/.test(t))return /intravenous/.test(t)?'intravenous':/intramuscular/.test(t)?'intramuscular':/subcutaneous/.test(t)?'subcutaneous':'injection';
+ return 'unknown';
+}
 export async function verifyOriginSelection(input:{drugName:unknown;originCountry:unknown;originSelection:unknown}):Promise<Response>{
  if(!productionFrontendEnabled())return Response.json({error:'NOT_FOUND'},{status:404});
  const {drugName,originCountry}=input;
@@ -309,7 +320,7 @@ export async function verifyOriginSelection(input:{drugName:unknown;originCountr
   if(!profile||profile.mismatch===true){outcome('mismatch');return Response.json({error:'ORIGIN_VERIFICATION_MISMATCH'},{status:422,headers:{'Cache-Control':'no-store'}});}
   const verified:Product={
    name:pendingSelection.generic?pendingSelection.name:(plain(profile.product_name,250)?profile.product_name:pendingSelection.name),
-   country:originCountry,form:plain(profile.form,100)?profile.form:'unknown',route:routeStated?profile.route:'unknown',release:'unknown',species:[],complete:true,generic:pendingSelection.generic===true,
+   country:originCountry,form:plain(profile.form,100)?profile.form:'unknown',route:routeStated?standardRoute(profile.route):'unknown',release:'unknown',species:[],complete:true,generic:pendingSelection.generic===true,
    ingredients:Array.isArray(profile.apis)?profile.apis.filter((api:any)=>api&&plain(api.name)&&plain(api.strength,100)).map((api:any)=>({name:api.name,strength:api.strength})):[],
    sources:Array.isArray(profile.sources)?profile.sources:[],lookup:'original'
   };

@@ -71,3 +71,17 @@ test('every supported app language has every two-tier message',()=>{
  assert.deepEqual([...copy.ORIGIN_VERIFY_LANGUAGES].sort(),[...langs].sort());
  for(const lang of langs){const c=copy.originVerifyCopy(lang);assert.equal(Object.keys(c).length,8);for(const [k,v] of Object.entries(c))assert.ok(typeof v==='string'&&v.trim().length>5,lang+' '+k);if(lang!=='en')assert.notEqual(c.incomplete,copy.originVerifyCopy('en').incomplete,lang);}
 });
+
+test('route wording from documents is reduced to a standard route name or stays unknown',()=>{
+ const m=require('node:module');
+ const src=require('node:fs').readFileSync(require('node:path').join(__dirname,'../app/lib/sonnet-research-matches.ts'),'utf8');
+ const body=src.match(/export function standardRoute[\s\S]*?\n}\n/)[0].replace('export function','function').replace(/:unknown\)/,')').replace(/\):string\{/,'){').replace("typeof text==='string'?text.toLowerCase():''","typeof text==='string'?text.toLowerCase():''");
+ const standardRoute=new Function(body+';return standardRoute;')();
+ const assert=require('node:assert/strict');
+ assert.equal(standardRoute('Swallow 2 tablets every 4 hours as needed'),'oral');
+ assert.equal(standardRoute('Oral use'),'oral');
+ assert.equal(standardRoute('dissolve in water and drink'),'oral');
+ assert.equal(standardRoute('Apply to the skin'),'topical');
+ assert.equal(standardRoute('as directed by your doctor'),'unknown');
+ assert.equal(standardRoute(null),'unknown');
+});
