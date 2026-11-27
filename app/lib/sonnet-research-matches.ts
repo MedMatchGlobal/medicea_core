@@ -332,7 +332,7 @@ export async function verifyOriginSelection(input:{drugName:unknown;originCountr
   const verified:Product={
    name:pendingSelection.generic?pendingSelection.name:(plain(profile.product_name,250)?profile.product_name:pendingSelection.name),
    country:originCountry,form:plain(profile.form,100)?profile.form:'unknown',route:routeStated?standardRoute(profile.route):'unknown',release:'unknown',species:[],complete:true,generic:pendingSelection.generic===true,
-   ingredients:Array.isArray(profile.apis)?profile.apis.filter((api:any)=>api&&plain(api.name)&&plain(api.strength,100)).map((api:any)=>({name:api.name,strength:api.strength})):[],
+   ingredients:Array.isArray(profile.apis)?profile.apis.filter((api:any)=>api&&plain(api.name)&&plain(api.strength,100)).map((api:any)=>({name:api.name,strength:standardStrength(api.strength)})):[],
    sources:Array.isArray(profile.sources)?profile.sources:[],lookup:'original'
   };
   if(!stated||!validOriginChoice(verified,originCountry,true)){
