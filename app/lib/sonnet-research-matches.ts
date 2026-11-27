@@ -119,7 +119,7 @@ export function explainCandidate(origin:Product,p:any,country:string,query?:stri
 }
 export async function productionStrengthSearch(input:{drugName:unknown;originCountry:unknown;targetCountry:unknown;drugDosage?:unknown;originSelection?:unknown},identifyOnly=false,diagnosticRequested=false):Promise<Response>{
  if(!productionFrontendEnabled())return Response.json({error:'NOT_FOUND'},{status:404});
- const claude=claudePreviewEnabled(),deadline=Date.now()+100_000;
+ const claude=claudePreviewEnabled(),deadline=Date.now()+115_000;
  const debug=claude&&diagnosticRequested&&!identifyOnly?{stage:'origin_selection',origin:null as any,discoveryCount:0,discoveryProfiles:[] as any[],catalogues:[] as any[],decisions:[] as any[],acceptedCount:0,truncated:false}:null;
  const started=Date.now();
  const debugResponse=()=>debug?{equivalentDebug:{...debug,elapsedMs:Date.now()-started}}:{};
@@ -300,7 +300,7 @@ export async function verifyOriginSelection(input:{drugName:unknown;originCountr
   const status=profile?.field_status||{};
   // Route is optional evidence: a route the documents do not state stays 'unknown' and never blocks the search.
   const stated=['apis','strength','form'].every(k=>status[k]==='stated');const routeStated=status.route==='stated'&&plain(profile?.route,100);
-  const outcome=(code:string)=>console.info('[Origin verification]',{outcome:code,fields:status,mismatch:profile?.mismatch===true,sources:Array.isArray(profile?.sources)?profile.sources.length:0});
+  const outcome=(code:string)=>console.info('[Origin verification]',{outcome:code,fields:status,mismatch:profile?.mismatch===true,sources:Array.isArray(profile?.sources)?profile.sources.length:0,...(code.startsWith('mismatch')?{candidate:{form:pendingSelection.form,ingredients:pendingSelection.ingredients},documents:{form:profile?.form,ingredients:profile?.apis}}:{})});
   if(!profile||profile.mismatch===true){outcome('mismatch');return Response.json({error:'ORIGIN_VERIFICATION_MISMATCH'},{status:422,headers:{'Cache-Control':'no-store'}});}
   const verified:Product={
    name:pendingSelection.generic?pendingSelection.name:(plain(profile.product_name,250)?profile.product_name:pendingSelection.name),

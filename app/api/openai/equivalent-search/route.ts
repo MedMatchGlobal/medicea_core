@@ -5,7 +5,7 @@ import {withMembership} from '@/lib/membership/meter';
 import {claudePreviewEnabled} from '@/app/lib/claude-preview';
 import {refreshAiConfig} from '@/app/lib/ai-config';
 import {productionStrengthSearch} from '@/app/lib/sonnet-research-matches';
-export const maxDuration = 120;
+export const maxDuration = 150;
 import { openaiFetch } from "@/app/lib/openaiClient";
 import { NextResponse } from "next/server";
 

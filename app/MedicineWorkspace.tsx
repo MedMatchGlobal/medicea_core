@@ -1415,12 +1415,12 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
             {originUnconfirmedCount>0&&<p>Some source-backed profiles are shown below as unconfirmed because one or more of the four selection details are missing.</p>}
             {originPartialProfiles.map((profile,index)=><article className="medicine-result-card" key={profile.sources?.[0]||index}>
               <h4>{profile.name}</h4>
-              <p>{profile.form} · {['not confirmed','unknown'].includes(profile.route?.toLowerCase())?'route not confirmed':profile.route}</p>
+              <p>{[profile.form,['not confirmed','unknown'].includes(profile.route?.toLowerCase())?'':profile.route].filter(Boolean).join(' · ')}</p>
               {profile.ingredients?.length>0&&<ul>{profile.ingredients.map((ingredient:any,i:number)=><li key={ingredient.name+i}>{ingredient.name}: <strong>{ingredient.strength}</strong></li>)}</ul>}
               {profile.missingFields?.length>0&&<p>Not confirmed: {profile.missingFields.join(', ')}</p>}
             </article>)}
             {originVariants.map(variant=><article className="medicine-result-card" key={variant.token}>
-              <h4>{variant.name}</h4><p>{variant.form} · {variant.route?.toLowerCase()==='unknown'?'route not confirmed':variant.route}</p>
+              <h4>{variant.name}</h4><p>{[variant.form,variant.route?.toLowerCase()==='unknown'?'':variant.route].filter(Boolean).join(' · ')}</p>
               <ul>{variant.ingredients.map(i=><li key={i.name}>{i.name}: <strong>{i.strength}</strong></li>)}</ul>
               {variant.pending&&<p className="search-note">{originVerifyCopy(lang).pending}</p>}
               {originVerifying&&originVerifyToken===variant.token&&<p role="status" aria-live="polite"><strong>{originVerifyCopy(lang).checking}</strong></p>}

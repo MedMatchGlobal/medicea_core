@@ -92,7 +92,7 @@ export function readClaudeResearch(payload:any){
 export async function claudeMessage(system:string,messages:any[],research:boolean,deadline:number,maxTokens=8000,parentSignal?:AbortSignal|null,fullDocuments=false,documentBudget?:{maxFetches?:number;maxContentTokens?:number},effort:'low'|'medium'|'high'='medium'){
  if(!claudePreviewEnabled()||typeof window!=='undefined')throw Error('CLAUDE_PREVIEW_DISABLED');
  const key=process.env.ANTHROPIC_API_KEY?.trim();if(!key)throw Error('CLAUDE_KEY_MISSING');
- const remaining=Math.min(50_000,deadline-Date.now());if(remaining<=0)throw Error('CLAUDE_TIMEOUT');
+ const remaining=Math.min(85_000,deadline-Date.now());if(remaining<=0)throw Error('CLAUDE_TIMEOUT');
  const controller=new AbortController(),cancel=()=>controller.abort(),timer=setTimeout(cancel,remaining);
  parentSignal?.addEventListener('abort',cancel,{once:true});if(parentSignal?.aborted)cancel();
  const started=Date.now();try{
