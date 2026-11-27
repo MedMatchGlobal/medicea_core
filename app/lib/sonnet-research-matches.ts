@@ -270,6 +270,7 @@ export async function productionStrengthSearch(input:{drugName:unknown;originCou
   const accepted=catalogueProducts.filter(p=>sameProductComposition(origin,p));
   const unique=deduplicatePresentations(accepted,identity,candidateIdentity);
   const excludedReasons=catalogueProducts.filter(p=>!sameProductComposition(origin,p)).flatMap(p=>explainCandidate(origin,p,targetCountry).reasons);
+  if(claude)console.info('[Equivalence comparison]',{candidates:catalogueProducts.length,accepted:accepted.length,origin:{form:origin.form,route:origin.route,ingredients:origin.ingredients.map(i=>i.name+' '+i.strength)},rejected:catalogueProducts.filter(p=>!sameProductComposition(origin,p)).slice(0,8).map(p=>({form:p.form,route:p.route,ingredients:Array.isArray(p.ingredients)?p.ingredients.map((i:any)=>String(i.name)+' '+String(i.strength)):[],reasons:explainCandidate(origin,p,targetCountry).reasons}))});
   const exclusions=[...new Set(excludedReasons)].map(reason=>({reason,count:excludedReasons.filter(value=>value===reason).length}));
   // Preserve discovery order after acceptance. Excipients cannot rescue a missing or
   // extra API, wrong strength/form, or a known conflicting route/release.
