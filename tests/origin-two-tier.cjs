@@ -85,3 +85,16 @@ test('route wording from documents is reduced to a standard route name or stays 
  assert.equal(standardRoute('as directed by your doctor'),'unknown');
  assert.equal(standardRoute(null),'unknown');
 });
+
+test('strength per-unit wording in other languages is reduced to a standard unit',()=>{
+ const src=require('node:fs').readFileSync(require('node:path').join(__dirname,'../app/lib/sonnet-research-matches.ts'),'utf8');
+ const body=src.match(/export function standardStrength[\s\S]*?\n}\n/)[0].replace('export function','function').replace(/:unknown\)/,')').replace(/\):string\{/,'){').replace(/let t=/,'var t=');
+ const f=new Function(body+';return standardStrength;')();
+ const a=require('node:assert/strict');
+ a.equal(f('5 mg par comprimé'),'5 mg per tablet');
+ a.equal(f('5 mg per compressa'),'5 mg per tablet');
+ a.equal(f('5 mg per tablet'),'5 mg per tablet');
+ a.equal(f('5 mg'),'5 mg');
+ a.equal(f('5 milligram per Tablette'),'5 mg per tablet');
+ a.equal(f('500 mg/gélule'),'500 mg per capsule');
+});

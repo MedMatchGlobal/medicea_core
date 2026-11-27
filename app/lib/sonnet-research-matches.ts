@@ -157,7 +157,7 @@ export async function productionStrengthSearch(input:{drugName:unknown;originCou
      form:plain(profile?.form,100)?profile.form:'unknown',
      route:plain(profile?.route,100)?profile.route:'unknown',
      release:'unknown',species:[],complete:confirmed&&profile?.status==='confirmed',generic:!brandQuery,
-     ingredients:Array.isArray(profile?.apis)?profile.apis.filter((api:any)=>api&&plain(api.name)&&plain(api.strength,100)).map((api:any)=>({name:api.name,strength:api.strength})):[],
+     ingredients:Array.isArray(profile?.apis)?profile.apis.filter((api:any)=>api&&plain(api.name)&&plain(api.strength,100)).map((api:any)=>({name:api.name,strength:standardStrength(api.strength)})):[],
      sources:Array.isArray(profile?.sources)?(!confirmed&&typeof profile?.record_url==='string'&&/^https:\/\//i.test(profile.record_url)?Array.from(new Set([profile.record_url,...profile.sources])):profile.sources):[],
      status:confirmed?'confirmed':'partial',
      missing_fields:Array.isArray(profile?.missing_fields)?profile.missing_fields:[]
@@ -301,6 +301,17 @@ export function standardRoute(text:unknown):string{
  if(/\b(inject|intravenous|intramuscular|subcutaneous)/.test(t))return /intravenous/.test(t)?'intravenous':/intramuscular/.test(t)?'intramuscular':/subcutaneous/.test(t)?'subcutaneous':'injection';
  return 'unknown';
 }
+// Documents write the per-unit in their own language ("5 mg par comprimé"); keep the amount and
+// unit, reduce only the per-unit word to a standard one. Anything else is left unchanged and still validated.
+export function standardStrength(text:unknown):string{
+ let t=typeof text==='string'?text.trim():'';
+ t=t.replace(/\bmilligrams?\b/gi,'mg').replace(/\bmicrograms?\b/gi,'mcg');
+ const tablet='(?:film[- ]?coated\\s+|prolonged[- ]release\\s+|chewable\\s+|soluble\\s+)?(?:tablets?|tablette[n]?|comprim[eé]s?|comprimidos?|compress[ae]|tabletas?|tabl\\.?)';
+ const capsule='(?:g[eé]lules?|capsules?|c[aá]psulas?|capsula|kapsel[n]?|kapseln)';
+ t=t.replace(new RegExp('\\s*(?:per|par|pro|por|/)\\s*(?:(?:1|one|un|une|una|ein|eine)\\s+)?'+tablet+'(?![A-Za-z\\u00C0-\\u00FF]).*$','i'),' per tablet');
+ t=t.replace(new RegExp('\\s*(?:per|par|pro|por|/)\\s*(?:(?:1|one|un|une|una|ein|eine)\\s+)?'+capsule+'(?![A-Za-z\\u00C0-\\u00FF]).*$','i'),' per capsule');
+ return t;
+}
 export async function verifyOriginSelection(input:{drugName:unknown;originCountry:unknown;originSelection:unknown}):Promise<Response>{
  if(!productionFrontendEnabled())return Response.json({error:'NOT_FOUND'},{status:404});
  const {drugName,originCountry}=input;
@@ -326,7 +337,7 @@ export async function verifyOriginSelection(input:{drugName:unknown;originCountr
   };
   if(!stated||!validOriginChoice(verified,originCountry,true)){
    // Booleans only: which requirement failed, never document text.
-   console.info('[Origin verification checks]',{stated,formOk:plain(verified.form,100)&&!/(?:unknown|unspecified|varies|various|inferred|not stated|unconfirmed)/i.test(verified.form),routeLen:typeof profile.route==='string'?profile.route.length:0,ingredients:verified.ingredients.length,badStrengths:verified.ingredients.filter((i:any)=>!amount.test(String(i.strength).trim())).length,sourcesOk:verified.sources.length>0&&verified.sources.every((u:any)=>typeof u==='string'&&/^https:\/\//i.test(u))});
+   console.info('[Origin verification checks]',{stated,formOk:plain(verified.form,100)&&!/(?:unknown|unspecified|varies|various|inferred|not stated|unconfirmed)/i.test(verified.form),routeLen:typeof profile.route==='string'?profile.route.length:0,ingredients:verified.ingredients.length,badStrengths:verified.ingredients.filter((i:any)=>!amount.test(String(i.strength).trim())).length,strengthSeen:verified.ingredients.map((i:any)=>String(i.strength).slice(0,60)),sourcesOk:verified.sources.length>0&&verified.sources.every((u:any)=>typeof u==='string'&&/^https:\/\//i.test(u))});
    outcome('incomplete');return Response.json({error:'ORIGIN_VERIFICATION_INCOMPLETE'},{status:422,headers:{'Cache-Control':'no-store'}});}
   // A document that disagrees with fields already known for the candidate is a mismatch, not a correction.
   const known=(pendingSelection.ingredients||[]).filter((i:any)=>plain(i?.name)&&plain(i?.strength,100)&&amount.test(String(i.strength).trim()));
