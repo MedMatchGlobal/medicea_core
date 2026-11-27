@@ -25,6 +25,7 @@ import {leafletIdentity} from './lib/leaflet-identity';
 import {parseEquivalentCandidates} from './lib/equivalent-results';
 import type {OriginVariant} from './lib/origin-variants';
 import {originChoiceCopy} from './i18n/origin-choice';
+import {originVerifyCopy} from './i18n/origin-verify';
 
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
@@ -651,6 +652,8 @@ function Home({ petMode = false, originVariantSelectionEnabled=false }: { petMod
   const [originLeafletPending,setOriginLeafletPending]=useState(false);
   const [originLeafletError,setOriginLeafletError]=useState(false);
   const [originUnconfirmedCount,setOriginUnconfirmedCount]=useState(0);
+  const [originVerifying,setOriginVerifying]=useState(false);
+  const [originVerifyError,setOriginVerifyError]=useState('');
   const [originPartialProfiles,setOriginPartialProfiles]=useState<any[]>([]);
   const [originCoverageComplete,setOriginCoverageComplete]=useState(true);
   const [originUnchecked,setOriginUnchecked]=useState<string[]>([]);
@@ -794,7 +797,24 @@ function Home({ petMode = false, originVariantSelectionEnabled=false }: { petMod
   const handleSearch = async (selection?:OriginVariant) => {
     if(loading||checkingAccess)return;
     const version = ++searchVersion.current;
-    setOriginIdentificationStopped(false);setOriginUnconfirmedCount(0);setOriginCoverageComplete(true);
+    // Two-tier origin: a "to be confirmed" candidate is verified from its official
+    // documents first. Only a fully verified record continues to leaflet and equivalence.
+    if(selection?.pending){
+      const verifyCopy=originVerifyCopy(lang);
+      setOriginVerifyError('');setOriginVerifying(true);setCheckingAccess(true);
+      try{
+        const response=await membershipFetch('/api/openai/verify-origin',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({drugName:selectedDrug,originCountry:originCode,originSelection:selection.token})});
+        const verified=await response.json().catch(()=>null);
+        if(version!==searchVersion.current)return;
+        if(!response.ok||!verified?.variant?.token){setOriginVerifyError(verified?.error==='ORIGIN_VERIFICATION_MISMATCH'?verifyCopy.mismatch:verified?.error==='ORIGIN_VERIFICATION_INCOMPLETE'?verifyCopy.incomplete:verifyCopy.unavailable);return;}
+        setCheckingAccess(false);setOriginVerifying(false);
+        await handleSearch(verified.variant as OriginVariant);return;
+      }catch(error){
+        if(error instanceof MembershipAccessError)return;
+        setOriginVerifyError(verifyCopy.unavailable);return;
+      }finally{setCheckingAccess(false);setOriginVerifying(false);}
+    }
+    setOriginIdentificationStopped(false);setOriginUnconfirmedCount(0);setOriginCoverageComplete(true);setOriginVerifyError('');
     if (mode === 'triage') return;
 
     /* ---------------- LOCAL SEARCH BRANCH: open Google Maps ---------------- */
@@ -1388,8 +1408,10 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
           {restoredSearch && <p className="search-note">{savedSearchCopy(lang).historical} · {new Date(restoredSearch.savedAt).toLocaleString(lang)}</p>}
           {!loading&&originVariants.length>0&&<section aria-labelledby="origin-choice-title">
             <h3 id="origin-choice-title">{originChoiceCopy(lang).title}</h3><p>{originChoiceCopy(lang).body}</p>
-            {!originCoverageComplete&&<p>We confirmed these presentations from sources, but could not confirm that we found every available strength and formulation. The list may be incomplete.</p>}
-            {originUnchecked.length>0&&<div className="search-note"><p>Not checked in this search:</p><ul>{originUnchecked.map((item,index)=><li key={index}>{item}</li>)}</ul></div>}
+            {!originCoverageComplete&&<p>{originVerifyCopy(lang).listIncomplete}</p>}
+            {originUnchecked.length>0&&<details className="search-note"><summary>{originVerifyCopy(lang).details}</summary><ul>{originUnchecked.map((item,index)=><li key={index}>{item}</li>)}</ul></details>}
+            {originVerifying&&<p role="status" aria-live="polite">{originVerifyCopy(lang).checking}</p>}
+            {originVerifyError&&<p role="alert" className="search-note">{originVerifyError}</p>}
             {originUnconfirmedCount>0&&<p>Some source-backed profiles are shown below as unconfirmed because one or more of the four selection details are missing.</p>}
             {originPartialProfiles.map((profile,index)=><article className="medicine-result-card" key={profile.sources?.[0]||index}>
               <h4>{profile.name}</h4>
@@ -1400,7 +1422,8 @@ Tone: calm, supportive, non-alarming. Be country-aware about access rules and pa
             {originVariants.map(variant=><article className="medicine-result-card" key={variant.token}>
               <h4>{variant.name}</h4><p>{variant.form} · {variant.route?.toLowerCase()==='unknown'?'route not confirmed':variant.route}</p>
               <ul>{variant.ingredients.map(i=><li key={i.name}>{i.name}: <strong>{i.strength}</strong></li>)}</ul>
-              <button className="pill pill--blue" disabled={checkingAccess} onClick={()=>handleSearch(variant)}>{originChoiceCopy(lang).choose}</button>
+              {variant.pending&&<p className="search-note">{originVerifyCopy(lang).pending}</p>}
+              <button className="pill pill--blue" disabled={checkingAccess} onClick={()=>handleSearch(variant)}>{variant.pending?originVerifyCopy(lang).choose:originChoiceCopy(lang).choose}</button>
             </article>)}
           </section>}
           {!originVariants.length&&<>

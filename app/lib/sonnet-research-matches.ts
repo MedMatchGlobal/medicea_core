@@ -4,7 +4,7 @@ import {supplierOf,productIdentifierOf,presentationQuery,catalogueSupplierAgrees
 import {openaiFetch} from './openaiClient';
 import {compareExcipients} from './excipient-comparison';
 import {leafletIdentity} from './leaflet-identity';
-import {originIdentificationInstruction,equivalenceDiscoveryInstruction,equivalenceCatalogueInstruction,equivalentResearchMetadata} from './equivalence-research-prompt';
+import {originIdentificationInstruction,originVerificationInstruction,equivalenceDiscoveryInstruction,equivalenceCatalogueInstruction,equivalentResearchMetadata} from './equivalence-research-prompt';
 const productionFrontendEnabled=claudePreviewEnabled;
 import {exactComposition,exactMedicineCore,issueOriginSelection,readOriginSelection,type OriginProduct,isMedicineName} from './sonnet-research-support';
 
@@ -191,10 +191,18 @@ export async function productionStrengthSearch(input:{drugName:unknown;originCou
    }
    const unique=Array.from(grouped.values());
    const products=unique;
-   if(!products.length&&unconfirmed.length)return Response.json({error:'ORIGIN_DETAILS_UNCONFIRMED',unconfirmedVariants:unconfirmed},{status:422});
-   if(claude&&reply.variants_complete===false&&!products.length)throw Error('UNRESOLVED_VARIANTS');
-   if(!products.length)return Response.json({error:unique.length?'ORIGIN_STRENGTH_MISMATCH':'NOT_FOUND_ORIGIN'},{status:422});
-   if(identifyOnly)return Response.json({variants:products.map(p=>({name:brandQuery?p.name:p.ingredients.map(i=>i.name).join(' + '),country:p.country,form:p.form,route:p.route,release:'unknown',ingredients:p.ingredients,sources:p.sources,token:issueOriginSelection(p,drugName)})),requiresChoice:true,coverageComplete:reply.variants_complete===true,unchecked:Array.isArray(reply.unchecked)?reply.unchecked.filter((item:any)=>typeof item==='string').slice(0,100):[],...(unconfirmed.length?{unconfirmedVariants:unconfirmed}:{})},{headers:{'Cache-Control':'no-store'}});
+   // Two-tier origin (owner-approved 2026-11-27): a named, source-linked candidate with
+   // missing fields is selectable but PENDING. It never launches a leaflet or equivalence;
+   // the selected one is verified from its official documents first. Nothing is inferred.
+   const confirmedKeys=new Set(products.map(p=>norm(p.name)+'|'+originFormKey(p.form)));
+   const pending=identifyOnly&&claude?unconfirmed.filter((u:any)=>plain(u.name,250)&&u.name!=='Unconfirmed medicine profile'&&Array.isArray(u.sources)&&u.sources.length&&!confirmedKeys.has(norm(u.name)+'|'+originFormKey(u.form))).slice(0,12).map((u:any)=>({name:u.name,country:originCountry,form:u.form,route:u.route,release:'unknown',ingredients:u.ingredients,sources:u.sources,pending:true,missingFields:u.missingFields,token:issueOriginSelection({name:u.name,country:originCountry,form:u.form,route:u.route,release:'unknown',species:[],complete:false,generic:!brandQuery,ingredients:u.ingredients,sources:u.sources,lookup:'original',pending:true} as any,drugName)})):[];
+   const pendingNames=new Set(pending.map((u:any)=>u.name));
+   const remainingUnconfirmed=unconfirmed.filter((u:any)=>!pendingNames.has(u.name));
+   if(!products.length&&!pending.length&&unconfirmed.length)return Response.json({error:'ORIGIN_DETAILS_UNCONFIRMED',unconfirmedVariants:unconfirmed},{status:422});
+   if(claude&&reply.variants_complete===false&&!products.length&&!pending.length)throw Error('UNRESOLVED_VARIANTS');
+   if(!products.length&&!pending.length)return Response.json({error:unique.length?'ORIGIN_STRENGTH_MISMATCH':'NOT_FOUND_ORIGIN'},{status:422});
+   if(!products.length&&!identifyOnly)return Response.json({error:'ORIGIN_DETAILS_UNCONFIRMED',unconfirmedVariants:unconfirmed},{status:422});
+   if(identifyOnly)return Response.json({variants:[...products.map(p=>({name:brandQuery?p.name:p.ingredients.map(i=>i.name).join(' + '),country:p.country,form:p.form,route:p.route,release:'unknown',ingredients:p.ingredients,sources:p.sources,token:issueOriginSelection(p,drugName)})),...pending],requiresChoice:true,coverageComplete:reply.variants_complete===true,unchecked:Array.isArray(reply.unchecked)?reply.unchecked.filter((item:any)=>typeof item==='string').slice(0,100):[],...(remainingUnconfirmed.length?{unconfirmedVariants:remainingUnconfirmed}:{})},{headers:{'Cache-Control':'no-store'}});
    return Response.json({error:'CHOOSE_ORIGIN_VARIANT',variants:products.map(p=>({name:brandQuery?p.name:p.ingredients.map(i=>i.name).join(' + '),form:p.form,route:p.route,ingredients:p.ingredients,sources:p.sources,token:issueOriginSelection(p,drugName)}))},{status:409,headers:{'Cache-Control':'no-store'}});
    // Every supported presentation requires explicit selection, including a single result.
   }
@@ -273,3 +281,34 @@ export async function productionStrengthSearch(input:{drugName:unknown;originCou
  }
 }
 
+
+// Second tier: verify the ONE presentation the patient selected from its official
+// documents. Only a presentation with all four fields explicitly stated returns a
+// normal (verified) selection token; anything else stops with a plain reason.
+export async function verifyOriginSelection(input:{drugName:unknown;originCountry:unknown;originSelection:unknown}):Promise<Response>{
+ if(!productionFrontendEnabled())return Response.json({error:'NOT_FOUND'},{status:404});
+ const {drugName,originCountry}=input;
+ if(!plain(drugName,250)||!plain(originCountry))return Response.json({error:'INVALID_INPUT'},{status:400});
+ const pendingSelection:any=readOriginSelection(input.originSelection,drugName,originCountry,'');
+ if(!pendingSelection||pendingSelection.lookup!=='original'||pendingSelection.pending!==true)return Response.json({error:'ORIGIN_SELECTION_EXPIRED'},{status:422});
+ const deadline=Date.now()+80_000;
+ try{
+  const reply=await claudeResearch(originVerificationInstruction,{country:originCountry,product_name:pendingSelection.name,candidate_sources:pendingSelection.sources,candidate_fields:{form:pendingSelection.form,route:pendingSelection.route,ingredients:pendingSelection.ingredients}},deadline,{standaloneInstruction:true,fullDocuments:true,maxFetches:4,maxContentTokens:24000,maxTokens:4000,effort:'medium'});
+  const profile:any=Array.isArray(reply.profiles)?reply.profiles[0]:null;
+  const status=profile?.field_status||{};
+  const stated=['apis','strength','form','route'].every(k=>status[k]==='stated');
+  if(!profile||profile.mismatch===true)return Response.json({error:'ORIGIN_VERIFICATION_MISMATCH'},{status:422,headers:{'Cache-Control':'no-store'}});
+  const verified:Product={
+   name:pendingSelection.generic?pendingSelection.name:(plain(profile.product_name,250)?profile.product_name:pendingSelection.name),
+   country:originCountry,form:plain(profile.form,100)?profile.form:'unknown',route:plain(profile.route,100)?profile.route:'unknown',release:'unknown',species:[],complete:true,generic:pendingSelection.generic===true,
+   ingredients:Array.isArray(profile.apis)?profile.apis.filter((api:any)=>api&&plain(api.name)&&plain(api.strength,100)).map((api:any)=>({name:api.name,strength:api.strength})):[],
+   sources:Array.isArray(profile.sources)?profile.sources:[],lookup:'original'
+  };
+  if(!stated||!validOriginChoice(verified,originCountry))return Response.json({error:'ORIGIN_VERIFICATION_INCOMPLETE'},{status:422,headers:{'Cache-Control':'no-store'}});
+  // A document that disagrees with fields already known for the candidate is a mismatch, not a correction.
+  const known=(pendingSelection.ingredients||[]).filter((i:any)=>plain(i?.name)&&plain(i?.strength,100));
+  if(known.length&&!known.every((i:any)=>verified.ingredients.some(v=>norm(v.name).includes(norm(i.name).split(' ')[0])&&norm(v.strength).replace(/\s+/g,'').startsWith(norm(i.strength).replace(/\s+/g,'').replace(/(?:per|\/).*$/,'')))))return Response.json({error:'ORIGIN_VERIFICATION_MISMATCH'},{status:422,headers:{'Cache-Control':'no-store'}});
+  const meta=equivalentResearchMetadata({market_status:profile.marketed==='yes'?'listed_as_marketed':profile.marketed==='no'?'discontinued':'unverified',legal_status:profile.legal_status});
+  return Response.json({verified:true,variant:{name:verified.name,country:verified.country,form:verified.form,route:verified.route,release:'unknown',ingredients:verified.ingredients,sources:verified.sources,token:issueOriginSelection(verified,drugName)},marketed:profile.marketed==='yes'||profile.marketed==='no'?profile.marketed:'unknown',legalStatus:meta.legalStatus,marketingAuthorisationHolder:plain(profile.marketing_authorisation_holder,200)?profile.marketing_authorisation_holder:null},{headers:{'Cache-Control':'no-store'}});
+ }catch{return Response.json({error:'ORIGIN_VERIFICATION_UNAVAILABLE'},{status:503,headers:{'Cache-Control':'no-store'}});}
+}
