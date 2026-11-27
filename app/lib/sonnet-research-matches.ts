@@ -294,7 +294,7 @@ export async function productionStrengthSearch(input:{drugName:unknown;originCou
 // a standard route name. Only a clear route wording maps; anything else stays 'unknown' (never blocks).
 export function standardRoute(text:unknown):string{
  const t=typeof text==='string'?text.toLowerCase():'';
- if(/\b(oral|orally|by mouth|swallow|swallowed|dissolve in water|drink|chew|sublingual|buccal)\b/.test(t))return /\b(sublingual|buccal)\b/.test(t)?(t.includes('sublingual')?'sublingual':'buccal'):'oral';
+ if(/\b(oral|orally|by mouth|swallow|swallowed|dissolve in water|drink|chew|sublingual|buccal|oraal|orale|voie orale|par voie orale|per via orale|v[ií]a oral|zum einnehmen|einnehmen|schlucken|slikken|avaler|inghiottire|tragar)\b/.test(t))return /\b(sublingual|buccal)\b/.test(t)?(t.includes('sublingual')?'sublingual':'buccal'):'oral';
  if(/\b(topical|cutaneous|apply to (?:the )?skin|rub (?:in|into))\b/.test(t))return 'topical';
  if(/\b(inhal|nasal|intranasal)/.test(t))return /nasal/.test(t)?'nasal':'inhalation';
  if(/\b(rectal|vaginal|ophthalmic|ocular|eye|ear|otic)\b/.test(t))return (t.match(/\b(rectal|vaginal|ophthalmic|ocular|eye|ear|otic)\b/)||[''])[0].replace(/^eye$/,'ophthalmic').replace(/^ocular$/,'ophthalmic').replace(/^ear$/,'otic');
@@ -324,7 +324,10 @@ export async function verifyOriginSelection(input:{drugName:unknown;originCountr
    ingredients:Array.isArray(profile.apis)?profile.apis.filter((api:any)=>api&&plain(api.name)&&plain(api.strength,100)).map((api:any)=>({name:api.name,strength:api.strength})):[],
    sources:Array.isArray(profile.sources)?profile.sources:[],lookup:'original'
   };
-  if(!stated||!validOriginChoice(verified,originCountry,true)){outcome('incomplete');return Response.json({error:'ORIGIN_VERIFICATION_INCOMPLETE'},{status:422,headers:{'Cache-Control':'no-store'}});}
+  if(!stated||!validOriginChoice(verified,originCountry,true)){
+   // Booleans only: which requirement failed, never document text.
+   console.info('[Origin verification checks]',{stated,formOk:plain(verified.form,100)&&!/(?:unknown|unspecified|varies|various|inferred|not stated|unconfirmed)/i.test(verified.form),routeLen:typeof profile.route==='string'?profile.route.length:0,ingredients:verified.ingredients.length,badStrengths:verified.ingredients.filter((i:any)=>!amount.test(String(i.strength).trim())).length,sourcesOk:verified.sources.length>0&&verified.sources.every((u:any)=>typeof u==='string'&&/^https:\/\//i.test(u))});
+   outcome('incomplete');return Response.json({error:'ORIGIN_VERIFICATION_INCOMPLETE'},{status:422,headers:{'Cache-Control':'no-store'}});}
   // A document that disagrees with fields already known for the candidate is a mismatch, not a correction.
   const known=(pendingSelection.ingredients||[]).filter((i:any)=>plain(i?.name)&&plain(i?.strength,100)&&amount.test(String(i.strength).trim()));
   if(known.length&&!known.every((i:any)=>verified.ingredients.some(v=>norm(v.name).includes(norm(i.name).split(' ')[0])&&norm(v.strength).replace(/\s+/g,'').startsWith(norm(i.strength).replace(/\s+/g,'').replace(/(?:per|\/).*$/,''))))){outcome('mismatch_strength');return Response.json({error:'ORIGIN_VERIFICATION_MISMATCH'},{status:422,headers:{'Cache-Control':'no-store'}});}
