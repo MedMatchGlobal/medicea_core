@@ -259,6 +259,10 @@ export async function productionStrengthSearch(input:{drugName:unknown;originCou
      if(rows.length>remaining)debug.truncated=true;
     }
     if(claude){
+     const rows:any[]=entries.flatMap((entry:any)=>Array.isArray(entry.products)?entry.products:[]);
+     console.info('[Equivalence catalogue]',{query:query.slice(0,120),entries:entries.length,variantsComplete:entries[0]?.variants_complete,products:rows.length,valid:rows.filter((p:any)=>valid(p,targetCountry)).length,invalid:rows.filter((p:any)=>!valid(p,targetCountry)).slice(0,6).map((p:any)=>({name:String(p?.name).slice(0,80),form:p?.form,route:p?.route,ingredients:Array.isArray(p?.ingredients)?p.ingredients.map((i:any)=>String(i?.name)+' '+String(i?.strength)):null,complete:p?.complete,generic:p?.generic,country:p?.country,reasons:explainCandidate(origin,p,targetCountry).reasons}))});
+    }
+    if(claude){
      // One unresolved brand must not erase independently sourced, fully valid
      // products for other brands. Each accepted profile still passes all gates.
      if(entries.length===1&&typeof entries[0].variants_complete==='boolean'&&Array.isArray(entries[0].products)&&entries[0].products.length<=24)catalogueProducts.push(...entries[0].products.filter((p:any)=>valid(p,targetCountry)&&catalogueSupplierAgrees(p,querySuppliers.get(catalogueKey(query)))));
