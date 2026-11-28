@@ -3,6 +3,7 @@ import {useEffect,useRef,useState} from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 import {Phone} from 'lucide-react';
 import {useLanguage} from '../LanguageProvider';
+import {loadEmergencyContact,mapsLink,smsHref,type EmergencyContact} from '../lib/emergency-contact';
 import {currentEmergencyLocation,lookupEmergencyCountry,type EmergencyLocation,EMERGENCY_COUNTRIES,emergencyNumber,emergencySource} from '../lib/emergency';
 
 const EN = {
@@ -26,12 +27,14 @@ export default function EmergencyHelp() {
   const [open,setOpen]=useState(false),[country,setCountry]=useState(''),[busy,setBusy]=useState(false),[error,setError]=useState(false);
   const [location,setLocation]=useState<EmergencyLocation|null>(null),[address,setAddress]=useState<string|null>(null),[source,setSource]=useState<'gps'|'ip'|null>(null),[confirmed,setConfirmed]=useState(false);
   const pending=useRef<AbortController|null>(null);
+  const [contact,setContact]=useState<EmergencyContact|null>(null);
+  const t2=lang==='it'?{callContact:'Chiama',textContact:'Scrivi la mia posizione a',noContact:'Aggiungi un contatto di emergenza nel tuo Account per chiamarlo o scrivergli da qui.',needLocation:'Premi «Usa la mia posizione attuale» per aggiungere la posizione al messaggio.',message:'SOS: ho bisogno di aiuto. La mia posizione:',noPosition:'SOS: ho bisogno di aiuto. Non riesco a inviare la posizione.',confirm:'Si apre il telefono o i messaggi con il testo già scritto: devi toccare per chiamare o inviare.'}:{callContact:'Call',textContact:'Text my location to',noContact:'Add an emergency contact in your Account to call or text them from here.',needLocation:'Tap “Use my current location” first to add your location to the message.',message:'SOS: I need help. My location:',noPosition:'SOS: I need help. I could not get my location.',confirm:'This opens your phone or messages with the text already written. You tap to call or send.'};
   useEffect(()=>()=>pending.current?.abort(),[]);
   const number=emergencyNumber(country);
   const names=new Intl.DisplayNames([lang],{type:'region'});
   const options=EMERGENCY_COUNTRIES.map(code=>({code,name:names.of(code)||code})).sort((a,b)=>a.name.localeCompare(b.name,lang));
   function cancel(){pending.current?.abort();pending.current=null;setBusy(false);}
-  function changeOpen(value:boolean){cancel();setOpen(value);setCountry('');setError(false);setLocation(null);setAddress(null);setSource(null);setConfirmed(false);}
+  function changeOpen(value:boolean){if(value)setContact(loadEmergencyContact());cancel();setOpen(value);setCountry('');setError(false);setLocation(null);setAddress(null);setSource(null);setConfirmed(false);}
   async function locate(){
     cancel();setCountry('');setError(false);setLocation(null);setAddress(null);setSource(null);setConfirmed(false);setBusy(true);
     const controller=new AbortController();pending.current=controller;
@@ -54,6 +57,14 @@ export default function EmergencyHelp() {
     <Dialog.Trigger className="emergency-trigger" aria-label={c.title}><Phone size={18} aria-hidden="true"/>SOS</Dialog.Trigger>
     <Dialog.Portal><Dialog.Overlay className="emergency-overlay"/><Dialog.Content className="emergency-dialog" lang={lang==='it'?'it':'en'} dir="ltr">
       <Dialog.Title>{c.title}</Dialog.Title><Dialog.Description>{c.intro}</Dialog.Description>
+      <section className="emergency-contact" aria-label={lang==='it'?'Contatto di emergenza':'Emergency contact'}>
+        {contact?<>
+          <a className="emergency-call" href={`tel:${contact.number}`}>{t2.callContact} {contact.name||contact.number}</a>
+          <a className="emergency-call" href={smsHref(contact.number,location?`${t2.message} ${mapsLink(location.latitude,location.longitude)}`:t2.noPosition)}>{t2.textContact} {contact.name||contact.number}</a>
+          {!location&&<small>{t2.needLocation}</small>}
+          <small>{t2.confirm}</small>
+        </>:<small>{t2.noContact}</small>}
+      </section>
       <label htmlFor="emergency-country">{c.country}</label>
       <select id="emergency-country" value={country} onChange={e=>{cancel();setError(false);setSource(null);setConfirmed(false);setCountry(e.target.value);}}>
         <option value="">{c.choose}</option>{options.map(o=><option key={o.code} value={o.code}>{o.name}</option>)}<option value="other">{c.other}</option>

@@ -9,6 +9,7 @@ import {useLanguage} from '../LanguageProvider';
 import PlayOptions from './play-options';
 import LanguageButton from '../components/LanguageButton';
 import HomeCountrySettings from './home-country-settings';
+import EmergencyContactSettings from './emergency-contact-settings';
 import AccountPlans from './account-plans';
 import PaymentHistory from './payment-history';
 import ReservationDialog,{type ReservationQuote} from './reservation-dialog';
@@ -99,6 +100,7 @@ export default function MembershipPreview({billingEnabled=true,currency:detected
  </section>
  {signedIn&&billingEnabled&&!native&&<PaymentHistory key={`payments:${status.email}`}/>}
  {signedIn&&<HomeCountrySettings key={`home-country:${status.email}`} country={status.homeCountry} onSaved={homeCountry=>setStatus((previous:any)=>({...previous,homeCountry}))}/>}
+ {signedIn&&<EmergencyContactSettings/>}
  {signedIn&&!status.complimentary&&status.moduleAccess?.length>0&&<section className={`${styles.account} ${styles.complimentaryAccount}`} aria-label={copy.moduleAccessHeading}><div><h2>{copy.moduleAccessHeading}</h2>{status.moduleAccess.map((p:any)=><p key={p.module}><strong>{p.module==='medicine'?copy.moduleMedicine:p.module==='health'?copy.moduleHealth:copy.modulePortal}</strong> · {p.module==='portal'?copy.moduleAllFeatures:p.monthlyLimit===null?copy.moduleUnlimited:membershipText(copy.moduleAllowance,{remaining:number(p.remaining),limit:number(p.monthlyLimit)})} · {p.expiresAt?membershipText(copy.moduleUntil,{date:date(p.expiresAt,true)}):copy.moduleNoExpiry}</p>)}<p className={styles.small}>{copy.moduleNormalAccess}</p></div></section>}
  <div className={styles.feedback}><p role="status" aria-live="polite">{signedIn&&busy?copy.working:message?copy[message]:''}</p>{status===null&&message&&<button className={styles.secondary} disabled={busy} onClick={()=>refresh().then(()=>setMessage(null)).catch(()=>setMessage('accountError'))}>{copy.tryAgain}</button>}</div>
  {portalDiagnostic&&<details className={styles.small}><summary>Error details for support</summary><p>{portalDiagnostic}</p></details>}
