@@ -12,6 +12,8 @@ import {exactComposition,exactMedicineCore,issueOriginSelection,readOriginSelect
 // checks the returned profiles; it is not independent clinical verification.
 type Product=OriginProduct&{release:string;supplier?:unknown;product_identifier?:unknown;excipientEvidence?:unknown};
 const norm=(v:string)=>v.normalize('NFKC').trim().toLowerCase().replace(/\s+/g,' ');
+// Accent-insensitive form for comparing names across languages (mélatonine / melatonin).
+const bare=(v:string)=>v.normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim().toLowerCase().replace(/\s+/g,' ');
 const plain=(v:unknown,max=200):v is string=>typeof v==='string'&&!!v.trim()&&v.length<=max&&!/[<>]/.test(v);
 const amount=/^\d+(?:\.\d+)?\s*(?:mg|mcg|µg|g|IU|units|mmol|%)(?:\s*(?:per|\/)\s*(?:\d+(?:\.\d+)?\s*)?(?:tablet|capsule|sachet|patch|puff|dose|ml|mL|g))?$/i;
 // Formatting and explicit dosage-unit context only. Never convert salt amounts,
@@ -342,7 +344,7 @@ export async function verifyOriginSelection(input:{drugName:unknown;originCountr
    outcome('incomplete');return Response.json({error:'ORIGIN_VERIFICATION_INCOMPLETE'},{status:422,headers:{'Cache-Control':'no-store'}});}
   // A document that disagrees with fields already known for the candidate is a mismatch, not a correction.
   const known=(pendingSelection.ingredients||[]).filter((i:any)=>plain(i?.name)&&plain(i?.strength,100)&&amount.test(String(i.strength).trim()));
-  if(known.length&&!known.every((i:any)=>verified.ingredients.some(v=>norm(v.name).includes(norm(i.name).split(' ')[0])&&norm(v.strength).replace(/\s+/g,'').startsWith(norm(i.strength).replace(/\s+/g,'').replace(/(?:per|\/).*$/,''))))){outcome('mismatch_strength');return Response.json({error:'ORIGIN_VERIFICATION_MISMATCH'},{status:422,headers:{'Cache-Control':'no-store'}});}
+  if(known.length&&!known.every((i:any)=>verified.ingredients.some(v=>bare(v.name).includes(bare(i.name).split(' ')[0])&&norm(v.strength).replace(/\s+/g,'').startsWith(norm(i.strength).replace(/\s+/g,'').replace(/(?:per|\/).*$/,''))))){outcome('mismatch_strength');return Response.json({error:'ORIGIN_VERIFICATION_MISMATCH'},{status:422,headers:{'Cache-Control':'no-store'}});}
   outcome('verified');
   const meta=equivalentResearchMetadata({market_status:profile.marketed==='yes'?'listed_as_marketed':profile.marketed==='no'?'discontinued':'unverified',legal_status:profile.legal_status});
   return Response.json({verified:true,variant:{name:verified.name,country:verified.country,form:verified.form,route:verified.route,release:'unknown',ingredients:verified.ingredients,sources:verified.sources,token:issueOriginSelection(verified,drugName)},marketed:profile.marketed==='yes'||profile.marketed==='no'?profile.marketed:'unknown',legalStatus:meta.legalStatus,marketingAuthorisationHolder:plain(profile.marketing_authorisation_holder,200)?profile.marketing_authorisation_holder:null},{headers:{'Cache-Control':'no-store'}});
