@@ -3,7 +3,7 @@ import {useEffect,useRef,useState} from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 import {Phone} from 'lucide-react';
 import {useLanguage} from '../LanguageProvider';
-import {loadEmergencyContact,mapsLink,smsHref,type EmergencyContact} from '../lib/emergency-contact';
+import {cleanContact,loadEmergencyContact,mapsLink,pickContact,pickerSupported,saveEmergencyContact,smsHref,type EmergencyContact} from '../lib/emergency-contact';
 import {currentEmergencyLocation,lookupEmergencyCountry,type EmergencyLocation,EMERGENCY_COUNTRIES,emergencyNumber,emergencySource} from '../lib/emergency';
 
 const EN = {
@@ -28,13 +28,18 @@ export default function EmergencyHelp() {
   const [location,setLocation]=useState<EmergencyLocation|null>(null),[address,setAddress]=useState<string|null>(null),[source,setSource]=useState<'gps'|'ip'|null>(null),[confirmed,setConfirmed]=useState(false);
   const pending=useRef<AbortController|null>(null);
   const [contact,setContact]=useState<EmergencyContact|null>(null);
-  const t2=lang==='it'?{callContact:'Chiama',textContact:'Scrivi la mia posizione a',noContact:'Aggiungi un contatto di emergenza nel tuo Account per chiamarlo o scrivergli da qui.',needLocation:'Premi «Usa la mia posizione attuale» per aggiungere la posizione al messaggio.',message:'SOS: ho bisogno di aiuto. La mia posizione:',noPosition:'SOS: ho bisogno di aiuto. Non riesco a inviare la posizione.',confirm:'Si apre il telefono o i messaggi con il testo già scritto: devi toccare per chiamare o inviare.'}:{callContact:'Call',textContact:'Text my location to',noContact:'Add an emergency contact in your Account to call or text them from here.',needLocation:'Tap “Use my current location” first to add your location to the message.',message:'SOS: I need help. My location:',noPosition:'SOS: I need help. I could not get my location.',confirm:'This opens your phone or messages with the text already written. You tap to call or send.'};
+  const [editing,setEditing]=useState(false),[draftName,setDraftName]=useState(''),[draftNumber,setDraftNumber]=useState(''),[draftBad,setDraftBad]=useState(false);
+  function startEdit(){setDraftName(contact?.name||'');setDraftNumber(contact?.number||'');setDraftBad(false);setEditing(true);}
+  function saveDraft(){const next=cleanContact({name:draftName,number:draftNumber});if(!next||!saveEmergencyContact(next)){setDraftBad(true);return;}setContact(next);setEditing(false);}
+  function removeContact(){saveEmergencyContact(null);setContact(null);setEditing(false);}
+  async function chooseContact(){const next=await pickContact();if(next&&saveEmergencyContact(next)){setContact(next);setEditing(false);}}
+  const t2=lang==='it'?{callContact:'Chiama',textContact:'Scrivi la mia posizione a',noContact:'Aggiungi un contatto di emergenza per chiamarlo o scrivergli da qui. Resta solo su questo dispositivo.',add:'Aggiungi contatto di emergenza',edit:'Modifica',remove:'Rimuovi',pick:'Scegli dai miei contatti',name:'Nome',number:'Numero (con prefisso internazionale)',save:'Salva',cancel:'Annulla',bad:'Inserisci un numero valido, ad esempio +39 333 1234567.',needLocation:'Premi «Usa la mia posizione attuale» per aggiungere la posizione al messaggio.',message:'SOS: ho bisogno di aiuto. La mia posizione:',noPosition:'SOS: ho bisogno di aiuto. Non riesco a inviare la posizione.',confirm:'Si apre il telefono o i messaggi con il testo già scritto: devi toccare per chiamare o inviare.'}:{callContact:'Call',textContact:'Text my location to',noContact:'Add an emergency contact to call or text them from here. Stored only on this device.',add:'Add emergency contact',edit:'Edit',remove:'Remove',pick:'Choose from my contacts',name:'Name',number:'Number (with country code)',save:'Save',cancel:'Cancel',bad:'Enter a valid number, for example +44 7700 900123.',needLocation:'Tap “Use my current location” first to add your location to the message.',message:'SOS: I need help. My location:',noPosition:'SOS: I need help. I could not get my location.',confirm:'This opens your phone or messages with the text already written. You tap to call or send.'};
   useEffect(()=>()=>pending.current?.abort(),[]);
   const number=emergencyNumber(country);
   const names=new Intl.DisplayNames([lang],{type:'region'});
   const options=EMERGENCY_COUNTRIES.map(code=>({code,name:names.of(code)||code})).sort((a,b)=>a.name.localeCompare(b.name,lang));
   function cancel(){pending.current?.abort();pending.current=null;setBusy(false);}
-  function changeOpen(value:boolean){if(value)setContact(loadEmergencyContact());cancel();setOpen(value);setCountry('');setError(false);setLocation(null);setAddress(null);setSource(null);setConfirmed(false);}
+  function changeOpen(value:boolean){if(value)setContact(loadEmergencyContact());setEditing(false);cancel();setOpen(value);setCountry('');setError(false);setLocation(null);setAddress(null);setSource(null);setConfirmed(false);}
   async function locate(){
     cancel();setCountry('');setError(false);setLocation(null);setAddress(null);setSource(null);setConfirmed(false);setBusy(true);
     const controller=new AbortController();pending.current=controller;
@@ -64,6 +69,17 @@ export default function EmergencyHelp() {
           {!location&&<small>{t2.needLocation}</small>}
           <small>{t2.confirm}</small>
         </>:<small>{t2.noContact}</small>}
+        {editing?<div className="emergency-contact-form">
+          {pickerSupported()&&<button type="button" onClick={chooseContact}>{t2.pick}</button>}
+          <label htmlFor="sos-contact-name">{t2.name}</label><input id="sos-contact-name" type="text" autoComplete="off" maxLength={60} value={draftName} onChange={e=>{setDraftName(e.target.value);setDraftBad(false);}}/>
+          <label htmlFor="sos-contact-number">{t2.number}</label><input id="sos-contact-number" type="tel" inputMode="tel" autoComplete="off" value={draftNumber} onChange={e=>{setDraftNumber(e.target.value);setDraftBad(false);}}/>
+          {draftBad&&<small role="alert">{t2.bad}</small>}
+          <button type="button" disabled={!draftNumber.trim()} onClick={saveDraft}>{t2.save}</button>
+          <button type="button" onClick={()=>setEditing(false)}>{t2.cancel}</button>
+        </div>:<div className="emergency-contact-actions">
+          <button type="button" onClick={startEdit}>{contact?t2.edit:t2.add}</button>
+          {contact&&<button type="button" onClick={removeContact}>{t2.remove}</button>}
+        </div>}
       </section>
       <label htmlFor="emergency-country">{c.country}</label>
       <select id="emergency-country" value={country} onChange={e=>{cancel();setError(false);setSource(null);setConfirmed(false);setCountry(e.target.value);}}>
